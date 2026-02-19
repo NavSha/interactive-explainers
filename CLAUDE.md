@@ -20,7 +20,7 @@ python3 -m http.server 8000
 - Push to master = auto-deploy (takes ~1 min)
 
 ## Critical: CSS Cache Busting
-All 14 HTML files link to `shared.css?v=N`. **When editing shared.css, bump the `?v=N` in every HTML file** or changes won't appear on the live site. Current version: v=4.
+All 14 HTML files link to `shared.css?v=N`. **When editing shared.css, bump the `?v=N` in every HTML file** or changes won't appear on the live site. Current version: v=5.
 
 ## Structure
 ```
