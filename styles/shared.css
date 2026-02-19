@@ -195,6 +195,33 @@ h1, h2, h3 {
   }
 }
 
+/* --- Epigraph --- */
+.epigraph {
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding: var(--space-10) var(--page-padding) 0;
+  text-align: center;
+}
+
+.epigraph::before {
+  content: '';
+  display: block;
+  width: 40px;
+  height: 2px;
+  background: var(--color-border);
+  margin: 0 auto var(--space-6);
+}
+
+.epigraph__verse {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: var(--text-base);
+  line-height: 2;
+  color: var(--color-text-secondary);
+  max-width: 480px;
+  margin: 0 auto;
+}
+
 /* --- Table of Contents --- */
 .toc {
   max-width: var(--content-width);
