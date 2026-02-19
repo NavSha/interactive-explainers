@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../styles/shared.css?v=4">
+  <link rel="stylesheet" href="../styles/shared.css?v=5">
 </head>
 <body>
 
@@ -18,7 +18,7 @@
       <nav class="breadcrumb breadcrumb--hero">
         <a href="../index.html">AI for PMs</a> &nbsp;/&nbsp; <a href="index.html">Agents &amp; Tool Use</a> &nbsp;/&nbsp; <span>Part 1</span>
       </nav>
-      <div class="article-header__meta" style="color: rgba(255,255,255,0.9);">Part 1 of 3 &middot; ~10 min read</div>
+      <div class="article-header__meta" style="color: rgba(255,255,255,0.9);">Part 1 of 3 &middot; ~8 min read</div>
       <h1 style="color: #fff;">The Agent Loop</h1>
       <p class="lead" style="color: rgba(255,255,255,0.85);">Think. Act. Observe. Repeat. The four-step cycle that turns a language model into something that can actually get things done.</p>
     </div>
@@ -54,30 +54,31 @@
          ================================================================ -->
     <h2 id="the-gap"><span class="section-number">I</span> The Gap</h2>
 
-    <p>Imagine asking your AI assistant to reschedule your 3pm meeting to tomorrow, check if the conference room is free, and send an updated calendar invite to everyone.</p>
+    <p>Imagine asking your AI assistant to reschedule your 3pm meeting to tomorrow, check if the conference room is free, and send an updated calendar invite to everyone. Simple enough that you'd trust an intern with it.</p>
 
     <p>A chatbot gives you a well-written paragraph about <em>how you could do</em> those things. An agent actually <em>does</em> them.</p>
-
-    <p>That distinction — between generating advice and taking action — is the single most important concept in AI products today. It determines what you can build, how reliable it will be, and whether your users will come back. If you're a PM working on anything AI-powered, understanding this gap is where everything starts.</p>
 
     <!-- ================================================================
          Section II: The One-Shot LLM
          ================================================================ -->
     <h2 id="one-shot-llm"><span class="section-number">II</span> The One-Shot LLM</h2>
 
-    <p>Here's how a standard LLM interaction works: you send a message, the model generates a response, and you're done. One question in, one answer out. The model has no memory of your previous conversations (unless you manually provide it), no access to the internet, your calendar, or your database, and no ability to take any action in the real world.</p>
+    <p>A standard LLM interaction is one question in, one answer out. The model has no memory, no access to external systems, and no ability to take action.</p>
 
-    <p>Think of it like asking someone to plan a dinner party while they're locked in a room with no phone, no internet, and no way to open the door. They can <em>reason</em> brilliantly about what to do — suggest a menu, draft invitation text, estimate timing — but they cannot check the fridge, call the restaurant, or set the table.</p>
+    <div class="callout callout--analogy">
+      <div class="callout__label">Analogy</div>
+      <div class="callout__body">Imagine asking someone to plan a dinner party while they're locked in a room with no phone and no way to open the door. They can <em>reason</em> brilliantly — suggest a menu, draft invitations — but they cannot check the fridge, call the restaurant, or set the table. World-class dinner party planner. Zero dinners produced.</div>
+    </div>
 
-    <p>This creates three fundamental limitations that PMs need to internalize:</p>
+    <p>Three fundamental limitations follow:</p>
 
     <ol>
-      <li><strong>No access to live data.</strong> The model can't look up your inventory, check the weather, or query your analytics dashboard. Anything it says about current state is either stale or made up.</li>
-      <li><strong>No ability to take action.</strong> It can't send emails, update records, create tickets, or call APIs. It can only <em>describe</em> actions.</li>
-      <li><strong>No way to self-correct.</strong> If its first response is wrong, it has no way to check, verify, or try a different approach. It gets one shot.</li>
+      <li><strong>No access to live data.</strong> Anything the model says about current state is either stale or fabricated.</li>
+      <li><strong>No ability to take action.</strong> It can only <em>describe</em> actions, not perform them.</li>
+      <li><strong>No way to self-correct.</strong> If its first response is wrong, it cannot check or try a different approach.</li>
     </ol>
 
-    <p>Try it yourself. Ask the LLM below to do something that requires real-world access:</p>
+    <p>Try it yourself:</p>
   </article>
 
   <!-- ================================================================
@@ -104,27 +105,26 @@
   </div>
 
   <article class="prose">
-    <p>See what happened? The LLM was articulate, confident, and completely incapable of doing anything. It <em>described</em> actions instead of <em>performing</em> them. For many use cases — writing, brainstorming, analysis of provided text — this is perfectly fine. But for products that need to interact with the real world, we need something more.</p>
-
-    <p>We need to give the LLM a body.</p>
+    <p>The LLM was articulate, confident, and completely incapable of doing anything. It <em>described</em> actions instead of <em>performing</em> them — the colleague who replies "great question, here's what I'd do" and then does absolutely nothing. For products that need to interact with the real world, we need to give the LLM a body.</p>
 
     <!-- ================================================================
          Section III: The Loop
          ================================================================ -->
     <h2 id="the-loop"><span class="section-number">III</span> The Loop</h2>
 
-    <p>The agent loop is the fundamental pattern that transforms an LLM from a one-shot oracle into an iterative problem-solver. It's deceptively simple — four phases, repeated until the task is complete:</p>
+    <p>The agent loop transforms an LLM from a one-shot oracle into an iterative problem-solver. Four phases, repeated until the task is complete:</p>
 
     <ol>
-      <li><strong>Think.</strong> The LLM examines the current context — the user's request, its previous actions, any results it's received — and reasons about what to do next. This is where the model's intelligence lives.</li>
-      <li><strong>Act.</strong> The agent executes a concrete action: calling an API, querying a database, running code, searching the web, or generating a final response.</li>
-      <li><strong>Observe.</strong> The result of that action comes back. Maybe it's a list of search results, an API response, a database record, or an error message. This new information gets fed back into the LLM's context.</li>
-      <li><strong>Decide.</strong> The LLM re-evaluates: is the task done? If yes, deliver the final answer. If not, loop back to Think — but now with new information it didn't have before.</li>
+      <li><strong>Think.</strong> The LLM examines the current context and reasons about what to do next.</li>
+      <li><strong>Act.</strong> The agent executes a concrete action: calling an API, querying a database, running code.</li>
+      <li><strong>Observe.</strong> The result comes back — data, an error, a confirmation — and gets fed into the LLM's context.</li>
+      <li><strong>Decide.</strong> Is the task done? If yes, deliver the answer. If not, loop back to Think with new information.</li>
     </ol>
 
-    <p>Each iteration of the loop adds new knowledge. The agent starts knowing almost nothing and progressively builds understanding through action — much like a person researching a topic by reading, asking questions, and checking sources.</p>
-
-    <p>Here's the key insight for PMs: <strong>the agent loop is why agents can handle ambiguity.</strong> They don't need perfect instructions upfront. They can explore, encounter unexpected results, adapt their approach, and try again. This is fundamentally different from a traditional software workflow where every branch and edge case must be coded in advance.</p>
+    <div class="callout callout--insight">
+      <div class="callout__label">Key Insight</div>
+      <div class="callout__body"><strong>The agent loop is why agents can handle ambiguity.</strong> They don't need perfect instructions upfront — they explore, adapt, and try again. This is fundamentally different from traditional software where every branch must be coded in advance.</div>
+    </div>
 
     <p>Explore the loop in the interactive diagram below:</p>
   </article>
@@ -172,21 +172,20 @@
          ================================================================ -->
     <h2 id="agent-in-action"><span class="section-number">IV</span> An Agent in Action</h2>
 
-    <p>Let's make this concrete. Imagine you're a PM and you ask your AI agent:</p>
+    <p>Imagine you ask your AI agent: "Find the top 3 bugs by user impact from Sentry, summarize them, and post to #engineering on Slack."</p>
 
-    <blockquote>"Find the top 3 bugs by user impact from our Sentry dashboard, write up a summary, and post it to the #engineering Slack channel."</blockquote>
+    <p><strong>Loop 1 — Gather.</strong> The agent queries the Sentry API for recent issues sorted by frequency, getting back 10 issues with titles and error counts.</p>
 
-    <p>A chatbot would give you tips on how to use the Sentry API. An agent would actually do it. Here's what happens under the hood:</p>
+    <p><strong>Loop 2 — Refine.</strong> Frequency alone isn't user impact. The agent makes a second call to get unique users affected for the top 5 issues.</p>
 
-    <p><strong>Loop 1 — Gather the data.</strong> The agent thinks: "I need to query Sentry for recent issues." It calls the Sentry API to list recent issues sorted by frequency. It gets back a list of 10 issues with titles, error counts, and timestamps.</p>
+    <p><strong>Loop 3 — Deliver.</strong> It ranks the top 3, writes a markdown summary, and posts it to Slack.</p>
 
-    <p><strong>Loop 2 — Dig deeper.</strong> The agent notices that frequency alone doesn't capture user impact. It makes a second API call to get the number of unique users affected for the top 5 issues. Now it has what it needs to rank by actual impact.</p>
+    <div class="callout callout--pm-tip">
+      <div class="callout__label">PM Tip</div>
+      <div class="callout__body">No developer hard-coded this sequence. The agent figured out the steps — including the non-obvious second API call. This is the difference between a <strong>workflow</strong> (pre-defined steps) and an <strong>agent</strong> (dynamic steps determined at runtime).</div>
+    </div>
 
-    <p><strong>Loop 3 — Synthesize and act.</strong> With the data in hand, the agent ranks the top 3 bugs, writes a clear markdown summary, and posts it to the #engineering Slack channel. The Slack API confirms the message was posted.</p>
-
-    <p>Notice what happened. The agent made <em>multiple decisions at runtime.</em> No developer hard-coded this exact sequence. The agent figured out the steps — including the non-obvious one of needing a second API call to get user-impact data. This is the difference between a <strong>workflow</strong> (pre-defined steps) and an <strong>agent</strong> (dynamic steps).</p>
-
-    <p>Walk through this scenario step by step in the interactive demo below:</p>
+    <p>Walk through this scenario step by step:</p>
   </article>
 
   <!-- ================================================================
@@ -216,26 +215,55 @@
   </div>
 
   <article class="prose">
-    <p>Three loops. Four tool calls. One final output. The agent started with a broad request and navigated to a specific outcome, making judgment calls along the way. That's the power of the loop.</p>
+    <div class="callout callout--summary">
+      <div class="callout__label">Takeaway</div>
+      <div class="callout__body"><strong>Three loops. Four tool calls. One final output.</strong> No human had to open Sentry, squint at a dashboard, or remember the Slack channel name. The agent started with a broad request and navigated to a specific outcome, making judgment calls along the way.</div>
+    </div>
 
     <!-- ================================================================
          Section V: When to Use What
          ================================================================ -->
     <h2 id="when-to-use-what"><span class="section-number">V</span> When to Use What</h2>
 
-    <p>If agents are so capable, should you use them for everything? Absolutely not. Agents are slower, more expensive, and less predictable than simpler approaches. A good PM knows when each approach is the right tool for the job.</p>
+    <p>Agents are powerful — and slow, expensive, and unpredictable. The engineering equivalent of calling in a specialist when a bandaid would do. Use the right tier:</p>
 
-    <p>Here's a framework with three tiers:</p>
+    <table class="tier-table">
+      <thead>
+        <tr>
+          <th>Approach</th>
+          <th>When to use</th>
+          <th>Example</th>
+          <th>Tradeoff</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Simple Prompt</td>
+          <td>Self-contained, no external data needed</td>
+          <td>Summarize a doc, draft an email</td>
+          <td>Fast &amp; cheap, but no actions</td>
+        </tr>
+        <tr>
+          <td>Workflow</td>
+          <td>Known steps, deterministic routing</td>
+          <td>Classify ticket &rarr; route &rarr; draft reply</td>
+          <td>Reliable, but rigid</td>
+        </tr>
+        <tr>
+          <td>Agent</td>
+          <td>Open-ended, dynamic decision-making</td>
+          <td>Investigate why a metric dropped</td>
+          <td>Powerful, but slower &amp; pricier</td>
+        </tr>
+      </tbody>
+    </table>
 
-    <p><strong>Simple Prompt</strong> — The task is straightforward, self-contained, and doesn't need external data or action. You give the LLM everything it needs in the prompt, and it gives you a response. Examples: summarize this document, draft an email, explain a concept. Fast, cheap, predictable.</p>
+    <div class="callout callout--insight">
+      <div class="callout__label">Key Insight</div>
+      <div class="callout__body">The decision comes down to one question: <strong>how much ambiguity is there?</strong> If the task is predictable, use a simpler approach. If it requires exploration and judgment, that's where agents shine.</div>
+    </div>
 
-    <p><strong>Workflow</strong> — The task has a known sequence of steps that can be pre-coded. Each step might use an LLM, but the routing and orchestration are deterministic. Examples: "when a support ticket arrives, classify it, route to the right team, and draft a response." The steps don't change. You're using the LLM as a component, not as the decision-maker.</p>
-
-    <p><strong>Agent</strong> — The task is open-ended, requires dynamic decision-making, and the exact steps cannot be predicted in advance. The LLM itself decides what to do, what tools to call, and when to stop. Examples: investigating why a metric dropped, researching a competitive landscape, debugging a complex issue. Powerful, but slower and more expensive.</p>
-
-    <p>The decision usually comes down to one question: <strong>how much ambiguity is there?</strong> If the task is predictable, use a simpler approach. If the task requires exploration and judgment, that's where agents shine.</p>
-
-    <p>Test your intuition with the quiz below:</p>
+    <p>Test your intuition:</p>
   </article>
 
   <!-- ================================================================
@@ -283,9 +311,7 @@
 
     <p>The agent loop is the heartbeat of every AI agent — but it's only as useful as the actions the agent can take. Right now we've been hand-waving about "tool calls" and "API requests." In Part 2, we'll get specific.</p>
 
-    <p>You'll learn how tools are defined and exposed to the LLM, how the model decides which tool to call (and sometimes gets it wrong), and the design patterns that make tool use reliable at scale. We'll also explore why giving an agent too many tools can actually make it worse — a counterintuitive lesson that matters deeply for product design.</p>
-
-    <p>The loop gives agents their rhythm. Tools give them their reach.</p>
+    <p>You'll learn how tools are defined and exposed to the LLM, how the model decides which tool to call, and the design patterns that make tool use reliable. The loop gives agents their rhythm. Tools give them their reach.</p>
   </article>
 
   <!-- ================================================================

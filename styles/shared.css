@@ -881,6 +881,104 @@ h1, h2, h3 {
 }
 
 /* --- Agent Action Header --- */
+/* --- Callout Cards --- */
+.callout {
+  margin: var(--space-8) 0;
+  padding: var(--space-6);
+  border-left: 4px solid;
+  border-radius: 0 var(--widget-radius) var(--widget-radius) 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+}
+
+.callout__label {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: var(--space-3);
+}
+
+.callout__body {
+  color: var(--color-text);
+}
+
+.callout__body strong {
+  font-weight: 600;
+}
+
+.callout--insight {
+  border-color: var(--accent-agents);
+  background: var(--accent-agents-light);
+}
+.callout--insight .callout__label { color: var(--accent-agents); }
+
+.callout--analogy {
+  border-color: var(--accent-context);
+  background: var(--accent-context-light);
+}
+.callout--analogy .callout__label { color: var(--accent-context); }
+
+.callout--pm-tip {
+  border-color: var(--accent-eval);
+  background: var(--accent-eval-light);
+}
+.callout--pm-tip .callout__label { color: var(--accent-eval); }
+
+.callout--summary {
+  border-color: var(--accent-cost);
+  background: var(--accent-cost-light);
+}
+.callout--summary .callout__label { color: var(--accent-cost); }
+
+/* --- Tier Table --- */
+.tier-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: var(--space-8) 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  line-height: 1.55;
+}
+
+.tier-table thead th {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-secondary);
+  text-align: left;
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 2px solid var(--color-border);
+}
+
+.tier-table tbody td {
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--color-border-light);
+  vertical-align: top;
+}
+
+.tier-table tbody tr:hover {
+  background: var(--accent-agents-light);
+}
+
+.tier-table tbody td:first-child {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+  .tier-table {
+    font-size: var(--text-xs);
+  }
+  .tier-table thead th,
+  .tier-table tbody td {
+    padding: var(--space-2) var(--space-3);
+  }
+}
+
+/* --- Agent Action Header --- */
 .agent-action__header {
   display: flex;
   gap: var(--space-3);
