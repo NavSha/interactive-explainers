@@ -574,8 +574,8 @@
       var h = rect.height;
       var cx = w / 2;
       var cy = h / 2;
-      var rx = Math.min(w, h) * 0.32;
-      var ry = rx * 0.85;
+      var rx = Math.min(w, h) * 0.37;
+      var ry = rx * 0.82;
       // Top, Right, Bottom, Left
       var angles = [-Math.PI / 2, 0, Math.PI / 2, Math.PI];
       return angles.map(function(a) {
@@ -600,7 +600,7 @@
       var nx = -(ey - sy);
       var ny = ex - sx;
       var nlen = Math.sqrt(nx * nx + ny * ny);
-      var offset = dist * 0.15;
+      var offset = dist * 0.25;
       var cpx = mx + (nx / nlen) * offset;
       var cpy = my + (ny / nlen) * offset;
 
@@ -649,7 +649,7 @@
       var nx = -(ey - sy);
       var ny = ex - sx;
       var nlen = Math.sqrt(nx * nx + ny * ny);
-      var offset = dist * 0.15;
+      var offset = dist * 0.25;
       var cpx = mx + (nx / nlen) * offset;
       var cpy = my + (ny / nlen) * offset;
       return { sx: sx, sy: sy, cpx: cpx, cpy: cpy, ex: ex, ey: ey };
