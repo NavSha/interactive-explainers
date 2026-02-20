@@ -18,7 +18,7 @@
       <nav class="breadcrumb breadcrumb--hero">
         <a href="../index.html">AI for PMs</a> &nbsp;/&nbsp; <a href="index.html">Evaluation &amp; Testing</a> &nbsp;/&nbsp; <span>Part 1</span>
       </nav>
-      <div class="article-header__meta" style="color: rgba(255,255,255,0.9);">Part 1 of 2 &middot; ~10 min read</div>
+      <div class="article-header__meta" style="color: rgba(255,255,255,0.9);">Part 1 of 2 &middot; ~7 min read</div>
       <h1 style="color: #fff;">What Makes AI &ldquo;Good&rdquo;?</h1>
       <p class="lead" style="color: rgba(255,255,255,0.85);">You can&rsquo;t unit test creativity. Here&rsquo;s how to think about evaluating AI systems &mdash; and why it&rsquo;s harder than it looks.</p>
     </div>
@@ -53,40 +53,51 @@
          ================================================================ -->
     <h2 id="eval-problem"><span class="section-number">I</span> The Evaluation Problem</h2>
 
-    <p>Traditional software has clear pass/fail tests. You know a calculator is correct when 2+2 returns 4. You know your login flow works when valid credentials produce a session token and invalid ones produce an error. The expected output is known in advance, the actual output is deterministic, and the comparison is binary: pass or fail.</p>
+    <p>Traditional software has clear pass/fail tests. 2+2 returns 4. Valid credentials produce a session token. The expected output is known, the actual output is deterministic, the comparison is binary.</p>
 
-    <p>AI is different. Ask an LLM to &ldquo;write a friendly customer support email about a delayed shipment,&rdquo; and you get something that&rsquo;s&hellip; probably fine? Maybe great? Maybe subtly wrong in ways you won&rsquo;t notice until a customer screenshots it and posts it on Twitter. There is no single correct answer. There are thousands of acceptable answers, dozens of great ones, and a minefield of bad ones that <em>look</em> perfectly good at first glance.</p>
+    <p>AI is different. Ask an LLM to &ldquo;write a friendly customer support email about a delayed shipment&rdquo; and you get something that&rsquo;s&hellip; probably fine? Maybe great? Maybe subtly wrong in ways nobody notices until a customer screenshots it for Twitter. There&rsquo;s no single correct answer &mdash; just thousands of acceptable ones and a minefield of bad ones that <em>look</em> perfectly good at first glance.</p>
 
-    <p>The fundamental challenge comes down to three properties that make AI outputs uniquely hard to evaluate:</p>
+    <div class="callout callout--analogy">
+      <div class="callout__label">Analogy</div>
+      <div class="callout__body">Grading traditional software is like grading arithmetic homework: right or wrong, no debate. Grading AI output is like grading an essay &mdash; three teachers, three different scores, and everyone&rsquo;s convinced they&rsquo;re the fair one.</div>
+    </div>
 
-    <p><strong>Non-determinism.</strong> Run the same prompt twice and you get different outputs. Not slightly different &mdash; sometimes structurally, tonally, and factually different. This means you can&rsquo;t just test once and move on. You need to test many times and reason about distributions, not individual outputs.</p>
+    <p>Three properties make AI outputs uniquely hard to evaluate:</p>
 
-    <p><strong>Subjectivity.</strong> What counts as &ldquo;good&rdquo; depends on who&rsquo;s judging. A &ldquo;friendly&rdquo; email to one reviewer feels &ldquo;too casual&rdquo; to another. A &ldquo;concise&rdquo; summary to an engineer feels &ldquo;incomplete&rdquo; to a PM. Human evaluators routinely disagree with each other &mdash; sometimes dramatically.</p>
+    <p><strong>Non-determinism.</strong> Same prompt, different output every time &mdash; sometimes structurally, tonally, and factually different. You can&rsquo;t test once and move on. You need to reason about distributions, not individual results.</p>
 
-    <p><strong>Multi-dimensionality.</strong> AI outputs can be accurate but unhelpful, helpful but unsafe, safe but boring, creative but wrong. Quality isn&rsquo;t one number &mdash; it&rsquo;s a vector across many dimensions, and different use cases weight those dimensions differently. A medical chatbot and a creative writing tool have almost opposite quality criteria.</p>
+    <p><strong>Subjectivity.</strong> &ldquo;Good&rdquo; depends on who&rsquo;s judging. A &ldquo;friendly&rdquo; email reads &ldquo;too casual&rdquo; to one reviewer. A &ldquo;concise&rdquo; summary feels &ldquo;incomplete&rdquo; to another. Inter-rater agreement on open-ended quality hovers around 60&ndash;75% &mdash; a number that should give any PM pause.</p>
 
-    <p>Traditional QA doesn&rsquo;t work here. You need a new mental model &mdash; one built on probabilistic thinking, rubric-based scoring, and a healthy respect for how much reasonable people can disagree about what &ldquo;good&rdquo; looks like.</p>
+    <p><strong>Multi-dimensionality.</strong> AI outputs can be accurate but unhelpful, helpful but unsafe, safe but boring, creative but wrong. Quality isn&rsquo;t a number &mdash; it&rsquo;s a vector. A medical chatbot and a creative writing tool have almost opposite quality criteria.</p>
+
+    <div class="callout callout--insight">
+      <div class="callout__label">Key Insight</div>
+      <div class="callout__body">Traditional QA asks &ldquo;does it work?&rdquo; AI evaluation asks &ldquo;how good is it, according to whom, on which dimensions, and how consistently?&rdquo; You need probabilistic thinking, rubric-based scoring, and a healthy respect for disagreement.</div>
+    </div>
 
     <!-- ================================================================
          Section II: Types of "Wrong"
          ================================================================ -->
     <h2 id="types-of-wrong"><span class="section-number">II</span> Types of &ldquo;Wrong&rdquo;</h2>
 
-    <p>Not all AI failures are created equal. Before you can evaluate anything, you need a taxonomy of how AI outputs go wrong. Here are the six failure modes every PM should know:</p>
+    <p>Not all AI failures are created equal. Before you evaluate anything, you need a taxonomy of how outputs go wrong. Six failure modes every PM should know:</p>
 
-    <p><strong>1. Hallucination</strong> &mdash; the model states something confidently that is completely fabricated. It invents a statistic, cites a paper that doesn&rsquo;t exist, or describes a product feature your company has never built. The danger is that hallucinated content often <em>reads</em> exactly like factual content. There&rsquo;s no telltale sign. The model doesn&rsquo;t hedge or flag uncertainty &mdash; it just presents fiction as fact.</p>
+    <p><strong>1. Hallucination</strong> &mdash; the model states fabricated information with total confidence. It invents statistics, cites papers that don&rsquo;t exist, describes features your company has never built. The danger: hallucinated content <em>reads</em> exactly like factual content. No hedging, no uncertainty flags &mdash; just fiction wearing a lab coat.</p>
 
-    <p><strong>2. Tone mismatch</strong> &mdash; the response is technically correct but delivered in the wrong register. A legal compliance response written in a breezy, casual tone. A customer apology that sounds robotic and corporate. The information is right, but the packaging undermines it.</p>
+    <p><strong>2. Tone mismatch</strong> &mdash; correct information, wrong register. A legal compliance response written like a blog post. A customer apology that sounds like it was drafted by a committee of lawyers. The facts are right; the packaging undermines them.</p>
 
-    <p><strong>3. Format errors</strong> &mdash; the model ignores your requested structure. You asked for a bulleted list and got prose. You asked for JSON and got markdown. You asked for three options and got seven. This seems minor, but in production systems where downstream code parses the output, format errors cause crashes.</p>
+    <p><strong>3. Format errors</strong> &mdash; you asked for a bulleted list and got prose. Asked for JSON, got markdown. Asked for three options, got seven. Seems minor until downstream code tries to parse the output and crashes.</p>
 
-    <p><strong>4. Unsafe outputs</strong> &mdash; the response contains harmful, biased, or inappropriate content. This ranges from subtle bias in hiring recommendations to overtly harmful instructions. The severity varies enormously, but the reputational and legal risk makes this the highest-stakes failure mode.</p>
+    <p><strong>4. Unsafe outputs</strong> &mdash; harmful, biased, or inappropriate content. Ranges from subtle bias in hiring recommendations to overtly harmful instructions. The highest-stakes failure mode by reputational and legal risk.</p>
 
-    <p><strong>5. Refusals</strong> &mdash; the model refuses a perfectly valid request out of excessive caution. A user asks about medication interactions and the model says &ldquo;I can&rsquo;t provide medical advice.&rdquo; A developer asks for code to parse a file format and the model worries it could be used maliciously. Refusals are the opposite of unsafe outputs, and they&rsquo;re just as damaging to user experience.</p>
+    <p><strong>5. Refusals</strong> &mdash; the model declines a perfectly valid request out of excessive caution. A user asks about medication interactions and gets &ldquo;I can&rsquo;t provide medical advice.&rdquo; The mirror image of unsafe outputs &mdash; and equally damaging to user experience.</p>
 
-    <p><strong>6. Partial answers</strong> &mdash; the response is correct but incomplete. The model answers two of your three questions. It summarizes the first half of a document and trails off. It gives you the diagnosis but not the recommended action. Partial answers are tricky because they&rsquo;re often &ldquo;technically correct&rdquo; &mdash; just not useful.</p>
+    <p><strong>6. Partial answers</strong> &mdash; correct but incomplete. Answers two of three questions. Summarizes the first half and trails off. Gives the diagnosis but not the treatment. Technically right in the way that showing up to half your shift is technically showing up.</p>
 
-    <p>Here&rsquo;s the critical insight: each failure type has different severity depending on your use case. A hallucination in a medical app is catastrophic; in a brainstorming tool, it might spark a useful idea. A refusal in a safety-critical system is the right behavior; in a creative writing assistant, it&rsquo;s infuriating. As a PM, your first job is to define your own failure taxonomy &mdash; which types of wrong are deal-breakers, which are tolerable, and which barely matter &mdash; <em>before</em> you start evaluating outputs.</p>
+    <div class="callout callout--pm-tip">
+      <div class="callout__label">PM Tip</div>
+      <div class="callout__body">Each failure type has different severity depending on your use case. A hallucination in a medical app is catastrophic; in a brainstorming tool, it might spark an idea. Your first job: define which types of wrong are deal-breakers, which are tolerable, and which barely matter &mdash; <em>before</em> you start evaluating.</div>
+    </div>
 
   </article>
 
@@ -116,17 +127,20 @@
          ================================================================ -->
     <h2 id="eval-methods"><span class="section-number">III</span> Evaluation Methods</h2>
 
-    <p>So how do you actually evaluate AI outputs? There are four main approaches, each with distinct tradeoffs in cost, speed, and reliability. Understanding when to use which is one of the most important skills a PM can develop.</p>
+    <p>Four approaches to evaluating AI outputs, each with distinct tradeoffs. Knowing when to use which is one of the most valuable skills a PM can develop.</p>
 
-    <p><strong>1. Human evaluation</strong> &mdash; the gold standard. You hire raters (or recruit internal teammates) to read AI outputs and score them against criteria. Humans can catch nuance that no automated system can: a joke that falls flat, a recommendation that&rsquo;s technically correct but culturally tone-deaf, a summary that misses the emotional core of a story. The problem is cost and speed. Professional human evaluation runs $5&ndash;50 per judgment depending on complexity, and a thorough eval of a model change might require hundreds or thousands of judgments. It&rsquo;s also inherently subjective &mdash; inter-rater agreement on open-ended quality is notoriously low, often around 60&ndash;75%.</p>
+    <p><strong>1. Human evaluation</strong> &mdash; the gold standard. Raters read outputs and score them against criteria. Humans catch what machines can&rsquo;t: a joke that falls flat, a recommendation that&rsquo;s culturally tone-deaf, a summary that misses the emotional core. The problem: $5&ndash;50 per judgment, inter-rater agreement around 60&ndash;75%, and a pace that makes your release cycle weep.</p>
 
-    <p><strong>2. Automated metrics</strong> &mdash; fast, cheap, and shallow. Metrics like BLEU and ROUGE compare model output to a reference answer using text overlap. Exact match checks if the output is character-for-character identical to the expected result. Regex patterns verify structural formatting. These are excellent for structured tasks: &ldquo;Did the model extract the correct date?&rdquo; &ldquo;Is the JSON valid?&rdquo; &ldquo;Does the classification match the ground truth?&rdquo; But they&rsquo;re nearly useless for open-ended generation. A beautifully written summary can score poorly on ROUGE simply because it uses different words than the reference.</p>
+    <p><strong>2. Automated metrics</strong> &mdash; fast, cheap, and shallow. BLEU and ROUGE measure text overlap against a reference answer. Exact match, regex patterns, and JSON validation handle structural checks. Excellent for &ldquo;did it extract the right date?&rdquo; Nearly useless for &ldquo;is this a good summary?&rdquo; A beautifully written paragraph can score poorly on ROUGE simply for choosing different words. The eval equivalent of judging a novel by its word count.</p>
 
-    <p><strong>3. LLM-as-judge</strong> &mdash; the most exciting development in evaluation. You use one model (typically a stronger one, like GPT-4 or Claude) to evaluate another model&rsquo;s output against a detailed rubric. You provide the prompt, the response, and scoring criteria, and the judge model returns a rating with reasoning. This sounds circular, but it works surprisingly well &mdash; achieving 80&ndash;90% agreement with human raters at roughly 1/100th the cost. The key is writing precise rubrics. Vague criteria like &ldquo;is this good?&rdquo; produce unreliable judgments. Specific criteria like &ldquo;Does the response contain only verifiable facts? Rate 1&ndash;5 where 1 means multiple factual errors and 5 means every claim is verifiable&rdquo; produce consistent, useful scores.</p>
+    <p><strong>3. LLM-as-judge</strong> &mdash; the most exciting recent development. A stronger model evaluates a weaker model&rsquo;s output against a rubric you provide. Sounds circular, works surprisingly well &mdash; 80&ndash;90% agreement with human raters at ~1/100th the cost. The key is rubric precision. &ldquo;Is this good?&rdquo; produces unreliable scores. &ldquo;Does the response contain only verifiable facts? Rate 1&ndash;5&rdquo; produces consistent, actionable ones.</p>
 
-    <p><strong>4. Rubric-based scoring</strong> &mdash; the glue that makes everything else work. Rather than asking &ldquo;is this good?,&rdquo; you break quality into specific, independently scorable dimensions. Accuracy: does it contain only true statements? Helpfulness: does it actually address the user&rsquo;s need? Tone: does it match the expected register? Completeness: does it cover all requested points? Each dimension gets a clear definition and a rating scale. This approach works with human raters, LLM judges, or both. It makes evaluation more systematic, more reproducible, and &mdash; crucially &mdash; more actionable. When a score drops, you know <em>which dimension</em> degraded, not just that &ldquo;quality went down.&rdquo;</p>
+    <p><strong>4. Rubric-based scoring</strong> &mdash; the glue that makes everything else work. Break quality into independently scorable dimensions: accuracy, helpfulness, tone, completeness. Each gets a clear definition and rating scale. Works with human raters, LLM judges, or both. When a score drops, you know <em>which dimension</em> degraded &mdash; not just that &ldquo;quality went down somehow.&rdquo;</p>
 
-    <p>In practice, most teams combine multiple methods. Automated metrics for structured checks, LLM-as-judge for broad screening, and targeted human evaluation for the highest-stakes decisions. The art is knowing which method to apply where.</p>
+    <div class="callout callout--summary">
+      <div class="callout__label">Takeaway</div>
+      <div class="callout__body">Most teams combine methods: automated metrics for structured checks, LLM-as-judge for broad screening, targeted human evaluation for high-stakes decisions. The art is knowing which method to apply where.</div>
+    </div>
 
   </article>
 
@@ -157,21 +171,46 @@
          ================================================================ -->
     <h2 id="eval-spectrum"><span class="section-number">IV</span> The Eval Spectrum</h2>
 
-    <p>Most teams start their AI evaluation journey in the same place: vibes. Someone on the team runs a few prompts, reads the outputs, and says &ldquo;looks good to me.&rdquo; Maybe they share a few cherry-picked examples in Slack. Everyone nods. The feature ships.</p>
+    <p>Most teams start in the same place: vibes. Someone runs a few prompts, reads the outputs, and says &ldquo;looks good to me.&rdquo; Cherry-picked examples get shared in Slack. Everyone nods. The feature ships. This is the evaluation equivalent of checking your parachute by looking at it and thinking &ldquo;yeah, that&rsquo;s probably fine.&rdquo;</p>
 
-    <p>Vibes-based evaluation works for prototypes and demos. It fails at everything else. The problem isn&rsquo;t that human judgment is bad &mdash; it&rsquo;s that unstructured, ad-hoc judgment is inconsistent, unscalable, and impossible to reproduce. You can&rsquo;t tell if this week&rsquo;s model is better than last week&rsquo;s if your evaluation was &ldquo;Sarah looked at 10 outputs on Tuesday and felt pretty good about them.&rdquo;</p>
+    <p>Vibes work for prototypes. They fail at everything else. The problem isn&rsquo;t human judgment &mdash; it&rsquo;s that unstructured, ad-hoc judgment is inconsistent, unscalable, and impossible to reproduce. You can&rsquo;t tell if this week&rsquo;s model is better than last week&rsquo;s when your evaluation was &ldquo;Sarah looked at 10 outputs on Tuesday and felt pretty good about them.&rdquo;</p>
 
-    <p>The maturity journey looks like this:</p>
+    <table class="tier-table">
+      <thead>
+        <tr>
+          <th>Level</th>
+          <th>What it looks like</th>
+          <th>When it&rsquo;s enough</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Vibes</td>
+          <td>Informal spot-checking; gut calls on a handful of outputs</td>
+          <td>Hackathons, early exploration</td>
+        </tr>
+        <tr>
+          <td>Structured review</td>
+          <td>Test set of representative prompts, rubric with rating scales, systematic scoring</td>
+          <td>First few weeks of development; comparing model versions</td>
+        </tr>
+        <tr>
+          <td>Automated eval suite</td>
+          <td>Runs on every code change; automated metrics + LLM-as-judge + regression dashboard</td>
+          <td>Any team shipping AI to real users at scale</td>
+        </tr>
+        <tr>
+          <td>Production monitoring</td>
+          <td>Samples real user interactions, scores automatically, triggers alerts on quality dips</td>
+          <td>The gold standard; where most teams aspire to be within year one</td>
+        </tr>
+      </tbody>
+    </table>
 
-    <p><strong>Level 1: Vibes.</strong> Informal spot-checking. Someone reads a few outputs and makes a gut call. Fast and cheap, but you have no idea if your AI is actually getting better or worse over time. Fine for hackathons and early exploration.</p>
-
-    <p><strong>Level 2: Structured manual review.</strong> You build a test set of representative prompts, define a rubric with specific criteria and rating scales, and have reviewers score outputs systematically. Now you have numbers you can compare across model versions. You can say &ldquo;accuracy went from 3.8 to 4.2 after the prompt change.&rdquo; This is where most teams should aim to get within the first few weeks of development.</p>
-
-    <p><strong>Level 3: Automated eval suite.</strong> Your eval runs on every code change, every prompt tweak, every model update. You have a battery of automated metrics for structured checks, LLM-as-judge for open-ended quality, and a dashboard that shows trends over time. Regressions get caught before they hit production. This is the standard for any team shipping AI to real users at scale.</p>
-
-    <p><strong>Level 4: Continuous production monitoring.</strong> Your eval doesn&rsquo;t stop at deployment. You sample real user interactions, score them automatically, and trigger alerts when quality dips below thresholds. You track metrics like user satisfaction, task completion rate, and escalation frequency alongside your automated quality scores. This is the gold standard &mdash; and where most teams aspire to be within their first year.</p>
-
-    <p>As a PM, your job isn&rsquo;t to implement every level immediately. It&rsquo;s to know where your team is today and push them one level higher. You don&rsquo;t need Level 4 on day one. But you do need a plan to get there &mdash; and you need to start moving before a production incident forces you to.</p>
+    <div class="callout callout--insight">
+      <div class="callout__label">Key Insight</div>
+      <div class="callout__body">Your job isn&rsquo;t to implement Level 4 on day one. It&rsquo;s to know where your team is today and push them one level higher &mdash; before a production incident forces the conversation for you.</div>
+    </div>
 
   </article>
 
@@ -195,11 +234,9 @@
          ================================================================ -->
     <h2 id="whats-next"><span class="section-number">V</span> What&rsquo;s Next</h2>
 
-    <p>You now have the evaluation mindset: you understand why AI quality is hard to measure, the types of failure to watch for, the methods available, and the maturity spectrum from vibes to production monitoring. That&rsquo;s the conceptual foundation.</p>
+    <p>You now have the evaluation mindset: why AI quality is hard to measure, the failure modes to watch for, the methods available, and the maturity spectrum from vibes to production monitoring.</p>
 
-    <p>In <a href="evals-in-practice.html">Part 2: Evals in Practice</a>, we get hands-on. You&rsquo;ll learn how to build a test set that actually catches regressions, strategies for handling non-determinism (hint: it&rsquo;s not just &ldquo;run it five times and average&rdquo;), and the framework for making ship-or-hold decisions when your eval results are ambiguous. Because in the real world, they almost always are.</p>
-
-    <p>The goal isn&rsquo;t perfection. It&rsquo;s building enough systematic rigor that you can ship with confidence &mdash; and catch problems before your users do.</p>
+    <p>In <a href="evals-in-practice.html">Part 2: Evals in Practice</a>, we get hands-on &mdash; building test sets that catch regressions, strategies for handling non-determinism, and the framework for making ship-or-hold decisions when your eval results are ambiguous. Because in the real world, they almost always are.</p>
 
   </article>
 

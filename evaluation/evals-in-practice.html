@@ -18,7 +18,7 @@
       <nav class="breadcrumb breadcrumb--hero">
         <a href="../index.html">AI for PMs</a> &nbsp;/&nbsp; <a href="index.html">Evaluation &amp; Testing</a> &nbsp;/&nbsp; <span>Part 2</span>
       </nav>
-      <div class="article-header__meta" style="color: rgba(255,255,255,0.9);">Part 2 of 2 &middot; ~10 min read</div>
+      <div class="article-header__meta" style="color: rgba(255,255,255,0.9);">Part 2 of 2 &middot; ~7 min read</div>
       <h1 style="color: #fff;">Evals in Practice</h1>
       <p class="lead" style="color: rgba(255,255,255,0.85);">From test sets to ship decisions &mdash; the practical playbook for evaluating AI features in the real world.</p>
     </div>
@@ -53,35 +53,67 @@
          ================================================================ -->
     <h2 id="eval-pipeline"><span class="section-number">I</span> The Eval Pipeline</h2>
 
-    <p>In Part 1, we explored what "good" means for AI &mdash; the failure taxonomy, the evaluation methods, the difference between vibes and rigor. But knowing how to judge outputs is only half the battle. The other half is building the <em>system</em> that makes evaluation repeatable, fast, and part of your shipping workflow.</p>
+    <p>In Part 1, we explored what "good" means for AI. But knowing how to judge outputs is half the battle. The other half is building the <em>system</em> that makes evaluation repeatable and part of your shipping workflow.</p>
 
-    <p>A real eval pipeline has five clear stages: <strong>test set</strong> (curated inputs paired with expected behaviors), <strong>model run</strong> (generate outputs for every test case), <strong>scoring</strong> (a mix of automated checks and human review), <strong>analysis</strong> (identify patterns in failures, not just individual misses), and <strong>decision</strong> (ship, iterate, or hold). Each stage feeds the next. Skip one, and the whole thing falls apart.</p>
+    <p>A real eval pipeline has five stages: <strong>test set</strong> (curated inputs + expected behaviors), <strong>model run</strong> (generate outputs), <strong>scoring</strong> (automated checks + human review), <strong>analysis</strong> (patterns in failures, not just individual misses), and <strong>decision</strong> (ship, iterate, or hold).</p>
 
-    <p>This is what some teams call <strong>eval-driven development</strong>. The idea is simple but powerful: every prompt change, model swap, or feature update gets evaluated before it ships. Think of it like CI/CD for AI. You wouldn't push code without running tests. You shouldn't push prompt changes without running evals.</p>
+    <div class="callout callout--analogy">
+      <div class="callout__label">Analogy</div>
+      <div class="callout__body">Think of it as CI/CD for AI. You wouldn't push code without running tests. You shouldn't push prompt changes without running evals. Same principle, stranger inputs.</div>
+    </div>
 
-    <p>The best AI teams make this pipeline fast enough to run on every pull request. An engineer tweaks the system prompt, pushes to a branch, and within minutes gets a report: accuracy went from 91% to 94%, safety held steady, latency dropped slightly. Ship it. This speed is what separates teams that iterate weekly from teams that iterate quarterly.</p>
-
-    <p>If you invest in one piece of AI infrastructure, make it this. The eval pipeline is the single most important investment an AI team can make &mdash; because without it, every change is a leap of faith.</p>
+    <div class="callout callout--insight">
+      <div class="callout__label">Key Insight</div>
+      <div class="callout__body">If you invest in one piece of AI infrastructure, make it the eval pipeline. Without it, every change is a leap of faith &mdash; the engineering equivalent of deploying on Friday and hoping for the best.</div>
+    </div>
 
     <!-- ================================================================
          Section II: Building Test Sets
          ================================================================ -->
     <h2 id="test-sets"><span class="section-number">II</span> Building Test Sets</h2>
 
-    <p>Your eval is only as good as your test set. And building a good test set is harder than it sounds &mdash; because you're not just testing for correctness, you're testing for the full range of human weirdness your AI will encounter in the wild.</p>
+    <p>Your eval is only as good as your test set. And building a good one is harder than it sounds &mdash; you're testing for the full range of human weirdness your AI will encounter in the wild.</p>
 
-    <p>A strong test set (sometimes called a "golden dataset") needs four categories of cases:</p>
+    <p>A strong test set needs four categories:</p>
 
-    <ol>
-      <li><strong>Happy path cases</strong> &mdash; the common, expected inputs that make up the bulk of real usage. "What are your store hours?" "How do I reset my password?" These should work flawlessly.</li>
-      <li><strong>Edge cases</strong> &mdash; unusual but valid scenarios that push the boundaries. Angry customers, ambiguous requests, extremely long messages, sensitive topics. Your AI will see all of these in production.</li>
-      <li><strong>Adversarial inputs</strong> &mdash; deliberate attempts to break or confuse the model. Prompt injection, off-topic requests, attempts to extract system instructions. You need to know how your AI responds when someone tries to game it.</li>
-      <li><strong>Diversity</strong> &mdash; different languages, tones, technical levels, and user types. A customer support bot that only works well for native English speakers with technical backgrounds isn't actually working well.</li>
-    </ol>
+    <table class="tier-table">
+      <thead>
+        <tr>
+          <th>Category</th>
+          <th>What it covers</th>
+          <th>Example</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Happy path</td>
+          <td>Common, expected inputs that make up bulk usage</td>
+          <td>"What are your store hours?"</td>
+        </tr>
+        <tr>
+          <td>Edge cases</td>
+          <td>Unusual but valid scenarios that push boundaries</td>
+          <td>Angry customers, ambiguous requests, very long messages</td>
+        </tr>
+        <tr>
+          <td>Adversarial</td>
+          <td>Deliberate attempts to break or confuse the model</td>
+          <td>Prompt injection, off-topic requests</td>
+        </tr>
+        <tr>
+          <td>Diversity</td>
+          <td>Different languages, tones, technical levels</td>
+          <td>Non-English speakers, accessibility needs</td>
+        </tr>
+      </tbody>
+    </table>
 
-    <p>Here's the uncomfortable truth about test sets: the 80/20 rule applies, but in reverse. About 20% of your test cases will catch 80% of the issues &mdash; but you won't know <em>which</em> 20% until you've built all of them. The edge case you thought was irrelevant turns out to reveal a critical failure mode.</p>
+    <p>The 80/20 rule applies in reverse: 20% of test cases catch 80% of issues &mdash; but you won't know <em>which</em> 20% until you've built all of them. The edge case you dismissed as irrelevant is the one that goes viral on Twitter.</p>
 
-    <p>Start with real user queries from production (anonymized, of course). Add synthetic edge cases for scenarios you haven't seen yet. And most importantly: <strong>maintain and grow the set over time.</strong> Every production failure should become a new test case. Your eval set is a living document, not a one-time exercise.</p>
+    <div class="callout callout--pm-tip">
+      <div class="callout__label">PM Tip</div>
+      <div class="callout__body">Start with real user queries from production (anonymized). Add synthetic edge cases. Most importantly: <strong>grow the set over time.</strong> Every production failure becomes a new test case. Your eval set is a living document, not a one-time exercise.</div>
+    </div>
 
   </article>
 
@@ -113,15 +145,16 @@
          ================================================================ -->
     <h2 id="non-determinism"><span class="section-number">III</span> The Non-Determinism Problem</h2>
 
-    <p>Here's what makes AI testing fundamentally different from traditional software testing: you can run the same test twice and get different results. This isn't a bug. It's a feature &mdash; literally. The randomness is by design.</p>
+    <p>Here's what makes AI testing fundamentally different: you can run the same test twice and get different results. This isn't a bug &mdash; it's a feature. Your model is, by design, a slightly different employee every time you ask it something.</p>
 
-    <p>LLMs have a parameter called <strong>temperature</strong> that controls how much randomness the model introduces. At temperature 0, the model is nearly deterministic &mdash; it picks the most likely next token every time, so outputs are almost identical across runs. At temperature 1, the model samples more broadly, producing outputs that vary wildly in style, structure, and even accuracy.</p>
+    <p>LLMs have a <strong>temperature</strong> parameter that controls randomness. At temperature 0, outputs are nearly deterministic. At temperature 1, they vary wildly in style, structure, and accuracy.</p>
 
-    <p>This has a profound implication for testing: <strong>a single test run tells you almost nothing.</strong> Your model passed the safety check this time? Great. Would it pass the next 9 times? You don't know unless you run it 10 times. This is why serious eval pipelines run each test case multiple times &mdash; typically 5 to 10 &mdash; and evaluate the <em>distribution</em> of results rather than any single output.</p>
+    <p>This means <strong>a single test run tells you almost nothing.</strong> The model passed the safety check this time? Would it pass the next 9 times? Serious eval pipelines run each test case 5-10 times and evaluate the <em>distribution</em> of results. 9/10 passes = 90% reliability, probably fine. 7/10 = 70%, probably not.</p>
 
-    <p>Did the model pass 9 out of 10 times? That's 90% reliability &mdash; probably good enough for most use cases. 7 out of 10? That's 70%, which might not be acceptable for a production feature. 10 out of 10 at temperature 0 but only 6 out of 10 at temperature 0.7? Now you have a temperature decision to make, and that's a product tradeoff between consistency and creativity.</p>
-
-    <p>The mental shift for PMs is important: <strong>stop thinking in individual outputs, start thinking in distributions.</strong> An AI feature isn't "accurate" or "inaccurate" &mdash; it's accurate some percentage of the time, and that percentage changes based on the input, the temperature, and even the day you run it. Your job is to decide what percentage is good enough to ship.</p>
+    <div class="callout callout--insight">
+      <div class="callout__label">Key Insight</div>
+      <div class="callout__body"><strong>Stop thinking in individual outputs. Start thinking in distributions.</strong> An AI feature isn't "accurate" or "inaccurate" &mdash; it's accurate some percentage of the time, varying by input, temperature, and the phase of the moon. Your job is to decide what percentage is good enough to ship.</div>
+    </div>
 
   </article>
 
@@ -181,9 +214,12 @@
 
     <p>The tricky part is that AI metrics are inherently noisy. A 2% accuracy drop might be random variance from non-determinism, or it might signal a real regression caused by your prompt change. This is why you need <strong>clear thresholds set before you start</strong> &mdash; not after you see the results. "We ship if accuracy is at least 92% AND safety score is at least 98% AND p95 latency is under 3 seconds." Write these down. Share them with the team. Don't negotiate with yourself after the numbers come in.</p>
 
-    <p>Here's what most teams get wrong: they treat the ship decision as an engineering call. It's not. <strong>The "good enough" threshold is a product decision.</strong> Engineers can tell you what the numbers are. PMs decide what numbers are acceptable. A 93% accuracy rate might be perfectly fine for a first-draft writing assistant but completely unacceptable for a medical information chatbot. Context matters, and PMs own the context.</p>
+    <div class="callout callout--pm-tip">
+      <div class="callout__label">PM Tip</div>
+      <div class="callout__body">The "good enough" threshold is a product decision, not an engineering one. Set it before you see the numbers &mdash; not after. Backing into a threshold that happens to match your results isn't strategy, it's rationalization.</div>
+    </div>
 
-    <p>Sometimes you ship with known gaps, and that's okay. A model that's 95% accurate and available today beats a model that's 99% accurate next quarter &mdash; if the failure cases are low-severity and you have good fallbacks. The key is making that tradeoff <em>deliberately</em>, not accidentally. Ship fast, but ship with eyes open.</p>
+    <p>Sometimes you ship with known gaps, and that's okay. A model that's 95% accurate today beats one that's 99% accurate next quarter &mdash; if the failure cases are low-severity and you have good fallbacks. The key is making that tradeoff <em>deliberately</em>, not accidentally. Ship fast, but ship with eyes open &mdash; not just hoping nobody screenshots the bad outputs before you push a fix.</p>
 
     <p>And when the numbers are ambiguous &mdash; accuracy up slightly, safety down slightly, a new edge case that didn't exist before &mdash; that's where PM judgment earns its keep. No formula will tell you the right answer. But having the data in front of you makes the judgment call immeasurably better than guessing.</p>
 
@@ -216,16 +252,19 @@
          ================================================================ -->
     <h2 id="wrapping-up"><span class="section-number">V</span> Wrapping Up</h2>
 
-    <p>Let's bring it all together. If you take four things from this series, make it these:</p>
+    <p>Four things to take from this series:</p>
 
     <ol>
-      <li><strong>Evaluation is a product problem, not just an engineering one.</strong> PMs own the definition of "what good looks like." Engineers build the system that measures it, but the bar is yours to set.</li>
-      <li><strong>Start with vibes, but build toward automated pipelines.</strong> Manual review gets you started. Automated eval pipelines get you to scale. Both are valuable &mdash; but only one lets you ship with confidence every week.</li>
-      <li><strong>Think in distributions, not individual outputs.</strong> AI is inherently non-deterministic. A single test tells you nothing. Run each case multiple times and evaluate the spread.</li>
-      <li><strong>Ship decisions need clear thresholds set in advance.</strong> Decide what "good enough" means before you see the numbers. Then trust your criteria &mdash; or update them deliberately, not reactively.</li>
+      <li><strong>Evaluation is a product problem.</strong> PMs own what "good" looks like. Engineers measure it. The bar is yours to set.</li>
+      <li><strong>Start with vibes, build toward pipelines.</strong> Manual review gets you started. Automated evals get you to scale and ship with confidence.</li>
+      <li><strong>Think in distributions, not individual outputs.</strong> AI is non-deterministic. A single test tells you nothing. Run each case multiple times.</li>
+      <li><strong>Set thresholds before you see the numbers.</strong> Decide what's good enough in advance. Trust your criteria, or update them deliberately.</li>
     </ol>
 
-    <p>The teams that build great AI products aren't the ones with the best models. They're the ones with the best eval systems &mdash; the ones who know exactly how their AI performs, where it fails, and when it's ready for users. That infrastructure is your competitive moat.</p>
+    <div class="callout callout--summary">
+      <div class="callout__label">Summary</div>
+      <div class="callout__body">The teams that build great AI products aren't the ones with the best models. They're the ones with the best eval systems &mdash; who know exactly how their AI performs, where it fails, and when it's ready for users. That infrastructure is your competitive moat.</div>
+    </div>
 
   </article>
 

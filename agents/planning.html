@@ -18,7 +18,7 @@
       <nav class="breadcrumb breadcrumb--hero">
         <a href="../index.html">AI for PMs</a> &nbsp;/&nbsp; <a href="index.html">Agents &amp; Tool Use</a> &nbsp;/&nbsp; <span>Part 3</span>
       </nav>
-      <div class="article-header__meta" style="color: rgba(255,255,255,0.9);">Part 3 of 3 &middot; ~10 min read</div>
+      <div class="article-header__meta" style="color: rgba(255,255,255,0.9);">Part 3 of 3 &middot; ~7 min read</div>
       <h1 style="color: #fff;">Planning, Failure &amp; Tradeoffs</h1>
       <p class="lead" style="color: rgba(255,255,255,0.85);">Agents aren't magic. Knowing when they fail — and what they cost — is what separates good product decisions from expensive mistakes.</p>
     </div>
@@ -54,28 +54,31 @@
          ================================================================ -->
     <h2 id="the-reality-check"><span class="section-number">I</span> The Reality Check</h2>
 
-    <p>After Parts 1 and 2, agents sound incredible. They loop through problems, call tools, adapt on the fly. So why doesn't every product just use agents for everything?</p>
+    <p>After Parts 1 and 2, agents sound incredible. Loop through problems, call tools, adapt on the fly. So why doesn't every product just use them for everything?</p>
 
-    <p>Because agents fail. Not occasionally — <em>regularly.</em> In ways that are often unpredictable, expensive, and hard to debug. The difference between a demo that wows stakeholders and a product that works in production is almost entirely about understanding and managing failure.</p>
+    <p>Because agents fail. Not occasionally — <em>regularly.</em> Unpredictably, expensively, and in ways that make debugging feel like archaeology. The gap between a demo that wows the room and a product that survives production is almost entirely about understanding failure.</p>
 
-    <p>This is where PM judgment becomes critical. You don't need to build the agent, but you absolutely need to understand its failure modes so you can design products that are robust, set correct expectations with users, and make informed build-versus-buy decisions.</p>
+    <div class="callout callout--analogy">
+      <div class="callout__label">Analogy</div>
+      <div class="callout__body">Think of agents like self-driving cars. Impressive in a controlled demo, terrifying when they encounter a scenario nobody anticipated. You wouldn't ship a self-driving feature without exhaustive failure analysis. Agents deserve the same scrutiny — they just fail with words instead of fenders.</div>
+    </div>
 
     <!-- ================================================================
          Section II: How Agents Fail
          ================================================================ -->
     <h2 id="how-agents-fail"><span class="section-number">II</span> How Agents Fail</h2>
 
-    <p>Agent failures fall into five predictable categories. Once you learn them, you'll start seeing them everywhere — in demos, in competitor products, and in your own prototypes.</p>
+    <p>Agent failures fall into five predictable categories. Learn them once, and you'll spot them everywhere — in demos, competitor products, and your own prototypes.</p>
 
-    <p><strong>1. Wrong tool selection.</strong> The agent picks the wrong tool for the job. It calls <code>search_contacts</code> when it should have called <code>search_companies</code>. This happens more often as the toolbox grows (as we saw in Part 2) and when tool descriptions are ambiguous.</p>
+    <p><strong>1. Wrong tool selection.</strong> The agent calls <code>search_contacts</code> when it should call <code>search_companies</code>. More tools in the toolbox means more opportunities to grab the wrong one.</p>
 
-    <p><strong>2. Hallucinated parameters.</strong> The agent invents parameter values that don't exist. It calls <code>get_user(id: "usr_847293")</code> with a user ID it made up, or passes <code>format: "detailed"</code> to a tool that doesn't accept that option. The function call looks structurally correct but contains fabricated data.</p>
+    <p><strong>2. Hallucinated parameters.</strong> The agent invents values wholesale. It calls <code>get_user(id: "usr_847293")</code> with a user ID it fabricated from thin air. The function call is structurally perfect and factually fiction.</p>
 
-    <p><strong>3. Infinite loops.</strong> The agent gets stuck retrying a failed action, or bounces between two tools without making progress. "I'll check the database... no results... let me try a different query... still no results... let me try again..." This can run up costs fast.</p>
+    <p><strong>3. Infinite loops.</strong> The agent retries a failed action with minor variations, forever. "No results... let me try a different query... still nothing... one more time..." Your bill, meanwhile, grows with each lap.</p>
 
-    <p><strong>4. Premature stopping.</strong> The opposite of looping — the agent quits too early. It returns a partial answer because it decided the task was complete when it wasn't. "Here are the top 2 bugs" when you asked for 5.</p>
+    <p><strong>4. Premature stopping.</strong> The opposite: the agent quits early. "Here are the top 2 bugs" when you asked for 5. Task declared complete; task not actually complete.</p>
 
-    <p><strong>5. Misinterpreting results.</strong> The tool returns data correctly, but the agent misreads it. A flight search returns prices in cents, and the agent reports a $45,000 ticket instead of $450. The tool worked fine; the agent's interpretation was wrong.</p>
+    <p><strong>5. Misinterpreting results.</strong> The tool returns correct data; the agent misreads it. A flight API returns prices in cents, and the agent reports a $45,000 ticket instead of $450. Correct plumbing, wrong interpretation.</p>
 
     <p>Explore these failure modes in the interactive demo below:</p>
   </article>
@@ -106,27 +109,26 @@
   </div>
 
   <article class="prose">
-    <p>Every one of these failures looks different on the surface, but they share a root cause: <strong>the LLM is predicting the most likely next token, not reasoning about ground truth.</strong> It doesn't "know" the right user ID — it generates a plausible one. It doesn't "understand" that it's looping — it just keeps generating the next most likely action given its context.</p>
-
-    <p>Understanding this is liberating for PMs. These aren't bugs to fix with better prompts (though prompts help). They're fundamental characteristics of the technology that you need to design around.</p>
+    <div class="callout callout--insight">
+      <div class="callout__label">Key Insight</div>
+      <div class="callout__body">Every failure shares a root cause: <strong>the LLM predicts plausible next tokens, not ground truth.</strong> It doesn't "know" the right user ID — it generates a convincing one. It doesn't "understand" it's looping — it keeps producing the next likely action. These aren't bugs to fix with better prompts. They're fundamental characteristics you design around.</div>
+    </div>
 
     <!-- ================================================================
          Section III: The Cost Equation
          ================================================================ -->
     <h2 id="the-cost-equation"><span class="section-number">III</span> The Cost Equation</h2>
 
-    <p>Every time an agent loops, it costs money. The LLM processes the full conversation history — including all previous tool calls and results — on every iteration. This means costs grow super-linearly with the number of steps.</p>
-
-    <p>Here's the math that matters:</p>
+    <p>Every loop costs money. The LLM re-processes the full conversation history — all previous tool calls and results — on every iteration. Costs grow super-linearly with step count.</p>
 
     <ul>
-      <li><strong>Input tokens</strong> grow each loop (the context accumulates)</li>
-      <li><strong>Output tokens</strong> are generated each loop (thinking + tool call)</li>
-      <li>A 3-step agent task might cost 5-10x more than a single LLM call</li>
-      <li>A more capable model (like GPT-4 or Claude Opus) costs more per token but often needs fewer loops</li>
+      <li><strong>Input tokens</strong> accumulate each loop (the context snowballs)</li>
+      <li><strong>Output tokens</strong> are generated each loop (reasoning + tool call)</li>
+      <li>A 3-step task can cost 5-10x a single LLM call</li>
+      <li>A pricier model that finishes in 3 steps often costs <em>less</em> than a cheap model that stumbles through 8</li>
     </ul>
 
-    <p>This creates an interesting tradeoff: <strong>a smarter, more expensive model that finishes in 3 steps can be cheaper than a dumb, cheap model that takes 8 steps.</strong> Play with the calculator below to see this in action:</p>
+    <p>Play with the calculator below to see this in action:</p>
   </article>
 
   <!-- ================================================================
@@ -189,42 +191,78 @@
   </div>
 
   <article class="prose">
-    <p>The takeaway for PMs: <strong>always model the cost before committing to an agent-based architecture.</strong> A feature that costs $0.01 per user action sounds cheap until you multiply by 100,000 daily active users. Conversely, an expensive-sounding model might be the right choice if it reduces loops and increases reliability.</p>
+
+    <div class="callout callout--pm-tip">
+      <div class="callout__label">PM Tip</div>
+      <div class="callout__body">Model the cost <em>before</em> committing to an agent architecture. $0.01 per action sounds trivial until you multiply by 100,000 DAU. Conversely, an expensive model might be the right call if it halves the loop count and doubles reliability.</div>
+    </div>
 
     <!-- ================================================================
          Section IV: Building Guardrails
          ================================================================ -->
     <h2 id="guardrails"><span class="section-number">IV</span> Building Guardrails</h2>
 
-    <p>Knowing how agents fail is only useful if you can prevent those failures — or at least contain them. Here are the guardrails that production agent systems use:</p>
+    <p>Understanding failure modes is only useful if you can contain them. Production agent systems rely on five guardrails:</p>
 
-    <p><strong>Max iterations.</strong> Set a hard cap on how many loops the agent can take (typically 5-10). If it hasn't finished by then, it returns what it has with a note that the task was partially completed. This prevents infinite loops and runaway costs.</p>
+    <table class="tier-table">
+      <thead>
+        <tr>
+          <th>Guardrail</th>
+          <th>What it does</th>
+          <th>Failure it prevents</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Max iterations</td>
+          <td>Hard cap on loop count (typically 5-10). Returns partial results with a note if hit.</td>
+          <td>Infinite loops, runaway costs</td>
+        </tr>
+        <tr>
+          <td>Parameter validation</td>
+          <td>Validates tool inputs before execution. Does that user ID exist? Is the date valid?</td>
+          <td>Hallucinated parameters</td>
+        </tr>
+        <tr>
+          <td>Confirmation steps</td>
+          <td>Agent proposes high-stakes actions (send email, delete data); human approves.</td>
+          <td>Irreversible mistakes</td>
+        </tr>
+        <tr>
+          <td>Human escalation</td>
+          <td>Routes to a person when the agent fails, loops out, or hits ambiguity.</td>
+          <td>Unrecoverable edge cases</td>
+        </tr>
+        <tr>
+          <td>Observability</td>
+          <td>Logs every iteration: what it thought, called, received, and decided.</td>
+          <td>Undebuggable failures</td>
+        </tr>
+      </tbody>
+    </table>
 
-    <p><strong>Tool-level validation.</strong> Before executing a tool call, validate the parameters. Does the user ID actually exist? Is the date in a valid format? Is the amount within reasonable bounds? Catch hallucinated parameters before they hit your systems.</p>
+    <p>These aren't optional polish. They're as fundamental to an agent product as error handling is to a web app. Ship without them and your first production week will feel like an incident response marathon — except nobody knows what the incidents are, because you forgot to log anything.</p>
 
-    <p><strong>Confirmation steps.</strong> For high-stakes actions (sending emails, making purchases, deleting data), require the user to confirm before executing. The agent proposes the action; the human approves it. This is the most reliable guardrail for irreversible operations.</p>
-
-    <p><strong>Fallback to human.</strong> Build an escalation path. If the agent fails, loops out, or encounters an ambiguous situation, route to a human. The best AI products aren't fully autonomous — they're <strong>human-in-the-loop</strong> systems where the agent handles the routine and humans handle the exceptions.</p>
-
-    <p><strong>Observability.</strong> Log every loop iteration: what the agent thought, what tool it called, what result it got, and what it decided to do next. Without this, debugging agent failures is nearly impossible. Think of it as the agent equivalent of application monitoring.</p>
-
-    <p>These aren't optional add-ons. They're as fundamental to an agent product as error handling is to a web application. Ship without them and your first week in production will be chaos.</p>
+    <div class="callout callout--summary">
+      <div class="callout__label">Takeaway</div>
+      <div class="callout__body">The best AI products aren't fully autonomous. They're <strong>human-in-the-loop</strong> systems: the agent handles the routine, humans handle the exceptions. Designing that boundary is the PM's job.</div>
+    </div>
 
     <!-- ================================================================
          Section V: The Decision Framework
          ================================================================ -->
     <h2 id="the-decision-framework"><span class="section-number">V</span> The Decision Framework</h2>
 
-    <p>We introduced a simple prompt-vs-workflow-vs-agent framework in Part 1. Now that you understand tools and failure modes, let's make it more nuanced. When deciding how to build an AI feature, ask these four questions:</p>
+    <p>Part 1 introduced a simple prompt-vs-workflow-vs-agent framework. Now that you understand tools and failure modes, sharpen it with four questions:</p>
 
     <ol>
-      <li><strong>How predictable is the task?</strong> If the steps are always the same, use a workflow. If they vary, you need an agent.</li>
-      <li><strong>What's the cost of failure?</strong> Low-stakes tasks (drafting text, summarizing) can tolerate agent errors. High-stakes tasks (financial transactions, medical decisions) need tighter control.</li>
-      <li><strong>How much does latency matter?</strong> Agents are slow — multiple LLM calls per task. If users expect instant responses, a workflow or single prompt is better.</li>
-      <li><strong>What's your budget per task?</strong> If the task runs thousands of times daily, even small per-task costs add up. Model the economics early.</li>
+      <li><strong>How predictable is the task?</strong> Same steps every time = workflow. Steps vary = agent.</li>
+      <li><strong>What's the cost of failure?</strong> Drafting text tolerates errors. Financial transactions do not.</li>
+      <li><strong>How much does latency matter?</strong> Agents are slow — multiple LLM calls per task. Users expecting instant feedback need a simpler approach.</li>
+      <li><strong>What's the budget per task?</strong> Thousands of daily executions turn small per-task costs into real line items. Model the economics before you model the architecture.</li>
     </ol>
 
-    <p>Run your product scenario through the decision tool below:</p>
+    <p>Run your scenario through the decision tool below:</p>
   </article>
 
   <!-- ================================================================
@@ -253,17 +291,20 @@
          ================================================================ -->
     <h2 id="wrapping-up"><span class="section-number">VI</span> Wrapping Up</h2>
 
-    <p>Over three parts, we've built a complete mental model for how AI agents work:</p>
+    <p>Three parts, one mental model:</p>
 
     <ul>
-      <li><strong>Part 1: The Agent Loop</strong> — Agents work by looping through think, act, observe, and decide. This lets them handle ambiguity and adapt in real time.</li>
-      <li><strong>Part 2: Tools &amp; Function Calling</strong> — Agents interact with the world through structured function calls. Tool design is a product decision that directly impacts reliability.</li>
-      <li><strong>Part 3: Planning, Failure &amp; Tradeoffs</strong> — Agents fail in predictable ways, cost money per loop, and need guardrails. The right architecture depends on your task's predictability, stakes, latency needs, and budget.</li>
+      <li><strong>Part 1: The Agent Loop</strong> — Think, act, observe, decide. The cycle that lets agents handle ambiguity.</li>
+      <li><strong>Part 2: Tools &amp; Function Calling</strong> — Agents interact with the world through structured function calls. Tool design directly impacts reliability.</li>
+      <li><strong>Part 3: Planning, Failure &amp; Tradeoffs</strong> — Agents fail predictably, cost money per loop, and need guardrails. The right architecture depends on predictability, stakes, latency, and budget.</li>
     </ul>
 
-    <p>As a PM, you don't need to implement any of this yourself. But you need to speak this language fluently. When an engineer says "the agent is selecting the wrong tool," you should immediately think about tool descriptions and toolbox size. When a stakeholder asks "why can't the agent just do everything automatically," you should think about failure modes, costs, and human-in-the-loop design.</p>
+    <div class="callout callout--pm-tip">
+      <div class="callout__label">PM Tip</div>
+      <div class="callout__body">You don't need to build agents. You need to speak the language. When engineering says "the agent is selecting the wrong tool," think tool descriptions and toolbox size. When a stakeholder asks "why can't it just do everything automatically," think failure modes, costs, and human-in-the-loop design.</div>
+    </div>
 
-    <p>The most successful AI products aren't the most autonomous ones. They're the ones where someone — a PM, usually — made smart decisions about what to automate, what to guard, and where to keep a human in the loop.</p>
+    <p>The most successful AI products aren't the most autonomous. They're the ones where someone made smart decisions about what to automate, what to guard, and where to keep a human in the loop.</p>
 
     <p>That someone is you.</p>
   </article>

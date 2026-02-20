@@ -18,7 +18,7 @@
       <nav class="breadcrumb breadcrumb--hero">
         <a href="../index.html">AI for PMs</a> &nbsp;/&nbsp; <a href="index.html">Cost &amp; Latency</a> &nbsp;/&nbsp; <span>Part 2</span>
       </nav>
-      <div class="article-header__meta" style="color: rgba(255,255,255,0.9);">Part 2 of 2 &middot; ~10 min read</div>
+      <div class="article-header__meta" style="color: rgba(255,255,255,0.9);">Part 2 of 2 &middot; ~7 min read</div>
       <h1 style="color: #fff;">Latency, Streaming &amp; Optimization</h1>
       <p class="lead" style="color: rgba(255,255,255,0.85);">Fast enough beats perfect. The levers that make AI features feel instant — and cost 80% less.</p>
     </div>
@@ -50,25 +50,31 @@
 
     <h2 id="why-llms-feel-slow"><span class="section-number">I</span> Why LLMs Feel Slow</h2>
 
-    <p>Users are used to Google returning results in 200 milliseconds. When your AI feature takes 3 seconds to respond, it <em>feels</em> broken — even if the answer is brilliant.</p>
+    <p>Google returns results in 200 milliseconds. Your AI feature takes 3 seconds. It <em>feels</em> broken — even if the answer is brilliant.</p>
 
-    <p>LLM latency has two components that PMs need to understand:</p>
+    <p>Two numbers explain why:</p>
 
-    <p><strong>Time to First Token (TTFT)</strong> is how long it takes before the model starts generating. This includes network round-trip and the model processing your entire input. Longer prompts = longer TTFT. Larger models = longer TTFT. Typical range: 200ms for small models to 2+ seconds for large models.</p>
+    <p><strong>Time to First Token (TTFT)</strong> — how long before the model starts generating. Includes network round-trip plus processing your entire input. Longer prompts and larger models both push it up. Range: 200ms (small models) to 2+ seconds (large ones).</p>
 
-    <p><strong>Time Per Output Token (TPOT)</strong> is how fast the model generates each subsequent token. LLMs generate one token at a time, sequentially. A 200-token response at 50 tokens/second takes 4 seconds to fully generate. Smaller models generate faster — 100+ tokens/second vs. 30-50 for large models.</p>
+    <p><strong>Time Per Output Token (TPOT)</strong> — how fast each subsequent token appears. LLMs generate sequentially, one token at a time. A 200-token response at 50 tokens/second takes 4 full seconds. Smaller models are faster: 100+ tokens/second vs. 30-50 for large models.</p>
 
-    <p>Total latency = TTFT + (output tokens × TPOT). For a large model generating a 300-token response: 1.5s + (300 × 0.025s) = ~9 seconds. That's an eternity in UX terms.</p>
+    <div class="callout callout--analogy">
+      <div class="callout__label">Analogy</div>
+      <div class="callout__body">Think of TTFT as the waiter walking to your table, and TPOT as how fast they read the specials. A slow walk plus a slow read means you're sitting there wondering if the restaurant is even open.</div>
+    </div>
 
-    <p>But here's the thing: <strong>users don't need to wait for the entire response.</strong></p>
+    <p>Total latency = TTFT + (output tokens x TPOT). For a large model generating 300 tokens: 1.5s + (300 x 0.025s) = ~9 seconds. An eternity in UX terms. But users don't need to wait for the entire response.</p>
 
     <h2 id="streaming"><span class="section-number">II</span> Streaming Changes Everything</h2>
 
-    <p>Without streaming, the user sees nothing until the entire response is generated — a blank screen for 5, 10, even 15 seconds. With streaming, tokens appear as they're generated, word by word. The total time is identical, but the <em>perceived</em> experience is completely different.</p>
+    <p>Without streaming: a blank screen for 5, 10, 15 seconds, then the full response appears at once. With streaming: tokens appear as they're generated, word by word. Total time is identical. The <em>perceived</em> experience is not even close.</p>
 
-    <p>Why? Because streaming transforms a <strong>wait</strong> into a <strong>conversation.</strong> The user starts reading immediately. Their brain is processing the first sentence while the model is still generating the third. By the time the response finishes, the user has already absorbed half of it.</p>
+    <p>Streaming transforms a <strong>wait</strong> into a <strong>conversation.</strong> The user reads the first sentence while the model generates the third. By the time the response finishes, they've absorbed half of it. The loading spinner is the content itself.</p>
 
-    <p>This is a product design lesson, not a technical one: <strong>the speed users perceive is more important than the speed you measure.</strong> A streamed 8-second response feels faster than a non-streamed 4-second response, because the first byte arrives in 300ms instead of 4,000ms.</p>
+    <div class="callout callout--insight">
+      <div class="callout__label">Key Insight</div>
+      <div class="callout__body"><strong>The speed users perceive matters more than the speed you measure.</strong> A streamed 8-second response feels faster than a non-streamed 4-second response, because the first byte arrives in 300ms instead of 4,000ms.</div>
+    </div>
 
     <p>See the difference for yourself:</p>
   </article>
@@ -107,21 +113,53 @@
   </div>
 
   <article class="prose">
-    <p>Same content. Same total time. But the streaming version felt faster and more engaging. Every major AI product uses streaming for this reason — ChatGPT, Claude, Gemini. If your AI feature shows responses to users, streaming is not optional.</p>
+    <p>Same content. Same total time. Completely different experience. Every major AI product streams for exactly this reason. If your feature shows responses to users and you're not streaming, you're volunteering for bad NPS scores.</p>
 
     <h2 id="optimization-playbook"><span class="section-number">III</span> The Optimization Playbook</h2>
 
-    <p>Once your AI feature is working, the next question is always: "How do we make it faster and cheaper?" Here are the five main levers, roughly ordered by impact:</p>
+    <p>Your AI feature works. Now: "How do we make it faster and cheaper?" Five levers, roughly ordered by impact:</p>
 
-    <p><strong>1. Model routing.</strong> Use a small model for easy tasks and a large model for hard ones. A lightweight classifier routes each request to the right model. Impact: 50-80% cost reduction for mixed workloads.</p>
+    <table class="tier-table">
+      <thead>
+        <tr>
+          <th>Lever</th>
+          <th>How it works</th>
+          <th>Impact</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Model routing</td>
+          <td>Small model for easy tasks, large model for hard ones. A lightweight classifier routes each request.</td>
+          <td>50-80% cost reduction</td>
+        </tr>
+        <tr>
+          <td>Prompt caching</td>
+          <td>Cache the system prompt so the provider skips reprocessing it.</td>
+          <td>30-60% input cost &amp; TTFT reduction</td>
+        </tr>
+        <tr>
+          <td>Shorter prompts</td>
+          <td>Cut redundant instructions, compress examples. A 2,000-token prompt trimmed to 800 is 60% cheaper.</td>
+          <td>Proportional to tokens cut</td>
+        </tr>
+        <tr>
+          <td>Response caching</td>
+          <td>Cache answers to common queries. Semantic caching is harder but more powerful.</td>
+          <td>Eliminates 20-50% of LLM calls</td>
+        </tr>
+        <tr>
+          <td>Fewer output tokens</td>
+          <td>Ask the model to be concise, use <code>max_tokens</code>, or request structured output.</td>
+          <td>Proportional to tokens saved</td>
+        </tr>
+      </tbody>
+    </table>
 
-    <p><strong>2. Prompt caching.</strong> If your system prompt is the same across all requests (which it usually is), cache it. Many providers offer prompt caching that avoids reprocessing the same prefix. Impact: 30-60% reduction in input token costs and TTFT.</p>
-
-    <p><strong>3. Shorter prompts.</strong> Every token in your prompt costs money and adds latency. Cut the fluff: remove redundant instructions, use concise examples, compress context. A prompt that went from 2,000 tokens to 800 tokens is 60% cheaper and noticeably faster.</p>
-
-    <p><strong>4. Response caching.</strong> If many users ask the same or similar questions, cache the responses. Exact-match caching is easy. Semantic caching (matching similar-but-not-identical queries) is harder but more powerful. Impact: depends on query diversity, but can eliminate 20-50% of LLM calls entirely.</p>
-
-    <p><strong>5. Fewer output tokens.</strong> Ask the model to be concise. Use <code>max_tokens</code> to cap response length. For structured outputs (JSON, classifications), the model generates only what's needed. Impact: proportional to how much you can trim — every output token saved reduces cost and latency.</p>
+    <div class="callout callout--pm-tip">
+      <div class="callout__label">PM Tip</div>
+      <div class="callout__body">Start with model routing. Most production workloads are 70% simple tasks that a small model handles perfectly. Sending every request to GPT-4-class models is the API-cost equivalent of hiring a surgeon to apply bandaids.</div>
+    </div>
 
     <p>Explore how these levers interact:</p>
   </article>
@@ -216,21 +254,24 @@
   </div>
 
   <article class="prose">
-    <p>Notice how the optimizations stack. Each one might save 30-50% on its own, but combined they can reduce costs by 80-90% compared to the unoptimized baseline. This is why optimization isn't a "nice to have" — it's the difference between a viable product and one that bleeds money.</p>
+    <p>Notice how optimizations stack. Each saves 30-50% alone, but combined they cut costs 80-90%. This isn't a "nice to have" — it's the difference between a viable product and one that burns through its API budget like a venture-funded bonfire.</p>
 
     <h2 id="the-triangle"><span class="section-number">IV</span> The Cost-Latency-Quality Triangle</h2>
 
-    <p>Every AI product decision involves a three-way tradeoff:</p>
+    <p>Every AI product decision is a three-way tradeoff. Pick two:</p>
 
     <ul>
-      <li><strong>Cost</strong> — How much does each request cost? How does that scale?</li>
-      <li><strong>Latency</strong> — How fast is the response? Does it feel instant?</li>
-      <li><strong>Quality</strong> — How good is the output? Does it meet user expectations?</li>
+      <li><strong>Cost</strong> — price per request and how it scales.</li>
+      <li><strong>Latency</strong> — response speed and perceived snappiness.</li>
+      <li><strong>Quality</strong> — output accuracy and user satisfaction.</li>
     </ul>
 
-    <p>You can optimize for any two, but the third will suffer. A large model gives you quality and (sometimes) lower latency through fewer retries — but at high cost. A small model is cheap and fast — but quality drops. Aggressive caching is cheap and fast — but stale or generic responses reduce quality.</p>
+    <p>A large model gives quality but costs more. A small model is cheap and fast but less capable. Aggressive caching is cheap and fast but risks stale output. You can't max all three — the physics won't allow it.</p>
 
-    <p>The PM's job is to find the right position in this triangle for each feature. A real-time autocomplete needs speed above all else — use a small model with aggressive caching. A legal document review needs quality above all else — use a large model and accept the cost. A customer support bot needs a balance of all three — use a medium model with streaming and smart caching.</p>
+    <div class="callout callout--pm-tip">
+      <div class="callout__label">PM Tip</div>
+      <div class="callout__body">Your job is to find the right position in this triangle <em>for each feature</em>. Autocomplete needs speed above all else — small model, aggressive caching. Legal document review needs quality — large model, accept the cost. A support bot needs balance — medium model, streaming, smart caching. One product, three different positions.</div>
+    </div>
 
     <p>Where does your feature sit? Explore below:</p>
   </article>
@@ -282,19 +323,21 @@
 
     <h2 id="wrapping-up"><span class="section-number">V</span> Wrapping Up</h2>
 
-    <p>Over these two parts, you've built a complete mental model for LLM economics:</p>
+    <p>Across these two parts, you've built a complete mental model for LLM economics:</p>
 
     <ul>
-      <li><strong>Tokens</strong> are the unit of cost — and they're not the same as words.</li>
-      <li><strong>Input and output tokens</strong> are priced differently, with output costing 3-5x more.</li>
-      <li><strong>Model tiers</strong> offer a 60x cost range — match the model to the task, not to the hype.</li>
-      <li><strong>Costs compound at scale</strong> — small design decisions become massive budget items.</li>
+      <li><strong>Tokens</strong> are the unit of cost — not the same as words.</li>
+      <li><strong>Output tokens</strong> cost 3-5x more than input tokens.</li>
+      <li><strong>Model tiers</strong> span a 60x cost range — match the model to the task, not to the hype.</li>
       <li><strong>Streaming</strong> transforms perceived latency without changing actual latency.</li>
-      <li><strong>Optimization levers</strong> (routing, caching, shorter prompts) can cut costs by 80-90%.</li>
-      <li>Every feature lives in a <strong>cost-latency-quality triangle</strong> — the PM's job is to find the right position.</li>
+      <li><strong>Five optimization levers</strong> (routing, caching, shorter prompts, response caching, fewer output tokens) can stack to cut costs 80-90%.</li>
+      <li>Every feature lives in a <strong>cost-latency-quality triangle</strong> — and the right position varies by use case.</li>
     </ul>
 
-    <p>These aren't engineering details. They're the foundation of every pricing decision, every architecture choice, and every "can we afford to build this?" conversation you'll have as an AI PM. The engineers will handle the implementation. You need to handle the judgment.</p>
+    <div class="callout callout--summary">
+      <div class="callout__label">Takeaway</div>
+      <div class="callout__body">These aren't engineering details you can delegate. They're the foundation of every pricing decision, architecture choice, and "can we afford to build this?" conversation. Engineers handle the implementation. You handle the judgment.</div>
+    </div>
   </article>
 
   <nav class="article-nav">

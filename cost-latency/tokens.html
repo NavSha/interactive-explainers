@@ -18,7 +18,7 @@
       <nav class="breadcrumb breadcrumb--hero">
         <a href="../index.html">AI for PMs</a> &nbsp;/&nbsp; <a href="index.html">Cost &amp; Latency</a> &nbsp;/&nbsp; <span>Part 1</span>
       </nav>
-      <div class="article-header__meta" style="color: rgba(255,255,255,0.9);">Part 1 of 2 &middot; ~10 min read</div>
+      <div class="article-header__meta" style="color: rgba(255,255,255,0.9);">Part 1 of 2 &middot; ~7 min read</div>
       <h1 style="color: #fff;">Tokens, Models &amp; the Cost Curve</h1>
       <p class="lead" style="color: rgba(255,255,255,0.85);">Every character costs money. Understanding tokens and pricing is the foundation of every AI product decision.</p>
     </div>
@@ -50,15 +50,16 @@
 
     <h2 id="what-are-tokens"><span class="section-number">I</span> What Are Tokens?</h2>
 
-    <p>When you use an LLM, you don't pay per word or per character. You pay per <strong>token</strong>. And tokens are not what most people think they are.</p>
+    <p>You don't pay per word or per character. You pay per <strong>token</strong> — a chunk of text that might be a whole word ("cat"), part of a word ("understand" + "ing"), or a single character. Spaces, punctuation, and newlines count too.</p>
 
-    <p>A token is a chunk of text — sometimes a whole word, sometimes part of a word, sometimes just a single character. The word "understanding" might be two tokens: "understand" + "ing". The word "cat" is one token. A number like "2847" might be split into "28" + "47". Spaces, punctuation, and newlines are tokens too.</p>
+    <div class="callout callout--analogy">
+      <div class="callout__label">Analogy</div>
+      <div class="callout__body">Think of tokens like syllables on a taxi meter. You're not charged by the sentence or the paragraph — you're charged by the chunk. And the meter runs on both sides: the tokens you send in (the prompt) <em>and</em> the tokens the model sends back (the response).</div>
+    </div>
 
-    <p>Why does this matter for PMs? Because <strong>tokens are the unit of cost.</strong> Every API call is priced per token — both the tokens you send in (the prompt) and the tokens the model generates (the response). If you don't understand tokens, you can't estimate costs, and you can't make informed decisions about prompt design, context length, or model selection.</p>
+    <p><strong>Tokens are the unit of cost.</strong> If you don't understand them, you can't estimate costs or make informed decisions about prompt design, context length, or model selection. Rule of thumb: <strong>1 token ≈ 0.75 words</strong> in English (100 words ≈ 130 tokens). Code is more token-dense than prose, and non-English languages use more tokens per word.</p>
 
-    <p>A rough rule of thumb: <strong>1 token ≈ 0.75 words</strong> in English. Or equivalently, 100 words ≈ 130 tokens. But this varies — code is more token-dense than prose, and non-English languages often use more tokens per word.</p>
-
-    <p>Try it yourself — type anything and see how it gets split into tokens:</p>
+    <p>Try it yourself:</p>
   </article>
 
   <!-- ================================================================
@@ -103,62 +104,68 @@
   </div>
 
   <article class="prose">
-    <p>Notice how code and JSON tend to use more tokens per "word" than natural prose. A JSON key-value pair like <code>"user_id": "abc123"</code> is 7-8 tokens despite being just a few "words." This matters when you're designing prompts that include structured data — they eat through your token budget faster than you'd expect.</p>
+    <p>Notice how code and JSON use more tokens per "word" than prose. A JSON key-value pair like <code>"user_id": "abc123"</code> is 7-8 tokens despite being just a few "words." Structured data eats your token budget for breakfast.</p>
 
     <h2 id="the-price-tag"><span class="section-number">II</span> The Price Tag</h2>
 
-    <p>LLM pricing has a structure that trips people up at first: <strong>input tokens and output tokens are priced differently.</strong> Output tokens — the text the model generates — typically cost 3-5x more than input tokens. Why? Because generation is computationally harder than comprehension.</p>
+    <p><strong>Input tokens and output tokens are priced differently.</strong> Output tokens cost 3-5x more because generation is computationally harder than comprehension. The meter runs faster on the way out.</p>
 
-    <p>This has a direct product implication: <strong>a feature that sends long prompts but gets short answers is cheaper than a feature that sends short prompts but generates long responses.</strong> A classification task (long document in, one-word label out) is far cheaper than a content generation task (short instruction in, long article out).</p>
+    <div class="callout callout--insight">
+      <div class="callout__label">Key Insight</div>
+      <div class="callout__body">A classification task (long document in, one-word label out) is <em>far</em> cheaper than a content generation task (short instruction in, long article out). Your feature's cost profile depends on which direction the tokens flow.</div>
+    </div>
 
-    <p>Here's what pricing looks like across model tiers in 2026 (approximate, per million tokens):</p>
+    <p>Pricing across model tiers in 2026 (per million tokens):</p>
 
-    <table style="width: 100%; font-family: var(--font-sans); font-size: var(--text-sm); border-collapse: collapse; margin: var(--space-6) 0;">
+    <table class="tier-table">
       <thead>
-        <tr style="border-bottom: 2px solid var(--color-border);">
-          <th style="text-align: left; padding: var(--space-3) var(--space-4);">Model Tier</th>
-          <th style="text-align: right; padding: var(--space-3) var(--space-4);">Input</th>
-          <th style="text-align: right; padding: var(--space-3) var(--space-4);">Output</th>
-          <th style="text-align: left; padding: var(--space-3) var(--space-4);">Example</th>
+        <tr>
+          <th>Model Tier</th>
+          <th>Input</th>
+          <th>Output</th>
+          <th>Use case</th>
         </tr>
       </thead>
       <tbody>
-        <tr style="border-bottom: 1px solid var(--color-border-light);">
-          <td style="padding: var(--space-3) var(--space-4);">Small (Haiku-class)</td>
-          <td style="text-align: right; padding: var(--space-3) var(--space-4); font-family: var(--font-mono);">$0.25</td>
-          <td style="text-align: right; padding: var(--space-3) var(--space-4); font-family: var(--font-mono);">$1.25</td>
-          <td style="padding: var(--space-3) var(--space-4); color: var(--color-text-secondary);">Classification, extraction, routing</td>
-        </tr>
-        <tr style="border-bottom: 1px solid var(--color-border-light);">
-          <td style="padding: var(--space-3) var(--space-4);">Medium (Sonnet-class)</td>
-          <td style="text-align: right; padding: var(--space-3) var(--space-4); font-family: var(--font-mono);">$3.00</td>
-          <td style="text-align: right; padding: var(--space-3) var(--space-4); font-family: var(--font-mono);">$15.00</td>
-          <td style="padding: var(--space-3) var(--space-4); color: var(--color-text-secondary);">Most product features, chat, summarization</td>
+        <tr>
+          <td>Small (Haiku-class)</td>
+          <td>$0.25</td>
+          <td>$1.25</td>
+          <td>Classification, extraction, routing</td>
         </tr>
         <tr>
-          <td style="padding: var(--space-3) var(--space-4);">Large (Opus-class)</td>
-          <td style="text-align: right; padding: var(--space-3) var(--space-4); font-family: var(--font-mono);">$15.00</td>
-          <td style="text-align: right; padding: var(--space-3) var(--space-4); font-family: var(--font-mono);">$75.00</td>
-          <td style="padding: var(--space-3) var(--space-4); color: var(--color-text-secondary);">Complex reasoning, coding, research</td>
+          <td>Medium (Sonnet-class)</td>
+          <td>$3.00</td>
+          <td>$15.00</td>
+          <td>Most product features, chat, summarization</td>
+        </tr>
+        <tr>
+          <td>Large (Opus-class)</td>
+          <td>$15.00</td>
+          <td>$75.00</td>
+          <td>Complex reasoning, coding, research</td>
         </tr>
       </tbody>
     </table>
 
-    <p>That's a <strong>60x price difference</strong> between the cheapest and most expensive option. Choosing the right model tier is one of the highest-leverage decisions a PM can influence.</p>
+    <p>That's a <strong>60x price difference</strong> between cheapest and most expensive. Choosing the right model tier is one of the highest-leverage decisions a PM can influence.</p>
 
     <h2 id="model-tiers"><span class="section-number">III</span> Model Tiers</h2>
 
-    <p>Every model provider offers a tiered lineup: small, medium, and large. The naming varies — Haiku/Sonnet/Opus at Anthropic, GPT-4o-mini/GPT-4o/o1 at OpenAI — but the pattern is universal. And the tradeoff is always the same:</p>
+    <p>Every provider offers small, medium, and large tiers. The naming varies — Haiku/Sonnet/Opus, GPT-4o-mini/GPT-4o/o1 — but the tradeoff is universal:</p>
 
     <ul>
-      <li><strong>Small models</strong> are fast and cheap, but less capable. They handle structured, well-defined tasks well — classification, extraction, simple Q&A — but struggle with nuance, complex reasoning, and ambiguous instructions.</li>
-      <li><strong>Medium models</strong> are the workhorses. Good enough for most product features, with a reasonable balance of capability and cost. This is where most production traffic should go.</li>
-      <li><strong>Large models</strong> are the most capable but slowest and most expensive. Reserve them for tasks where quality genuinely matters and can't be achieved with a smaller model — complex analysis, creative writing, hard coding problems.</li>
+      <li><strong>Small models</strong> — fast and cheap, but struggle with nuance and complex reasoning. Great for classification, extraction, simple Q&A.</li>
+      <li><strong>Medium models</strong> — the workhorses. Good enough for most product features. This is where most production traffic should go.</li>
+      <li><strong>Large models</strong> — most capable, slowest, most expensive. Reserve for tasks where quality genuinely can't be achieved with a smaller model.</li>
     </ul>
 
-    <p>The PM insight: <strong>you don't need one model for your whole product.</strong> The best AI products use different models for different tasks. A small model classifies incoming requests, a medium model handles most conversations, and a large model gets called only when the task is truly hard. This is called <strong>model routing</strong>, and it can cut costs by 70-80% compared to using the largest model for everything.</p>
+    <div class="callout callout--pm-tip">
+      <div class="callout__label">PM Tip</div>
+      <div class="callout__body"><strong>You don't need one model for your whole product.</strong> A small model classifies requests, a medium model handles conversations, a large model tackles the hard stuff. This is called <strong>model routing</strong>, and it cuts costs 70-80% compared to defaulting to the biggest model — which is like hiring a surgeon to apply bandaids.</div>
+    </div>
 
-    <p>Compare the same task across model tiers below:</p>
+    <p>Compare the same task across model tiers:</p>
   </article>
 
   <!-- ================================================================
@@ -220,21 +227,21 @@
   </div>
 
   <article class="prose">
-    <p>The takeaway: model selection is task-dependent. A small model can classify a support ticket just as well as a large one — at 1/60th the cost. But ask it to analyze why customers are churning, and you'll get a shallow answer. <strong>Match the model to the task, not to your ego.</strong></p>
+    <p>Model selection is task-dependent. A small model classifies a support ticket just as well as a large one — at 1/60th the cost. But ask it to analyze churn, and you'll get the analytical equivalent of "have you tried turning it off and on again." <strong>Match the model to the task, not to your ego.</strong></p>
 
     <h2 id="cost-at-scale"><span class="section-number">IV</span> Cost at Scale</h2>
 
-    <p>Here's where most AI product plans fall apart. A prototype that costs $0.02 per request feels free. But multiply that by real usage numbers and it stops being free very fast.</p>
+    <p>Here's where AI product plans fall apart. A prototype at $0.02 per request feels free. Multiply by real usage and it stops being free very fast.</p>
 
-    <p>The cost equation is: <strong>cost = requests × tokens per request × price per token.</strong> Each of these variables can vary by orders of magnitude depending on your product design decisions:</p>
+    <p>The equation: <strong>cost = requests × tokens per request × price per token.</strong> Each variable varies by orders of magnitude:</p>
 
     <ul>
-      <li><strong>Requests</strong> scale with users. 1,000 DAUs making 5 requests each = 5,000 requests/day. 100,000 DAUs = 500,000 requests/day.</li>
-      <li><strong>Tokens per request</strong> depend on your prompt design. A 200-token prompt with a 50-token response is fundamentally different from a 2,000-token prompt with a 500-token response.</li>
-      <li><strong>Price per token</strong> depends on your model choice — a 60x range as we just saw.</li>
+      <li><strong>Requests</strong> scale with users. 1,000 DAUs × 5 requests = 5,000/day. 100,000 DAUs = 500,000/day.</li>
+      <li><strong>Tokens per request</strong> depend on prompt design. A 200-token prompt with a 50-token response is fundamentally different from 2,000 in and 500 out.</li>
+      <li><strong>Price per token</strong> depends on model choice — a 60x range.</li>
     </ul>
 
-    <p>This means two PMs building similar features can end up with costs that differ by <strong>100x or more</strong>, based solely on their design decisions. Play with the calculator below to see this in action:</p>
+    <p>Two PMs building similar features can end up with costs that differ by <strong>100x or more</strong>, based solely on design decisions:</p>
   </article>
 
   <!-- ================================================================
@@ -309,17 +316,16 @@
   </div>
 
   <article class="prose">
-    <p>The calculator makes the pattern visceral: <strong>small design decisions compound at scale.</strong> Cutting your prompt from 1,000 tokens to 500 tokens doesn't feel like much — until you multiply by 500,000 daily requests. Switching from a large model to a medium model for a task that doesn't need the extra capability can save tens of thousands per month.</p>
-
-    <p>The best AI PMs develop an instinct for this. They ask: "What's the cheapest model that's good enough for this task?" and "Can I make this prompt shorter without losing quality?" These aren't engineering details — they're product strategy.</p>
+    <div class="callout callout--summary">
+      <div class="callout__label">Takeaway</div>
+      <div class="callout__body"><strong>Small design decisions compound at scale.</strong> Cutting a prompt from 1,000 to 500 tokens doesn't feel significant — until you multiply by 500,000 daily requests. Switching from a large model to a medium for a task that doesn't need the extra capability can save tens of thousands per month. Your CFO will send flowers.</div>
+    </div>
 
     <h2 id="whats-next"><span class="section-number">V</span> What's Next</h2>
 
-    <p>You now understand the fundamental economics of LLMs: tokens as the unit of cost, input vs. output pricing, model tiers, and how costs compound at scale. But cost is only half the equation.</p>
+    <p>You now understand LLM economics: tokens as the unit of cost, input vs. output pricing, model tiers, and how costs compound at scale. But cost is only half the equation.</p>
 
-    <p>In Part 2, we'll tackle the other half: <strong>latency.</strong> Why do LLMs feel slow? How does streaming transform the user experience? And what are the practical optimization levers — caching, prompt engineering, model routing — that let you ship AI features that are both fast and affordable?</p>
-
-    <p>Knowing the cost is what keeps your product viable. Knowing the speed is what keeps your users happy.</p>
+    <p>In Part 2: <strong>latency.</strong> Why LLMs feel slow, how streaming transforms the experience, and the optimization levers — caching, prompt engineering, model routing — that let you ship AI features that are both fast and affordable.</p>
   </article>
 
   <nav class="article-nav">

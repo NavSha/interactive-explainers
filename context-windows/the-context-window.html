@@ -454,7 +454,7 @@
       <nav class="breadcrumb breadcrumb--hero">
         <a href="../index.html">AI for PMs</a> &nbsp;/&nbsp; <a href="index.html">Context Windows &amp; Memory</a> &nbsp;/&nbsp; <span>Part 1</span>
       </nav>
-      <div class="article-header__meta" style="color: rgba(255,255,255,0.9);">Part 1 of 2 &middot; ~10 min read</div>
+      <div class="article-header__meta" style="color: rgba(255,255,255,0.9);">Part 1 of 2 &middot; ~7 min read</div>
       <h1 style="color: #fff;">The Context Window</h1>
       <p class="lead" style="color: rgba(255,255,255,0.85);">Every model has a fixed-size working memory. Understanding it changes how you design every AI feature.</p>
     </div>
@@ -489,28 +489,35 @@
          ================================================================ -->
     <h2 id="what-is-context"><span class="section-number">I</span> What Is a Context Window?</h2>
 
-    <p>Think of a context window as the model's desk. Everything it needs to work with &mdash; your system prompt, the conversation so far, the user's latest message, any documents you've retrieved &mdash; all has to fit on this one desk. If it doesn't fit, it falls off the edge. There's no overflow drawer, no filing cabinet, no second desk.</p>
+    <div class="callout callout--analogy">
+      <div class="callout__label">Analogy</div>
+      <div class="callout__body">Think of the context window as the model's desk. Your system prompt, conversation history, retrieved documents, and the user's latest message all have to fit on this one desk. If it doesn't fit, it falls off the edge. No overflow drawer, no filing cabinet, no second desk.</div>
+    </div>
 
-    <p>The model sees everything in the context window simultaneously. It doesn't read top-to-bottom the way you're reading this sentence. It processes the entire context at once, weighing each token against every other token through the self-attention mechanism that makes transformers work. This is powerful &mdash; it means the model can connect ideas from your system prompt to the user's latest question &mdash; but it also means there's a hard ceiling on how much it can consider at any given moment.</p>
+    <p>The model processes the entire context at once, weighing every token against every other token through self-attention. It doesn't read top-to-bottom &mdash; it sees everything simultaneously. Powerful, because the model can connect your system prompt to the user's latest question. Limiting, because there's a hard ceiling on how much it can consider at any moment.</p>
 
-    <p>There's no "hard drive" to page to, no database to query later. When the API call ends, the desk is cleared completely. Next call? Clean desk. The model doesn't remember the last conversation any more than a calculator remembers yesterday's math. Every response starts from zero.</p>
+    <p>There's no hard drive to page to. When the API call ends, the desk is cleared completely. The model doesn't remember the last conversation any more than a calculator remembers yesterday's math.</p>
 
-    <p>This is the most counterintuitive thing about LLMs: <strong>they feel like they remember, but they don't.</strong> When you have a long conversation in ChatGPT and the model references something you said ten messages ago, that's not memory. The application is re-sending your entire conversation history as part of the context window on every single API call. Every apparent "memory" is actually your application doing the work of re-sending previous context.</p>
+    <div class="callout callout--insight">
+      <div class="callout__label">Key Insight</div>
+      <div class="callout__body"><strong>LLMs feel like they remember, but they don't.</strong> When ChatGPT references something you said ten messages ago, the application is re-sending your entire conversation history on every API call. Every apparent "memory" is your application doing the work.</div>
+    </div>
 
-    <p>For PMs, this has immediate implications. Your application is responsible for deciding what goes on the desk. You choose what context to include, what to leave out, and how to structure it. The model just works with whatever it's given. Context management isn't the model's job &mdash; it's yours.</p>
+    <p>For PMs, this is the takeaway: your application decides what goes on the desk. You choose what context to include, what to leave out, how to structure it. Context management isn't the model's job &mdash; it's yours.</p>
 
     <!-- ================================================================
          Section II: How Big Is Big?
          ================================================================ -->
     <h2 id="how-big"><span class="section-number">II</span> How Big Is Big?</h2>
 
-    <p>Context windows have exploded from 4,096 tokens in early 2022 to over 1 million tokens by 2025. That sounds like a solved problem. Just use the biggest window available and never worry about it again, right?</p>
+    <p>Context windows exploded from 4,096 tokens in early 2022 to over 1 million by 2025. Sounds like a solved problem &mdash; just use the biggest window and never think about it again. Except that would be like renting a warehouse to store a shoebox.</p>
 
-    <p>Not quite. Here's what PMs need to know: <strong>bigger isn't free.</strong> Cost scales linearly with context length &mdash; filling a 200K-token window costs roughly 50 times more than filling a 4K window with the same model. Latency increases too: more context means more computation, which means longer time-to-first-token and slower streaming. Your users feel this.</p>
+    <p><strong>Bigger isn't free.</strong> Cost scales linearly with context length: filling a 200K-token window costs roughly 50x more than filling a 4K window. Latency increases too &mdash; more context means longer time-to-first-token. And quality actually degrades. Models are great with the first and last few pages of a 500-page dump, and fuzzy on everything in between (more on that in Section III).</p>
 
-    <p>And then there's quality. Research consistently shows that models struggle to use information effectively in very long contexts. Dumping 500 pages of documentation into a context window doesn't give you a model that "knows" all 500 pages equally. It gives you a model that's great with the first few pages and the last few, and fuzzy on everything in between (more on this in Section III).</p>
-
-    <p>The sweet spot depends entirely on your use case. A customer-support chatbot might need 4K&ndash;8K tokens per request. A document analysis tool might need 128K. A "chat with your codebase" feature might genuinely need 1M tokens. The PM's job is to match the window to the task, not the other way around &mdash; because every token you send costs money, time, and potentially quality.</p>
+    <div class="callout callout--pm-tip">
+      <div class="callout__label">PM Tip</div>
+      <div class="callout__body">Match the window to the task, not the other way around. A support chatbot might need 4K&ndash;8K tokens. A document analysis tool might need 128K. A "chat with your codebase" feature might genuinely need 1M. Every token you send costs money, time, and potentially quality.</div>
+    </div>
 
     <p>Explore the scale of different models below:</p>
   </article>
@@ -548,15 +555,16 @@
          ================================================================ -->
     <h2 id="lost-in-middle"><span class="section-number">III</span> The "Lost in the Middle" Problem</h2>
 
-    <p>In 2023, a landmark paper by researchers at Stanford, UC Berkeley, and Samaya AI revealed something that every PM building AI products needs to internalize: <strong>models pay the most attention to the beginning and end of the context window.</strong> Information placed in the middle gets overlooked &mdash; sometimes dramatically so.</p>
+    <p>A 2023 paper by researchers at Stanford, UC Berkeley, and Samaya AI confirmed what practitioners had suspected: <strong>models pay the most attention to the beginning and end of the context window.</strong> Information in the middle gets overlooked &mdash; sometimes dramatically.</p>
 
-    <p>The researchers tested multiple models on a simple task: find a specific fact hidden among a set of documents. When the target fact was at the very beginning or very end of the context, models retrieved it accurately over 90% of the time. But when the same fact was buried in the middle of a long context, accuracy dropped by 20&ndash;30 percentage points. The performance curve forms a distinct U-shape: high at the edges, low in the middle.</p>
+    <p>The test was simple: hide a fact among a set of documents, then ask the model to find it. At the edges of the context, accuracy exceeded 90%. Buried in the middle of a long context, it dropped 20&ndash;30 percentage points. The performance curve is a distinct U-shape &mdash; high at the edges, low in the middle. The longer the context, the deeper the valley.</p>
 
-    <p>This has enormous product implications. Consider how most AI applications structure their context: system prompt at the top, then conversation history, then retrieved documents, then the user's latest question at the bottom. Everything sandwiched in between &mdash; the conversation history and retrieved documents &mdash; sits in the danger zone. The longer the context, the worse this effect becomes.</p>
+    <p>Consider how most AI apps structure their context: system prompt at the top, conversation history, retrieved documents, then the user's question at the bottom. Everything sandwiched in the middle sits in the danger zone. Your most important RAG chunks are the ones most likely to be ignored &mdash; the information equivalent of burying the lead on page 47.</p>
 
-    <p>Smart product design accounts for this. Put critical instructions in the system prompt (top of context) and reiterate the most important ones near the user's question (bottom of context). If you're building a retrieval-augmented generation (RAG) feature, rank your retrieved chunks by relevance and place the most important ones closest to the edges. Some teams even duplicate key instructions at both the start and end of their prompts.</p>
-
-    <p>The takeaway for PMs is that <strong>context isn't just about capacity &mdash; it's about placement.</strong> A 200K-token window where critical information sits at the 50% mark may perform worse than a 16K-token window where the same information is at the very beginning. Design your prompts with the U-shaped attention curve in mind.</p>
+    <div class="callout callout--summary">
+      <div class="callout__label">Takeaway</div>
+      <div class="callout__body"><strong>Context isn't just about capacity &mdash; it's about placement.</strong> A 200K-token window where critical info sits at the 50% mark may perform worse than a 16K window where the same info is at the very beginning. Put critical instructions at the top and bottom. Rank RAG chunks by relevance and place the best ones nearest the edges.</div>
+    </div>
   </article>
 
   <!-- ================================================================
@@ -591,19 +599,41 @@
          ================================================================ -->
     <h2 id="hitting-limits"><span class="section-number">IV</span> When You Hit the Limit</h2>
 
-    <p>What actually happens when your context exceeds the window? Three scenarios, and none of them are good.</p>
+    <p>What happens when your context exceeds the window? Three scenarios, none good:</p>
 
-    <p><strong>Scenario 1: API error.</strong> Some providers simply reject requests that exceed the model's context limit. You get a 400-level error, your user sees a failure state, and you're left scrambling. This is actually the best outcome &mdash; at least you know it failed.</p>
+    <table class="tier-table">
+      <thead>
+        <tr>
+          <th>Failure Mode</th>
+          <th>What Happens</th>
+          <th>How It Feels</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>API error</td>
+          <td>Provider rejects the request outright (400-level error)</td>
+          <td>Painful, but at least you <em>know</em> it broke</td>
+        </tr>
+        <tr>
+          <td>Silent truncation</td>
+          <td>Middleware quietly drops tokens from the start &mdash; your system prompt vanishes</td>
+          <td>The model still responds, but without guard rails or personality. Users notice; nobody knows why.</td>
+        </tr>
+        <tr>
+          <td>Degraded quality</td>
+          <td>At 95% capacity the model has no room to think and attention quality collapses</td>
+          <td>Like working at a desk piled so high with papers you can barely find your keyboard</td>
+        </tr>
+      </tbody>
+    </table>
 
-    <p><strong>Scenario 2: Silent truncation.</strong> Other providers or middleware layers quietly truncate the input, dropping tokens from the beginning to fit within the window. This is insidious: your system prompt &mdash; the instructions that define your product's behavior &mdash; can get silently removed. The model still responds, but now it's operating without guard rails, personality, or formatting instructions. Users notice the quality drop but have no idea why.</p>
+    <p>This leads to what engineers call the <strong>context budget problem.</strong> You have a fixed token budget per API call, and every component of your system competes for it: system prompt, conversation history, retrieved documents, the user's message, and reserved output tokens. Zero-sum game. A modest setup &mdash; 500-token system prompt, 10 turns of history, 3 RAG chunks, 1,000 tokens reserved for the response &mdash; already consumes 6,200 tokens. On an 8K model, that's 77% capacity before the conversation even gets interesting.</p>
 
-    <p><strong>Scenario 3: Degraded quality.</strong> Even within the technical limit, models struggle near capacity. When you're using 95% of the context window, the model has minimal room to "think" (generate output tokens) and the quality of its attention across the input degrades. It's like trying to work at a desk that's piled so high with papers you can barely find your keyboard.</p>
-
-    <p>This leads to what experienced AI engineers call the <strong>context budget problem.</strong> You have a fixed budget of tokens per API call, and every component of your system competes for it. Your system prompt takes some. Conversation history takes some. Retrieved documents take some. The user's message takes some. And you need to reserve room for the model's response. It's a zero-sum game.</p>
-
-    <p>A typical breakdown: 500 tokens for the system prompt, 300 tokens per conversation turn times 10 turns (3,000 tokens), 500 tokens per retrieved document chunk times 3 chunks (1,500 tokens), maybe 200 tokens for the user's latest message, and 1,000 tokens reserved for the response. That's already 6,200 tokens &mdash; and you're using a model with an 8K window, you're at 77% capacity after just 10 conversation turns.</p>
-
-    <p>This is why context management is an <strong>architecture problem</strong>, not an afterthought. You need to decide: how many turns of history to keep, when to summarize old messages, how many document chunks to retrieve, and what happens when you hit the ceiling. These are product decisions that directly affect user experience.</p>
+    <div class="callout callout--insight">
+      <div class="callout__label">Key Insight</div>
+      <div class="callout__body">Context management is an <strong>architecture problem</strong>, not an afterthought. How many turns of history to keep, when to summarize, how many chunks to retrieve, what happens at the ceiling &mdash; these are product decisions that directly shape user experience.</div>
+    </div>
 
     <p>Try building your own context budget below:</p>
   </article>
@@ -663,9 +693,9 @@
          ================================================================ -->
     <h2 id="whats-next"><span class="section-number">V</span> What's Next</h2>
 
-    <p>Now you understand the context window: what it is, how big it can get, why bigger isn't always better, and how the "lost in the middle" problem shapes prompt design. You know that context is a budget, and every component of your system competes for space in it.</p>
+    <p>Now you know the context window: what it is, why bigger isn't better, how the U-shaped attention curve shapes prompt design, and why context is a budget where every component competes for space.</p>
 
-    <p>But knowing the constraints is only half the story. In <a href="designing-for-memory.html">Part 2: Designing for Memory</a>, we'll cover the practical strategies for working within those constraints: conversation history management, smart summarization techniques, sliding window approaches, and the full memory stack that powers production AI applications. You'll learn how to give your users the <em>feeling</em> of continuous memory while staying within the hard limits of the context window.</p>
+    <p>In <a href="designing-for-memory.html">Part 2: Designing for Memory</a>, we cover the practical strategies: conversation history management, smart summarization, sliding windows, and the full memory stack behind production AI applications. You'll learn how to give users the <em>feeling</em> of continuous memory while staying within hard limits.</p>
 
     <p>The context window defines the playing field. Memory design is how you win on it.</p>
   </article>

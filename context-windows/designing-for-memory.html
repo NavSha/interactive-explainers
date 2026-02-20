@@ -18,7 +18,7 @@
       <nav class="breadcrumb breadcrumb--hero">
         <a href="../index.html">AI for PMs</a> &nbsp;/&nbsp; <a href="index.html">Context Windows &amp; Memory</a> &nbsp;/&nbsp; <span>Part 2</span>
       </nav>
-      <div class="article-header__meta" style="color: rgba(255,255,255,0.9);">Part 2 of 2 &middot; ~10 min read</div>
+      <div class="article-header__meta" style="color: rgba(255,255,255,0.9);">Part 2 of 2 &middot; ~7 min read</div>
       <h1 style="color: #fff;">Designing for Memory</h1>
       <p class="lead" style="color: rgba(255,255,255,0.85);">Models don't remember anything. Memory is an illusion — and you're the one building it.</p>
     </div>
@@ -54,42 +54,38 @@
          ================================================================ -->
     <h2 id="stateless"><span class="section-number">I</span> The Stateless Illusion</h2>
 
-    <p>When you chat with ChatGPT, it feels like it remembers your conversation. It references things you said three messages ago. It builds on previous answers. It seems to know you. But here's the truth that changes everything: <strong>every single API call is completely independent.</strong> The model has zero memory between calls. None. It doesn't remember what you said ten seconds ago.</p>
+    <p>When you chat with ChatGPT, it feels like it remembers your conversation. It references things from three messages ago. It builds on previous answers. But <strong>every single API call is completely independent.</strong> The model has zero memory between calls. Your application re-sends the entire conversation with every new message. The model isn't "remembering" — it's re-reading from scratch. The world's most diligent goldfish.</p>
 
-    <p>So what's really happening? Your application is doing the heavy lifting. It stores the conversation history in a database or in-memory store, and then <em>re-sends the entire conversation</em> with every new message. The model isn't "remembering" — it's re-reading the entire transcript from scratch, every single time.</p>
+    <div class="callout callout--analogy">
+      <div class="callout__label">Analogy</div>
+      <div class="callout__body">Think of it like a doctor who reads your entire medical file before every appointment, then develops complete amnesia the moment you walk out the door. The file creates the continuity, not the doctor's brain.</div>
+    </div>
 
-    <p>Think of it like a doctor who reads your entire medical file before every appointment, then develops complete amnesia the moment you walk out the door. The file creates the continuity, not the doctor's brain. The doctor is brilliant — but only within the bounds of what's in front of them right now.</p>
-
-    <p>As a PM, this reframe is critical. You're not configuring the model's memory. You're <strong>designing what gets re-sent.</strong> Every "memory" feature in your product is really a decision about what context to include in the next API call. And since context windows have finite capacity, those decisions involve real tradeoffs — what to keep, what to compress, and what to discard.</p>
-
-    <p>The rest of this article is about making those decisions well.</p>
+    <p>As a PM, this reframe is critical. You're not configuring the model's memory — you're <strong>designing what gets re-sent.</strong> Every "memory" feature is really a decision about what context to include in the next API call. And since context windows are finite, those decisions involve real tradeoffs.</p>
 
     <!-- ================================================================
          Section II: Conversation History Strategies
          ================================================================ -->
     <h2 id="history-strategies"><span class="section-number">II</span> Conversation History Strategies</h2>
 
-    <p>There are three fundamental approaches to managing conversation history, and every production AI app uses some variation of them.</p>
+    <p>Three fundamental approaches, and every production AI app uses some variation.</p>
 
     <h3>Full History</h3>
 
-    <p>The simplest approach: send the entire conversation every time. Every user message, every assistant response, from the very first turn. The implementation is trivial — just append and send. And the fidelity is perfect — the model sees everything that was ever said.</p>
-
-    <p>But context fills up fast. A 20-turn conversation can easily hit 10,000+ tokens. A 100-turn support session? You'll blow through most context windows. Full history works beautifully for short conversations on large-window models, but it doesn't scale to long interactions. And you're paying for every token you re-send.</p>
+    <p>Send the entire conversation every time. Implementation is trivial, fidelity is perfect. But a 20-turn conversation hits 10,000+ tokens easily. A 100-turn support session blows through most context windows. Works for short conversations, doesn't scale.</p>
 
     <h3>Sliding Window</h3>
 
-    <p>Keep only the last N turns — say, the last 10 messages. Older messages get dropped entirely. This gives you simple, predictable token usage. You always know roughly how much context you're consuming.</p>
-
-    <p>The downside is brutal: the model loses all context before the window boundary. If the user mentioned their name in turn 1 and you're at turn 15 with a 10-turn window, the model doesn't know their name anymore. It will ask again, or worse, make something up. Critical details from early in the conversation simply vanish.</p>
+    <p>Keep only the last N turns. Simple, predictable token usage. The downside is brutal: if the user mentioned their name in turn 1 and you're at turn 15 with a 10-turn window, the model doesn't know their name anymore. It will ask again — or worse, confidently make one up.</p>
 
     <h3>Summarization</h3>
 
-    <p>Periodically compress old messages into a summary. Instead of the full back-and-forth, the model sees something like: <em>"The user discussed their billing issue with order #123, prefers email communication, and has been a customer for 5 years."</em> You preserve the key facts in far fewer tokens.</p>
+    <p>Periodically compress old messages into a summary. Preserves key facts in fewer tokens. The tradeoff: summaries lose nuance — tone, phrasing, the exact back-and-forth. And summarization itself costs money (another LLM call each time).</p>
 
-    <p>The tradeoff? Summaries lose nuance. Tone, phrasing, the exact back-and-forth that led to a decision — all compressed away. And summarization itself costs money, because generating that summary requires another LLM call. For long conversations, you might need dozens of summarization calls.</p>
-
-    <p>No strategy is universally best. Use <strong>full history</strong> for short, high-stakes conversations where every detail matters. Use a <strong>sliding window</strong> for casual chat where recency matters more than history. Use <strong>summarization</strong> for long-running sessions where key facts must persist. Most production applications use a hybrid — and the widget below lets you see exactly why.</p>
+    <div class="callout callout--pm-tip">
+      <div class="callout__label">PM Tip</div>
+      <div class="callout__body">No strategy is universally best. Use <strong>full history</strong> for short, high-stakes conversations. <strong>Sliding window</strong> for casual chat where recency beats history. <strong>Summarization</strong> for long sessions where key facts must persist. Most production apps use a hybrid.</div>
+    </div>
   </article>
 
   <!-- ================================================================
@@ -138,30 +134,56 @@
          ================================================================ -->
     <h2 id="summarization"><span class="section-number">III</span> Smart Summarization</h2>
 
-    <p>Basic summarization works, but <strong>smart summarization is an art.</strong> The difference between a good memory system and a great one often comes down to how thoughtfully you compress information.</p>
+    <p><strong>Progressive summarization</strong> is the first key technique: summarize the <em>previous summary plus new messages</em> rather than re-summarizing from scratch. Cheaper and faster, but introduces information decay. Each round can lose fidelity — a photocopy of a photocopy of a photocopy. After five rounds, important details may have quietly vanished.</p>
 
-    <p><strong>Progressive summarization</strong> is the first key technique. Instead of re-summarizing the entire conversation from scratch each time, you summarize the <em>previous summary plus the new messages.</em> This is cheaper and faster, but it introduces a subtle risk: information decay. Each summarization round can lose a little fidelity, like making a photocopy of a photocopy. After five rounds, important details may have quietly disappeared.</p>
+    <p><strong>Entity extraction</strong> combats this decay. Always preserve names, numbers, dates, and commitments. "Sarah" and "$49.99 refund" and "March 15th" should survive every summarization round. Some teams maintain a structured entity list alongside the narrative summary — a small JSON of key facts that never gets compressed away.</p>
 
-    <p><strong>Entity extraction</strong> combats this decay. The principle is simple: always preserve names, numbers, dates, and specific commitments. "Sarah" and "$49.99 refund" and "March 15th billing cycle" should survive every summarization round, no matter how aggressively you compress everything else. Some teams maintain a structured entity list alongside the narrative summary — a small JSON object of key facts that never gets summarized away.</p>
+    <p><strong>Key-fact tracking</strong> takes this further: a structured list of critical facts (customer name, account details, commitments, preferences) that's cheap in tokens and ensures the model never loses the most important context.</p>
 
-    <p><strong>Key-fact tracking</strong> takes this further. Rather than relying on the summary alone, maintain a structured list of critical facts: customer name, account details, commitments made, preferences expressed. This list is cheap in tokens and ensures the model never loses the most important context, even after dozens of summarization rounds.</p>
-
-    <p>Then there's the <strong>cost trap.</strong> Every summarization call is another LLM invocation — more latency, more money. A 100-message conversation might need 10 summarization calls over its lifetime. At scale, this adds up. PMs need to decide: how often should you trigger summarization? Every 5 messages? Every 10? And what level of fidelity do you maintain? These are product decisions that directly impact both cost and user experience.</p>
+    <div class="callout callout--insight">
+      <div class="callout__label">Key Insight</div>
+      <div class="callout__body">Every summarization call is another LLM invocation — more latency, more money. A 100-message conversation might need 10 summarization calls. PMs need to decide: how often to trigger summarization and what fidelity to maintain. These are product decisions that directly impact cost and experience.</div>
+    </div>
 
     <!-- ================================================================
          Section IV: External Memory
          ================================================================ -->
     <h2 id="external-memory"><span class="section-number">IV</span> External Memory</h2>
 
-    <p>Sometimes the answer isn't fitting more into the context window — it's storing information <em>outside</em> and retrieving only what's relevant when you need it.</p>
+    <p>Sometimes the answer isn't fitting more into the context window — it's storing information <em>outside</em> and retrieving only what's relevant.</p>
 
-    <p><strong>Vector databases</strong> are the foundation of this approach. They store information as embeddings — numerical representations that capture semantic meaning. When the user asks a question, you convert that question into an embedding, search the vector database for the most similar stored information, and inject the results into the context window. The model never sees the full database — just the most relevant fragments.</p>
+    <table class="tier-table">
+      <thead>
+        <tr>
+          <th>Approach</th>
+          <th>What it does</th>
+          <th>Token cost</th>
+          <th>Best for</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Vector databases</td>
+          <td>Store info as embeddings, retrieve semantically similar content per query</td>
+          <td>Only retrieved fragments</td>
+          <td>Large knowledge bases, RAG</td>
+        </tr>
+        <tr>
+          <td>User profiles</td>
+          <td>Persist preferences and history across sessions</td>
+          <td>~200-500 tokens</td>
+          <td>Personalization</td>
+        </tr>
+        <tr>
+          <td>Knowledge bases</td>
+          <td>Domain expertise retrieved on demand (help center, docs)</td>
+          <td>2-3 articles per query</td>
+          <td>Support agents, RAG</td>
+        </tr>
+      </tbody>
+    </table>
 
-    <p><strong>User profiles</strong> persist preferences and history across sessions. Instead of re-learning that a user prefers concise responses, speaks Spanish, and works in healthcare, you load their profile into context at the start of every conversation. This is cheap — a few hundred tokens — and dramatically improves personalization.</p>
-
-    <p><strong>Knowledge bases</strong> provide domain expertise on demand. Your AI support agent doesn't need to hold your entire help center in its context window. It searches the knowledge base when a question comes in and retrieves the two or three most relevant articles. This is the bridge to <strong>RAG</strong> — Retrieval-Augmented Generation — one of the most important patterns in production AI.</p>
-
-    <p>The key insight for PMs: external memory turns a fixed-size context window into an effectively <strong>unlimited knowledge base.</strong> The window is still finite, but you're dynamically filling it with exactly the right information for each query. The challenge shifts from "how do we fit everything in?" to "how do we retrieve the right things at the right time?" And that retrieval quality — not the model's raw intelligence — often determines whether your product feels smart or frustrating.</p>
+    <p>This is the bridge to <strong>RAG</strong> — Retrieval-Augmented Generation — one of the most important patterns in production AI. External memory turns a fixed-size context window into an effectively <strong>unlimited knowledge base.</strong> The challenge shifts from "how do we fit everything in?" to "how do we retrieve the right things?" And retrieval quality — not model intelligence — often determines whether your product feels smart or frustrating.</p>
   </article>
 
   <!-- ================================================================
@@ -221,6 +243,11 @@
     </ol>
 
     <p>The <strong>order matters</strong> — and if you read Part 1, you know why. Research on the "lost in the middle" problem shows that models pay most attention to content at the beginning and end of their context. So: system prompt at the start, the user's latest message at the end, and everything else layered in between, ordered by importance. The retrieved context sits close to the user's message because it's most relevant to the current query.</p>
+
+    <div class="callout callout--pm-tip">
+      <div class="callout__label">PM Tip</div>
+      <div class="callout__body">Order matters in the memory stack. Models pay most attention to the beginning and end of context — the "lost in the middle" problem from Part 1. Getting this wrong is like burying the lead on page 7 of a memo nobody finishes. Put system instructions first, recent messages last, and retrieval results near the end.</div>
+    </div>
 
     <p>Every layer competes for the same finite context window. Spending more tokens on your system prompt means fewer tokens for retrieved context. A longer conversation history means less room for knowledge base articles. The widget below lets you feel these tradeoffs directly.</p>
   </article>
@@ -335,16 +362,19 @@
          ================================================================ -->
     <h2 id="wrapping-up"><span class="section-number">VI</span> Wrapping Up</h2>
 
-    <p>Here's what to take away from this series on context windows and memory:</p>
+    <div class="callout callout--summary">
+      <div class="callout__label">Takeaway</div>
+      <div class="callout__body">
+        <ol style="margin: 0; padding-left: 1.2em;">
+          <li><strong>Memory is application logic, not model magic.</strong> The model is stateless. What it sees is what you send.</li>
+          <li><strong>Match strategy to use case.</strong> Full history, sliding window, summarization, retrieval — each has tradeoffs. No universal best.</li>
+          <li><strong>The memory stack is the architecture.</strong> System prompt, user profile, summarized history, recent messages, retrieved context — layered by importance, constrained by the window.</li>
+          <li><strong>External memory extends context beyond any window.</strong> Vector databases and retrieval turn a finite window into an effectively unlimited knowledge base.</li>
+        </ol>
+      </div>
+    </div>
 
-    <ol>
-      <li><strong>Memory is application logic, not model magic.</strong> The model is stateless. You decide what it sees, and that decision is the product.</li>
-      <li><strong>Match your strategy to your use case.</strong> Full history, sliding window, summarization, retrieval — each has tradeoffs. There is no universal best approach.</li>
-      <li><strong>The memory stack is the architecture pattern.</strong> System prompt, user profile, summarized history, recent messages, retrieved context — layered by importance, constrained by the window.</li>
-      <li><strong>External memory extends context far beyond any window limit.</strong> Vector databases and retrieval turn a finite window into an effectively unlimited knowledge base.</li>
-    </ol>
-
-    <p>Understanding context windows and memory is foundational. It shapes how you design every conversational AI feature — from a simple chatbot to a complex multi-session assistant. Every time a user says "why did it forget?" or "how does it know that?", the answer traces back to these concepts.</p>
+    <p>These concepts are foundational. They shape how you design every conversational AI feature — from a simple chatbot to a multi-session assistant. Every time a user says "why did it forget?" or "how does it know that?", the answer traces back here.</p>
   </article>
 
   <!-- ================================================================

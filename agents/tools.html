@@ -18,7 +18,7 @@
       <nav class="breadcrumb breadcrumb--hero">
         <a href="../index.html">AI for PMs</a> &nbsp;/&nbsp; <a href="index.html">Agents &amp; Tool Use</a> &nbsp;/&nbsp; <span>Part 2</span>
       </nav>
-      <div class="article-header__meta" style="color: rgba(255,255,255,0.9);">Part 2 of 3 &middot; ~10 min read</div>
+      <div class="article-header__meta" style="color: rgba(255,255,255,0.9);">Part 2 of 3 &middot; ~7 min read</div>
       <h1 style="color: #fff;">Tools &amp; Function Calling</h1>
       <p class="lead" style="color: rgba(255,255,255,0.85);">How agents interact with the real world — and why the toolbox you give them matters more than you think.</p>
     </div>
@@ -54,33 +54,32 @@
          ================================================================ -->
     <h2 id="giving-agents-hands"><span class="section-number">I</span> Giving Agents Hands</h2>
 
-    <p>In Part 1, we learned that agents work in a loop: think, act, observe, repeat. But we glossed over a crucial detail — <em>how does the "act" step actually work?</em></p>
+    <p>In Part 1, we learned agents work in a loop: think, act, observe, repeat. But how does the "act" step actually work?</p>
 
-    <p>Here's the thing that surprises most people: the LLM never actually does anything. It can't call an API. It can't query a database. It can't send an email. All it can do is generate text. So how does an agent take action in the real world?</p>
+    <p>The LLM never actually does anything. It can't call an API, query a database, or send an email. All it can do is generate text. So the answer is <strong>function calling</strong> (also called "tool use"): instead of plain text, the LLM outputs a structured request — "I'd like to call this function with these parameters." Your code executes the function and feeds the result back. The LLM is the brain. Your code is the hands. Without your code, it's a very articulate quadriplegic.</p>
 
-    <p>The answer is <strong>function calling</strong> (also called "tool use"). Instead of generating a plain text response, the LLM outputs a structured request — essentially saying "I'd like to call this function with these parameters." Your application code then executes that function, gets the result, and feeds it back to the LLM.</p>
-
-    <p>The LLM is the brain. Your code is the hands. Tools are the interface between them.</p>
-
-    <p>For PMs, this distinction matters because it means <strong>you control the agent's capabilities entirely.</strong> An agent can only do what you give it tools to do. No tools for deleting data? The agent can't delete data — no matter what a user asks it to do. This is a powerful product design lever.</p>
+    <div class="callout callout--insight">
+      <div class="callout__label">Key Insight</div>
+      <div class="callout__body"><strong>You control the agent's capabilities entirely.</strong> An agent can only do what you give it tools to do. No tools for deleting data? The agent can't delete data — no matter what a user asks. This is a powerful product design lever.</div>
+    </div>
 
     <!-- ================================================================
          Section II: Anatomy of a Tool
          ================================================================ -->
     <h2 id="anatomy-of-a-tool"><span class="section-number">II</span> Anatomy of a Tool</h2>
 
-    <p>A tool is just a function description that you include in the system prompt. It tells the LLM: "here's something you can do, here's what it's called, and here's what information you need to provide when you call it."</p>
+    <p>A tool is a function description included in the system prompt. It tells the LLM: "here's something you can do, here's what it's called, here's what inputs you need."</p>
 
-    <p>Every tool has four key parts:</p>
+    <p>Four key parts:</p>
 
     <ol>
-      <li><strong>Name</strong> — A clear, descriptive identifier like <code>search_flights</code> or <code>send_email</code>. The LLM uses this to decide <em>which</em> tool to call.</li>
-      <li><strong>Description</strong> — A natural language explanation of what the tool does and when to use it. This is surprisingly important — a vague description leads to the LLM calling the tool at the wrong times.</li>
-      <li><strong>Parameters</strong> — The inputs the tool needs, with types and descriptions. Like a function signature: <code>destination (string, required)</code>, <code>max_price (number, optional)</code>.</li>
-      <li><strong>Returns</strong> — What comes back after the tool runs. The LLM needs to know what to expect so it can interpret the result.</li>
+      <li><strong>Name</strong> — A clear identifier like <code>search_flights</code>. The LLM uses this to decide <em>which</em> tool to call.</li>
+      <li><strong>Description</strong> — Natural language explaining what it does and when to use it. A vague description leads to wrong calls at wrong times.</li>
+      <li><strong>Parameters</strong> — Inputs with types and descriptions: <code>destination (string, required)</code>, <code>max_price (number, optional)</code>.</li>
+      <li><strong>Returns</strong> — What comes back. The LLM needs this to interpret results.</li>
     </ol>
 
-    <p>Explore a real tool definition below — click each part to understand its role:</p>
+    <p>Explore a real tool definition below:</p>
   </article>
 
   <!-- ================================================================
@@ -119,25 +118,28 @@
   </div>
 
   <article class="prose">
-    <p>Notice how much of this is <em>documentation for the LLM</em>. The descriptions aren't just for human developers — they're the primary way the model understands when and how to use each tool. A well-documented tool gets called correctly. A poorly-documented one gets called at the wrong times with the wrong parameters.</p>
+    <div class="callout callout--analogy">
+      <div class="callout__label">Analogy</div>
+      <div class="callout__body">Writing tool descriptions is like writing a brief for a new hire who reads instructions extremely literally. Say "search for flights" and they'll search. Forget to say "only search when the user asks about travel" and they'll search flights when someone asks about the weather.</div>
+    </div>
 
     <!-- ================================================================
          Section III: The Protocol
          ================================================================ -->
     <h2 id="the-protocol"><span class="section-number">III</span> The Protocol</h2>
 
-    <p>Now let's see how function calling actually works in practice. The protocol has a simple rhythm:</p>
+    <p>The function calling protocol has a simple rhythm:</p>
 
     <ol>
-      <li><strong>You define tools</strong> — Your app sends tool definitions along with the user's message to the LLM.</li>
-      <li><strong>The LLM decides</strong> — Based on the user's request and available tools, the model either responds with text (if no tool is needed) or outputs a structured <code>tool_call</code> with a function name and arguments.</li>
-      <li><strong>Your code executes</strong> — Your application receives the tool call, runs the actual function (hits the API, queries the DB), and gets the result.</li>
-      <li><strong>Results go back</strong> — You send the tool result back to the LLM, which then decides what to do next — respond to the user, or make another tool call.</li>
+      <li><strong>You define tools</strong> — Your app sends tool definitions along with the user's message.</li>
+      <li><strong>The LLM decides</strong> — It outputs either plain text or a structured <code>tool_call</code> with function name and arguments.</li>
+      <li><strong>Your code executes</strong> — Your app runs the function (hits the API, queries the DB) and gets the result.</li>
+      <li><strong>Results go back</strong> — The tool result goes to the LLM, which decides what to do next.</li>
     </ol>
 
-    <p>The key insight: <strong>the LLM never sees your API keys, never touches your database, and never executes code directly.</strong> It only expresses intent. Your code — which you control — handles execution. This is a critical security boundary.</p>
+    <p><strong>The LLM never sees your API keys, never touches your database, never executes code directly.</strong> It only expresses intent. Your code handles execution. This is a critical security boundary.</p>
 
-    <p>Walk through the exact message exchange below:</p>
+    <p>Walk through the exact message exchange:</p>
   </article>
 
   <!-- ================================================================
@@ -167,14 +169,14 @@
   </div>
 
   <article class="prose">
-    <p>That's the entire protocol. It looks simple — and it is. But the simplicity is the point. Every AI provider (OpenAI, Anthropic, Google) implements this same basic pattern, which means the mental model you just built applies everywhere.</p>
+    <p>The entire protocol, and it's the same pattern across every AI provider. The mental model you just built applies everywhere.</p>
 
     <!-- ================================================================
          Section IV: Designing Good Tools
          ================================================================ -->
     <h2 id="designing-good-tools"><span class="section-number">IV</span> Designing Good Tools</h2>
 
-    <p>Here's where product thinking meets engineering. The tools you design directly determine what your agent can do, how reliably it does it, and how often it makes mistakes. Bad tools lead to bad agents — no matter how smart the underlying model is.</p>
+    <p>The tools you design directly determine what your agent can do, how reliably it does it, and how often it makes mistakes. Giving a powerful model poorly designed tools is like hiring a Michelin-star chef and giving them a spork.</p>
 
     <p>Three principles for designing effective tools:</p>
 
@@ -183,6 +185,11 @@
     <p><strong>Principle 2: Name and describe for the LLM, not just for humans.</strong> The model reads your tool names and descriptions to decide what to call. <code>update_crm</code> is ambiguous — update what? <code>update_contact_email</code> is clear. The description should say <em>when</em> to use it, not just what it does: "Use this when the user wants to change a contact's email address in the CRM."</p>
 
     <p><strong>Principle 3: Constrain inputs.</strong> Use enums instead of free text when possible. Instead of <code>cabin_class: string</code>, use <code>cabin_class: enum["economy", "business", "first"]</code>. This prevents the LLM from inventing invalid values like "premium" or "standard." Required vs. optional parameters also guide the model on what it <em>must</em> collect before calling the tool.</p>
+
+    <div class="callout callout--pm-tip">
+      <div class="callout__label">PM Tip</div>
+      <div class="callout__body">Review your tool descriptions the way you'd review landing page copy. Every word shapes behavior. A/B test descriptions against real queries — you'll be surprised how much a single sentence change affects call accuracy.</div>
+    </div>
 
     <p>See how tool design affects agent behavior in the demo below:</p>
   </article>
@@ -245,24 +252,29 @@
   </div>
 
   <article class="prose">
-    <p>Notice how the agent adapts. With all the right tools, it executes the full task. Remove a critical tool, and it has to tell the user what it can't do. Add extra tools, and it might use them unnecessarily — or get confused about which one to call.</p>
+    <p>Notice how the agent adapts. With the right tools, it executes the full task. Remove a critical tool, and it gracefully degrades. Add too many, and it becomes the overachieving intern who CC's the entire company on a routine email — technically thorough, practically obnoxious.</p>
 
-    <p>This is why tool design is a <strong>product decision, not just an engineering one.</strong> The tools you expose define the boundaries of what your agent can do. Add too few, and the agent is limited. Add too many, and you introduce a different kind of problem.</p>
+    <p>This is why tool design is a <strong>product decision, not just an engineering one.</strong> The tools you expose define the boundaries of what your agent can do.</p>
 
     <!-- ================================================================
          Section V: The Toolbox Problem
          ================================================================ -->
     <h2 id="the-toolbox-problem"><span class="section-number">V</span> The Toolbox Problem</h2>
 
-    <p>It seems intuitive: more tools should make an agent more capable. But in practice, there's a sharp tradeoff. As you add more tools, three things happen:</p>
+    <p>It seems intuitive: more tools should make an agent more capable. But in practice, there's a sharp tradeoff. As you add more tools, three things break down:</p>
 
-    <ol>
-      <li><strong>Selection accuracy drops.</strong> With 5 tools, the LLM almost always picks the right one. With 50 tools, it starts confusing similar tools or calling the wrong one entirely.</li>
-      <li><strong>Prompt size grows.</strong> Every tool definition takes up tokens in the context window. More tools means less room for conversation history, user context, and reasoning.</li>
-      <li><strong>Latency increases.</strong> Larger prompts take longer to process. Your agent gets slower as its toolbox grows.</li>
-    </ol>
+    <table class="tier-table">
+      <thead>
+        <tr><th>Problem</th><th>What Happens</th><th>Example</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Selection accuracy drops</strong></td><td>The LLM confuses similar tools or picks the wrong one</td><td>5 tools: 97% accuracy. 50 tools: below 60%</td></tr>
+        <tr><td><strong>Prompt size grows</strong></td><td>Every tool eats context tokens, crowding out conversation and reasoning</td><td>50 tools can consume 40%+ of an 8k context window</td></tr>
+        <tr><td><strong>Latency increases</strong></td><td>Larger prompts take longer to process; the agent slows down</td><td>Each tool adds ~50ms; 50 tools adds 2.5s per call</td></tr>
+      </tbody>
+    </table>
 
-    <p>This creates a design challenge that PMs must navigate. You want your agent to be capable, but every tool you add has a cost — not just in engineering effort, but in reliability.</p>
+    <p>Every tool you add has a cost — not just in engineering effort, but in reliability.</p>
 
     <p>Explore the tradeoff below:</p>
   </article>
@@ -313,20 +325,19 @@
   </div>
 
   <article class="prose">
-    <p>The practical takeaway: <strong>start small.</strong> Launch with the 3-5 tools your agent absolutely needs. Measure accuracy. Then add tools one at a time, watching for regressions. Most production agents work best with 5-15 well-designed tools.</p>
-
-    <p>If your agent needs access to dozens of capabilities, consider <strong>tool routing</strong> — a lightweight classifier that selects a relevant subset of tools before passing them to the LLM. This gives the model a focused toolbox for each request instead of the entire catalog.</p>
+    <div class="callout callout--summary">
+      <div class="callout__label">Summary</div>
+      <div class="callout__body"><strong>Start small with 3-5 tools.</strong> Measure accuracy, then expand one tool at a time based on real user needs — not hypothetical ones. Most production agents work best with 5-15 well-designed tools. If you need dozens, use <strong>tool routing</strong>: a lightweight classifier that selects a relevant subset per request instead of dumping the entire catalog into the prompt.</div>
+    </div>
 
     <!-- ================================================================
          Section VI: What's Next
          ================================================================ -->
     <h2 id="whats-next"><span class="section-number">VI</span> What's Next</h2>
 
-    <p>You now understand how agents interact with the world: through tool definitions that the LLM reads, function calls that the LLM outputs, and results that your code sends back. You also know that tool design is a product decision — the tools you choose shape what your agent can do, how reliably it does it, and how fast it responds.</p>
+    <p>You now understand how agents interact with the world: tool definitions the LLM reads, function calls it outputs, results your code sends back. The tools you choose shape capability, reliability, and speed — making tool design a product decision, not just an engineering one.</p>
 
-    <p>But even with the perfect loop and perfectly designed tools, agents still fail. In Part 3, we'll confront the hard realities: what happens when agents loop forever, call the wrong tool, or hallucinate parameters that don't exist. We'll build a cost model, explore failure modes, and give you a decision framework for when to use agents versus simpler alternatives.</p>
-
-    <p>The loop gives agents their rhythm. Tools give them their reach. Knowing their limits gives you the judgment to build products that actually work.</p>
+    <p>But even with perfect tools, agents still fail. In Part 3, we'll confront the hard realities: infinite loops, wrong tool calls, hallucinated parameters. We'll build a cost model, explore failure modes, and give you a framework for when to use agents versus simpler alternatives.</p>
   </article>
 
   <nav class="article-nav">
