@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Reality Check — AI for PMs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/shared.css?v=8">
+  <style>
+    .article-hero { background: var(--accent-vibe-gradient); }
+    .toc__list a:hover { color: var(--accent-vibe); }
+    .prose blockquote { border-left-color: var(--accent-vibe); }
+    .widget { background: var(--accent-vibe-light); border-color: #99F6E4; }
+    .widget__label { color: var(--accent-vibe); }
+    .btn--primary { background: var(--accent-vibe); }
+    .btn--active { background: var(--accent-vibe); border-color: var(--accent-vibe); }
+    .btn--secondary:hover:not(:disabled) { border-color: var(--accent-vibe); color: var(--accent-vibe); }
+    .tier-table tbody tr:hover { background: var(--accent-vibe-light); }
+
+    /* Should You Ship It? Widget */
+    .ship-check__list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+      margin-bottom: var(--space-6);
+    }
+    .ship-check__item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+      padding: var(--space-4);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all var(--duration-fast) var(--ease-out);
+      user-select: none;
+    }
+    .ship-check__item:hover {
+      border-color: var(--accent-vibe);
+      background: #F8FFFE;
+    }
+    .ship-check__item--active {
+      border-color: var(--accent-vibe);
+      background: var(--accent-vibe-light);
+    }
+    .ship-check__toggle {
+      width: 40px;
+      height: 22px;
+      border-radius: 11px;
+      background: var(--color-border);
+      position: relative;
+      flex-shrink: 0;
+      transition: background var(--duration-fast) var(--ease-out);
+    }
+    .ship-check__toggle::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: white;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+      transition: transform var(--duration-fast) var(--ease-out);
+    }
+    .ship-check__item--active .ship-check__toggle {
+      background: var(--accent-vibe);
+    }
+    .ship-check__item--active .ship-check__toggle::after {
+      transform: translateX(18px);
+    }
+    .ship-check__label {
+      font-family: var(--font-sans);
+      font-size: var(--text-sm);
+      font-weight: 500;
+      color: var(--color-text);
+      flex: 1;
+    }
+    .ship-check__tooltip {
+      font-family: var(--font-sans);
+      font-size: var(--text-xs);
+      color: var(--color-text-secondary);
+      margin-top: 2px;
+      line-height: 1.4;
+    }
+    .ship-meter {
+      margin-top: var(--space-4);
+    }
+    .ship-meter__bar-track {
+      height: 12px;
+      background: var(--color-border-light);
+      border-radius: 6px;
+      overflow: hidden;
+      position: relative;
+    }
+    .ship-meter__bar-fill {
+      height: 100%;
+      border-radius: 6px;
+      transition: width var(--duration-normal) var(--ease-out), background var(--duration-normal);
+      width: 0%;
+    }
+    .ship-meter__labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: var(--space-2);
+      font-family: var(--font-sans);
+      font-size: var(--text-xs);
+      color: var(--color-text-secondary);
+    }
+    .ship-meter__verdict {
+      margin-top: var(--space-6);
+      padding: var(--space-6);
+      border-radius: 8px;
+      text-align: center;
+      animation: messageSlideIn var(--duration-normal) var(--ease-out);
+      font-family: var(--font-sans);
+    }
+    .ship-meter__verdict-icon {
+      font-size: 2rem;
+      margin-bottom: var(--space-2);
+    }
+    .ship-meter__verdict-title {
+      font-family: var(--font-serif);
+      font-size: var(--text-lg);
+      font-weight: 600;
+      margin-bottom: var(--space-2);
+    }
+    .ship-meter__verdict-text {
+      font-size: var(--text-sm);
+      color: var(--color-text-secondary);
+      line-height: 1.55;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+    .ship-meter__verdict--green {
+      background: #F0FDF4;
+      border: 1px solid #A7F3D0;
+    }
+    .ship-meter__verdict--green .ship-meter__verdict-title { color: #059669; }
+    .ship-meter__verdict--yellow {
+      background: #FFFBEB;
+      border: 1px solid #FDE68A;
+    }
+    .ship-meter__verdict--yellow .ship-meter__verdict-title { color: #D97706; }
+    .ship-meter__verdict--red {
+      background: #FEF2F2;
+      border: 1px solid #FECACA;
+    }
+    .ship-meter__verdict--red .ship-meter__verdict-title { color: #DC2626; }
+  </style>
+</head>
+<body>
+
+  <header class="article-hero" id="article-hero">
+    <canvas class="article-hero__canvas" id="hero-canvas"></canvas>
+    <div class="article-hero__overlay"></div>
+    <div class="article-hero__content">
+      <nav class="breadcrumb breadcrumb--hero">
+        <a href="../index.html">AI for PMs</a> &nbsp;/&nbsp; <a href="index.html">Vibe Coding</a> &nbsp;/&nbsp; <span>Part 3</span>
+      </nav>
+      <div class="article-header__meta" style="color: rgba(255,255,255,0.9);">Part 3 of 3 &middot; ~10 min read</div>
+      <h1 style="color: #fff;">The Reality Check</h1>
+      <p class="lead" style="color: rgba(255,255,255,0.85);">Honest boundaries of vibe coding, when to hand off to engineering, and how to think about quality, maintenance, and technical debt.</p>
+    </div>
+  </header>
+
+  <nav class="toc" aria-label="Table of contents">
+    <div class="toc__inner">
+      <div class="toc__title">Contents</div>
+      <ol class="toc__list">
+        <li><span class="toc__numeral">I.</span><a href="#what-vibe-coding-cant-do">What Vibe Coding Can't Do</a></li>
+        <li><span class="toc__numeral">II.</span><a href="#quality-question">The Quality Question</a></li>
+        <li><span class="toc__numeral">III.</span><a href="#when-to-hand-off">When to Hand Off</a></li>
+        <li><span class="toc__numeral">IV.</span><a href="#working-with-engineers">Working with Engineers</a></li>
+        <li><span class="toc__numeral">V.</span><a href="#maintenance-trap">The Maintenance Trap</a></li>
+        <li><span class="toc__numeral">VI.</span><a href="#road-ahead">The Road Ahead</a></li>
+      </ol>
+    </div>
+  </nav>
+
+  <div class="epigraph">
+    <p class="epigraph__verse">
+      The code compiles clean, the demo looks right,<br>
+      But production's a different kind of fight.<br>
+      Know when to ship it, know when to pass &mdash;<br>
+      The craft ain't just building, it's knowing what'll last.
+    </p>
+  </div>
+
+  <article class="prose">
+
+    <!-- ================================================================
+         Section I: What Vibe Coding Can't Do
+         ================================================================ -->
+    <h2 id="what-vibe-coding-cant-do"><span class="section-number">I</span> What Vibe Coding Can't Do</h2>
+
+    <p>Let's get honest. The first two parts of this series were about possibility &mdash; what you <em>can</em> build, how to build it well. This part is about limits. Because the most dangerous thing a PM can do with AI-generated code isn't building the wrong thing. It's building the right thing and not knowing where the floor is about to give out.</p>
+
+    <p><strong>Security-critical systems.</strong> AI-generated code doesn't think about attack vectors. It'll happily produce a login form that's vulnerable to SQL injection, an API that doesn't validate permissions, or a file upload that accepts anything. It's not that the AI can't write secure code &mdash; it can, when explicitly prompted. But it doesn't <em>default</em> to security the way an experienced engineer does. It defaults to "works."</p>
+
+    <p><strong>Complex state management.</strong> When your app needs to keep track of dozens of interacting variables &mdash; a shopping cart that applies coupons, handles inventory limits, calculates tax by region, and syncs with a backend &mdash; the AI starts making subtle mistakes. Each piece works in isolation. Together, edge cases multiply and the AI loses track of the interactions between them.</p>
+
+    <p><strong>Performance-sensitive code.</strong> The AI optimizes for readability and correctness, not speed. For most apps, that's fine. But if you need to render thousands of rows, process real-time data, or handle concurrent requests under load, AI-generated code often takes the straightforward path when it needs the clever one.</p>
+
+    <p><strong>Business invariants.</strong> Your business has rules that aren't written down anywhere in the code. "Free-tier users can't exceed 100 API calls per day." "Orders over $10,000 need manual approval." "This field is called 'status' but only the values 'active', 'paused', and 'closed' are valid." The AI doesn't know these rules exist unless you tell it, and it's remarkably good at building things that violate them in ways that look correct on the surface.</p>
+
+    <div class="callout callout--insight">
+      <div class="callout__label">Key Insight</div>
+      <div class="callout__body"><strong>AI code that "works" and code that's "correct" are not the same thing.</strong> "Works" means it runs without errors and produces the expected output for the cases you tested. "Correct" means it handles every edge case, respects every business rule, fails gracefully, and doesn't create security holes. The gap between works and correct is where production incidents live.</div>
+    </div>
+
+    <p>None of this means you shouldn't vibe code. It means you should know <em>where you are</em> on the spectrum between "throwaway experiment" and "production system." The tool is the same. The judgment about when to use it is yours.</p>
+
+    <!-- ================================================================
+         Section II: The Quality Question
+         ================================================================ -->
+    <h2 id="quality-question"><span class="section-number">II</span> The Quality Question</h2>
+
+    <p>AI-generated code runs. It usually does what you asked it to do. But is it <em>good</em>?</p>
+
+    <p>The honest answer: it depends on what "good" means. For a prototype you're showing in a meeting next Tuesday, the bar is "it works and doesn't crash." For an internal tool your team uses daily, the bar is "it works, it's reliable, and someone can fix it when it breaks." For a customer-facing feature, the bar is "it works, it's reliable, it's secure, it's fast, and it doesn't embarrass us."</p>
+
+    <p>The trap is that AI-generated code often <em>looks</em> good. Clean variable names. Reasonable structure. Comments in the right places. It passes the glance test. But under the surface, there's a pattern that experienced engineers recognize immediately: <strong>the code is organized around how the AI generated it, not around how the application actually works.</strong></p>
+
+    <p>You see it in the function that does five things because the AI generated them in one conversation. In the duplicate logic that exists because two prompts produced similar solutions and the AI didn't consolidate them. In the error handling that catches every possible exception and silently swallows them all, because the AI's instinct is to make errors disappear rather than surface them.</p>
+
+    <p><strong>Technical debt accumulates faster when you don't read the code.</strong> Every vibe coding session generates decisions you didn't explicitly make &mdash; how the data is structured, how errors are handled, what happens at the boundaries. When you don't review those decisions, they compound. And unlike debt you knowingly took on ("we'll refactor this later"), this debt is invisible until something breaks.</p>
+
+    <p>The "works on the demo" problem is real. You built a beautiful prototype. It works in the meeting. The stakeholder is excited. And then someone tries to use it with real data, at real scale, in a real browser, and the thing that worked flawlessly in your demo falls apart. Not because you lied. Because the conditions of the demo were the only conditions you tested.</p>
+
+    <!-- ================================================================
+         Section III: When to Hand Off
+         ================================================================ -->
+    <h2 id="when-to-hand-off"><span class="section-number">III</span> When to Hand Off</h2>
+
+    <p>There are inflection points &mdash; moments when the thing you built crosses a line and the appropriate owner changes. Recognizing these moments is the skill that separates PMs who use vibe coding productively from PMs who create problems.</p>
+
+    <p><strong>When the prototype becomes the product.</strong> Someone says "this is great, let's just ship it." That's the moment to pause. A prototype is optimized for demonstrating intent. A product is optimized for reliability, security, and maintenance. These are different optimization targets and they require different code.</p>
+
+    <p><strong>When real users depend on it.</strong> The internal tool your team uses is one thing. The feature your customers pay for is another. The moment real users rely on your code, the cost of failure changes. A broken internal tool costs an annoyed Slack message. A broken customer feature costs trust.</p>
+
+    <p><strong>When data needs protecting.</strong> If your code touches personal data, payment information, health records, or anything covered by a compliance framework, it needs a professional review. Not because you did something wrong, but because the cost of getting it wrong is measured in legal exposure, not just bug reports.</p>
+
+    <p><strong>When uptime matters.</strong> If someone will notice at 2 AM that your code stopped working, it needs to be owned by someone who can fix it at 2 AM. That's not you, and it shouldn't be.</p>
+
+    <div class="callout callout--summary">
+      <div class="callout__label">Summary</div>
+      <div class="callout__body">
+        <strong>The vibe coding decision framework:</strong><br>
+        1. <strong>Build it yourself</strong> &mdash; internal tools, prototypes, demos, personal projects, anything where "it works for me" is a sufficient bar.<br>
+        2. <strong>Get an engineer review</strong> &mdash; customer-visible features, anything using external APIs, code that will be maintained beyond this week.<br>
+        3. <strong>Hand it off entirely</strong> &mdash; authentication, payment processing, data-sensitive features, anything requiring uptime guarantees or compliance.<br><br>
+        The question isn't "can I build this?" It's "should this code have my name on it in production?"
+      </div>
+    </div>
+
+    <!-- ================================================================
+         Section IV: Working with Engineers
+         ================================================================ -->
+    <h2 id="working-with-engineers"><span class="section-number">IV</span> Working with Engineers</h2>
+
+    <p>Here's where it gets socially complicated. You've built a working prototype with AI. It does the thing. It looks right. And now you need to bring it to an engineer. If you handle this wrong, you've just walked into a minefield.</p>
+
+    <p>The wrong framing: "I built the feature, can you review it?" This implies the work is done and the engineer's job is quality control. It minimizes their expertise and puts them in a reactive position. Even if they don't say it, what they hear is: "Your job is so easy that a PM with an AI tool can do it."</p>
+
+    <p>The right framing: <strong>"I built this to show intent, not to ship."</strong> This positions the prototype as communication, not code. It says "I wanted to show you exactly what I mean, interactively, instead of writing a spec and hoping the words translate." It respects the engineer's role by acknowledging that the path from prototype to production is where their expertise matters.</p>
+
+    <div class="callout callout--pm-tip">
+      <div class="callout__label">PM Tip</div>
+      <div class="callout__body"><strong>"I built this to show intent, not to ship."</strong> That one sentence changes the entire dynamic. The engineer stops seeing a PM who's trying to do their job and starts seeing a PM who went the extra mile to communicate clearly. The prototype becomes a spec that runs &mdash; far more useful than a Google Doc with screenshots and arrows. Ask: "What would need to change to make this production-ready?" You'll learn more from that conversation than from any code review.</div>
+    </div>
+
+    <p>What engineers actually want when they receive a vibe-coded prototype:</p>
+
+    <ul>
+      <li><strong>Honesty about what it is.</strong> "I used Claude Code to build this. I didn't write the code myself and I can't vouch for the implementation details."</li>
+      <li><strong>Clear intent.</strong> "Here's what it should do, here's how it should feel, here's the user flow I care about."</li>
+      <li><strong>Freedom to rewrite.</strong> "Feel free to throw away the code and keep the behavior." This is liberating for an engineer &mdash; they get clear requirements in the form of a working demo, without being forced to maintain someone else's (AI's) code decisions.</li>
+      <li><strong>No attachment.</strong> Don't fight for the AI's implementation choices. You care about the outcome, not the approach. If the engineer wants to rebuild it using a different pattern, let them.</li>
+    </ul>
+
+    <p>The best-case outcome: the engineer looks at your prototype, understands immediately what you want, and ships a production version in a fraction of the time it would have taken from a written spec. The prototype did its job. It communicated.</p>
+
+    <!-- ================================================================
+         Section V: The Maintenance Trap
+         ================================================================ -->
+    <h2 id="maintenance-trap"><span class="section-number">V</span> The Maintenance Trap</h2>
+
+    <p>Building is the fun part. Maintaining is where things get real. And code you don't understand is code you can't maintain.</p>
+
+    <p>Here's the test: come back to your vibe-coded project in one month. Can you explain what each file does? Can you find the function that handles the main business logic? Can you trace what happens when a user submits the form? If the answer to any of these is "no," you've got a maintenance problem waiting to happen.</p>
+
+    <p>This isn't hypothetical. It's the most common failure mode of vibe coding. The PM builds something great. It works for three weeks. Then something changes &mdash; an API updates, a dependency breaks, a browser update shifts the layout &mdash; and the PM stares at code they didn't write, generated by an AI they no longer have the context for, and they're stuck.</p>
+
+    <p><strong>Strategies for avoiding the trap:</strong></p>
+
+    <ul>
+      <li><strong>Keep it simple.</strong> The simpler the code, the easier it is to understand later. Resist the urge to add features "while you're at it." Every feature is future maintenance.</li>
+      <li><strong>Document your intent.</strong> Not the code &mdash; the <em>intent</em>. Why does this page exist? What user problem does it solve? What are the non-obvious business rules? Write this in a README, not in code comments.</li>
+      <li><strong>Write tests.</strong> Yes, the AI can help with this too. Tests are the best documentation because they show exactly what the code is supposed to do in concrete terms. When something breaks, the test tells you what changed.</li>
+      <li><strong>Version control everything.</strong> Use git. Commit often. Write meaningful commit messages. When something breaks, you can see exactly when it stopped working and what changed.</li>
+      <li><strong>Keep dependencies minimal.</strong> Every external library is a future compatibility issue. If you can do something with vanilla JavaScript instead of importing a package, do it.</li>
+    </ul>
+
+    <p>The one-month test is harsh but fair. If you can come back in a month and still work on it, you built something sustainable. If you can't, you built a prototype &mdash; which is fine, as long as you knew that's what it was.</p>
+
+  </article>
+
+  <!-- ================================================================
+       Widget: Should You Ship It?
+       ================================================================ -->
+  <div class="wide-container">
+    <div class="widget" id="widget-ship-check">
+      <div class="widget__label">Assess your project</div>
+      <div class="widget__title">Should You Ship It?</div>
+      <div class="widget__instruction">Toggle the characteristics that apply to your project. The risk meter updates in real-time.</div>
+
+      <div class="ship-check__list" id="ship-checks">
+        <!-- Rendered by JS -->
+      </div>
+
+      <div class="ship-meter" id="ship-meter">
+        <div class="ship-meter__bar-track">
+          <div class="ship-meter__bar-fill" id="ship-meter-fill"></div>
+        </div>
+        <div class="ship-meter__labels">
+          <span>Low risk</span>
+          <span>High risk</span>
+        </div>
+      </div>
+
+      <div id="ship-verdict"></div>
+    </div>
+  </div>
+
+  <article class="prose">
+
+    <!-- ================================================================
+         Section VI: The Road Ahead
+         ================================================================ -->
+    <h2 id="road-ahead"><span class="section-number">VI</span> The Road Ahead</h2>
+
+    <p>Here's where this is all going. The tools are getting better every month. The gap between "AI-generated code" and "production code" is narrowing. The things that require a senior engineer today will require a junior engineer tomorrow, and a PM with good prompting instincts the day after.</p>
+
+    <p>But that doesn't mean engineers go away. It means the leverage changes. <strong>PMs who can build will have a superpower</strong> &mdash; not because they replace engineers, but because they communicate in working software. The spec that runs. The prototype that demonstrates exactly what "I think it should feel like this" means. The internal tool that solves the problem instead of describing it.</p>
+
+    <p>The goal was never fewer people. The goal is better products. Faster iteration. Shorter feedback loops. Less time spent translating intent between humans and more time spent refining that intent against reality.</p>
+
+    <p>Vibe coding is a tool. Like all tools, it's best when you understand both what it can do and what it can't. Build with it confidently. Ship with it carefully. Hand it off when the stakes demand it. And keep building.</p>
+
+    <p>The craft isn't just knowing how to talk to AI. It's knowing when to talk to AI, when to listen to engineers, and when to trust your own judgment about what the user actually needs. That's always been the PM's job. The tools just got a lot more interesting.</p>
+
+  </article>
+
+  <!-- ================================================================
+       Article Navigation
+       ================================================================ -->
+  <nav class="article-nav">
+    <a href="the-craft.html">&larr; Part 2: The Craft</a>
+    <a href="../index.html">Back to all topics &rarr;</a>
+  </nav>
+
+  <!-- ================================================================
+       Scripts
+       ================================================================ -->
+  <script>
+  // ====================================================================
+  // Hero: Animated floating particles
+  // ====================================================================
+  (function() {
+    var canvas = document.getElementById('hero-canvas');
+    var ctx = canvas.getContext('2d');
+    var hero = document.getElementById('article-hero');
+    var nodes = [];
+    var numNodes = 40;
+    var connectionDist = 140;
+    var dpr = window.devicePixelRatio || 1;
+    var w, h;
+
+    function resize() {
+      var rect = hero.getBoundingClientRect();
+      w = rect.width;
+      h = rect.height;
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    function initNodes() {
+      nodes = [];
+      for (var i = 0; i < numNodes; i++) {
+        nodes.push({
+          x: Math.random() * w,
+          y: Math.random() * h,
+          vx: (Math.random() - 0.5) * 0.4,
+          vy: (Math.random() - 0.5) * 0.4,
+          r: 2 + Math.random() * 3,
+          pulse: Math.random() * Math.PI * 2
+        });
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, w, h);
+      for (var i = 0; i < nodes.length; i++) {
+        var n = nodes[i];
+        n.x += n.vx; n.y += n.vy; n.pulse += 0.015;
+        if (n.x < -20) n.x = w + 20; if (n.x > w + 20) n.x = -20;
+        if (n.y < -20) n.y = h + 20; if (n.y > h + 20) n.y = -20;
+      }
+      ctx.lineWidth = 1;
+      for (var i = 0; i < nodes.length; i++) {
+        for (var j = i + 1; j < nodes.length; j++) {
+          var dx = nodes[i].x - nodes[j].x, dy = nodes[i].y - nodes[j].y;
+          var dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < connectionDist) {
+            ctx.strokeStyle = 'rgba(255,255,255,' + ((1 - dist / connectionDist) * 0.3) + ')';
+            ctx.beginPath(); ctx.moveTo(nodes[i].x, nodes[i].y); ctx.lineTo(nodes[j].x, nodes[j].y); ctx.stroke();
+          }
+        }
+      }
+      for (var i = 0; i < nodes.length; i++) {
+        var n = nodes[i], glow = 0.5 + 0.5 * Math.sin(n.pulse);
+        ctx.fillStyle = 'rgba(255,255,255,' + (0.4 + 0.4 * glow) + ')';
+        ctx.beginPath(); ctx.arc(n.x, n.y, n.r * (0.8 + 0.4 * glow), 0, Math.PI * 2); ctx.fill();
+      }
+      requestAnimationFrame(draw);
+    }
+
+    resize(); initNodes(); requestAnimationFrame(draw);
+    window.addEventListener('resize', function() { resize(); initNodes(); });
+  })();
+
+  // ====================================================================
+  // Widget: Should You Ship It?
+  // ====================================================================
+  (function() {
+    var checks = [
+      {
+        label: 'Handles user authentication',
+        tooltip: 'Login, signup, password reset — security bugs here have severe consequences.',
+        weight: 3
+      },
+      {
+        label: 'Stores personal data',
+        tooltip: 'Names, emails, addresses — triggers privacy regulations like GDPR and CCPA.',
+        weight: 3
+      },
+      {
+        label: 'Processes payments',
+        tooltip: 'Charging credit cards or handling financial data requires PCI compliance.',
+        weight: 4
+      },
+      {
+        label: 'Customer-facing',
+        tooltip: 'External users see it. Bugs affect your brand, not just your team.',
+        weight: 2
+      },
+      {
+        label: 'Has more than 100 users',
+        tooltip: 'Scale introduces concurrency, performance, and reliability challenges.',
+        weight: 2
+      },
+      {
+        label: 'Needs 99.9% uptime',
+        tooltip: 'High availability requires monitoring, redundancy, and on-call support.',
+        weight: 3
+      },
+      {
+        label: 'Uses external APIs',
+        tooltip: 'Third-party dependencies can change, rate-limit, or go down without warning.',
+        weight: 1
+      },
+      {
+        label: 'Only used by your team',
+        tooltip: 'Internal tools have lower stakes — bugs cost convenience, not revenue.',
+        weight: -2
+      }
+    ];
+
+    var state = new Array(checks.length).fill(false);
+    var maxScore = 0;
+    for (var i = 0; i < checks.length; i++) {
+      if (checks[i].weight > 0) maxScore += checks[i].weight;
+    }
+
+    var listEl = document.getElementById('ship-checks');
+    var fillEl = document.getElementById('ship-meter-fill');
+    var verdictEl = document.getElementById('ship-verdict');
+
+    function render() {
+      var html = '';
+      for (var i = 0; i < checks.length; i++) {
+        var activeClass = state[i] ? ' ship-check__item--active' : '';
+        html += '<div class="ship-check__item' + activeClass + '" data-idx="' + i + '">';
+        html += '<div class="ship-check__toggle"></div>';
+        html += '<div>';
+        html += '<div class="ship-check__label">' + checks[i].label + '</div>';
+        html += '<div class="ship-check__tooltip">' + checks[i].tooltip + '</div>';
+        html += '</div>';
+        html += '</div>';
+      }
+      listEl.innerHTML = html;
+    }
+
+    function updateMeter() {
+      var score = 0;
+      for (var i = 0; i < checks.length; i++) {
+        if (state[i]) score += checks[i].weight;
+      }
+      // Clamp to 0
+      if (score < 0) score = 0;
+
+      var pct = Math.min((score / maxScore) * 100, 100);
+      fillEl.style.width = pct + '%';
+
+      // Color the bar
+      var color;
+      if (pct <= 25) color = '#059669';
+      else if (pct <= 55) color = '#D97706';
+      else color = '#DC2626';
+      fillEl.style.background = color;
+
+      // Verdict
+      var html = '';
+      if (pct <= 25) {
+        html = '<div class="ship-meter__verdict ship-meter__verdict--green">';
+        html += '<div class="ship-meter__verdict-icon">&#x2705;</div>';
+        html += '<div class="ship-meter__verdict-title">Ship it yourself</div>';
+        html += '<div class="ship-meter__verdict-text">Low-risk project. Your vibe-coded solution is appropriate for this scope. Keep it simple, document your intent, and use version control.</div>';
+        html += '</div>';
+      } else if (pct <= 55) {
+        html = '<div class="ship-meter__verdict ship-meter__verdict--yellow">';
+        html += '<div class="ship-meter__verdict-icon">&#x26A0;&#xFE0F;</div>';
+        html += '<div class="ship-meter__verdict-title">Get an engineer review</div>';
+        html += '<div class="ship-meter__verdict-text">Medium-risk territory. Your prototype demonstrates intent well, but the code needs professional eyes before it goes live. Ask: "What would need to change to make this production-ready?"</div>';
+        html += '</div>';
+      } else {
+        html = '<div class="ship-meter__verdict ship-meter__verdict--red">';
+        html += '<div class="ship-meter__verdict-icon">&#x1F6A8;</div>';
+        html += '<div class="ship-meter__verdict-title">Hand it off to engineering</div>';
+        html += '<div class="ship-meter__verdict-text">High-risk project. Use your prototype to communicate intent, but the production implementation needs engineering ownership. Security, compliance, and reliability requirements demand professional architecture.</div>';
+        html += '</div>';
+      }
+      verdictEl.innerHTML = html;
+    }
+
+    listEl.addEventListener('click', function(e) {
+      var item = e.target.closest('.ship-check__item');
+      if (!item) return;
+      var idx = parseInt(item.dataset.idx, 10);
+      state[idx] = !state[idx];
+      item.classList.toggle('ship-check__item--active');
+      // Update toggle visual without full re-render
+      updateMeter();
+    });
+
+    render();
+    updateMeter();
+  })();
+  </script>
+
+</body>
+</html>
