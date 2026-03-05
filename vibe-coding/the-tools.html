@@ -246,36 +246,6 @@
 
     <p>The honest assessment: Claude Code has a higher floor (you need some technical setup) but a higher ceiling (you can build more complex, production-grade things). Replit gets you to "wow" faster. Claude Code gets you to "shipped" more reliably.</p>
 
-  </article>
-
-  <!-- ================================================================
-       Widget: Pick Your Tool
-       ================================================================ -->
-  <div class="wide-container">
-    <div class="widget" id="widget-tool-picker">
-      <div class="widget__label">Try it yourself</div>
-      <div class="widget__title">Pick Your Tool</div>
-      <div class="widget__instruction">Answer a few questions about what you're building, and we'll suggest the best tool to start with.</div>
-
-      <div class="tool-picker__progress" id="picker-progress">
-        <div class="tool-picker__dot tool-picker__dot--active"></div>
-        <div class="tool-picker__dot"></div>
-        <div class="tool-picker__dot"></div>
-        <div class="tool-picker__dot"></div>
-      </div>
-
-      <div id="picker-card" class="tool-picker__card">
-        <!-- Rendered by JS -->
-      </div>
-
-      <div class="widget__controls widget__controls--mt" id="picker-controls" style="display: none;">
-        <button class="btn btn--secondary" id="picker-reset">Start Over</button>
-      </div>
-    </div>
-  </div>
-
-  <article class="prose">
-
     <!-- ================================================================
          Section V: The Landscape
          ================================================================ -->
@@ -329,6 +299,36 @@
         </tr>
       </tbody>
     </table>
+
+  </article>
+
+  <!-- ================================================================
+       Widget: Pick Your Tool
+       ================================================================ -->
+  <div class="wide-container">
+    <div class="widget" id="widget-tool-picker">
+      <div class="widget__label">Try it yourself</div>
+      <div class="widget__title">Pick Your Tool</div>
+      <div class="widget__instruction">Answer a few questions about what you're building, and we'll suggest the best tool to start with.</div>
+
+      <div class="tool-picker__progress" id="picker-progress">
+        <div class="tool-picker__dot tool-picker__dot--active"></div>
+        <div class="tool-picker__dot"></div>
+        <div class="tool-picker__dot"></div>
+        <div class="tool-picker__dot"></div>
+      </div>
+
+      <div id="picker-card" class="tool-picker__card">
+        <!-- Rendered by JS -->
+      </div>
+
+      <div class="widget__controls widget__controls--mt" id="picker-controls" style="display: none;">
+        <button class="btn btn--secondary" id="picker-reset">Start Over</button>
+      </div>
+    </div>
+  </div>
+
+  <article class="prose">
 
     <p>A few patterns emerge from this comparison. If your primary output is a visual interface &mdash; a landing page, a dashboard, a design prototype &mdash; Lovable or Replit will get you there fastest. If you're working on something with real backend complexity or need to integrate with existing code, Claude Code or Cursor are the better bet. And if you're comfortable in VS Code already, Cursor gives you AI assistance without changing your workflow.</p>
 
