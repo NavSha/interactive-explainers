@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-E8RQLQXRWH"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-E8RQLQXRWH');
+  </script>
+  <title>RAG Explained — Comic Strip</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <style>
+    /* ================================================================
+       COMIC STRIP — RAG Explained
+       2×2 panel layout, 800px max-width
+       Characters: Hipster PM + Cute Robot AI
+       ================================================================ */
+
+    :root {
+      --font-serif: 'Newsreader', Georgia, serif;
+      --font-sans: 'Inter', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+
+      --color-bg: #FFFCF7;
+      --color-surface: #FFFFFF;
+      --color-text: #1A1A1A;
+      --color-text-secondary: #6B6B6B;
+      --color-border: #E8E2D8;
+
+      --accent-blue: #2563EB;
+      --accent-blue-light: #DBEAFE;
+      --accent-amber: #D97706;
+      --accent-amber-light: #FFFBEB;
+      --accent-red: #DC2626;
+      --accent-green: #059669;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-sans);
+      background: #F5F0E8;
+      display: flex;
+      justify-content: center;
+      padding: 40px 20px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .comic {
+      width: 800px;
+      max-width: 100%;
+      background: var(--color-bg);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 60px rgba(0,0,0,0.08);
+    }
+
+    /* ── HEADER ── */
+    .comic__header {
+      background: linear-gradient(135deg, #2563EB 0%, #7C3AED 100%);
+      padding: 48px 48px 40px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .comic__header::before {
+      content: '';
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 260px; height: 260px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.06);
+    }
+
+    .comic__series {
+      font-family: var(--font-sans);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 12px;
+    }
+
+    .comic__title {
+      font-family: var(--font-serif);
+      font-size: 32px;
+      font-weight: 600;
+      color: #FFFFFF;
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+
+    .comic__subtitle {
+      font-size: 14px;
+      color: rgba(255,255,255,0.75);
+      line-height: 1.5;
+    }
+
+    /* ── PANEL GRID ── */
+    .panels {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      padding: 0;
+    }
+
+    .panel {
+      position: relative;
+      padding: 32px 24px 24px;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      min-height: 340px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel:nth-child(1) { border-right: none; border-bottom: none; }
+    .panel:nth-child(2) { border-bottom: none; }
+    .panel:nth-child(3) { border-right: none; }
+
+    .panel__number {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--color-text-secondary);
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+      padding: 2px 6px;
+      line-height: 1;
+    }
+
+    .panel__title {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--color-text-secondary);
+      margin-bottom: 16px;
+      text-align: center;
+    }
+
+    /* ── SCENE ── */
+    .scene {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .characters {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 12px;
+      flex: 1;
+    }
+
+    .character {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* ── SPEECH BUBBLES ── */
+    .bubble {
+      position: relative;
+      background: var(--color-surface);
+      border: 1.5px solid var(--color-border);
+      border-radius: 14px;
+      padding: 10px 14px;
+      font-size: 12.5px;
+      line-height: 1.45;
+      color: var(--color-text);
+      max-width: 220px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    .bubble::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0; height: 0;
+      border-left: 7px solid transparent;
+      border-right: 7px solid transparent;
+      border-top: 8px solid var(--color-surface);
+      filter: drop-shadow(0 1px 0 var(--color-border));
+    }
+
+    .bubble--ai {
+      background: var(--accent-blue-light);
+      border-color: #BFDBFE;
+    }
+    .bubble--ai::after {
+      border-top-color: var(--accent-blue-light);
+      filter: drop-shadow(0 1px 0 #BFDBFE);
+    }
+
+    .bubble--rag {
+      background: var(--accent-amber-light);
+      border-color: #FDE68A;
+    }
+    .bubble--rag::after {
+      border-top-color: var(--accent-amber-light);
+      filter: drop-shadow(0 1px 0 #FDE68A);
+    }
+
+    /* ── ANNOTATIONS ── */
+    .annotation {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+    .annotation--correct { color: var(--accent-green); background: #ECFDF5; }
+    .annotation--wrong { color: var(--accent-red); background: #FEF2F2; }
+
+    /* ── CAPTION ── */
+    .caption {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: 14px;
+      color: var(--color-text);
+      text-align: center;
+      line-height: 1.5;
+      padding: 10px 12px;
+      background: var(--color-bg);
+      border-radius: 8px;
+      border: 1px solid var(--color-border);
+      margin-top: auto;
+    }
+
+    /* ── BADGE ── */
+    .badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, var(--accent-blue), #7C3AED);
+      color: #FFFFFF;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      padding: 10px 16px;
+      border-radius: 8px;
+      margin-top: auto;
+      text-align: center;
+      line-height: 1.4;
+    }
+    .badge svg { flex-shrink: 0; }
+
+    /* ── FOOTER ── */
+    .comic__footer {
+      padding: 16px 28px;
+      text-align: center;
+      font-size: 11px;
+      color: var(--color-text-secondary);
+      border-top: 1px solid var(--color-border);
+    }
+    .comic__footer a { color: var(--accent-blue); text-decoration: none; }
+
+    /* ── CHARACTER SIZES ── */
+    .svg-pm { width: 90px; height: 140px; }
+    .svg-ai { width: 88px; height: 120px; }
+    .svg-ai-rag { width: 120px; height: 120px; }
+
+    /* ── FLOATING ANIMATION ── */
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+    .character--ai .svg-ai,
+    .character--ai .svg-ai-rag {
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes blink-light {
+      0%, 90%, 100% { opacity: 1; }
+      95% { opacity: 0.3; }
+    }
+    .antenna-light { animation: blink-light 2s ease-in-out infinite; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 600px) {
+      body { padding: 16px 8px; }
+      .comic__header { padding: 32px 24px 28px; }
+      .comic__title { font-size: 24px; }
+      .comic__subtitle { font-size: 13px; }
+      .panels { grid-template-columns: 1fr; }
+      .panel {
+        min-height: 300px;
+        border-right: 1px solid var(--color-border) !important;
+      }
+      .panel:nth-child(1),
+      .panel:nth-child(2),
+      .panel:nth-child(3) {
+        border-bottom: none;
+        border-right: 1px solid var(--color-border);
+      }
+      .bubble { max-width: 200px; font-size: 12px; }
+      .characters { gap: 8px; }
+      .svg-pm { width: 76px; height: 118px; }
+      .svg-ai { width: 74px; height: 100px; }
+      .svg-ai-rag { width: 100px; height: 100px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="comic">
+
+  <!-- ── HEADER ── -->
+  <div class="comic__header">
+    <div class="comic__series">Grounding &amp; Guardrails</div>
+    <h1 class="comic__title">Why Your AI Makes Things Up</h1>
+    <p class="comic__subtitle">RAG explained in four panels</p>
+  </div>
+
+  <!-- ── PANELS ── -->
+  <div class="panels">
+
+    <!-- ════════════════════════════════════════
+         PANEL 1 — The Easy One
+         PM: curious eyebrows raised, coffee mug
+         AI: confident screen-face, sparkles
+         ════════════════════════════════════════ -->
+    <div class="panel">
+      <span class="panel__number">1</span>
+      <div class="panel__title">The Easy One</div>
+      <div class="scene">
+        <div class="characters">
+
+          <div class="character">
+            <div class="bubble">"Explain quantum entanglement."</div>
+            <svg class="svg-pm" viewBox="0 0 90 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Body: cozy teal sweater -->
+              <path d="M18 82 Q18 68 45 66 Q72 68 72 82 L72 120 Q72 126 66 126 L24 126 Q18 126 18 120Z" fill="#0D9488"/>
+              <!-- Sweater neckline -->
+              <path d="M35 68 Q45 76 55 68" fill="none" stroke="#0F766E" stroke-width="2"/>
+              <!-- Sweater texture lines -->
+              <line x1="28" y1="90" x2="62" y2="90" stroke="#0F766E" stroke-width="0.6" opacity="0.4"/>
+              <line x1="28" y1="100" x2="62" y2="100" stroke="#0F766E" stroke-width="0.6" opacity="0.4"/>
+              <line x1="28" y1="110" x2="62" y2="110" stroke="#0F766E" stroke-width="0.6" opacity="0.4"/>
+              <!-- Lanyard -->
+              <line x1="45" y1="68" x2="45" y2="96" stroke="#D97706" stroke-width="1.5"/>
+              <!-- Badge -->
+              <rect x="38" y="92" width="14" height="10" rx="2" fill="#FFFBEB" stroke="#D97706" stroke-width="1"/>
+              <line x1="41" y1="96" x2="49" y2="96" stroke="#D97706" stroke-width="0.8"/>
+              <line x1="41" y1="99" x2="47" y2="99" stroke="#D97706" stroke-width="0.6"/>
+              <!-- Neck -->
+              <rect x="40" y="58" width="10" height="10" rx="2" fill="#E8B88A"/>
+              <!-- Head: big round cartoon head -->
+              <ellipse cx="45" cy="38" rx="24" ry="22" fill="#F0C890"/>
+              <!-- Ears -->
+              <ellipse cx="21" cy="40" rx="5" ry="7" fill="#E8B88A"/>
+              <ellipse cx="69" cy="40" rx="5" ry="7" fill="#E8B88A"/>
+              <!-- Hair: messy side-swept -->
+              <path d="M21 30 Q22 12 45 14 Q68 12 69 30 Q70 22 60 18 Q50 10 38 14 Q26 10 22 22Z" fill="#3D2B1F"/>
+              <path d="M25 28 Q30 18 42 20 Q34 22 30 28Z" fill="#3D2B1F"/>
+              <path d="M58 22 Q62 18 66 26 Q63 20 58 22Z" fill="#3D2B1F"/>
+              <!-- Thick rectangular glasses -->
+              <rect x="29" y="33" width="14" height="10" rx="3" fill="none" stroke="#3D2B1F" stroke-width="2"/>
+              <rect x="47" y="33" width="14" height="10" rx="3" fill="none" stroke="#3D2B1F" stroke-width="2"/>
+              <line x1="43" y1="38" x2="47" y2="38" stroke="#3D2B1F" stroke-width="1.5"/>
+              <!-- Glasses arms to ears -->
+              <line x1="29" y1="36" x2="22" y2="38" stroke="#3D2B1F" stroke-width="1.2"/>
+              <line x1="61" y1="36" x2="68" y2="38" stroke="#3D2B1F" stroke-width="1.2"/>
+              <!-- Eyes: curious, looking right -->
+              <circle cx="37" cy="38" r="2.5" fill="#1A1A1A"/>
+              <circle cx="55" cy="38" r="2.5" fill="#1A1A1A"/>
+              <circle cx="38" cy="37.5" r="0.8" fill="#FFFFFF"/>
+              <circle cx="56" cy="37.5" r="0.8" fill="#FFFFFF"/>
+              <!-- Eyebrows: raised (curious) -->
+              <path d="M30 30 Q36 26 42 30" stroke="#3D2B1F" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+              <path d="M48 30 Q54 26 60 30" stroke="#3D2B1F" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+              <!-- Rosy cheeks -->
+              <circle cx="30" cy="44" r="3.5" fill="#F0A0A0" opacity="0.35"/>
+              <circle cx="60" cy="44" r="3.5" fill="#F0A0A0" opacity="0.35"/>
+              <!-- Mouth: friendly half-smile -->
+              <path d="M39 48 Q45 52 51 48" stroke="#1A1A1A" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+              <!-- Coffee mug in right hand -->
+              <g transform="translate(68, 90)">
+                <rect x="0" y="0" width="10" height="12" rx="2" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="1"/>
+                <path d="M10 3 Q15 3 15 6 Q15 9 10 9" fill="none" stroke="#D4D4D4" stroke-width="1"/>
+                <!-- Steam -->
+                <path d="M3 -2 Q4 -6 3 -8" stroke="#D4D4D4" stroke-width="0.8" fill="none" opacity="0.6"/>
+                <path d="M7 -1 Q8 -5 7 -9" stroke="#D4D4D4" stroke-width="0.8" fill="none" opacity="0.6"/>
+              </g>
+            </svg>
+          </div>
+
+          <div class="character character--ai">
+            <div class="bubble bubble--ai">"When two particles become correlated, measuring one instantly affects the other regardless of distance."</div>
+            <svg class="svg-ai" viewBox="0 0 88 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Hover shadow -->
+              <ellipse cx="44" cy="112" rx="20" ry="4" fill="#2563EB" opacity="0.12"/>
+              <!-- Sparkle particles -->
+              <circle cx="12" cy="30" r="2" fill="#2563EB" opacity="0.3"/>
+              <circle cx="76" cy="24" r="1.5" fill="#7C3AED" opacity="0.3"/>
+              <circle cx="8" cy="60" r="1.5" fill="#2563EB" opacity="0.2"/>
+              <circle cx="80" cy="55" r="2" fill="#7C3AED" opacity="0.2"/>
+              <path d="M16 18 L18 14 L20 18 L16 16 L20 16Z" fill="#D97706" opacity="0.4"/>
+              <path d="M72 68 L74 64 L76 68 L72 66 L76 66Z" fill="#D97706" opacity="0.4"/>
+              <!-- Robot body: rounded rectangle -->
+              <rect x="16" y="28" width="56" height="50" rx="16" fill="#2563EB"/>
+              <rect x="16" y="28" width="56" height="50" rx="16" fill="url(#robotGrad1)"/>
+              <!-- Screen face: inner rounded rect -->
+              <rect x="22" y="33" width="44" height="40" rx="12" fill="#1E40AF"/>
+              <!-- Circuit accents on body -->
+              <circle cx="20" cy="44" r="2" fill="#3B82F6"/>
+              <circle cx="68" cy="44" r="2" fill="#3B82F6"/>
+              <line x1="20" y1="46" x2="20" y2="56" stroke="#3B82F6" stroke-width="0.8"/>
+              <line x1="68" y1="46" x2="68" y2="56" stroke="#3B82F6" stroke-width="0.8"/>
+              <!-- Eyes: happy half-moon eyes -->
+              <path d="M33 47 Q36 42 39 47" stroke="#FFFFFF" stroke-width="2" fill="none" stroke-linecap="round"/>
+              <path d="M49 47 Q52 42 55 47" stroke="#FFFFFF" stroke-width="2" fill="none" stroke-linecap="round"/>
+              <!-- Big confident smile -->
+              <path d="M34 55 Q44 64 54 55" stroke="#FFFFFF" stroke-width="2" fill="none" stroke-linecap="round"/>
+              <!-- Antenna -->
+              <line x1="44" y1="28" x2="44" y2="16" stroke="#2563EB" stroke-width="2"/>
+              <circle class="antenna-light" cx="44" cy="13" r="4" fill="#60A5FA"/>
+              <circle cx="44" cy="13" r="2" fill="#FFFFFF"/>
+              <!-- Arms: little rounded stubs -->
+              <g transform="translate(8, 48)">
+                <rect x="-6" y="-4" width="8" height="14" rx="4" fill="#3B82F6"/>
+                <!-- Waving hand -->
+                <circle cx="-2" cy="12" r="4" fill="#60A5FA"/>
+              </g>
+              <g transform="translate(72, 48)">
+                <rect x="-2" y="-4" width="8" height="14" rx="4" fill="#3B82F6"/>
+                <circle cx="2" cy="12" r="4" fill="#60A5FA"/>
+              </g>
+              <!-- Feet: small rounded -->
+              <ellipse cx="35" cy="82" rx="6" ry="3" fill="#1E40AF"/>
+              <ellipse cx="53" cy="82" rx="6" ry="3" fill="#1E40AF"/>
+              <!-- Label -->
+              <text x="44" y="100" text-anchor="middle" font-family="Inter, sans-serif" font-size="10" font-weight="700" fill="#2563EB">AI</text>
+              <!-- Gradient def -->
+              <defs>
+                <linearGradient id="robotGrad1" x1="16" y1="28" x2="72" y2="78">
+                  <stop offset="0%" stop-color="rgba(255,255,255,0.1)"/>
+                  <stop offset="100%" stop-color="rgba(0,0,0,0.05)"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+
+        </div>
+        <span class="annotation annotation--correct">&#10003; Correct</span>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════
+         PANEL 2 — The Trap
+         PM: leaning in, trusting
+         AI: exact same confident face
+         ════════════════════════════════════════ -->
+    <div class="panel">
+      <span class="panel__number">2</span>
+      <div class="panel__title">The Trap</div>
+      <div class="scene">
+        <div class="characters">
+
+          <div class="character">
+            <div class="bubble">"What's our refund policy?"</div>
+            <svg class="svg-pm" viewBox="0 0 90 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18 82 Q18 68 45 66 Q72 68 72 82 L72 120 Q72 126 66 126 L24 126 Q18 126 18 120Z" fill="#0D9488"/>
+              <path d="M35 68 Q45 76 55 68" fill="none" stroke="#0F766E" stroke-width="2"/>
+              <line x1="28" y1="90" x2="62" y2="90" stroke="#0F766E" stroke-width="0.6" opacity="0.4"/>
+              <line x1="28" y1="100" x2="62" y2="100" stroke="#0F766E" stroke-width="0.6" opacity="0.4"/>
+              <line x1="28" y1="110" x2="62" y2="110" stroke="#0F766E" stroke-width="0.6" opacity="0.4"/>
+              <line x1="45" y1="68" x2="45" y2="96" stroke="#D97706" stroke-width="1.5"/>
+              <rect x="38" y="92" width="14" height="10" rx="2" fill="#FFFBEB" stroke="#D97706" stroke-width="1"/>
+              <line x1="41" y1="96" x2="49" y2="96" stroke="#D97706" stroke-width="0.8"/>
+              <line x1="41" y1="99" x2="47" y2="99" stroke="#D97706" stroke-width="0.6"/>
+              <rect x="40" y="58" width="10" height="10" rx="2" fill="#E8B88A"/>
+              <ellipse cx="45" cy="38" rx="24" ry="22" fill="#F0C890"/>
+              <ellipse cx="21" cy="40" rx="5" ry="7" fill="#E8B88A"/>
+              <ellipse cx="69" cy="40" rx="5" ry="7" fill="#E8B88A"/>
+              <path d="M21 30 Q22 12 45 14 Q68 12 69 30 Q70 22 60 18 Q50 10 38 14 Q26 10 22 22Z" fill="#3D2B1F"/>
+              <path d="M25 28 Q30 18 42 20 Q34 22 30 28Z" fill="#3D2B1F"/>
+              <path d="M58 22 Q62 18 66 26 Q63 20 58 22Z" fill="#3D2B1F"/>
+              <rect x="29" y="33" width="14" height="10" rx="3" fill="none" stroke="#3D2B1F" stroke-width="2"/>
+              <rect x="47" y="33" width="14" height="10" rx="3" fill="none" stroke="#3D2B1F" stroke-width="2"/>
+              <line x1="43" y1="38" x2="47" y2="38" stroke="#3D2B1F" stroke-width="1.5"/>
+              <line x1="29" y1="36" x2="22" y2="38" stroke="#3D2B1F" stroke-width="1.2"/>
+              <line x1="61" y1="36" x2="68" y2="38" stroke="#3D2B1F" stroke-width="1.2"/>
+              <!-- Eyes: looking right, trusting -->
+              <circle cx="37" cy="38" r="2.5" fill="#1A1A1A"/>
+              <circle cx="55" cy="38" r="2.5" fill="#1A1A1A"/>
+              <circle cx="38" cy="37.5" r="0.8" fill="#FFFFFF"/>
+              <circle cx="56" cy="37.5" r="0.8" fill="#FFFFFF"/>
+              <!-- Eyebrows: slightly raised, open -->
+              <path d="M30 31 Q36 28 42 31" stroke="#3D2B1F" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+              <path d="M48 31 Q54 28 60 31" stroke="#3D2B1F" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+              <circle cx="30" cy="44" r="3.5" fill="#F0A0A0" opacity="0.35"/>
+              <circle cx="60" cy="44" r="3.5" fill="#F0A0A0" opacity="0.35"/>
+              <!-- Mouth: small open, expectant -->
+              <ellipse cx="45" cy="49" rx="4" ry="3" fill="#1A1A1A" opacity="0.15"/>
+              <path d="M41 48 Q45 52 49 48" stroke="#1A1A1A" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+              <!-- Coffee mug -->
+              <g transform="translate(68, 90)">
+                <rect x="0" y="0" width="10" height="12" rx="2" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="1"/>
+                <path d="M10 3 Q15 3 15 6 Q15 9 10 9" fill="none" stroke="#D4D4D4" stroke-width="1"/>
+                <path d="M3 -2 Q4 -6 3 -8" stroke="#D4D4D4" stroke-width="0.8" fill="none" opacity="0.6"/>
+                <path d="M7 -1 Q8 -5 7 -9" stroke="#D4D4D4" stroke-width="0.8" fill="none" opacity="0.6"/>
+              </g>
+            </svg>
+          </div>
+
+          <div class="character character--ai">
+            <div class="bubble bubble--ai">"Returns accepted within 45 days with a 15% restocking fee."</div>
+            <svg class="svg-ai" viewBox="0 0 88 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <ellipse cx="44" cy="112" rx="20" ry="4" fill="#2563EB" opacity="0.12"/>
+              <circle cx="12" cy="30" r="2" fill="#2563EB" opacity="0.3"/>
+              <circle cx="76" cy="24" r="1.5" fill="#7C3AED" opacity="0.3"/>
+              <circle cx="8" cy="60" r="1.5" fill="#2563EB" opacity="0.2"/>
+              <circle cx="80" cy="55" r="2" fill="#7C3AED" opacity="0.2"/>
+              <path d="M16 18 L18 14 L20 18 L16 16 L20 16Z" fill="#D97706" opacity="0.4"/>
+              <path d="M72 68 L74 64 L76 68 L72 66 L76 66Z" fill="#D97706" opacity="0.4"/>
+              <rect x="16" y="28" width="56" height="50" rx="16" fill="#2563EB"/>
+              <rect x="22" y="33" width="44" height="40" rx="12" fill="#1E40AF"/>
+              <circle cx="20" cy="44" r="2" fill="#3B82F6"/>
+              <circle cx="68" cy="44" r="2" fill="#3B82F6"/>
+              <line x1="20" y1="46" x2="20" y2="56" stroke="#3B82F6" stroke-width="0.8"/>
+              <line x1="68" y1="46" x2="68" y2="56" stroke="#3B82F6" stroke-width="0.8"/>
+              <!-- SAME happy eyes — identical -->
+              <path d="M33 47 Q36 42 39 47" stroke="#FFFFFF" stroke-width="2" fill="none" stroke-linecap="round"/>
+              <path d="M49 47 Q52 42 55 47" stroke="#FFFFFF" stroke-width="2" fill="none" stroke-linecap="round"/>
+              <!-- SAME confident smile — identical -->
+              <path d="M34 55 Q44 64 54 55" stroke="#FFFFFF" stroke-width="2" fill="none" stroke-linecap="round"/>
+              <line x1="44" y1="28" x2="44" y2="16" stroke="#2563EB" stroke-width="2"/>
+              <circle class="antenna-light" cx="44" cy="13" r="4" fill="#60A5FA"/>
+              <circle cx="44" cy="13" r="2" fill="#FFFFFF"/>
+              <g transform="translate(8, 48)">
+                <rect x="-6" y="-4" width="8" height="14" rx="4" fill="#3B82F6"/>
+                <circle cx="-2" cy="12" r="4" fill="#60A5FA"/>
+              </g>
+              <g transform="translate(72, 48)">
+                <rect x="-2" y="-4" width="8" height="14" rx="4" fill="#3B82F6"/>
+                <circle cx="2" cy="12" r="4" fill="#60A5FA"/>
+              </g>
+              <ellipse cx="35" cy="82" rx="6" ry="3" fill="#1E40AF"/>
+              <ellipse cx="53" cy="82" rx="6" ry="3" fill="#1E40AF"/>
+              <text x="44" y="100" text-anchor="middle" font-family="Inter, sans-serif" font-size="10" font-weight="700" fill="#2563EB">AI</text>
+            </svg>
+          </div>
+
+        </div>
+        <span class="annotation annotation--wrong">&#10007; Fabricated</span>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════
+         PANEL 3 — The Reveal
+         PM: deadpan, flat eyebrows, unamused
+         AI: STILL the same happy face (that's the point)
+         ════════════════════════════════════════ -->
+    <div class="panel">
+      <span class="panel__number">3</span>
+      <div class="panel__title">The Reveal</div>
+      <div class="scene">
+        <div class="characters">
+
+          <div class="character">
+            <div class="bubble">"We don't have a restocking fee. We don't even sell physical products."</div>
+            <svg class="svg-pm" viewBox="0 0 90 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18 82 Q18 68 45 66 Q72 68 72 82 L72 120 Q72 126 66 126 L24 126 Q18 126 18 120Z" fill="#0D9488"/>
+              <path d="M35 68 Q45 76 55 68" fill="none" stroke="#0F766E" stroke-width="2"/>
+              <line x1="28" y1="90" x2="62" y2="90" stroke="#0F766E" stroke-width="0.6" opacity="0.4"/>
+              <line x1="28" y1="100" x2="62" y2="100" stroke="#0F766E" stroke-width="0.6" opacity="0.4"/>
+              <line x1="28" y1="110" x2="62" y2="110" stroke="#0F766E" stroke-width="0.6" opacity="0.4"/>
+              <line x1="45" y1="68" x2="45" y2="96" stroke="#D97706" stroke-width="1.5"/>
+              <rect x="38" y="92" width="14" height="10" rx="2" fill="#FFFBEB" stroke="#D97706" stroke-width="1"/>
+              <line x1="41" y1="96" x2="49" y2="96" stroke="#D97706" stroke-width="0.8"/>
+              <line x1="41" y1="99" x2="47" y2="99" stroke="#D97706" stroke-width="0.6"/>
+              <rect x="40" y="58" width="10" height="10" rx="2" fill="#E8B88A"/>
+              <ellipse cx="45" cy="38" rx="24" ry="22" fill="#F0C890"/>
+              <ellipse cx="21" cy="40" rx="5" ry="7" fill="#E8B88A"/>
+              <ellipse cx="69" cy="40" rx="5" ry="7" fill="#E8B88A"/>
+              <path d="M21 30 Q22 12 45 14 Q68 12 69 30 Q70 22 60 18 Q50 10 38 14 Q26 10 22 22Z" fill="#3D2B1F"/>
+              <path d="M25 28 Q30 18 42 20 Q34 22 30 28Z" fill="#3D2B1F"/>
+              <path d="M58 22 Q62 18 66 26 Q63 20 58 22Z" fill="#3D2B1F"/>
+              <rect x="29" y="33" width="14" height="10" rx="3" fill="none" stroke="#3D2B1F" stroke-width="2"/>
+              <rect x="47" y="33" width="14" height="10" rx="3" fill="none" stroke="#3D2B1F" stroke-width="2"/>
+              <line x1="43" y1="38" x2="47" y2="38" stroke="#3D2B1F" stroke-width="1.5"/>
+              <line x1="29" y1="36" x2="22" y2="38" stroke="#3D2B1F" stroke-width="1.2"/>
+              <line x1="61" y1="36" x2="68" y2="38" stroke="#3D2B1F" stroke-width="1.2"/>
+              <!-- Eyes: half-lidded, unamused -->
+              <circle cx="37" cy="38" r="2.5" fill="#1A1A1A"/>
+              <circle cx="55" cy="38" r="2.5" fill="#1A1A1A"/>
+              <circle cx="37.5" cy="37.5" r="0.8" fill="#FFFFFF"/>
+              <circle cx="55.5" cy="37.5" r="0.8" fill="#FFFFFF"/>
+              <!-- Eyelids: half-shut for deadpan -->
+              <rect x="29" y="33" width="14" height="4" rx="2" fill="#F0C890"/>
+              <rect x="47" y="33" width="14" height="4" rx="2" fill="#F0C890"/>
+              <!-- Re-draw glasses top half over eyelids -->
+              <path d="M29 37 L29 36 Q29 33 32 33 L40 33 Q43 33 43 36 L43 37" stroke="#3D2B1F" stroke-width="2" fill="none"/>
+              <path d="M47 37 L47 36 Q47 33 50 33 L58 33 Q61 33 61 36 L61 37" stroke="#3D2B1F" stroke-width="2" fill="none"/>
+              <!-- Eyebrows: flat, unimpressed -->
+              <line x1="30" y1="30" x2="42" y2="30" stroke="#3D2B1F" stroke-width="2" stroke-linecap="round"/>
+              <line x1="48" y1="30" x2="60" y2="30" stroke="#3D2B1F" stroke-width="2" stroke-linecap="round"/>
+              <circle cx="30" cy="44" r="3.5" fill="#F0A0A0" opacity="0.25"/>
+              <circle cx="60" cy="44" r="3.5" fill="#F0A0A0" opacity="0.25"/>
+              <!-- Mouth: flat deadpan line -->
+              <line x1="38" y1="50" x2="52" y2="50" stroke="#1A1A1A" stroke-width="1.5" stroke-linecap="round"/>
+              <!-- Coffee mug, held lower — exasperated -->
+              <g transform="translate(68, 94)">
+                <rect x="0" y="0" width="10" height="12" rx="2" fill="#FFFFFF" stroke="#D4D4D4" stroke-width="1"/>
+                <path d="M10 3 Q15 3 15 6 Q15 9 10 9" fill="none" stroke="#D4D4D4" stroke-width="1"/>
+              </g>
+            </svg>
+          </div>
+
+          <div class="character character--ai">
+            <!-- No bubble — just the AI still smiling -->
+            <svg class="svg-ai" viewBox="0 0 88 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <ellipse cx="44" cy="112" rx="20" ry="4" fill="#2563EB" opacity="0.12"/>
+              <circle cx="12" cy="30" r="2" fill="#2563EB" opacity="0.3"/>
+              <circle cx="76" cy="24" r="1.5" fill="#7C3AED" opacity="0.3"/>
+              <circle cx="8" cy="60" r="1.5" fill="#2563EB" opacity="0.2"/>
+              <circle cx="80" cy="55" r="2" fill="#7C3AED" opacity="0.2"/>
+              <path d="M16 18 L18 14 L20 18 L16 16 L20 16Z" fill="#D97706" opacity="0.4"/>
+              <path d="M72 68 L74 64 L76 68 L72 66 L76 66Z" fill="#D97706" opacity="0.4"/>
+              <rect x="16" y="28" width="56" height="50" rx="16" fill="#2563EB"/>
+              <rect x="22" y="33" width="44" height="40" rx="12" fill="#1E40AF"/>
+              <circle cx="20" cy="44" r="2" fill="#3B82F6"/>
+              <circle cx="68" cy="44" r="2" fill="#3B82F6"/>
+              <line x1="20" y1="46" x2="20" y2="56" stroke="#3B82F6" stroke-width="0.8"/>
+              <line x1="68" y1="46" x2="68" y2="56" stroke="#3B82F6" stroke-width="0.8"/>
+              <!-- SAME happy eyes — still identical -->
+              <path d="M33 47 Q36 42 39 47" stroke="#FFFFFF" stroke-width="2" fill="none" stroke-linecap="round"/>
+              <path d="M49 47 Q52 42 55 47" stroke="#FFFFFF" stroke-width="2" fill="none" stroke-linecap="round"/>
+              <!-- SAME confident smile — still identical -->
+              <path d="M34 55 Q44 64 54 55" stroke="#FFFFFF" stroke-width="2" fill="none" stroke-linecap="round"/>
+              <line x1="44" y1="28" x2="44" y2="16" stroke="#2563EB" stroke-width="2"/>
+              <circle class="antenna-light" cx="44" cy="13" r="4" fill="#60A5FA"/>
+              <circle cx="44" cy="13" r="2" fill="#FFFFFF"/>
+              <g transform="translate(8, 48)">
+                <rect x="-6" y="-4" width="8" height="14" rx="4" fill="#3B82F6"/>
+                <circle cx="-2" cy="12" r="4" fill="#60A5FA"/>
+              </g>
+              <g transform="translate(72, 48)">
+                <rect x="-2" y="-4" width="8" height="14" rx="4" fill="#3B82F6"/>
+                <circle cx="2" cy="12" r="4" fill="#60A5FA"/>
+              </g>
+              <ellipse cx="35" cy="82" rx="6" ry="3" fill="#1E40AF"/>
+              <ellipse cx="53" cy="82" rx="6" ry="3" fill="#1E40AF"/>
+              <text x="44" y="100" text-anchor="middle" font-family="Inter, sans-serif" font-size="10" font-weight="700" fill="#2563EB">AI</text>
+            </svg>
+          </div>
+
+        </div>
+        <div class="caption">Same confidence. Same face. Only one answer was real.</div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════
+         PANEL 4 — The Fix (RAG)
+         AI: now with document feeding in, amber doc badge
+         PM: happy, thumbs up
+         ════════════════════════════════════════ -->
+    <div class="panel">
+      <span class="panel__number">4</span>
+      <div class="panel__title">The Fix</div>
+      <div class="scene">
+        <div class="characters">
+
+          <div class="character character--ai">
+            <div class="bubble bubble--rag">"Per your support docs: full refund within 30 days, no questions asked."</div>
+            <svg class="svg-ai-rag" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <ellipse cx="72" cy="112" rx="20" ry="4" fill="#2563EB" opacity="0.12"/>
+              <!-- Document stack -->
+              <rect x="2" y="36" width="26" height="32" rx="4" fill="#FFFBEB" stroke="#D97706" stroke-width="1.5"/>
+              <!-- Doc page fold -->
+              <path d="M20 36 L28 36 L28 44Z" fill="#FDE68A"/>
+              <!-- Doc text lines -->
+              <line x1="7" y1="46" x2="22" y2="46" stroke="#D97706" stroke-width="1.2" opacity="0.7"/>
+              <line x1="7" y1="51" x2="22" y2="51" stroke="#D97706" stroke-width="1.2" opacity="0.7"/>
+              <line x1="7" y1="56" x2="18" y2="56" stroke="#D97706" stroke-width="1.2" opacity="0.7"/>
+              <line x1="7" y1="61" x2="20" y2="61" stroke="#D97706" stroke-width="1.2" opacity="0.5"/>
+              <!-- Search/magnifying glass on doc -->
+              <circle cx="20" cy="41" r="3" fill="none" stroke="#D97706" stroke-width="1"/>
+              <line x1="22" y1="43" x2="25" y2="46" stroke="#D97706" stroke-width="1"/>
+              <!-- Animated-looking arrow from doc to brain -->
+              <path d="M30 52 L42 52" stroke="#D97706" stroke-width="2" stroke-dasharray="3 2"/>
+              <path d="M40 47 L45 52 L40 57" fill="#D97706"/>
+              <!-- Robot body -->
+              <rect x="44" y="28" width="56" height="50" rx="16" fill="#2563EB"/>
+              <rect x="50" y="33" width="44" height="40" rx="12" fill="#1E40AF"/>
+              <circle cx="48" cy="44" r="2" fill="#3B82F6"/>
+              <circle cx="96" cy="44" r="2" fill="#3B82F6"/>
+              <line x1="48" y1="46" x2="48" y2="56" stroke="#3B82F6" stroke-width="0.8"/>
+              <line x1="96" y1="46" x2="96" y2="56" stroke="#3B82F6" stroke-width="0.8"/>
+              <!-- Eyes: happy -->
+              <path d="M61 47 Q64 42 67 47" stroke="#FFFFFF" stroke-width="2" fill="none" stroke-linecap="round"/>
+              <path d="M77 47 Q80 42 83 47" stroke="#FFFFFF" stroke-width="2" fill="none" stroke-linecap="round"/>
+              <!-- Smile -->
+              <path d="M62 55 Q72 64 82 55" stroke="#FFFFFF" stroke-width="2" fill="none" stroke-linecap="round"/>
+              <!-- Antenna -->
+              <line x1="72" y1="28" x2="72" y2="16" stroke="#2563EB" stroke-width="2"/>
+              <circle class="antenna-light" cx="72" cy="13" r="4" fill="#60A5FA"/>
+              <circle cx="72" cy="13" r="2" fill="#FFFFFF"/>
+              <!-- Doc badge on robot (amber) -->
+              <circle cx="96" cy="22" r="9" fill="#D97706"/>
+              <rect x="92" y="17" width="8" height="10" rx="1.5" fill="#FFFFFF"/>
+              <line x1="94" y1="20" x2="98" y2="20" stroke="#D97706" stroke-width="0.8"/>
+              <line x1="94" y1="23" x2="98" y2="23" stroke="#D97706" stroke-width="0.8"/>
+              <!-- Arms -->
+              <g transform="translate(36, 48)">
+                <rect x="-6" y="-4" width="8" height="14" rx="4" fill="#3B82F6"/>
+                <circle cx="-2" cy="12" r="4" fill="#60A5FA"/>
+              </g>
+              <g transform="translate(100, 48)">
+                <rect x="-2" y="-4" width="8" height="14" rx="4" fill="#3B82F6"/>
+                <circle cx="2" cy="12" r="4" fill="#60A5FA"/>
+              </g>
+              <!-- Feet -->
+              <ellipse cx="63" cy="82" rx="6" ry="3" fill="#1E40AF"/>
+              <ellipse cx="81" cy="82" rx="6" ry="3" fill="#1E40AF"/>
+              <!-- Label -->
+              <text x="72" y="100" text-anchor="middle" font-family="Inter, sans-serif" font-size="10" font-weight="700" fill="#2563EB">AI + RAG</text>
+              <!-- Sparkles — now amber-tinted to show grounding -->
+              <path d="M36 20 L38 16 L40 20 L36 18 L40 18Z" fill="#D97706" opacity="0.5"/>
+              <path d="M104 64 L106 60 L108 64 L104 62 L108 62Z" fill="#D97706" opacity="0.4"/>
+              <circle cx="108" cy="30" r="1.5" fill="#D97706" opacity="0.3"/>
+            </svg>
+          </div>
+
+          <div class="character">
+            <!-- PM: happy, no bubble needed -->
+            <svg class="svg-pm" viewBox="0 0 90 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18 82 Q18 68 45 66 Q72 68 72 82 L72 120 Q72 126 66 126 L24 126 Q18 126 18 120Z" fill="#0D9488"/>
+              <path d="M35 68 Q45 76 55 68" fill="none" stroke="#0F766E" stroke-width="2"/>
+              <line x1="28" y1="90" x2="62" y2="90" stroke="#0F766E" stroke-width="0.6" opacity="0.4"/>
+              <line x1="28" y1="100" x2="62" y2="100" stroke="#0F766E" stroke-width="0.6" opacity="0.4"/>
+              <line x1="28" y1="110" x2="62" y2="110" stroke="#0F766E" stroke-width="0.6" opacity="0.4"/>
+              <line x1="45" y1="68" x2="45" y2="96" stroke="#D97706" stroke-width="1.5"/>
+              <rect x="38" y="92" width="14" height="10" rx="2" fill="#FFFBEB" stroke="#D97706" stroke-width="1"/>
+              <line x1="41" y1="96" x2="49" y2="96" stroke="#D97706" stroke-width="0.8"/>
+              <line x1="41" y1="99" x2="47" y2="99" stroke="#D97706" stroke-width="0.6"/>
+              <rect x="40" y="58" width="10" height="10" rx="2" fill="#E8B88A"/>
+              <ellipse cx="45" cy="38" rx="24" ry="22" fill="#F0C890"/>
+              <ellipse cx="21" cy="40" rx="5" ry="7" fill="#E8B88A"/>
+              <ellipse cx="69" cy="40" rx="5" ry="7" fill="#E8B88A"/>
+              <path d="M21 30 Q22 12 45 14 Q68 12 69 30 Q70 22 60 18 Q50 10 38 14 Q26 10 22 22Z" fill="#3D2B1F"/>
+              <path d="M25 28 Q30 18 42 20 Q34 22 30 28Z" fill="#3D2B1F"/>
+              <path d="M58 22 Q62 18 66 26 Q63 20 58 22Z" fill="#3D2B1F"/>
+              <rect x="29" y="33" width="14" height="10" rx="3" fill="none" stroke="#3D2B1F" stroke-width="2"/>
+              <rect x="47" y="33" width="14" height="10" rx="3" fill="none" stroke="#3D2B1F" stroke-width="2"/>
+              <line x1="43" y1="38" x2="47" y2="38" stroke="#3D2B1F" stroke-width="1.5"/>
+              <line x1="29" y1="36" x2="22" y2="38" stroke="#3D2B1F" stroke-width="1.2"/>
+              <line x1="61" y1="36" x2="68" y2="38" stroke="#3D2B1F" stroke-width="1.2"/>
+              <!-- Eyes: happy, slightly closed -->
+              <circle cx="37" cy="38" r="2.5" fill="#1A1A1A"/>
+              <circle cx="55" cy="38" r="2.5" fill="#1A1A1A"/>
+              <circle cx="37.5" cy="37" r="0.8" fill="#FFFFFF"/>
+              <circle cx="55.5" cy="37" r="0.8" fill="#FFFFFF"/>
+              <!-- Eyebrows: relaxed, happy -->
+              <path d="M30 30 Q36 27 42 30" stroke="#3D2B1F" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+              <path d="M48 30 Q54 27 60 30" stroke="#3D2B1F" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+              <circle cx="30" cy="44" r="3.5" fill="#F0A0A0" opacity="0.4"/>
+              <circle cx="60" cy="44" r="3.5" fill="#F0A0A0" opacity="0.4"/>
+              <!-- Mouth: big happy grin -->
+              <path d="M36 47 Q45 56 54 47" stroke="#1A1A1A" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+              <!-- Thumbs up gesture -->
+              <g transform="translate(66, 82)">
+                <circle cx="6" cy="0" r="11" fill="#059669" opacity="0.12"/>
+                <!-- Thumb -->
+                <rect x="3" y="-8" width="6" height="10" rx="3" fill="#F0C890" stroke="#E8B88A" stroke-width="0.8"/>
+                <!-- Fist -->
+                <rect x="1" y="0" width="10" height="7" rx="3" fill="#F0C890" stroke="#E8B88A" stroke-width="0.8"/>
+              </g>
+            </svg>
+          </div>
+
+        </div>
+        <div class="badge">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <rect x="1" y="2" width="12" height="14" rx="2" fill="rgba(255,255,255,0.3)" stroke="#FFFFFF" stroke-width="1.2"/>
+            <line x1="4" y1="6" x2="10" y2="6" stroke="#FFFFFF" stroke-width="0.8"/>
+            <line x1="4" y1="9" x2="10" y2="9" stroke="#FFFFFF" stroke-width="0.8"/>
+            <line x1="4" y1="12" x2="8" y2="12" stroke="#FFFFFF" stroke-width="0.8"/>
+            <path d="M10 8 L16 4 L16 16 L10 12Z" fill="rgba(255,255,255,0.2)" stroke="#FFFFFF" stroke-width="1"/>
+          </svg>
+          Retrieval-Augmented Generation — look it up first, answer second.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── FOOTER ── -->
+  <div class="comic__footer">
+    From <a href="https://navsha.github.io/interactive-explainers/grounding/">Grounding &amp; Guardrails</a> — AI for PMs
+  </div>
+
+</div>
+
+</body>
+</html>

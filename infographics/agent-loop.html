@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-E8RQLQXRWH"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-E8RQLQXRWH');
+  </script>
+  <title>The Agent Loop — Infographic</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --font-serif: 'Newsreader', Georgia, serif;
+      --font-sans: 'Inter', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+
+      --color-bg: #F8F7FF;
+      --color-surface: #FFFFFF;
+      --color-text: #1A1A1A;
+      --color-text-secondary: #6B6B6B;
+      --color-border: #E4E0F0;
+
+      --blue: #2563EB;
+      --green: #059669;
+      --amber: #D97706;
+      --purple: #7C3AED;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-sans);
+      background: #EDEAF5;
+      display: flex;
+      justify-content: center;
+      padding: 40px 20px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .infographic {
+      width: 800px;
+      background: var(--color-bg);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 60px rgba(0,0,0,0.08);
+    }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(135deg, #2563EB 0%, #7C3AED 60%, #5B21B6 100%);
+      padding: 64px 56px 56px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -80px; right: -40px;
+      width: 320px; height: 320px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.05);
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -100px; left: 30%;
+      width: 440px; height: 440px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.06);
+    }
+
+    .hero__series {
+      font-family: var(--font-sans);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.65);
+      margin-bottom: 16px;
+      position: relative; z-index: 1;
+    }
+
+    .hero__title {
+      font-family: var(--font-serif);
+      font-size: 52px;
+      font-weight: 600;
+      color: #fff;
+      line-height: 1.15;
+      margin-bottom: 16px;
+      position: relative; z-index: 1;
+    }
+
+    .hero__subtitle {
+      font-family: var(--font-sans);
+      font-size: 17px;
+      color: rgba(255,255,255,0.82);
+      line-height: 1.55;
+      max-width: 540px;
+      position: relative; z-index: 1;
+    }
+
+    /* ── SECTION ── */
+    .section {
+      padding: 48px 56px;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .section:last-child { border-bottom: none; }
+
+    .section__number {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--blue);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .section__title {
+      font-family: var(--font-serif);
+      font-size: 30px;
+      font-weight: 600;
+      color: var(--color-text);
+      line-height: 1.25;
+      margin-bottom: 16px;
+    }
+
+    .section__body {
+      font-family: var(--font-sans);
+      font-size: 15px;
+      color: var(--color-text-secondary);
+      line-height: 1.65;
+      max-width: 640px;
+    }
+
+    .section__body strong { color: var(--color-text); font-weight: 600; }
+
+    /* ── THE GAP ── */
+    .gap-compare {
+      display: grid;
+      grid-template-columns: 1fr 48px 1fr;
+      align-items: stretch;
+      margin: 28px 0 0;
+      gap: 0;
+    }
+
+    .gap-side {
+      padding: 28px 24px;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .gap-side--chatbot {
+      background: #FEF2F2;
+      border: 1px solid #FECACA;
+    }
+
+    .gap-side--agent {
+      background: #EFF6FF;
+      border: 1px solid #BFDBFE;
+    }
+
+    .gap-side__label {
+      font-family: var(--font-sans);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+
+    .gap-side--chatbot .gap-side__label { color: #DC2626; }
+    .gap-side--agent .gap-side__label { color: #2563EB; }
+
+    .gap-side__quote {
+      font-family: var(--font-serif);
+      font-size: 16px;
+      font-style: italic;
+      color: var(--color-text);
+      line-height: 1.55;
+      margin-bottom: 16px;
+      flex: 1;
+    }
+
+    .gap-side__outcome {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 8px 12px;
+      border-radius: 6px;
+      text-align: center;
+    }
+
+    .gap-side--chatbot .gap-side__outcome {
+      background: #FEE2E2;
+      color: #991B1B;
+    }
+
+    .gap-side--agent .gap-side__outcome {
+      background: #DBEAFE;
+      color: #1E40AF;
+    }
+
+    .gap-vs {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--color-text-secondary);
+    }
+
+    /* ── LIMITATIONS ── */
+    .limitations {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin: 28px 0 0;
+    }
+
+    .limitation {
+      padding: 20px;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .limitation__icon {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: #FEF2F2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 12px;
+      font-size: 20px;
+    }
+
+    .limitation__title {
+      font-family: var(--font-sans);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--color-text);
+      margin-bottom: 6px;
+    }
+
+    .limitation__desc {
+      font-family: var(--font-sans);
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      line-height: 1.5;
+    }
+
+    /* ── THE LOOP (SVG) ── */
+    .loop-diagram {
+      margin: 32px auto 0;
+      display: flex;
+      justify-content: center;
+    }
+
+    .loop-diagram svg {
+      width: 480px;
+      height: 480px;
+    }
+
+    .loop-phase-label {
+      font-family: 'Inter', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 0.06em;
+      text-anchor: middle;
+      fill: white;
+    }
+
+    .loop-phase-sublabel {
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      font-size: 10px;
+      text-anchor: middle;
+      fill: white;
+      opacity: 0.8;
+    }
+
+    .loop-center-label {
+      font-family: 'Newsreader', serif;
+      font-weight: 600;
+      font-size: 18px;
+      text-anchor: middle;
+      fill: #1A1A1A;
+    }
+
+    .loop-center-sub {
+      font-family: 'Inter', sans-serif;
+      font-weight: 400;
+      font-size: 11px;
+      text-anchor: middle;
+      fill: #6B6B6B;
+    }
+
+    .loop-detail-cards {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      margin: 24px 0 0;
+    }
+
+    .loop-detail {
+      padding: 18px 20px;
+      border-radius: 10px;
+      border: 1px solid;
+    }
+
+    .loop-detail--think  { background: #EFF6FF; border-color: #BFDBFE; }
+    .loop-detail--act    { background: #ECFDF5; border-color: #A7F3D0; }
+    .loop-detail--observe { background: #FFFBEB; border-color: #FDE68A; }
+    .loop-detail--decide { background: #F5F3FF; border-color: #DDD6FE; }
+
+    .loop-detail__header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .loop-detail__num {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .loop-detail--think .loop-detail__num  { background: var(--blue); }
+    .loop-detail--act .loop-detail__num    { background: var(--green); }
+    .loop-detail--observe .loop-detail__num { background: var(--amber); }
+    .loop-detail--decide .loop-detail__num { background: var(--purple); }
+
+    .loop-detail__title {
+      font-family: var(--font-sans);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--color-text);
+    }
+
+    .loop-detail__desc {
+      font-family: var(--font-sans);
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      line-height: 1.5;
+    }
+
+    /* ── KEY INSIGHT BOX ── */
+    .insight-box {
+      margin: 28px 0 0;
+      padding: 20px 24px;
+      background: linear-gradient(135deg, #EFF6FF, #F5F3FF);
+      border: 1px solid #BFDBFE;
+      border-radius: 10px;
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .insight-box__icon {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: var(--blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 16px;
+    }
+
+    .insight-box__text {
+      font-family: var(--font-sans);
+      font-size: 14px;
+      color: var(--color-text);
+      line-height: 1.55;
+    }
+
+    .insight-box__text strong { font-weight: 700; }
+
+    /* ── AGENT IN ACTION TIMELINE ── */
+    .timeline {
+      margin: 28px 0 0;
+      position: relative;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 23px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: var(--color-border);
+    }
+
+    .timeline-loop {
+      margin-bottom: 20px;
+    }
+
+    .timeline-loop__label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      color: white;
+      background: var(--blue);
+      display: inline-block;
+      padding: 3px 12px;
+      border-radius: 12px;
+      margin-left: 12px;
+      margin-bottom: 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .timeline-step {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      margin-bottom: 10px;
+      position: relative;
+    }
+
+    .timeline-step__dot {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      margin-top: 4px;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 1;
+      border: 2px solid white;
+      margin-left: 18px;
+    }
+
+    .timeline-step__dot--think   { background: var(--blue); }
+    .timeline-step__dot--act     { background: var(--green); }
+    .timeline-step__dot--observe { background: var(--amber); }
+    .timeline-step__dot--decide  { background: var(--purple); }
+
+    .timeline-step__content {
+      flex: 1;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-family: var(--font-sans);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .timeline-step__content--think {
+      background: #F8F7F5;
+      border: 1px solid #E8E6E2;
+      color: var(--color-text);
+      font-style: italic;
+    }
+
+    .timeline-step__content--act {
+      background: #F0FDF4;
+      border: 1px dashed #86EFAC;
+      color: #166534;
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .timeline-step__content--observe {
+      background: #ECFDF5;
+      border: 1px solid #A7F3D0;
+      color: #065F46;
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .timeline-step__content--result {
+      background: #EFF6FF;
+      border: 1px solid #BFDBFE;
+      color: var(--color-text);
+    }
+
+    .timeline-step__phase {
+      font-weight: 700;
+      font-style: normal;
+      margin-right: 4px;
+    }
+
+    .timeline-summary {
+      margin-top: 20px;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .timeline-summary__badge {
+      display: inline-block;
+      padding: 10px 24px;
+      background: linear-gradient(135deg, #1A1A1A, #292524);
+      color: white;
+      border-radius: 8px;
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .timeline-summary__badge em {
+      color: #93C5FD;
+      font-style: normal;
+    }
+
+    /* ── SPECTRUM (Prompt / Workflow / Agent) ── */
+    .spectrum {
+      margin: 28px 0 0;
+    }
+
+    .spectrum-bar {
+      display: flex;
+      height: 8px;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .spectrum-bar__seg--prompt   { flex: 1; background: #D1D5DB; }
+    .spectrum-bar__seg--workflow { flex: 1; background: linear-gradient(90deg, #D1D5DB, #2563EB); }
+    .spectrum-bar__seg--agent    { flex: 1; background: linear-gradient(90deg, #2563EB, #7C3AED); }
+
+    .spectrum-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .spectrum-card {
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--color-border);
+      background: var(--color-surface);
+    }
+
+    .spectrum-card__header {
+      padding: 16px 18px 12px;
+      text-align: center;
+    }
+
+    .spectrum-card--prompt .spectrum-card__header   { background: #F3F4F6; }
+    .spectrum-card--workflow .spectrum-card__header  { background: #DBEAFE; }
+    .spectrum-card--agent .spectrum-card__header     { background: linear-gradient(135deg, #DBEAFE, #EDE9FE); }
+
+    .spectrum-card__name {
+      font-family: var(--font-sans);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .spectrum-card--prompt .spectrum-card__name   { color: #6B7280; }
+    .spectrum-card--workflow .spectrum-card__name  { color: #1D4ED8; }
+    .spectrum-card--agent .spectrum-card__name     { color: #5B21B6; }
+
+    .spectrum-card__body {
+      padding: 16px 18px 18px;
+    }
+
+    .spectrum-card__row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 5px 0;
+      font-family: var(--font-sans);
+      font-size: 12px;
+    }
+
+    .spectrum-card__row-label {
+      color: var(--color-text-secondary);
+    }
+
+    .spectrum-card__row-value {
+      font-weight: 600;
+      color: var(--color-text);
+    }
+
+    .spectrum-card__divider {
+      border: none;
+      border-top: 1px dashed var(--color-border);
+      margin: 10px 0;
+    }
+
+    .spectrum-card__example {
+      font-family: var(--font-sans);
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      line-height: 1.5;
+      font-style: italic;
+    }
+
+    /* ── DECISION KEY ── */
+    .decision-key {
+      margin: 28px 0 0;
+      padding: 24px 28px;
+      background: linear-gradient(135deg, #1A1A1A, #292524);
+      border-radius: 12px;
+      color: white;
+      text-align: center;
+    }
+
+    .decision-key__question {
+      font-family: var(--font-serif);
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .decision-key__answer {
+      font-family: var(--font-sans);
+      font-size: 15px;
+      color: rgba(255,255,255,0.75);
+      line-height: 1.55;
+    }
+
+    .decision-key__answer strong {
+      color: #93C5FD;
+      font-weight: 700;
+    }
+
+    /* ── TAKEAWAYS ── */
+    .takeaways {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin: 24px 0 0;
+    }
+
+    .takeaway {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      padding: 16px 20px;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 10px;
+    }
+
+    .takeaway__num {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      background: var(--blue);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .takeaway__text {
+      font-family: var(--font-sans);
+      font-size: 14px;
+      color: var(--color-text);
+      line-height: 1.55;
+    }
+
+    .takeaway__text strong { font-weight: 700; }
+
+    /* ── FOOTER ── */
+    .infographic-footer {
+      padding: 32px 56px;
+      background: #1A1A1A;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .infographic-footer__source {
+      font-family: var(--font-sans);
+      font-size: 13px;
+      color: rgba(255,255,255,0.5);
+    }
+
+    .infographic-footer__source a {
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+    }
+
+    .infographic-footer__brand {
+      font-family: var(--font-serif);
+      font-size: 16px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.8);
+    }
+  </style>
+</head>
+<body>
+  <div class="infographic">
+
+    <!-- ═══════════════════════════════════════════════
+         HERO
+         ═══════════════════════════════════════════════ -->
+    <div class="hero">
+      <div class="hero__series">AI for PMs &middot; Agents &amp; Tool Use Series</div>
+      <h1 class="hero__title">The Agent<br>Loop</h1>
+      <p class="hero__subtitle">Think. Act. Observe. Decide. The four-step cycle that turns a language model into something that can actually get things done.</p>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         SECTION 1 — THE GAP
+         ═══════════════════════════════════════════════ -->
+    <div class="section">
+      <div class="section__number">01</div>
+      <h2 class="section__title">Chatbot vs. Agent</h2>
+      <p class="section__body">Ask an AI to reschedule your meeting, check a room, and send invites. A chatbot tells you how. An agent actually does it.</p>
+
+      <div class="gap-compare">
+        <div class="gap-side gap-side--chatbot">
+          <div class="gap-side__label">Standard LLM</div>
+          <div class="gap-side__quote">"Here's what I'd suggest: open your calendar, find the meeting, drag it to tomorrow..."</div>
+          <div class="gap-side__outcome">Describes actions</div>
+        </div>
+        <div class="gap-vs">vs</div>
+        <div class="gap-side gap-side--agent">
+          <div class="gap-side__label">AI Agent</div>
+          <div class="gap-side__quote">"Done. I moved the meeting to tomorrow at 3pm, booked Room B, and sent updated invites to all 4 attendees."</div>
+          <div class="gap-side__outcome">Performs actions</div>
+        </div>
+      </div>
+
+      <div class="limitations">
+        <div class="limitation">
+          <div class="limitation__icon">&#128683;</div>
+          <div class="limitation__title">No Live Data</div>
+          <div class="limitation__desc">Anything about current state is stale or fabricated</div>
+        </div>
+        <div class="limitation">
+          <div class="limitation__icon">&#128274;</div>
+          <div class="limitation__title">No Actions</div>
+          <div class="limitation__desc">Can only describe what to do, not do it</div>
+        </div>
+        <div class="limitation">
+          <div class="limitation__icon">&#128260;</div>
+          <div class="limitation__title">No Self-Correction</div>
+          <div class="limitation__desc">If wrong, can't check or try a different approach</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         SECTION 2 — THE LOOP
+         ═══════════════════════════════════════════════ -->
+    <div class="section">
+      <div class="section__number">02</div>
+      <h2 class="section__title">The Four-Phase Loop</h2>
+      <p class="section__body">The agent loop transforms an LLM from a one-shot oracle into an <strong>iterative problem-solver</strong>. Four phases, repeated until the task is complete.</p>
+
+      <div class="loop-diagram">
+        <svg viewBox="0 0 480 480" xmlns="http://www.w3.org/2000/svg">
+          <!-- Circular track -->
+          <circle cx="240" cy="240" r="160" fill="none" stroke="#E4E0F0" stroke-width="2" stroke-dasharray="6 4" />
+
+          <!-- Arrow arcs (clockwise: Think→Act→Observe→Decide→Think) -->
+          <!-- Think (top) → Act (right) -->
+          <path d="M 290 95 Q 370 120, 385 195" fill="none" stroke="#059669" stroke-width="2.5" opacity="0.5" />
+          <polygon points="385,195 378,182 391,184" fill="#059669" opacity="0.6" />
+
+          <!-- Act (right) → Observe (bottom) -->
+          <path d="M 385 290 Q 370 365, 290 388" fill="none" stroke="#D97706" stroke-width="2.5" opacity="0.5" />
+          <polygon points="290,388 303,381 301,394" fill="#D97706" opacity="0.6" />
+
+          <!-- Observe (bottom) → Decide (left) -->
+          <path d="M 190 388 Q 110 365, 95 290" fill="none" stroke="#7C3AED" stroke-width="2.5" opacity="0.5" />
+          <polygon points="95,290 102,303 89,301" fill="#7C3AED" opacity="0.6" />
+
+          <!-- Decide (left) → Think (top) -->
+          <path d="M 95 190 Q 110 115, 190 92" fill="none" stroke="#2563EB" stroke-width="2.5" opacity="0.5" />
+          <polygon points="190,92 177,99 179,86" fill="#2563EB" opacity="0.6" />
+
+          <!-- THINK node (top) -->
+          <circle cx="240" cy="80" r="42" fill="#2563EB" />
+          <text x="240" y="76" class="loop-phase-label">THINK</text>
+          <text x="240" y="91" class="loop-phase-sublabel">Reason</text>
+
+          <!-- ACT node (right) -->
+          <circle cx="400" cy="240" r="42" fill="#059669" />
+          <text x="400" y="236" class="loop-phase-label">ACT</text>
+          <text x="400" y="251" class="loop-phase-sublabel">Execute</text>
+
+          <!-- OBSERVE node (bottom) -->
+          <circle cx="240" cy="400" r="42" fill="#D97706" />
+          <text x="240" y="396" class="loop-phase-label">OBSERVE</text>
+          <text x="240" y="411" class="loop-phase-sublabel">Learn</text>
+
+          <!-- DECIDE node (left) -->
+          <circle cx="80" cy="240" r="42" fill="#7C3AED" />
+          <text x="80" y="236" class="loop-phase-label">DECIDE</text>
+          <text x="80" y="251" class="loop-phase-sublabel">Continue?</text>
+
+          <!-- Center text -->
+          <text x="240" y="234" class="loop-center-label">Repeat until</text>
+          <text x="240" y="254" class="loop-center-label">task is done</text>
+        </svg>
+      </div>
+
+      <div class="loop-detail-cards">
+        <div class="loop-detail loop-detail--think">
+          <div class="loop-detail__header">
+            <div class="loop-detail__num">1</div>
+            <div class="loop-detail__title">Think</div>
+          </div>
+          <div class="loop-detail__desc">Examine the current context and reason about what to do next. This is where the model's intelligence lives.</div>
+        </div>
+        <div class="loop-detail loop-detail--act">
+          <div class="loop-detail__header">
+            <div class="loop-detail__num">2</div>
+            <div class="loop-detail__title">Act</div>
+          </div>
+          <div class="loop-detail__desc">Execute a concrete action: call an API, query a database, run code, or generate a response.</div>
+        </div>
+        <div class="loop-detail loop-detail--observe">
+          <div class="loop-detail__header">
+            <div class="loop-detail__num">3</div>
+            <div class="loop-detail__title">Observe</div>
+          </div>
+          <div class="loop-detail__desc">The result comes back — data, an error, a confirmation. New information feeds into the LLM's context.</div>
+        </div>
+        <div class="loop-detail loop-detail--decide">
+          <div class="loop-detail__header">
+            <div class="loop-detail__num">4</div>
+            <div class="loop-detail__title">Decide</div>
+          </div>
+          <div class="loop-detail__desc">Is the task complete? If yes, return the answer. If not, loop back to Think with the new information.</div>
+        </div>
+      </div>
+
+      <div class="insight-box">
+        <div class="insight-box__icon">&#9889;</div>
+        <div class="insight-box__text"><strong>Agents can handle ambiguity.</strong> They don't need perfect instructions upfront — they explore, adapt, and try again. This is fundamentally different from traditional software where every branch must be coded in advance.</div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         SECTION 3 — AGENT IN ACTION
+         ═══════════════════════════════════════════════ -->
+    <div class="section">
+      <div class="section__number">03</div>
+      <h2 class="section__title">An Agent in Action</h2>
+      <p class="section__body">Task: <strong>"Find the top 3 bugs by user impact from Sentry, summarize them, and post to #engineering on Slack."</strong></p>
+
+      <div class="timeline">
+        <div class="timeline-loop">
+          <div class="timeline-loop__label">Loop 1 &mdash; Gather</div>
+          <div class="timeline-step">
+            <div class="timeline-step__dot timeline-step__dot--think"></div>
+            <div class="timeline-step__content timeline-step__content--think">
+              <span class="timeline-step__phase">Think:</span> I need to query Sentry for recent issues sorted by frequency.
+            </div>
+          </div>
+          <div class="timeline-step">
+            <div class="timeline-step__dot timeline-step__dot--act"></div>
+            <div class="timeline-step__content timeline-step__content--act">
+              sentry.listIssues({ sort: "frequency", limit: 10 })
+            </div>
+          </div>
+          <div class="timeline-step">
+            <div class="timeline-step__dot timeline-step__dot--observe"></div>
+            <div class="timeline-step__content timeline-step__content--observe">
+              10 issues returned with titles and error counts
+            </div>
+          </div>
+        </div>
+
+        <div class="timeline-loop">
+          <div class="timeline-loop__label">Loop 2 &mdash; Refine</div>
+          <div class="timeline-step">
+            <div class="timeline-step__dot timeline-step__dot--think"></div>
+            <div class="timeline-step__content timeline-step__content--think">
+              <span class="timeline-step__phase">Think:</span> Frequency &ne; user impact. I need unique users affected for the top 5.
+            </div>
+          </div>
+          <div class="timeline-step">
+            <div class="timeline-step__dot timeline-step__dot--act"></div>
+            <div class="timeline-step__content timeline-step__content--act">
+              sentry.getIssueStats({ field: "users_affected" })
+            </div>
+          </div>
+          <div class="timeline-step">
+            <div class="timeline-step__dot timeline-step__dot--observe"></div>
+            <div class="timeline-step__content timeline-step__content--observe">
+              User counts received &mdash; rankings change when sorted by impact
+            </div>
+          </div>
+        </div>
+
+        <div class="timeline-loop">
+          <div class="timeline-loop__label">Loop 3 &mdash; Deliver</div>
+          <div class="timeline-step">
+            <div class="timeline-step__dot timeline-step__dot--think"></div>
+            <div class="timeline-step__content timeline-step__content--think">
+              <span class="timeline-step__phase">Think:</span> Top 3 identified. Writing summary and posting to Slack.
+            </div>
+          </div>
+          <div class="timeline-step">
+            <div class="timeline-step__dot timeline-step__dot--act"></div>
+            <div class="timeline-step__content timeline-step__content--act">
+              slack.postMessage({ channel: "#engineering", text: "Bug Impact Report..." })
+            </div>
+          </div>
+          <div class="timeline-step">
+            <div class="timeline-step__dot timeline-step__dot--decide"></div>
+            <div class="timeline-step__content timeline-step__content--result">
+              Posted successfully. Task complete.
+            </div>
+          </div>
+        </div>
+
+        <div class="timeline-summary">
+          <div class="timeline-summary__badge"><em>3 loops</em> &middot; <em>4 tool calls</em> &middot; <em>1 output</em> &mdash; no step was hard-coded</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         SECTION 4 — WHEN TO USE WHAT
+         ═══════════════════════════════════════════════ -->
+    <div class="section">
+      <div class="section__number">04</div>
+      <h2 class="section__title">Prompt vs. Workflow vs. Agent</h2>
+      <p class="section__body">Agents are powerful — and slow, expensive, and unpredictable. Use the right tier for the job.</p>
+
+      <div class="spectrum">
+        <div class="spectrum-bar">
+          <div class="spectrum-bar__seg--prompt"></div>
+          <div class="spectrum-bar__seg--workflow"></div>
+          <div class="spectrum-bar__seg--agent"></div>
+        </div>
+
+        <div class="spectrum-cards">
+          <div class="spectrum-card spectrum-card--prompt">
+            <div class="spectrum-card__header">
+              <div class="spectrum-card__name">Simple Prompt</div>
+            </div>
+            <div class="spectrum-card__body">
+              <div class="spectrum-card__row">
+                <span class="spectrum-card__row-label">Ambiguity</span>
+                <span class="spectrum-card__row-value">None</span>
+              </div>
+              <div class="spectrum-card__row">
+                <span class="spectrum-card__row-label">External data</span>
+                <span class="spectrum-card__row-value">No</span>
+              </div>
+              <div class="spectrum-card__row">
+                <span class="spectrum-card__row-label">Speed</span>
+                <span class="spectrum-card__row-value">Fast</span>
+              </div>
+              <div class="spectrum-card__row">
+                <span class="spectrum-card__row-label">Cost</span>
+                <span class="spectrum-card__row-value">Low</span>
+              </div>
+              <hr class="spectrum-card__divider">
+              <div class="spectrum-card__example">"Summarize this doc" &middot; "Draft an email" &middot; "Translate this text"</div>
+            </div>
+          </div>
+
+          <div class="spectrum-card spectrum-card--workflow">
+            <div class="spectrum-card__header">
+              <div class="spectrum-card__name">Workflow</div>
+            </div>
+            <div class="spectrum-card__body">
+              <div class="spectrum-card__row">
+                <span class="spectrum-card__row-label">Ambiguity</span>
+                <span class="spectrum-card__row-value">Low</span>
+              </div>
+              <div class="spectrum-card__row">
+                <span class="spectrum-card__row-label">External data</span>
+                <span class="spectrum-card__row-value">Yes (known)</span>
+              </div>
+              <div class="spectrum-card__row">
+                <span class="spectrum-card__row-label">Speed</span>
+                <span class="spectrum-card__row-value">Medium</span>
+              </div>
+              <div class="spectrum-card__row">
+                <span class="spectrum-card__row-label">Cost</span>
+                <span class="spectrum-card__row-value">Medium</span>
+              </div>
+              <hr class="spectrum-card__divider">
+              <div class="spectrum-card__example">"Classify ticket &rarr; route &rarr; draft reply" &middot; "Daily metrics digest"</div>
+            </div>
+          </div>
+
+          <div class="spectrum-card spectrum-card--agent">
+            <div class="spectrum-card__header">
+              <div class="spectrum-card__name">Agent</div>
+            </div>
+            <div class="spectrum-card__body">
+              <div class="spectrum-card__row">
+                <span class="spectrum-card__row-label">Ambiguity</span>
+                <span class="spectrum-card__row-value">High</span>
+              </div>
+              <div class="spectrum-card__row">
+                <span class="spectrum-card__row-label">External data</span>
+                <span class="spectrum-card__row-value">Yes (dynamic)</span>
+              </div>
+              <div class="spectrum-card__row">
+                <span class="spectrum-card__row-label">Speed</span>
+                <span class="spectrum-card__row-value">Slow</span>
+              </div>
+              <div class="spectrum-card__row">
+                <span class="spectrum-card__row-label">Cost</span>
+                <span class="spectrum-card__row-value">High</span>
+              </div>
+              <hr class="spectrum-card__divider">
+              <div class="spectrum-card__example">"Why did churn spike?" &middot; "Investigate this login bug" &middot; "Research competitors"</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="decision-key">
+        <div class="decision-key__question">How much ambiguity is there?</div>
+        <div class="decision-key__answer">If the task is <strong>predictable</strong>, use a simpler approach. If it requires <strong>exploration and judgment</strong>, that's where agents shine.</div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         SECTION 5 — TAKEAWAYS
+         ═══════════════════════════════════════════════ -->
+    <div class="section">
+      <div class="section__number">Key Takeaways</div>
+      <h2 class="section__title">What Every PM Should Know</h2>
+
+      <div class="takeaways">
+        <div class="takeaway">
+          <div class="takeaway__num">1</div>
+          <div class="takeaway__text"><strong>LLMs describe. Agents do.</strong> The gap between a chatbot and an agent is the ability to take action and observe results.</div>
+        </div>
+        <div class="takeaway">
+          <div class="takeaway__num">2</div>
+          <div class="takeaway__text"><strong>The loop is the secret.</strong> Think &rarr; Act &rarr; Observe &rarr; Decide, repeated until the task is done. No step is hard-coded.</div>
+        </div>
+        <div class="takeaway">
+          <div class="takeaway__num">3</div>
+          <div class="takeaway__text"><strong>Agents handle ambiguity.</strong> They don't need perfect instructions — they explore, adapt, and self-correct. Traditional software can't do this.</div>
+        </div>
+        <div class="takeaway">
+          <div class="takeaway__num">4</div>
+          <div class="takeaway__text"><strong>Match the tier to the task.</strong> Prompts for simple, workflows for predictable, agents for open-ended. Using an agent when a workflow will do is like hiring a surgeon to apply bandaids.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         FOOTER
+         ═══════════════════════════════════════════════ -->
+    <div class="infographic-footer">
+      <div class="infographic-footer__source">From the <a href="https://navsha.github.io/interactive-explainers/agents/agent-loop.html">full interactive article</a> &middot; AI for PMs</div>
+      <div class="infographic-footer__brand">Interactive Explainers</div>
+    </div>
+
+  </div>
+</body>
+</html>
