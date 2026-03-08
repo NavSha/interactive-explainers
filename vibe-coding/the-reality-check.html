@@ -26,6 +26,8 @@
     .btn--active { background: var(--accent-vibe); border-color: var(--accent-vibe); }
     .btn--secondary:hover:not(:disabled) { border-color: var(--accent-vibe); color: var(--accent-vibe); }
     .tier-table tbody tr:hover { background: var(--accent-vibe-light); }
+    .quiz__progress-bar { background: var(--accent-vibe); }
+    .quiz__score { color: var(--accent-vibe); }
 
     /* Should You Ship It? Widget */
     .ship-check__list {
@@ -626,6 +628,38 @@
     </div>
   </div>
 
+  <!-- ================================================================
+       Capstone Quiz: Article Recap
+       ================================================================ -->
+  <div class="wide-container">
+    <div class="widget" id="widget-capstone-quiz">
+      <div class="widget__label">Test your understanding</div>
+      <div class="widget__title">Article Recap</div>
+      <div class="widget__instruction">5 questions covering the key concepts from this article.</div>
+
+      <div class="quiz__progress">
+        <div class="quiz__progress-bar" id="quiz-progress-bar"></div>
+      </div>
+      <div class="quiz__progress-text" id="quiz-progress-text">1 of 5</div>
+
+      <div class="quiz__card" id="quiz-card">
+        <p class="quiz__scenario" id="quiz-scenario"></p>
+        <div class="widget__controls" id="quiz-options"></div>
+        <div class="quiz__explanation" id="quiz-explanation" style="display: none;"></div>
+      </div>
+
+      <div class="widget__controls widget__controls--mt">
+        <button class="btn btn--primary" id="quiz-next" style="display: none;">Next Question &rarr;</button>
+      </div>
+
+      <div class="quiz__summary" id="quiz-summary" style="display: none;">
+        <div class="quiz__score" id="quiz-score"></div>
+        <p class="quiz__summary-text" id="quiz-summary-text"></p>
+        <button class="btn btn--secondary" id="quiz-retry" style="margin-top: var(--space-4);">Try Again</button>
+      </div>
+    </div>
+  </div>
+
   <article class="prose">
 
     <!-- ================================================================
@@ -1127,6 +1161,179 @@
     resize();
     draw();
     window.addEventListener('resize', function() { resize(); draw(); });
+  })();
+
+  // ====================================================================
+  // Capstone Quiz: Article Recap
+  // ====================================================================
+  (function() {
+    var questions = [
+      {
+        question: 'Your PM colleague vibe-coded a customer onboarding flow and it passes all their manual tests. They\'re ready to ship it to production. An engineer glances at it and says "this works but it\'s not correct." What does the engineer most likely mean?',
+        options: [
+          { label: 'The code has syntax errors that will cause crashes', key: 'a' },
+          { label: 'The code runs and produces expected output for tested cases, but likely has unhandled edge cases, missing business rules, or security gaps that will surface in production', key: 'b' },
+          { label: 'The engineer is gatekeeping and doesn\'t want PMs writing code', key: 'c' },
+          { label: 'The code needs to be rewritten in a different programming language', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'The distinction between "works" and "correct" is central to understanding AI-generated code. "Works" means it runs without errors for the cases you tested. "Correct" means it handles every edge case, respects business rules, fails gracefully, and doesn\'t create security holes. AI code typically passes the glance test \u2014 clean names, reasonable structure \u2014 but the gap between works and correct is where production incidents live. The engineer isn\'t gatekeeping; they\'re identifying real risk.'
+      },
+      {
+        question: 'A PM notices that their AI-generated checkout page has clean variable names, good comments, and reasonable structure. But the code catches every possible exception and silently returns success. Why is this a problem?',
+        options: [
+          { label: 'Silent error swallowing means failures look like successes \u2014 a payment could fail but the customer sees "order confirmed," and nobody knows until revenue is missing', key: 'a' },
+          { label: 'The code should throw errors loudly in production to alert users immediately', key: 'b' },
+          { label: 'Exception handling is unnecessary for checkout flows since payment processors handle all errors', key: 'c' },
+          { label: 'The comments are probably inaccurate since AI generates generic comments', key: 'd' }
+        ],
+        answer: 'a',
+        explanation: 'The AI\'s instinct is to make errors disappear rather than surface them \u2014 it optimizes for "the code doesn\'t crash" rather than "the code handles failure correctly." Silent error swallowing is particularly dangerous in checkout flows where a failed payment silently returning success means the customer thinks they paid, inventory gets decremented, but no money actually changed hands. The fix isn\'t throwing raw errors at users (option B) but properly handling each failure case with appropriate user messaging and system alerting.'
+      },
+      {
+        question: 'A stakeholder sees a PM\'s vibe-coded prototype and says, "This is great, let\'s just ship it as-is." According to the hand-off framework, what should the PM consider first?',
+        options: [
+          { label: 'Ship it immediately \u2014 stakeholder approval is the green light', key: 'a' },
+          { label: 'Refuse to ship anything built with AI tools on principle', key: 'b' },
+          { label: 'Evaluate whether it touches auth, personal data, payments, or needs uptime guarantees \u2014 a prototype optimized for demonstrating intent is different from code optimized for reliability and security', key: 'c' },
+          { label: 'Rewrite it from scratch without AI tools before shipping', key: 'd' }
+        ],
+        answer: 'c',
+        explanation: 'The "let\'s just ship it" moment is the most dangerous inflection point in vibe coding. A prototype is optimized for demonstrating intent; a product is optimized for reliability, security, and maintenance. These are different optimization targets requiring different code. The decision framework asks: does it handle auth? Touch personal data? Process payments? Need uptime? If yes to any, it needs engineering review or handoff. If it\'s a simple internal tool with no sensitive data, shipping the prototype may be perfectly fine.'
+      },
+      {
+        question: 'A PM built a working prototype and brings it to an engineer saying, "I built the feature, can you review it?" The engineer seems defensive. What framing would have worked better?',
+        options: [
+          { label: '"I know this isn\'t perfect, but it\'s good enough to ship if you just fix the bugs."', key: 'a' },
+          { label: '"Here\'s the finished code. I just need you to deploy it."', key: 'b' },
+          { label: '"I used AI so the code quality should be fine, but can you double-check?"', key: 'c' },
+          { label: '"I built this to show intent, not to ship. What would need to change to make this production-ready?"', key: 'd' }
+        ],
+        answer: 'd',
+        explanation: 'The framing "I built the feature" implies the work is done and the engineer\'s job is quality control, minimizing their expertise. "I built this to show intent, not to ship" positions the prototype as communication \u2014 a spec that runs \u2014 and explicitly acknowledges that the path from prototype to production is where engineering expertise matters. Options B and D are worse versions of the same problem. Option C implies AI code doesn\'t need serious review, which is exactly the wrong assumption.'
+      },
+      {
+        question: 'A PM built an internal tool with AI three months ago. An API it depends on changed, and now the tool is broken. They can\'t find the relevant function or understand the data flow. What maintenance principle did they violate?',
+        options: [
+          { label: 'They should have used a more stable API provider', key: 'a' },
+          { label: 'They should have built it without AI so they\'d understand the code', key: 'b' },
+          { label: 'They failed the one-month test \u2014 code you can\'t explain is a house with no blueprints, and they didn\'t keep it simple, write tests, or use version control to maintain understanding', key: 'c' },
+          { label: 'AI-generated code always breaks after three months and needs to be regenerated', key: 'd' }
+        ],
+        answer: 'c',
+        explanation: 'The one-month test is the maintenance litmus test: can you come back in a month and still work on it? This PM can\'t explain what each file does or trace the data flow, which means they built a prototype without realizing it. The three strategies for avoiding this trap \u2014 keeping it simple, writing tests, and using version control \u2014 would have helped. Building without AI (option B) misses the point; the issue isn\'t the tool but the lack of understanding and documentation. APIs changing is normal; being unable to respond to the change is the real failure.'
+      }
+    ];
+
+    var currentQ = 0;
+    var score = 0;
+    var answered = false;
+
+    var scenarioEl = document.getElementById('quiz-scenario');
+    var optionsEl = document.getElementById('quiz-options');
+    var explanationEl = document.getElementById('quiz-explanation');
+    var progressBar = document.getElementById('quiz-progress-bar');
+    var progressText = document.getElementById('quiz-progress-text');
+    var nextBtn = document.getElementById('quiz-next');
+    var summaryEl = document.getElementById('quiz-summary');
+    var scoreEl = document.getElementById('quiz-score');
+    var summaryTextEl = document.getElementById('quiz-summary-text');
+    var cardEl = document.getElementById('quiz-card');
+    var retryBtn = document.getElementById('quiz-retry');
+
+    function loadQuestion() {
+      answered = false;
+      var q = questions[currentQ];
+      scenarioEl.textContent = q.question;
+      explanationEl.style.display = 'none';
+      nextBtn.style.display = 'none';
+
+      optionsEl.innerHTML = '';
+      q.options.forEach(function(opt) {
+        var btn = document.createElement('button');
+        btn.className = 'btn btn--secondary';
+        btn.dataset.answer = opt.key;
+        btn.textContent = opt.label;
+        optionsEl.appendChild(btn);
+      });
+
+      progressBar.style.width = ((currentQ) / questions.length * 100) + '%';
+      progressText.textContent = (currentQ + 1) + ' of ' + questions.length;
+    }
+
+    function handleAnswer(selected) {
+      if (answered) return;
+      answered = true;
+      var q = questions[currentQ];
+      var isCorrect = selected === q.answer;
+      if (isCorrect) score++;
+
+      optionsEl.querySelectorAll('.btn').forEach(function(btn) {
+        btn.disabled = true;
+        var ans = btn.dataset.answer;
+        if (ans === q.answer) {
+          btn.className = 'btn btn--correct';
+        } else if (ans === selected && !isCorrect) {
+          btn.className = 'btn btn--incorrect';
+        }
+      });
+
+      explanationEl.textContent = (isCorrect ? 'Correct! ' : 'Not quite. ') + q.explanation;
+      explanationEl.className = 'quiz__explanation ' + (isCorrect ? 'quiz__explanation--correct' : 'quiz__explanation--incorrect');
+      explanationEl.style.display = 'block';
+
+      progressBar.style.width = ((currentQ + 1) / questions.length * 100) + '%';
+
+      if (currentQ < questions.length - 1) {
+        nextBtn.style.display = 'inline-flex';
+      } else {
+        setTimeout(showSummary, 800);
+      }
+    }
+
+    function showSummary() {
+      cardEl.style.display = 'none';
+      progressBar.parentElement.style.display = 'none';
+      progressText.style.display = 'none';
+      nextBtn.style.display = 'none';
+      summaryEl.style.display = 'block';
+      scoreEl.textContent = score + ' out of ' + questions.length;
+
+      var messages = [
+        'Worth a re-read \u2014 the concepts will click with another pass!',
+        'Worth a re-read \u2014 the concepts will click with another pass!',
+        'You\'ve got the basics. The quality vs. correctness gap and hand-off framework are worth revisiting.',
+        'Solid understanding of the fundamentals!',
+        'Strong grasp \u2014 you\'re thinking like someone who truly gets this.',
+        'Perfect score. You\'ve nailed the core concepts.'
+      ];
+      summaryTextEl.textContent = messages[score];
+    }
+
+    function reset() {
+      currentQ = 0;
+      score = 0;
+      cardEl.style.display = 'block';
+      progressBar.parentElement.style.display = 'block';
+      progressText.style.display = 'block';
+      summaryEl.style.display = 'none';
+      loadQuestion();
+    }
+
+    optionsEl.addEventListener('click', function(e) {
+      var btn = e.target.closest('[data-answer]');
+      if (!btn) return;
+      handleAnswer(btn.dataset.answer);
+    });
+
+    nextBtn.addEventListener('click', function() {
+      currentQ++;
+      loadQuestion();
+    });
+
+    retryBtn.addEventListener('click', reset);
+
+    loadQuestion();
   })();
   </script>
 

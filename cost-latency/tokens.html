@@ -328,7 +328,41 @@
       <div class="callout__label">Takeaway</div>
       <div class="callout__body"><strong>Small design decisions compound at scale.</strong> Cutting a prompt from 1,000 to 500 tokens doesn't feel significant — until you multiply by 500,000 daily requests. Switching from a large model to a medium for a task that doesn't need the extra capability can save tens of thousands per month. Your CFO will send flowers.</div>
     </div>
+  </article>
 
+  <!-- ================================================================
+       Capstone Quiz: Article Recap
+       ================================================================ -->
+  <div class="wide-container">
+    <div class="widget" id="widget-capstone-quiz">
+      <div class="widget__label">Test your understanding</div>
+      <div class="widget__title">Article Recap</div>
+      <div class="widget__instruction">5 questions covering the key concepts from this article.</div>
+
+      <div class="quiz__progress">
+        <div class="quiz__progress-bar" id="quiz-progress-bar"></div>
+      </div>
+      <div class="quiz__progress-text" id="quiz-progress-text">1 of 5</div>
+
+      <div class="quiz__card" id="quiz-card">
+        <p class="quiz__scenario" id="quiz-scenario"></p>
+        <div class="widget__controls" id="quiz-options"></div>
+        <div class="quiz__explanation" id="quiz-explanation" style="display: none;"></div>
+      </div>
+
+      <div class="widget__controls widget__controls--mt">
+        <button class="btn btn--primary" id="quiz-next" style="display: none;">Next Question &rarr;</button>
+      </div>
+
+      <div class="quiz__summary" id="quiz-summary" style="display: none;">
+        <div class="quiz__score" id="quiz-score"></div>
+        <p class="quiz__summary-text" id="quiz-summary-text"></p>
+        <button class="btn btn--secondary" id="quiz-retry" style="margin-top: var(--space-4);">Try Again</button>
+      </div>
+    </div>
+  </div>
+
+  <article class="prose">
     <h2 id="whats-next"><span class="section-number">V</span> What's Next</h2>
 
     <p>You now understand LLM economics: tokens as the unit of cost, input vs. output pricing, model tiers, and how costs compound at scale. But cost is only half the equation.</p>
@@ -597,6 +631,179 @@
     });
 
     update();
+  })();
+
+  // ====================================================================
+  // Capstone Quiz: Article Recap
+  // ====================================================================
+  (function() {
+    var questions = [
+      {
+        question: 'Your team is building a feature that sends large JSON payloads to an LLM for extraction. An engineer says, "It\'s only 200 lines of JSON \u2014 that\'s maybe 200 tokens." Is that estimate reasonable?',
+        options: [
+          { label: 'Yes \u2014 one line of text roughly equals one token', key: 'a' },
+          { label: 'No \u2014 JSON is token-dense due to punctuation, keys, and structure, so 200 lines could easily be 1,500+ tokens', key: 'b' },
+          { label: 'It depends entirely on the language of the JSON values, not the structure', key: 'c' },
+          { label: 'No \u2014 but only because whitespace in JSON is free and not tokenized', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'JSON is significantly more token-dense than prose. Every quotation mark, colon, comma, brace, and key name counts as one or more tokens. A line like "user_id": "abc123" alone is 7-8 tokens. The engineer\'s estimate treats tokens like lines, but structured data eats through your token budget much faster than natural language. Language of values matters too, but the structure itself is the primary culprit here.'
+      },
+      {
+        question: 'A PM is comparing two feature designs: Feature A sends a 2,000-token document to an LLM and gets back a one-word classification label. Feature B sends a 100-token instruction and gets back a 1,500-token article. Which costs more, and why?',
+        options: [
+          { label: 'Feature A \u2014 it has more total tokens (2,001 vs. 1,600)', key: 'a' },
+          { label: 'They cost roughly the same since total tokens are similar', key: 'b' },
+          { label: 'Feature B \u2014 output tokens cost 3-5x more than input tokens, and Feature B generates far more output', key: 'c' },
+          { label: 'Feature A \u2014 processing large input documents is the most expensive operation', key: 'd' }
+        ],
+        answer: 'c',
+        explanation: 'Output tokens are 3-5x more expensive than input tokens because generation is computationally harder than comprehension. Feature A is input-heavy (2,000 in, 1 out) while Feature B is output-heavy (100 in, 1,500 out). Even though Feature A has more total tokens, Feature B\'s 1,500 output tokens at 3-5x the per-token price make it substantially more expensive. Total token count is misleading \u2014 the direction of token flow determines the cost profile.'
+      },
+      {
+        question: 'Your product currently sends every request to a Sonnet-class (medium) model. A designer suggests using Opus-class (large) for everything instead, arguing "the quality difference is worth it." What\'s the strongest counterargument?',
+        options: [
+          { label: 'Large models are too slow for any production use case', key: 'a' },
+          { label: 'The quality difference between medium and large models is negligible for all tasks', key: 'b' },
+          { label: 'Large models produce longer responses, which increases output token costs even further', key: 'c' },
+          { label: 'Most tasks don\'t benefit from a large model \u2014 a small model classifies just as well at 1/60th the cost, and model routing lets you reserve the large model only for tasks that genuinely need it', key: 'd' }
+        ],
+        answer: 'd',
+        explanation: 'The key insight is that model selection should be task-dependent, not blanket. A small model handles classification and extraction just as well as a large one. Model routing \u2014 using a small model for simple tasks and reserving the large model for genuinely complex ones \u2014 cuts costs 70-80%. Option A is too absolute (large models work fine for some production cases). Option C is sometimes true but not the core argument. Option B is wrong \u2014 large models are genuinely better at complex reasoning and analysis.'
+      },
+      {
+        question: 'An engineer on your team says, "Each API call only costs $0.003 \u2014 basically free." Your product has 50,000 DAUs making 8 requests per day. What should you tell them?',
+        options: [
+          { label: 'They\'re right \u2014 at $0.003 per call, the monthly cost is manageable even at scale', key: 'a' },
+          { label: 'The per-request cost is irrelevant; what matters is the model tier being used', key: 'b' },
+          { label: 'At 400,000 daily requests, that $0.003 becomes $1,200/day or $36,000/month \u2014 small per-request costs compound dramatically at scale', key: 'c' },
+          { label: 'The cost will stay flat because API providers offer volume discounts that offset scale', key: 'd' }
+        ],
+        answer: 'c',
+        explanation: 'The cost equation is requests x tokens per request x price per token. At 50,000 DAUs x 8 requests = 400,000 daily requests, $0.003 per request becomes $1,200/day and $36,000/month. A prototype cost that feels trivial can become a major line item at production scale. Option A ignores the multiplication effect. Option B misses that per-request cost already incorporates the model tier. Option D is wishful thinking \u2014 volume discounts exist but don\'t eliminate the fundamental scaling math.'
+      },
+      {
+        question: 'Your team is debating how to reduce API costs. One engineer wants to halve the prompt length (1,000 to 500 tokens). Another wants to switch from a medium to a small model for 70% of traffic. You can only prioritize one this sprint. Which has more impact, and why?',
+        options: [
+          { label: 'Model routing \u2014 switching 70% of traffic to a small model exploits the 60x price range between tiers, which dwarfs a 50% input token reduction', key: 'a' },
+          { label: 'Halving the prompt \u2014 reducing tokens is always the highest-leverage optimization', key: 'b' },
+          { label: 'They\'re equivalent \u2014 both roughly halve the cost', key: 'c' },
+          { label: 'Halving the prompt \u2014 because input tokens are always the largest cost component', key: 'd' }
+        ],
+        answer: 'a',
+        explanation: 'Model routing exploits the 60x price difference between small and large tiers. Routing 70% of traffic to a small model cuts costs by roughly 65-70%. Halving the prompt from 1,000 to 500 tokens only reduces the input portion of the cost by 50% \u2014 and since output tokens are more expensive, the total savings might be 20-30%. Options B and D overstate the impact of prompt trimming relative to tier switching. Option C is mathematically wrong \u2014 the tier price difference is far more powerful than a linear token reduction.'
+      }
+    ];
+
+    var currentQ = 0;
+    var score = 0;
+    var answered = false;
+
+    var scenarioEl = document.getElementById('quiz-scenario');
+    var optionsEl = document.getElementById('quiz-options');
+    var explanationEl = document.getElementById('quiz-explanation');
+    var progressBar = document.getElementById('quiz-progress-bar');
+    var progressText = document.getElementById('quiz-progress-text');
+    var nextBtn = document.getElementById('quiz-next');
+    var summaryEl = document.getElementById('quiz-summary');
+    var scoreEl = document.getElementById('quiz-score');
+    var summaryTextEl = document.getElementById('quiz-summary-text');
+    var cardEl = document.getElementById('quiz-card');
+    var retryBtn = document.getElementById('quiz-retry');
+
+    function loadQuestion() {
+      answered = false;
+      var q = questions[currentQ];
+      scenarioEl.textContent = q.question;
+      explanationEl.style.display = 'none';
+      nextBtn.style.display = 'none';
+
+      optionsEl.innerHTML = '';
+      q.options.forEach(function(opt) {
+        var btn = document.createElement('button');
+        btn.className = 'btn btn--secondary';
+        btn.dataset.answer = opt.key;
+        btn.textContent = opt.label;
+        optionsEl.appendChild(btn);
+      });
+
+      progressBar.style.width = ((currentQ) / questions.length * 100) + '%';
+      progressText.textContent = (currentQ + 1) + ' of ' + questions.length;
+    }
+
+    function handleAnswer(selected) {
+      if (answered) return;
+      answered = true;
+      var q = questions[currentQ];
+      var isCorrect = selected === q.answer;
+      if (isCorrect) score++;
+
+      optionsEl.querySelectorAll('.btn').forEach(function(btn) {
+        btn.disabled = true;
+        var ans = btn.dataset.answer;
+        if (ans === q.answer) {
+          btn.className = 'btn btn--correct';
+        } else if (ans === selected && !isCorrect) {
+          btn.className = 'btn btn--incorrect';
+        }
+      });
+
+      explanationEl.textContent = (isCorrect ? 'Correct! ' : 'Not quite. ') + q.explanation;
+      explanationEl.className = 'quiz__explanation ' + (isCorrect ? 'quiz__explanation--correct' : 'quiz__explanation--incorrect');
+      explanationEl.style.display = 'block';
+
+      progressBar.style.width = ((currentQ + 1) / questions.length * 100) + '%';
+
+      if (currentQ < questions.length - 1) {
+        nextBtn.style.display = 'inline-flex';
+      } else {
+        setTimeout(showSummary, 800);
+      }
+    }
+
+    function showSummary() {
+      cardEl.style.display = 'none';
+      progressBar.parentElement.style.display = 'none';
+      progressText.style.display = 'none';
+      nextBtn.style.display = 'none';
+      summaryEl.style.display = 'block';
+      scoreEl.textContent = score + ' out of ' + questions.length;
+
+      var messages = [
+        'Worth a re-read \u2014 the concepts will click with another pass!',
+        'Worth a re-read \u2014 the concepts will click with another pass!',
+        'You\'ve got the basics. Token economics and model tiers are worth revisiting.',
+        'Solid understanding of the fundamentals!',
+        'Strong grasp \u2014 you\'re thinking like someone who truly gets this.',
+        'Perfect score. You\'ve nailed the core concepts.'
+      ];
+      summaryTextEl.textContent = messages[score];
+    }
+
+    function reset() {
+      currentQ = 0;
+      score = 0;
+      cardEl.style.display = 'block';
+      progressBar.parentElement.style.display = 'block';
+      progressText.style.display = 'block';
+      summaryEl.style.display = 'none';
+      loadQuestion();
+    }
+
+    optionsEl.addEventListener('click', function(e) {
+      var btn = e.target.closest('[data-answer]');
+      if (!btn) return;
+      handleAnswer(btn.dataset.answer);
+    });
+
+    nextBtn.addEventListener('click', function() {
+      currentQ++;
+      loadQuestion();
+    });
+
+    retryBtn.addEventListener('click', reset);
+
+    loadQuestion();
   })();
   </script>
 

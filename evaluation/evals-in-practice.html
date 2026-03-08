@@ -253,6 +253,38 @@
     </div>
   </div>
 
+  <!-- ================================================================
+       Capstone Quiz: Article Recap
+       ================================================================ -->
+  <div class="wide-container">
+    <div class="widget" id="widget-capstone-quiz">
+      <div class="widget__label">Test your understanding</div>
+      <div class="widget__title">Article Recap</div>
+      <div class="widget__instruction">5 questions covering the key concepts from this article.</div>
+
+      <div class="quiz__progress">
+        <div class="quiz__progress-bar" id="quiz-progress-bar"></div>
+      </div>
+      <div class="quiz__progress-text" id="quiz-progress-text">1 of 5</div>
+
+      <div class="quiz__card" id="quiz-card">
+        <p class="quiz__scenario" id="quiz-scenario"></p>
+        <div class="widget__controls" id="quiz-options"></div>
+        <div class="quiz__explanation" id="quiz-explanation" style="display: none;"></div>
+      </div>
+
+      <div class="widget__controls widget__controls--mt">
+        <button class="btn btn--primary" id="quiz-next" style="display: none;">Next Question &rarr;</button>
+      </div>
+
+      <div class="quiz__summary" id="quiz-summary" style="display: none;">
+        <div class="quiz__score" id="quiz-score"></div>
+        <p class="quiz__summary-text" id="quiz-summary-text"></p>
+        <button class="btn btn--secondary" id="quiz-retry" style="margin-top: var(--space-4);">Try Again</button>
+      </div>
+    </div>
+  </div>
+
   <article class="prose">
 
     <!-- ================================================================
@@ -1205,6 +1237,179 @@
     }
 
     renderScenario();
+  })();
+
+  // ====================================================================
+  // Capstone Quiz: Article Recap
+  // ====================================================================
+  (function() {
+    var questions = [
+      {
+        question: 'Your team is about to ship a prompt change for an AI customer support feature. An engineer suggests just testing it manually in the playground before deploying. A senior engineer insists on running it through the full eval pipeline first. The PM argues the change is "minor" and doesn\'t warrant a full pipeline run. Who has the right approach?',
+        options: [
+          { label: 'The senior engineer \u2014 every prompt change should run through the eval pipeline, because "minor" changes can cause unexpected regressions', key: 'a' },
+          { label: 'The PM \u2014 minor changes don\'t need the full pipeline, that\'s what manual testing is for', key: 'b' },
+          { label: 'It depends on whether the team has automated evals set up yet', key: 'c' },
+          { label: 'The first engineer \u2014 playground testing is sufficient if you check enough examples', key: 'd' }
+        ],
+        answer: 'a',
+        explanation: 'The eval pipeline exists precisely because you can\'t predict which changes will cause regressions. A "minor" prompt tweak can shift tone, introduce hallucinations, or break formatting in ways that aren\'t visible in a handful of playground tests. Option C sounds reasonable but is a rationalization \u2014 even without full automation, you should run your test set. The analogy holds: you wouldn\'t push code without running tests just because the change "looks small."'
+      },
+      {
+        question: 'You\'re building a test set for an AI feature that drafts internal company memos. Your team has created 30 test cases, all based on common memo types (meeting summaries, project updates, announcements). A colleague reviews the set and says it\'s incomplete. What\'s the most likely gap?',
+        options: [
+          { label: 'The test set is too small \u2014 you need at least 100 cases for statistical significance', key: 'a' },
+          { label: 'The test cases need to include expected outputs for exact-match comparison', key: 'b' },
+          { label: 'It should include test cases from competitors\' products for benchmarking', key: 'c' },
+          { label: 'It\'s missing edge cases, adversarial inputs, and diversity cases \u2014 only happy path scenarios are covered', key: 'd' }
+        ],
+        answer: 'd',
+        explanation: 'A test set built only from common scenarios covers the happy path but misses the cases that actually break things: unusual requests (edge cases), attempts to misuse the feature (adversarial), and inputs from diverse users (different languages, accessibility needs). Size alone (option A) doesn\'t solve the coverage problem \u2014 100 happy-path cases still leave the same blind spots. Exact-match comparison (option B) doesn\'t work well for open-ended text generation. Competitor benchmarking (option C) is a different activity entirely.'
+      },
+      {
+        question: 'Your AI feature passed a critical safety eval on Monday. On Wednesday, without any code or prompt changes, the same eval fails on 3 out of 10 runs. An engineer is confused and suspects a bug in the eval harness. What\'s the most likely explanation?',
+        options: [
+          { label: 'There\'s probably a bug in the eval harness \u2014 deterministic code shouldn\'t produce different results', key: 'a' },
+          { label: 'The model provider likely updated the model weights between Monday and Wednesday', key: 'b' },
+          { label: 'This is expected non-deterministic behavior \u2014 the model produces different outputs each run, and a single passing run on Monday didn\'t prove reliability', key: 'c' },
+          { label: 'The temperature must have been accidentally changed between the two runs', key: 'd' }
+        ],
+        answer: 'c',
+        explanation: 'This is the non-determinism problem in action. A single passing run tells you almost nothing about reliability. The model passed Monday\'s test by chance \u2014 it was always a 70% pass rate, but one run can\'t reveal that. Option A assumes deterministic behavior, which doesn\'t apply to LLMs. Option B is possible but unlikely over two days. Option D is a specific theory that doesn\'t address the fundamental issue: you need multiple runs per test case to evaluate the distribution of results, not individual outcomes.'
+      },
+      {
+        question: 'After a prompt change, your eval results show: accuracy went from 94% to 92% (threshold: 90%), safety held at 99% (threshold: 98%), and latency dropped from 2.8s to 1.5s (threshold: 3s). Your team is split on whether to ship. What\'s the right framework for making this decision?',
+        options: [
+          { label: 'Don\'t ship \u2014 any accuracy regression means the change made things worse', key: 'a' },
+          { label: 'Ship \u2014 all metrics are above their thresholds, and the thresholds were set before seeing the results, so the decision is already made', key: 'b' },
+          { label: 'Run the eval again to see if the accuracy drop was just noise from non-determinism', key: 'c' },
+          { label: 'Ship only if stakeholders unanimously agree the latency improvement justifies the accuracy drop', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'This is exactly why you set thresholds before seeing results. All three metrics are above their pre-defined bars. The accuracy drop is real but still within acceptable bounds. Option A treats any regression as a blocker, which would paralyze shipping. Option C sounds scientific but is actually threshold-negotiation in disguise \u2014 if your eval suite is properly designed with multiple runs, the numbers already account for variance. Option D replaces data-driven criteria with consensus-seeking, which is the rationalization trap the article warns against.'
+      },
+      {
+        question: 'A PM at your company proposes setting the accuracy threshold for a new AI feature at 85% "because that\'s where our eval results landed after the first round of testing." She argues this is data-driven decision making. What\'s wrong with this approach?',
+        options: [
+          { label: 'Nothing \u2014 using actual performance data to set thresholds is best practice', key: 'a' },
+          { label: 'The threshold should be set by engineering, not the PM, since it\'s a technical metric', key: 'b' },
+          { label: '85% is too low for any production AI feature \u2014 the threshold should be at least 95%', key: 'c' },
+          { label: 'Thresholds should be set before seeing results, based on product requirements \u2014 backing into a number that matches your current performance is rationalization, not strategy', key: 'd' }
+        ],
+        answer: 'd',
+        explanation: 'Setting thresholds after seeing results is "negotiating with yourself" \u2014 you\'ll always find a way to justify whatever number you got. The threshold should reflect the product\'s quality bar: what\'s acceptable for users, what\'s safe, what\'s competitive. Option A confuses correlation with causation in decision-making. Option C applies an arbitrary universal standard when thresholds depend on the use case. Option B gets the ownership wrong \u2014 "good enough" is a product decision, not an engineering one, because it depends on user expectations and business context.'
+      }
+    ];
+
+    var currentQ = 0;
+    var score = 0;
+    var answered = false;
+
+    var scenarioEl = document.getElementById('quiz-scenario');
+    var optionsEl = document.getElementById('quiz-options');
+    var explanationEl = document.getElementById('quiz-explanation');
+    var progressBar = document.getElementById('quiz-progress-bar');
+    var progressText = document.getElementById('quiz-progress-text');
+    var nextBtn = document.getElementById('quiz-next');
+    var summaryEl = document.getElementById('quiz-summary');
+    var scoreEl = document.getElementById('quiz-score');
+    var summaryTextEl = document.getElementById('quiz-summary-text');
+    var cardEl = document.getElementById('quiz-card');
+    var retryBtn = document.getElementById('quiz-retry');
+
+    function loadQuestion() {
+      answered = false;
+      var q = questions[currentQ];
+      scenarioEl.textContent = q.question;
+      explanationEl.style.display = 'none';
+      nextBtn.style.display = 'none';
+
+      optionsEl.innerHTML = '';
+      q.options.forEach(function(opt) {
+        var btn = document.createElement('button');
+        btn.className = 'btn btn--secondary';
+        btn.dataset.answer = opt.key;
+        btn.textContent = opt.label;
+        optionsEl.appendChild(btn);
+      });
+
+      progressBar.style.width = ((currentQ) / questions.length * 100) + '%';
+      progressText.textContent = (currentQ + 1) + ' of ' + questions.length;
+    }
+
+    function handleAnswer(selected) {
+      if (answered) return;
+      answered = true;
+      var q = questions[currentQ];
+      var isCorrect = selected === q.answer;
+      if (isCorrect) score++;
+
+      optionsEl.querySelectorAll('.btn').forEach(function(btn) {
+        btn.disabled = true;
+        var ans = btn.dataset.answer;
+        if (ans === q.answer) {
+          btn.className = 'btn btn--correct';
+        } else if (ans === selected && !isCorrect) {
+          btn.className = 'btn btn--incorrect';
+        }
+      });
+
+      explanationEl.textContent = (isCorrect ? 'Correct! ' : 'Not quite. ') + q.explanation;
+      explanationEl.className = 'quiz__explanation ' + (isCorrect ? 'quiz__explanation--correct' : 'quiz__explanation--incorrect');
+      explanationEl.style.display = 'block';
+
+      progressBar.style.width = ((currentQ + 1) / questions.length * 100) + '%';
+
+      if (currentQ < questions.length - 1) {
+        nextBtn.style.display = 'inline-flex';
+      } else {
+        setTimeout(showSummary, 800);
+      }
+    }
+
+    function showSummary() {
+      cardEl.style.display = 'none';
+      progressBar.parentElement.style.display = 'none';
+      progressText.style.display = 'none';
+      nextBtn.style.display = 'none';
+      summaryEl.style.display = 'block';
+      scoreEl.textContent = score + ' out of ' + questions.length;
+
+      var messages = [
+        'Worth a re-read \u2014 the concepts will click with another pass!',
+        'Worth a re-read \u2014 the concepts will click with another pass!',
+        'You\'ve got the basics. Test sets and non-determinism are worth revisiting.',
+        'Solid understanding of the fundamentals!',
+        'Strong grasp \u2014 you\'re thinking like someone who truly gets this.',
+        'Perfect score. You\'ve nailed the core concepts.'
+      ];
+      summaryTextEl.textContent = messages[score];
+    }
+
+    function reset() {
+      currentQ = 0;
+      score = 0;
+      cardEl.style.display = 'block';
+      progressBar.parentElement.style.display = 'block';
+      progressText.style.display = 'block';
+      summaryEl.style.display = 'none';
+      loadQuestion();
+    }
+
+    optionsEl.addEventListener('click', function(e) {
+      var btn = e.target.closest('[data-answer]');
+      if (!btn) return;
+      handleAnswer(btn.dataset.answer);
+    });
+
+    nextBtn.addEventListener('click', function() {
+      currentQ++;
+      loadQuestion();
+    });
+
+    retryBtn.addEventListener('click', reset);
+
+    loadQuestion();
   })();
   </script>
 

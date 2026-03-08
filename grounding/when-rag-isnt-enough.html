@@ -578,6 +578,42 @@
       <div class="callout__body"><strong>The full advanced RAG stack: chunk well, search with hybrid, rerank the results, rewrite the query.</strong> Each layer addresses a different failure mode. Chunking fixes context boundaries. Hybrid search fixes vocabulary mismatch. Reranking fixes imprecise ordering. Query rewriting fixes ambiguous user intent. You don't need all four on day one, but knowing the stack lets you diagnose exactly where your pipeline is failing.</div>
     </div>
 
+  </article>
+
+  <!-- ================================================================
+       Capstone Quiz: Article Recap
+       ================================================================ -->
+  <div class="wide-container">
+    <div class="widget" id="widget-capstone-quiz">
+      <div class="widget__label">Test your understanding</div>
+      <div class="widget__title">Article Recap</div>
+      <div class="widget__instruction">5 questions covering the key concepts from this article.</div>
+
+      <div class="quiz__progress">
+        <div class="quiz__progress-bar" id="quiz-progress-bar"></div>
+      </div>
+      <div class="quiz__progress-text" id="quiz-progress-text">1 of 5</div>
+
+      <div class="quiz__card" id="quiz-card">
+        <p class="quiz__scenario" id="quiz-scenario"></p>
+        <div class="widget__controls" id="quiz-options"></div>
+        <div class="quiz__explanation" id="quiz-explanation" style="display: none;"></div>
+      </div>
+
+      <div class="widget__controls widget__controls--mt">
+        <button class="btn btn--primary" id="quiz-next" style="display: none;">Next Question &rarr;</button>
+      </div>
+
+      <div class="quiz__summary" id="quiz-summary" style="display: none;">
+        <div class="quiz__score" id="quiz-score"></div>
+        <p class="quiz__summary-text" id="quiz-summary-text"></p>
+        <button class="btn btn--secondary" id="quiz-retry" style="margin-top: var(--space-4);">Try Again</button>
+      </div>
+    </div>
+  </div>
+
+  <article class="prose">
+
     <!-- ================================================================
          Section VI: What's Next
          ================================================================ -->
@@ -1119,6 +1155,179 @@
         loadQuery(activeQuery);
       }
     });
+  })();
+
+  // ====================================================================
+  // Capstone Quiz: Article Recap
+  // ====================================================================
+  (function() {
+    var questions = [
+      {
+        question: 'Your team\u2019s RAG system answers FAQ-style questions well, but struggles with complex queries where the answer spans multiple document sections. An engineer proposes upgrading to a more powerful LLM. Based on what you know about the retrieval quality ceiling, what should you do first?',
+        options: [
+          { label: 'Upgrade to a frontier model \u2014 better reasoning will compensate for imperfect retrieval', key: 'a' },
+          { label: 'Audit the retrieval pipeline to see if the right documents are being retrieved before changing the model', key: 'b' },
+          { label: 'Increase the number of retrieved documents (top-K) so the model has more context to work with', key: 'c' },
+          { label: 'Add a feedback loop so users can flag bad answers and the model learns from corrections', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'RAG quality is a pipeline problem, not a model problem. Upgrading the model with bad retrieval buys marginal improvement at best. Fixing retrieval with the same model can double accuracy. Always optimize retrieval first. Increasing top-K might help, but if the right documents aren\u2019t in the results at all, more results won\u2019t fix it.'
+      },
+      {
+        question: 'A data engineer on your team splits all documents into fixed 500-character chunks for your RAG pipeline. During testing, you notice the system retrieves a chunk that says "15-day return window and must be in ori" \u2014 cut off mid-word. What chunking strategy would address this?',
+        options: [
+          { label: 'Use smaller fixed-size chunks (200 characters) so the cuts happen more frequently but in less disruptive places', key: 'a' },
+          { label: 'Use sentence-boundary chunking to avoid splitting mid-thought, or semantic chunking to group related ideas together', key: 'd' },
+          { label: 'Add overlap between chunks so every sentence appears in at least two chunks', key: 'b' },
+          { label: 'Embed entire documents instead of chunks so nothing gets cut', key: 'c' }
+        ],
+        answer: 'd',
+        explanation: 'Fixed-size chunking\u2019s core flaw is splitting content at arbitrary boundaries, often mid-sentence. Sentence-boundary chunking ensures complete thoughts; semantic chunking goes further by grouping related sentences into coherent topic units. Smaller chunks would create more cuts, not fewer problems. Overlap helps but doesn\u2019t solve the fundamental issue. Embedding entire documents makes embeddings too vague.'
+      },
+      {
+        question: 'A user searches your knowledge base for "error code E-4012" and gets results about general error handling instead of the specific error. Your system uses vector search only. What\u2019s the best fix?',
+        options: [
+          { label: 'Re-embed all documents with a larger embedding model that captures more detail', key: 'a' },
+          { label: 'Add keyword search (BM25) alongside vector search and fuse the results using hybrid search', key: 'c' },
+          { label: 'Train a custom embedding model on your error code documentation', key: 'b' },
+          { label: 'Add the error code to the system prompt so the model knows to look for exact matches', key: 'd' }
+        ],
+        answer: 'c',
+        explanation: 'Vector search captures meaning but misses exact terms like product names, error codes, and acronyms. Keyword search (BM25) excels at exact matches. Hybrid search runs both in parallel and fuses results, so "E-4012" gets matched by BM25 while semantic queries still work via vectors. A larger embedding model won\u2019t solve the exact-match gap \u2014 embeddings capture meaning, not specific strings.'
+      },
+      {
+        question: 'Your retrieval pipeline returns 20 candidate documents, and the most relevant one consistently ranks around position 7-10. The top 3 results that get sent to the LLM are only tangentially related. An engineer proposes switching to a better embedding model. What would have more impact?',
+        options: [
+          { label: 'Switch to a higher-dimension embedding model for more precise initial retrieval', key: 'a' },
+          { label: 'Reduce top-K to 5 so the model focuses on fewer, higher-quality results', key: 'b' },
+          { label: 'Add a cross-encoder reranker to rescore the top-20 candidates and promote the most relevant ones to the top', key: 'c' },
+          { label: 'Increase top-K to 50 so the relevant document is more likely to be included in the results sent to the LLM', key: 'd' }
+        ],
+        answer: 'c',
+        explanation: 'This is the classic reranking use case. Initial retrieval is fast but imprecise \u2014 a cross-encoder reranker rescores the top-20 candidates with much higher accuracy, promoting the best result from position 7 to position 1. It adds 100\u2013300ms of latency and costs fractions of a cent. A better embedding model helps marginally but doesn\u2019t fix ordering precision. Reducing top-K would exclude the relevant document entirely. Increasing top-K wastes context window space with irrelevant results.'
+      },
+      {
+        question: 'A user asks your support chatbot "How do I fix it?" in the middle of a conversation about an authentication timeout. The retrieval pipeline returns generic troubleshooting docs instead of auth-specific ones. Which query rewriting technique would most directly solve this?',
+        options: [
+          { label: 'Expansion \u2014 add conversation context so the query becomes "How do I fix the authentication timeout error?"', key: 'a' },
+          { label: 'Step-back prompting \u2014 abstract the query to "What factors cause application errors?" for broader retrieval', key: 'b' },
+          { label: 'Decomposition \u2014 break the query into sub-queries about authentication, timeouts, and fixes', key: 'c' },
+          { label: 'Hypothetical Document Embedding (HyDE) \u2014 have the LLM write a hypothetical answer and embed that instead', key: 'd' }
+        ],
+        answer: 'a',
+        explanation: 'The problem is an ambiguous pronoun ("it") with no context. Expansion adds context from the conversation history, turning "How do I fix it?" into "How do I fix the authentication timeout error in the mobile app?" Step-back would make the query even more generic. Decomposition splits compound queries, but this is a single question missing context, not a compound question. HyDE generates a hypothetical answer but doesn\u2019t resolve the ambiguity of what "it" refers to.'
+      }
+    ];
+
+    var currentQ = 0;
+    var score = 0;
+    var answered = false;
+
+    var scenarioEl = document.getElementById('quiz-scenario');
+    var optionsEl = document.getElementById('quiz-options');
+    var explanationEl = document.getElementById('quiz-explanation');
+    var progressBar = document.getElementById('quiz-progress-bar');
+    var progressText = document.getElementById('quiz-progress-text');
+    var nextBtn = document.getElementById('quiz-next');
+    var summaryEl = document.getElementById('quiz-summary');
+    var scoreEl = document.getElementById('quiz-score');
+    var summaryTextEl = document.getElementById('quiz-summary-text');
+    var cardEl = document.getElementById('quiz-card');
+    var retryBtn = document.getElementById('quiz-retry');
+
+    function loadQuestion() {
+      answered = false;
+      var q = questions[currentQ];
+      scenarioEl.textContent = q.question;
+      explanationEl.style.display = 'none';
+      nextBtn.style.display = 'none';
+
+      optionsEl.innerHTML = '';
+      q.options.forEach(function(opt) {
+        var btn = document.createElement('button');
+        btn.className = 'btn btn--secondary';
+        btn.dataset.answer = opt.key;
+        btn.textContent = opt.label;
+        optionsEl.appendChild(btn);
+      });
+
+      progressBar.style.width = ((currentQ) / questions.length * 100) + '%';
+      progressText.textContent = (currentQ + 1) + ' of ' + questions.length;
+    }
+
+    function handleAnswer(selected) {
+      if (answered) return;
+      answered = true;
+      var q = questions[currentQ];
+      var isCorrect = selected === q.answer;
+      if (isCorrect) score++;
+
+      optionsEl.querySelectorAll('.btn').forEach(function(btn) {
+        btn.disabled = true;
+        var ans = btn.dataset.answer;
+        if (ans === q.answer) {
+          btn.className = 'btn btn--correct';
+        } else if (ans === selected && !isCorrect) {
+          btn.className = 'btn btn--incorrect';
+        }
+      });
+
+      explanationEl.textContent = (isCorrect ? 'Correct! ' : 'Not quite. ') + q.explanation;
+      explanationEl.className = 'quiz__explanation ' + (isCorrect ? 'quiz__explanation--correct' : 'quiz__explanation--incorrect');
+      explanationEl.style.display = 'block';
+
+      progressBar.style.width = ((currentQ + 1) / questions.length * 100) + '%';
+
+      if (currentQ < questions.length - 1) {
+        nextBtn.style.display = 'inline-flex';
+      } else {
+        setTimeout(showSummary, 800);
+      }
+    }
+
+    function showSummary() {
+      cardEl.style.display = 'none';
+      progressBar.parentElement.style.display = 'none';
+      progressText.style.display = 'none';
+      nextBtn.style.display = 'none';
+      summaryEl.style.display = 'block';
+      scoreEl.textContent = score + ' out of ' + questions.length;
+
+      var messages = [
+        'Worth a re-read \u2014 the concepts will click with another pass!',
+        'Worth a re-read \u2014 the concepts will click with another pass!',
+        'You\'ve got the basics. Revisit how chunking, hybrid search, and reranking each address different retrieval failures.',
+        'Solid understanding of the fundamentals!',
+        'Strong grasp \u2014 you\'re thinking like someone who truly gets this.',
+        'Perfect score. You\'ve nailed the core concepts.'
+      ];
+      summaryTextEl.textContent = messages[score];
+    }
+
+    function reset() {
+      currentQ = 0;
+      score = 0;
+      cardEl.style.display = 'block';
+      progressBar.parentElement.style.display = 'block';
+      progressText.style.display = 'block';
+      summaryEl.style.display = 'none';
+      loadQuestion();
+    }
+
+    optionsEl.addEventListener('click', function(e) {
+      var btn = e.target.closest('[data-answer]');
+      if (!btn) return;
+      handleAnswer(btn.dataset.answer);
+    });
+
+    nextBtn.addEventListener('click', function() {
+      currentQ++;
+      loadQuestion();
+    });
+
+    retryBtn.addEventListener('click', reset);
+
+    loadQuestion();
   })();
   </script>
 

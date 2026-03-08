@@ -597,6 +597,38 @@
     </div>
   </div>
 
+  <!-- ================================================================
+       Capstone Quiz: Article Recap
+       ================================================================ -->
+  <div class="wide-container">
+    <div class="widget" id="widget-capstone-quiz">
+      <div class="widget__label">Test your understanding</div>
+      <div class="widget__title">Article Recap</div>
+      <div class="widget__instruction">5 questions covering the key concepts from this article.</div>
+
+      <div class="quiz__progress">
+        <div class="quiz__progress-bar" id="quiz-progress-bar"></div>
+      </div>
+      <div class="quiz__progress-text" id="quiz-progress-text">1 of 5</div>
+
+      <div class="quiz__card" id="quiz-card">
+        <p class="quiz__scenario" id="quiz-scenario"></p>
+        <div class="widget__controls" id="quiz-options"></div>
+        <div class="quiz__explanation" id="quiz-explanation" style="display: none;"></div>
+      </div>
+
+      <div class="widget__controls widget__controls--mt">
+        <button class="btn btn--primary" id="quiz-next" style="display: none;">Next Question &rarr;</button>
+      </div>
+
+      <div class="quiz__summary" id="quiz-summary" style="display: none;">
+        <div class="quiz__score" id="quiz-score"></div>
+        <p class="quiz__summary-text" id="quiz-summary-text"></p>
+        <button class="btn btn--secondary" id="quiz-retry" style="margin-top: var(--space-4);">Try Again</button>
+      </div>
+    </div>
+  </div>
+
   <article class="prose">
 
     <!-- ================================================================
@@ -1210,6 +1242,179 @@
     }
 
     renderScenario();
+  })();
+
+  // ====================================================================
+  // Capstone Quiz: Article Recap
+  // ====================================================================
+  (function() {
+    var questions = [
+      {
+        question: 'A stakeholder asks your team to "fix the hallucination bug" in your AI product. An engineer explains that hallucination isn\u2019t actually a bug. What\u2019s the most accurate way to reframe the problem?',
+        options: [
+          { label: 'Hallucination is a rare edge case that happens when the model encounters queries outside its training data', key: 'a' },
+          { label: 'Hallucination is caused by insufficient training data and can be eliminated by training on more documents', key: 'b' },
+          { label: 'Hallucination is the model\u2019s default behavior \u2014 it predicts plausible next tokens whether or not it has factual grounding, so accuracy is what we have to engineer in', key: 'c' },
+          { label: 'Hallucination is a model alignment issue that the model provider is responsible for fixing in the next version', key: 'd' }
+        ],
+        answer: 'c',
+        explanation: 'Hallucination \u2014 more accurately called confabulation \u2014 is the default, not a bug. The model always generates the most plausible-sounding continuation. When it has facts, this produces accurate answers. When it doesn\u2019t, it produces convincing fiction. The same mechanism that enables creative writing enables fabrication. Factual accuracy must be engineered in through grounding, detection, and verification.'
+      },
+      {
+        question: 'Your team is debating hallucination detection strategies for a customer-facing financial product. An engineer proposes adding a disclaimer banner ("AI-generated, may contain errors") and letting users verify answers themselves. What\u2019s wrong with this approach?',
+        options: [
+          { label: 'Disclaimers are legally insufficient for financial products and won\u2019t protect the company from liability', key: 'a' },
+          { label: 'Users trust AI-generated text at face value, especially when it\u2019s fluent and confident \u2014 detection must happen in the pipeline before the response is served, not after the user reads it', key: 'b' },
+          { label: 'Users will ignore the disclaimer and complain about inaccurate answers regardless', key: 'c' },
+          { label: 'The disclaimer adds visual clutter that reduces user engagement with the product', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'Relying on users to spot hallucinations is a losing strategy. Users trust fluent, confident AI text at face value. By the time they read it, they\u2019ve already internalized it as fact. Detection must be built into the pipeline \u2014 self-consistency checks, retrieval verification, confidence calibration, or entailment checks \u2014 so errors are caught before the response is served. Disclaimers are a legal fig leaf, not a safety mechanism.'
+      },
+      {
+        question: 'Your team has deployed input filters that block prompt injection attempts. During testing, a creative user rephrases an injection attack in a way the input filter misses, and the model follows the injected instructions. What principle explains why this happened and what should be done?',
+        options: [
+          { label: 'The input filter needs more training examples of creative rephrasing to handle all edge cases', key: 'a' },
+          { label: 'Neither input nor output filters alone are sufficient \u2014 layered defense with both input and output filters catches different failure modes', key: 'd' },
+          { label: 'Input filters should be replaced with output filters since they\u2019re more effective at catching injection attacks', key: 'b' },
+          { label: 'The model itself should be fine-tuned to refuse injection attempts so external filters aren\u2019t needed', key: 'c' }
+        ],
+        answer: 'd',
+        explanation: 'This illustrates why layered defense matters. Input filters catch most problems, but creative rephrasing can evade them. Output filters catch harmful content that slips through inputs. Neither layer alone is sufficient \u2014 they catch different failure modes. Like airport security, ID checks at the entrance don\u2019t make metal detectors redundant. The more sensitive the use case, the more layers you need.'
+      },
+      {
+        question: 'A PM schedules a one-time red-teaming session before launch to check for safety issues. The security lead pushes back, arguing this isn\u2019t enough. Which red-teaming reality supports the security lead\u2019s position?',
+        options: [
+          { label: 'Red-teaming only works with external consultants who have specialized AI security expertise', key: 'a' },
+          { label: 'Jailbreaking techniques evolve constantly, so red-teaming must be an ongoing practice with diverse participants, not a pre-launch checkbox', key: 'b' },
+          { label: 'Red-teaming is only effective after the product has real user traffic to analyze', key: 'c' },
+          { label: 'One session is sufficient if it covers all four attack categories: jailbreaking, prompt injection, data extraction, and bias probing', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'Effective jailbreaks evolve constantly \u2014 what works today may not tomorrow, and new attack patterns emerge regularly. Red-teaming should be scheduled like sprint planning: regularly, with diverse participants (including people who think differently from your engineering team), and with documented findings. A one-time session catches today\u2019s vulnerabilities but misses tomorrow\u2019s. It\u2019s an ongoing practice, not a checkbox.'
+      },
+      {
+        question: 'Your team is designing safety architecture for a medical AI that answers patient questions about drug interactions. An engineer proposes relying on the model provider\u2019s built-in safety training (RLHF) plus RAG grounding, arguing that two layers should be enough. What\u2019s the gap in this architecture?',
+        options: [
+          { label: 'RLHF safety training is unreliable and shouldn\u2019t be counted as a layer at all', key: 'a' },
+          { label: 'RAG grounding alone eliminates hallucination, so the RLHF layer is redundant', key: 'b' },
+          { label: 'A medical AI needs all four layers: model-level safety, retrieval grounding, output verification (filters, hallucination detectors), and human review for high-stakes decisions', key: 'c' },
+          { label: 'The architecture needs more RAG sources rather than more safety layers', key: 'd' }
+        ],
+        answer: 'c',
+        explanation: 'The Swiss cheese model applies: each layer has holes, but stacked together the holes don\u2019t line up. Model-level safety can be jailbroken. RAG can misinterpret or hallucinate beyond retrieved context. Without output verification (content filters, hallucination detectors), subtle errors slip through. And for medical AI, human review is the essential final backstop \u2014 some outputs should never reach patients without expert review. The architecture must match the risk.'
+      }
+    ];
+
+    var currentQ = 0;
+    var score = 0;
+    var answered = false;
+
+    var scenarioEl = document.getElementById('quiz-scenario');
+    var optionsEl = document.getElementById('quiz-options');
+    var explanationEl = document.getElementById('quiz-explanation');
+    var progressBar = document.getElementById('quiz-progress-bar');
+    var progressText = document.getElementById('quiz-progress-text');
+    var nextBtn = document.getElementById('quiz-next');
+    var summaryEl = document.getElementById('quiz-summary');
+    var scoreEl = document.getElementById('quiz-score');
+    var summaryTextEl = document.getElementById('quiz-summary-text');
+    var cardEl = document.getElementById('quiz-card');
+    var retryBtn = document.getElementById('quiz-retry');
+
+    function loadQuestion() {
+      answered = false;
+      var q = questions[currentQ];
+      scenarioEl.textContent = q.question;
+      explanationEl.style.display = 'none';
+      nextBtn.style.display = 'none';
+
+      optionsEl.innerHTML = '';
+      q.options.forEach(function(opt) {
+        var btn = document.createElement('button');
+        btn.className = 'btn btn--secondary';
+        btn.dataset.answer = opt.key;
+        btn.textContent = opt.label;
+        optionsEl.appendChild(btn);
+      });
+
+      progressBar.style.width = ((currentQ) / questions.length * 100) + '%';
+      progressText.textContent = (currentQ + 1) + ' of ' + questions.length;
+    }
+
+    function handleAnswer(selected) {
+      if (answered) return;
+      answered = true;
+      var q = questions[currentQ];
+      var isCorrect = selected === q.answer;
+      if (isCorrect) score++;
+
+      optionsEl.querySelectorAll('.btn').forEach(function(btn) {
+        btn.disabled = true;
+        var ans = btn.dataset.answer;
+        if (ans === q.answer) {
+          btn.className = 'btn btn--correct';
+        } else if (ans === selected && !isCorrect) {
+          btn.className = 'btn btn--incorrect';
+        }
+      });
+
+      explanationEl.textContent = (isCorrect ? 'Correct! ' : 'Not quite. ') + q.explanation;
+      explanationEl.className = 'quiz__explanation ' + (isCorrect ? 'quiz__explanation--correct' : 'quiz__explanation--incorrect');
+      explanationEl.style.display = 'block';
+
+      progressBar.style.width = ((currentQ + 1) / questions.length * 100) + '%';
+
+      if (currentQ < questions.length - 1) {
+        nextBtn.style.display = 'inline-flex';
+      } else {
+        setTimeout(showSummary, 800);
+      }
+    }
+
+    function showSummary() {
+      cardEl.style.display = 'none';
+      progressBar.parentElement.style.display = 'none';
+      progressText.style.display = 'none';
+      nextBtn.style.display = 'none';
+      summaryEl.style.display = 'block';
+      scoreEl.textContent = score + ' out of ' + questions.length;
+
+      var messages = [
+        'Worth a re-read \u2014 the concepts will click with another pass!',
+        'Worth a re-read \u2014 the concepts will click with another pass!',
+        'You\'ve got the basics. Revisit how layered defense and detection strategies work together to build trust.',
+        'Solid understanding of the fundamentals!',
+        'Strong grasp \u2014 you\'re thinking like someone who truly gets this.',
+        'Perfect score. You\'ve nailed the core concepts.'
+      ];
+      summaryTextEl.textContent = messages[score];
+    }
+
+    function reset() {
+      currentQ = 0;
+      score = 0;
+      cardEl.style.display = 'block';
+      progressBar.parentElement.style.display = 'block';
+      progressText.style.display = 'block';
+      summaryEl.style.display = 'none';
+      loadQuestion();
+    }
+
+    optionsEl.addEventListener('click', function(e) {
+      var btn = e.target.closest('[data-answer]');
+      if (!btn) return;
+      handleAnswer(btn.dataset.answer);
+    });
+
+    nextBtn.addEventListener('click', function() {
+      currentQ++;
+      loadQuestion();
+    });
+
+    retryBtn.addEventListener('click', reset);
+
+    loadQuestion();
   })();
   </script>
 

@@ -553,6 +553,38 @@
     </div>
   </div>
 
+  <!-- ================================================================
+       Capstone Quiz: Article Recap
+       ================================================================ -->
+  <div class="wide-container">
+    <div class="widget" id="widget-capstone-quiz">
+      <div class="widget__label">Test your understanding</div>
+      <div class="widget__title">Article Recap</div>
+      <div class="widget__instruction">5 questions covering the key concepts from this article.</div>
+
+      <div class="quiz__progress">
+        <div class="quiz__progress-bar" id="quiz-progress-bar"></div>
+      </div>
+      <div class="quiz__progress-text" id="quiz-progress-text">1 of 5</div>
+
+      <div class="quiz__card" id="quiz-card">
+        <p class="quiz__scenario" id="quiz-scenario"></p>
+        <div class="widget__controls" id="quiz-options"></div>
+        <div class="quiz__explanation" id="quiz-explanation" style="display: none;"></div>
+      </div>
+
+      <div class="widget__controls widget__controls--mt">
+        <button class="btn btn--primary" id="quiz-next" style="display: none;">Next Question &rarr;</button>
+      </div>
+
+      <div class="quiz__summary" id="quiz-summary" style="display: none;">
+        <div class="quiz__score" id="quiz-score"></div>
+        <p class="quiz__summary-text" id="quiz-summary-text"></p>
+        <button class="btn btn--secondary" id="quiz-retry" style="margin-top: var(--space-4);">Try Again</button>
+      </div>
+    </div>
+  </div>
+
   <article class="prose">
 
     <!-- ================================================================
@@ -1157,6 +1189,179 @@
 
     slider.addEventListener('input', update);
     update();
+  })();
+
+  // ====================================================================
+  // Capstone Quiz: Article Recap
+  // ====================================================================
+  (function() {
+    var questions = [
+      {
+        question: 'Your CEO asks why you can\'t just "retrain the model" to fix a wrong answer a user reported this morning. What\'s the best response?',
+        options: [
+          { label: 'We can \u2014 retraining is quick and cheap, we just need to add the correct answer to the training data and run it again.', key: 'a' },
+          { label: 'Training is a months-long, multi-million dollar process that produces a new model version. To fix the answer now, we should adjust the prompt or update the context we feed at inference time.', key: 'b' },
+          { label: 'We can\'t fix individual answers at all \u2014 the model is frozen after training and there\'s nothing we can do about wrong outputs.', key: 'c' },
+          { label: 'We should fine-tune the model on this single example so it learns the correct response immediately.', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'Training is the oven \u2014 a one-time, expensive process. You can\'t re-bake for one answer. But you CAN control inference: adjust the prompt, add correct context via RAG, or add guardrails. Option A dramatically underestimates training cost and time. Option C is too pessimistic \u2014 inference-time controls give you real levers. Option D misunderstands fine-tuning; a single example wouldn\'t meaningfully change behavior and is overkill for this problem.'
+      },
+      {
+        question: 'A stakeholder sees your chatbot produce a detailed, confident answer about a competitor\'s product that launched last week. The answer is completely wrong. They ask: "Why did the AI make this up?" What\'s the most accurate explanation?',
+        options: [
+          { label: 'The model searched the web for information about the competitor but found unreliable sources.', key: 'a' },
+          { label: 'The model has a bug in its reasoning module that causes it to fabricate facts about recent events.', key: 'b' },
+          { label: 'The model predicts statistically plausible next tokens, not facts. It generated text that sounds authoritative because the pattern is plausible \u2014 even though the underlying information doesn\'t exist in its training data.', key: 'c' },
+          { label: 'The competitor\'s product is too new to have enough training data, so the model defaulted to a random guess.', key: 'd' }
+        ],
+        answer: 'c',
+        explanation: 'Hallucination isn\'t a bug \u2014 it\'s structural. The model predicts plausible token sequences, not verified facts. It doesn\'t "know" what\'s true; it knows what sounds right. Option A is wrong because standard LLMs don\'t browse the web during inference. Option B invents a "reasoning module" that doesn\'t exist. Option D gets the knowledge cutoff right but "random guess" mischaracterizes the mechanism \u2014 the output is statistically plausible, not random.'
+      },
+      {
+        question: 'An engineer argues your team should always use the largest, most expensive frontier model for every feature because "bigger is always better." How should a PM push back?',
+        options: [
+          { label: 'Agree \u2014 frontier models are strictly superior on every task, and the cost difference is negligible at scale.', key: 'a' },
+          { label: 'Disagree \u2014 open-source models are always better because you own the data and the cost is zero.', key: 'b' },
+          { label: 'Disagree \u2014 smaller models are faster, and speed is always more important than quality for user experience.', key: 'c' },
+          { label: 'Disagree \u2014 parameter count isn\'t the only factor. A smaller model fine-tuned for a specific task often outperforms a frontier model used generically, at a fraction of the cost. Pick models by task, not size.', key: 'd' }
+        ],
+        answer: 'd',
+        explanation: 'Model selection should be task-driven, not size-driven. Training data quality, fine-tuning, and task fit often matter more than raw parameter count. A fine-tuned 8B model can beat GPT-4 on narrow tasks at a fraction of the cost. Option A ignores cost scaling. Option B overstates open-source advantages and ignores deployment complexity. Option C makes speed an absolute priority when the real answer is matching the model to the task.'
+      },
+      {
+        question: 'Your team is choosing between a proprietary API model and an open-source model for a healthcare product that processes sensitive patient data. What\'s the most important tradeoff to weigh?',
+        options: [
+          { label: 'The proprietary model offers top capability but sends patient data to a third party. The open-source model runs on your infrastructure so data stays in-house, but requires ML talent to deploy and may trail on the hardest reasoning tasks.', key: 'a' },
+          { label: 'Proprietary models have better documentation, so they\'re always easier to integrate into healthcare products.', key: 'b' },
+          { label: 'Open-source models are less capable, so they should never be used for high-stakes healthcare applications.', key: 'c' },
+          { label: 'Cost is the only real difference \u2014 proprietary models charge per token while open-source is free.', key: 'd' }
+        ],
+        answer: 'a',
+        explanation: 'For sensitive data, the data residency tradeoff is critical. Proprietary APIs mean your data leaves your infrastructure. Open-source models keep data in-house but require ML ops capability and may lag on complex tasks. Option B conflates documentation with integration difficulty. Option C is too absolute \u2014 open-source models are closing the gap and can be fine-tuned for domain tasks. Option D ignores the data privacy dimension entirely and oversimplifies \u2014 open-source has real infrastructure costs.'
+      },
+      {
+        question: 'A PM on your team is designing an AI-powered legal document review feature. They plan to ship it without any verification layer because "the model is 95% accurate in testing." What\'s wrong with this approach?',
+        options: [
+          { label: 'Nothing \u2014 95% accuracy means the model is ready for production and a verification layer would slow things down.', key: 'a' },
+          { label: '95% accuracy means 1 in 20 documents gets a wrong answer. For legal work, hallucinated citations or missed clauses could have serious consequences. Every AI feature needs plans for hallucinations, knowledge gaps, and reasoning failures.', key: 'b' },
+          { label: 'The problem is the 95% number itself \u2014 it\'s probably overfitted and the real accuracy is much lower.', key: 'c' },
+          { label: 'Legal documents are too long for LLMs to process, so the feature fundamentally won\'t work.', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'Designing for limitations is non-negotiable. 5% error in legal review means fabricated citations, missed obligations, or wrong interpretations at a rate that could cause real harm. Shipping without verification, RAG for knowledge gaps, and guardrails for reasoning failures isn\'t bold \u2014 it\'s reckless. Option A ignores the consequences of the 5% failure rate. Option C raises a valid concern but isn\'t the core issue here. Option D is factually wrong \u2014 modern models handle very long documents.'
+      }
+    ];
+
+    var currentQ = 0;
+    var score = 0;
+    var answered = false;
+
+    var scenarioEl = document.getElementById('quiz-scenario');
+    var optionsEl = document.getElementById('quiz-options');
+    var explanationEl = document.getElementById('quiz-explanation');
+    var progressBar = document.getElementById('quiz-progress-bar');
+    var progressText = document.getElementById('quiz-progress-text');
+    var nextBtn = document.getElementById('quiz-next');
+    var summaryEl = document.getElementById('quiz-summary');
+    var scoreEl = document.getElementById('quiz-score');
+    var summaryTextEl = document.getElementById('quiz-summary-text');
+    var cardEl = document.getElementById('quiz-card');
+    var retryBtn = document.getElementById('quiz-retry');
+
+    function loadQuestion() {
+      answered = false;
+      var q = questions[currentQ];
+      scenarioEl.textContent = q.question;
+      explanationEl.style.display = 'none';
+      nextBtn.style.display = 'none';
+
+      optionsEl.innerHTML = '';
+      q.options.forEach(function(opt) {
+        var btn = document.createElement('button');
+        btn.className = 'btn btn--secondary';
+        btn.dataset.answer = opt.key;
+        btn.textContent = opt.label;
+        optionsEl.appendChild(btn);
+      });
+
+      progressBar.style.width = ((currentQ) / questions.length * 100) + '%';
+      progressText.textContent = (currentQ + 1) + ' of ' + questions.length;
+    }
+
+    function handleAnswer(selected) {
+      if (answered) return;
+      answered = true;
+      var q = questions[currentQ];
+      var isCorrect = selected === q.answer;
+      if (isCorrect) score++;
+
+      optionsEl.querySelectorAll('.btn').forEach(function(btn) {
+        btn.disabled = true;
+        var ans = btn.dataset.answer;
+        if (ans === q.answer) {
+          btn.className = 'btn btn--correct';
+        } else if (ans === selected && !isCorrect) {
+          btn.className = 'btn btn--incorrect';
+        }
+      });
+
+      explanationEl.textContent = (isCorrect ? 'Correct! ' : 'Not quite. ') + q.explanation;
+      explanationEl.className = 'quiz__explanation ' + (isCorrect ? 'quiz__explanation--correct' : 'quiz__explanation--incorrect');
+      explanationEl.style.display = 'block';
+
+      progressBar.style.width = ((currentQ + 1) / questions.length * 100) + '%';
+
+      if (currentQ < questions.length - 1) {
+        nextBtn.style.display = 'inline-flex';
+      } else {
+        setTimeout(showSummary, 800);
+      }
+    }
+
+    function showSummary() {
+      cardEl.style.display = 'none';
+      progressBar.parentElement.style.display = 'none';
+      progressText.style.display = 'none';
+      nextBtn.style.display = 'none';
+      summaryEl.style.display = 'block';
+      scoreEl.textContent = score + ' out of ' + questions.length;
+
+      var messages = [
+        'Worth a re-read \u2014 the concepts will click with another pass!',
+        'Worth a re-read \u2014 the concepts will click with another pass!',
+        'You\'ve got the basics. Training vs. inference and hallucinations are worth revisiting.',
+        'Solid understanding of the fundamentals!',
+        'Strong grasp \u2014 you\'re thinking like someone who truly gets this.',
+        'Perfect score. You\'ve nailed the core concepts.'
+      ];
+      summaryTextEl.textContent = messages[score];
+    }
+
+    function reset() {
+      currentQ = 0;
+      score = 0;
+      cardEl.style.display = 'block';
+      progressBar.parentElement.style.display = 'block';
+      progressText.style.display = 'block';
+      summaryEl.style.display = 'none';
+      loadQuestion();
+    }
+
+    optionsEl.addEventListener('click', function(e) {
+      var btn = e.target.closest('[data-answer]');
+      if (!btn) return;
+      handleAnswer(btn.dataset.answer);
+    });
+
+    nextBtn.addEventListener('click', function() {
+      currentQ++;
+      loadQuestion();
+    });
+
+    retryBtn.addEventListener('click', reset);
+
+    loadQuestion();
   })();
   </script>
 

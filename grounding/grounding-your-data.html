@@ -529,6 +529,42 @@
       </div>
     </div>
 
+  </article>
+
+  <!-- ================================================================
+       Capstone Quiz: Article Recap
+       ================================================================ -->
+  <div class="wide-container">
+    <div class="widget" id="widget-capstone-quiz">
+      <div class="widget__label">Test your understanding</div>
+      <div class="widget__title">Article Recap</div>
+      <div class="widget__instruction">5 questions covering the key concepts from this article.</div>
+
+      <div class="quiz__progress">
+        <div class="quiz__progress-bar" id="quiz-progress-bar"></div>
+      </div>
+      <div class="quiz__progress-text" id="quiz-progress-text">1 of 5</div>
+
+      <div class="quiz__card" id="quiz-card">
+        <p class="quiz__scenario" id="quiz-scenario"></p>
+        <div class="widget__controls" id="quiz-options"></div>
+        <div class="quiz__explanation" id="quiz-explanation" style="display: none;"></div>
+      </div>
+
+      <div class="widget__controls widget__controls--mt">
+        <button class="btn btn--primary" id="quiz-next" style="display: none;">Next Question &rarr;</button>
+      </div>
+
+      <div class="quiz__summary" id="quiz-summary" style="display: none;">
+        <div class="quiz__score" id="quiz-score"></div>
+        <p class="quiz__summary-text" id="quiz-summary-text"></p>
+        <button class="btn btn--secondary" id="quiz-retry" style="margin-top: var(--space-4);">Try Again</button>
+      </div>
+    </div>
+  </div>
+
+  <article class="prose">
+
     <!-- ================================================================
          Section VI: What's Next
          ================================================================ -->
@@ -1194,6 +1230,179 @@
 
     // Initial
     update();
+  })();
+
+  // ====================================================================
+  // Capstone Quiz: Article Recap
+  // ====================================================================
+  (function() {
+    var questions = [
+      {
+        question: 'Your team is building a customer support chatbot. During testing, it confidently answers questions about your company\u2019s refund policy \u2014 but the answers are wrong. An engineer suggests the model just needs a better system prompt to fix the inaccuracies. What\u2019s the real issue?',
+        options: [
+          { label: 'The model\u2019s system prompt isn\u2019t specific enough about your company\u2019s policies', key: 'a' },
+          { label: 'The model was never trained on your company\u2019s internal data, so it fills gaps with plausible-sounding fabrications', key: 'b' },
+          { label: 'The model\u2019s temperature setting is too high, causing it to generate random answers', key: 'c' },
+          { label: 'The model needs to be fine-tuned on your company\u2019s support tickets before deployment', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'This is the grounding problem. LLMs are trained on public internet data and don\u2019t know your company\u2019s specific policies. A better system prompt won\u2019t help because the model simply doesn\u2019t have the information \u2014 it confabulates plausible answers instead. Fine-tuning could help but is expensive and slow; RAG is the practical solution for connecting the model to your authoritative data.'
+      },
+      {
+        question: 'A PM pitches RAG to stakeholders by saying: "We\u2019ll retrain the model on our internal docs so it knows our product." A senior engineer pushes back. What\u2019s the most accurate correction?',
+        options: [
+          { label: 'RAG does retrain the model, but only on the retrieved documents for each query', key: 'a' },
+          { label: 'RAG doesn\u2019t retrain anything \u2014 it retrieves relevant documents at query time and injects them into the prompt so the model can reference them', key: 'c' },
+          { label: 'RAG trains a separate smaller model that handles retrieval while the main model handles generation', key: 'b' },
+          { label: 'RAG fine-tunes the embedding layer of the model but leaves the rest of the weights unchanged', key: 'd' }
+        ],
+        answer: 'c',
+        explanation: 'RAG separates knowledge from reasoning. The LLM provides reasoning; your data provides knowledge. No retraining or fine-tuning occurs. Documents are retrieved at query time and pasted into the prompt. This is why RAG is so practical \u2014 update a document and the model\u2019s answers change immediately, with no model retraining required.'
+      },
+      {
+        question: 'An engineer argues that since embeddings are just numbers, they\u2019re essentially the same as keyword indexes with extra steps. A product designer asks you to explain why embeddings matter. What\u2019s the key distinction?',
+        options: [
+          { label: 'Embeddings are faster to search than keyword indexes because they use smaller data structures', key: 'a' },
+          { label: 'Embeddings capture the meaning of text rather than just matching exact words, so "refund policy" and "how do I return a product" are recognized as similar', key: 'b' },
+          { label: 'Embeddings can handle multiple languages while keyword indexes cannot', key: 'c' },
+          { label: 'Embeddings compress documents into fewer tokens, reducing storage costs compared to keyword indexes', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'The fundamental difference is that embeddings encode meaning, not keywords. Two sentences can share zero words yet have nearly identical embeddings because they express the same concept. Conversely, identical words with different meanings (like "Java" the language vs. "Java" the island) produce very different embeddings. Keyword indexes miss semantic connections entirely.'
+      },
+      {
+        question: 'Your team is evaluating vector databases for a RAG system that will serve 50,000 enterprise users. An engineer recommends building a custom solution on top of PostgreSQL with pgvector. A vendor pitches Pinecone as the better choice. What should guide your decision?',
+        options: [
+          { label: 'Always choose Pinecone because managed vector databases are fundamentally more accurate than pgvector', key: 'a' },
+          { label: 'Always choose pgvector because it\u2019s free and avoids vendor lock-in', key: 'b' },
+          { label: 'Evaluate based on latency at realistic data volumes, filtering support for your access patterns, and operational complexity vs. your team\u2019s capacity', key: 'd' },
+          { label: 'Start with Pinecone for prototyping since you can\u2019t migrate to pgvector later', key: 'c' }
+        ],
+        answer: 'd',
+        explanation: 'The three evaluation criteria are latency at your scale (test with realistic data, not demos), filtering support (can you scope by user/team/doc type?), and operational simplicity. Neither option is universally better. pgvector is pragmatic if you\u2019re already on Postgres; managed services save infrastructure work at scale. The embedding format is portable, so you can migrate later.'
+      },
+      {
+        question: 'Your team\u2019s RAG prototype works well in demos but produces mixed results in production. Users report that answers sometimes blend accurate retrieved information with facts the model seems to have made up. What\u2019s the most likely root cause?',
+        options: [
+          { label: 'The embedding model is too small and isn\u2019t capturing enough semantic nuance in the document chunks', key: 'a' },
+          { label: 'The vector database\u2019s approximate nearest-neighbor algorithm is returning incorrect results', key: 'b' },
+          { label: 'The prompt template doesn\u2019t instruct the model to answer only from the provided context and to say "I don\u2019t know" when the context is insufficient', key: 'c' },
+          { label: 'The documents need to be re-embedded with a higher-dimension model to improve retrieval accuracy', key: 'd' }
+        ],
+        answer: 'c',
+        explanation: 'When the prompt template doesn\u2019t explicitly constrain the model to answer only from retrieved context, it freely blends its training data with your documents \u2014 and you can\u2019t tell which facts came from where. The fix is prompt engineering: tell the model to use only the provided context and to acknowledge when it doesn\u2019t have enough information. Without these guardrails, you get a confidence game, not grounding.'
+      }
+    ];
+
+    var currentQ = 0;
+    var score = 0;
+    var answered = false;
+
+    var scenarioEl = document.getElementById('quiz-scenario');
+    var optionsEl = document.getElementById('quiz-options');
+    var explanationEl = document.getElementById('quiz-explanation');
+    var progressBar = document.getElementById('quiz-progress-bar');
+    var progressText = document.getElementById('quiz-progress-text');
+    var nextBtn = document.getElementById('quiz-next');
+    var summaryEl = document.getElementById('quiz-summary');
+    var scoreEl = document.getElementById('quiz-score');
+    var summaryTextEl = document.getElementById('quiz-summary-text');
+    var cardEl = document.getElementById('quiz-card');
+    var retryBtn = document.getElementById('quiz-retry');
+
+    function loadQuestion() {
+      answered = false;
+      var q = questions[currentQ];
+      scenarioEl.textContent = q.question;
+      explanationEl.style.display = 'none';
+      nextBtn.style.display = 'none';
+
+      optionsEl.innerHTML = '';
+      q.options.forEach(function(opt) {
+        var btn = document.createElement('button');
+        btn.className = 'btn btn--secondary';
+        btn.dataset.answer = opt.key;
+        btn.textContent = opt.label;
+        optionsEl.appendChild(btn);
+      });
+
+      progressBar.style.width = ((currentQ) / questions.length * 100) + '%';
+      progressText.textContent = (currentQ + 1) + ' of ' + questions.length;
+    }
+
+    function handleAnswer(selected) {
+      if (answered) return;
+      answered = true;
+      var q = questions[currentQ];
+      var isCorrect = selected === q.answer;
+      if (isCorrect) score++;
+
+      optionsEl.querySelectorAll('.btn').forEach(function(btn) {
+        btn.disabled = true;
+        var ans = btn.dataset.answer;
+        if (ans === q.answer) {
+          btn.className = 'btn btn--correct';
+        } else if (ans === selected && !isCorrect) {
+          btn.className = 'btn btn--incorrect';
+        }
+      });
+
+      explanationEl.textContent = (isCorrect ? 'Correct! ' : 'Not quite. ') + q.explanation;
+      explanationEl.className = 'quiz__explanation ' + (isCorrect ? 'quiz__explanation--correct' : 'quiz__explanation--incorrect');
+      explanationEl.style.display = 'block';
+
+      progressBar.style.width = ((currentQ + 1) / questions.length * 100) + '%';
+
+      if (currentQ < questions.length - 1) {
+        nextBtn.style.display = 'inline-flex';
+      } else {
+        setTimeout(showSummary, 800);
+      }
+    }
+
+    function showSummary() {
+      cardEl.style.display = 'none';
+      progressBar.parentElement.style.display = 'none';
+      progressText.style.display = 'none';
+      nextBtn.style.display = 'none';
+      summaryEl.style.display = 'block';
+      scoreEl.textContent = score + ' out of ' + questions.length;
+
+      var messages = [
+        'Worth a re-read \u2014 the concepts will click with another pass!',
+        'Worth a re-read \u2014 the concepts will click with another pass!',
+        'You\'ve got the basics. Revisit how embeddings and prompt templates work together in RAG.',
+        'Solid understanding of the fundamentals!',
+        'Strong grasp \u2014 you\'re thinking like someone who truly gets this.',
+        'Perfect score. You\'ve nailed the core concepts.'
+      ];
+      summaryTextEl.textContent = messages[score];
+    }
+
+    function reset() {
+      currentQ = 0;
+      score = 0;
+      cardEl.style.display = 'block';
+      progressBar.parentElement.style.display = 'block';
+      progressText.style.display = 'block';
+      summaryEl.style.display = 'none';
+      loadQuestion();
+    }
+
+    optionsEl.addEventListener('click', function(e) {
+      var btn = e.target.closest('[data-answer]');
+      if (!btn) return;
+      handleAnswer(btn.dataset.answer);
+    });
+
+    nextBtn.addEventListener('click', function() {
+      currentQ++;
+      loadQuestion();
+    });
+
+    retryBtn.addEventListener('click', reset);
+
+    loadQuestion();
   })();
   </script>
 

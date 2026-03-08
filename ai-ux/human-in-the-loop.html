@@ -753,6 +753,38 @@
   </article>
 
   <!-- ================================================================
+       Capstone Quiz: Article Recap
+       ================================================================ -->
+  <div class="wide-container">
+    <div class="widget" id="widget-capstone-quiz">
+      <div class="widget__label">Test your understanding</div>
+      <div class="widget__title">Article Recap</div>
+      <div class="widget__instruction">5 questions covering the key concepts from this article.</div>
+
+      <div class="quiz__progress">
+        <div class="quiz__progress-bar" id="quiz-progress-bar"></div>
+      </div>
+      <div class="quiz__progress-text" id="quiz-progress-text">1 of 5</div>
+
+      <div class="quiz__card" id="quiz-card">
+        <p class="quiz__scenario" id="quiz-scenario"></p>
+        <div class="widget__controls" id="quiz-options"></div>
+        <div class="quiz__explanation" id="quiz-explanation" style="display: none;"></div>
+      </div>
+
+      <div class="widget__controls widget__controls--mt">
+        <button class="btn btn--primary" id="quiz-next" style="display: none;">Next Question &rarr;</button>
+      </div>
+
+      <div class="quiz__summary" id="quiz-summary" style="display: none;">
+        <div class="quiz__score" id="quiz-score"></div>
+        <p class="quiz__summary-text" id="quiz-summary-text"></p>
+        <button class="btn btn--secondary" id="quiz-retry" style="margin-top: var(--space-4);">Try Again</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================================================
        Article Navigation
        ================================================================ -->
   <nav class="article-nav">
@@ -1446,6 +1478,179 @@
 
     resize();
     drawChart();
+  })();
+
+  // ====================================================================
+  // Capstone Quiz: Article Recap
+  // ====================================================================
+  (function() {
+    var questions = [
+      {
+        question: 'A VP of Engineering argues that the company\'s AI content moderation system should be fully automated because it achieves 96% accuracy. The system processes 500,000 posts per day. What is the most important counterpoint?',
+        options: [
+          { label: 'The model should be retrained to reach 99% before full automation is considered.', key: 'a' },
+          { label: 'At 500,000 posts/day, 96% accuracy means 20,000 incorrect moderation decisions daily \u2014 the error cost at that volume demands human review for at least the uncertain cases.', key: 'b' },
+          { label: 'Full automation is fine as long as users can appeal moderation decisions after the fact.', key: 'c' },
+          { label: '96% is high enough for content moderation since most errors are low-stakes.', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'The automation threshold isn\'t about accuracy alone \u2014 it\'s about accuracy multiplied by volume. 96% sounds strong, but at 500K posts/day that\'s 20,000 errors reaching users daily. Retraining (option A) addresses model quality but doesn\'t solve the fundamental volume problem. Appeals (option C) only catch errors after damage is done. And content moderation errors are rarely low-stakes (option D) \u2014 wrongful removals silence users, and missed violations cause real harm.'
+      },
+      {
+        question: 'Your team launches a review queue for AI-generated customer support responses. After two weeks, you notice reviewers spend most of their time rubber-stamping high-confidence items (90%+) and rush through the low-confidence ones at the end of their shift. What should you change?',
+        options: [
+          { label: 'Hire more reviewers so they have time to carefully review all items.', key: 'a' },
+          { label: 'Remove the confidence scores so reviewers treat every item with equal scrutiny.', key: 'b' },
+          { label: 'Auto-approve items above 90% confidence and sort the remaining queue lowest-confidence-first so reviewers focus on the cases where AI is most likely wrong.', key: 'c' },
+          { label: 'Set a maximum time limit per review to prevent reviewers from spending too long on easy items.', key: 'd' }
+        ],
+        answer: 'c',
+        explanation: 'Human attention is the scarce resource in any review queue. Sorting lowest-confidence-first directs that attention where the AI is most uncertain and most likely to be wrong. Hiring more reviewers (option A) throws money at a design problem. Hiding confidence scores (option B) removes useful information and treats every item as equally uncertain. Time limits (option D) address symptoms without fixing the root cause \u2014 reviewers still waste their best energy on items that don\'t need them.'
+      },
+      {
+        question: 'An engineer proposes building a confidence-based routing system where AI auto-responds when confidence exceeds 85% and queues everything else. A colleague suggests also adding exception handling for account cancellations and periodic random sampling of auto-responses. Is the colleague\'s addition necessary?',
+        options: [
+          { label: 'No \u2014 confidence-based routing already catches uncertain cases. Adding more layers creates unnecessary complexity.', key: 'a' },
+          { label: 'Only the exception handling is needed \u2014 periodic sampling is overkill if the confidence threshold is well-calibrated.', key: 'b' },
+          { label: 'Only the periodic sampling is needed \u2014 exception handling is redundant with confidence routing.', key: 'c' },
+          { label: 'Yes \u2014 confidence routing misses systematic errors on high-confidence items, exception handling catches known risk categories, and sampling provides a safety net. The three create defense in depth.', key: 'd' }
+        ],
+        answer: 'd',
+        explanation: 'Each escalation pattern catches a different class of failure. Confidence routing catches uncertainty but misses cases where the model is confidently wrong (e.g., a new product line not in the training data). Exception handling catches known risk categories like cancellations that need human judgment regardless of confidence. Periodic sampling catches systematic errors that confidence scores miss entirely. Removing any layer leaves a specific blind spot uncovered.'
+      },
+      {
+        question: 'A product manager reports that the human review queue volume has stayed flat for three months, even though reviewers are correcting errors and the model is being retrained monthly. What is the most likely root cause?',
+        options: [
+          { label: 'Human corrections are not being systematically fed back into the model retraining pipeline, so the feedback loop is broken.', key: 'a' },
+          { label: 'The reviewers aren\'t catching enough errors \u2014 they need better training.', key: 'b' },
+          { label: 'The confidence threshold is too low, sending too many items to review.', key: 'c' },
+          { label: 'Three months is too soon to see improvement \u2014 the team should wait another quarter.', key: 'd' }
+        ],
+        answer: 'a',
+        explanation: 'The best review queues get shorter over time, not stay flat. If review volume is flat despite monthly retraining, the most likely cause is that human corrections aren\'t actually making it into the training data \u2014 the flywheel isn\'t spinning. Reviewer quality (option B) affects error detection but wouldn\'t explain flat volume. The confidence threshold (option C) would cause consistently high volume, not flat trends. And teams with working feedback loops typically see improvement within weeks, not quarters (option D).'
+      },
+      {
+        question: 'Your team is debating metrics for a new HITL system. A data scientist proposes tracking only automation rate (percentage of decisions handled without humans). Why is this metric insufficient on its own?',
+        options: [
+          { label: 'Automation rate doesn\'t account for the cost per automated decision.', key: 'a' },
+          { label: 'Automation rate is a lagging indicator \u2014 the team should track model accuracy instead.', key: 'b' },
+          { label: 'It doesn\'t measure customer satisfaction, which is the only metric that truly matters.', key: 'c' },
+          { label: 'A high automation rate could mask a system that confidently makes wrong decisions \u2014 you also need human agreement rate and feedback incorporation rate to verify the AI is actually getting better, not just getting faster at being wrong.', key: 'd' }
+        ],
+        answer: 'd',
+        explanation: 'Automation rate alone can be gamed or misleading \u2014 a system could automate 95% of decisions while confidently getting many of them wrong. You need human agreement rate to know whether automated decisions match human judgment, escalation rate to track whether uncertainty is decreasing, time-to-resolution for operational efficiency, and feedback incorporation rate to confirm the flywheel is spinning. Cost per decision (option A) and customer satisfaction (option C) matter but aren\'t core HITL health metrics. Model accuracy (option B) is important but doesn\'t capture the human-AI interaction dynamics.'
+      }
+    ];
+
+    var currentQ = 0;
+    var score = 0;
+    var answered = false;
+
+    var scenarioEl = document.getElementById('quiz-scenario');
+    var optionsEl = document.getElementById('quiz-options');
+    var explanationEl = document.getElementById('quiz-explanation');
+    var progressBar = document.getElementById('quiz-progress-bar');
+    var progressText = document.getElementById('quiz-progress-text');
+    var nextBtn = document.getElementById('quiz-next');
+    var summaryEl = document.getElementById('quiz-summary');
+    var scoreEl = document.getElementById('quiz-score');
+    var summaryTextEl = document.getElementById('quiz-summary-text');
+    var cardEl = document.getElementById('quiz-card');
+    var retryBtn = document.getElementById('quiz-retry');
+
+    function loadQuestion() {
+      answered = false;
+      var q = questions[currentQ];
+      scenarioEl.textContent = q.question;
+      explanationEl.style.display = 'none';
+      nextBtn.style.display = 'none';
+
+      optionsEl.innerHTML = '';
+      q.options.forEach(function(opt) {
+        var btn = document.createElement('button');
+        btn.className = 'btn btn--secondary';
+        btn.dataset.answer = opt.key;
+        btn.textContent = opt.label;
+        optionsEl.appendChild(btn);
+      });
+
+      progressBar.style.width = ((currentQ) / questions.length * 100) + '%';
+      progressText.textContent = (currentQ + 1) + ' of ' + questions.length;
+    }
+
+    function handleAnswer(selected) {
+      if (answered) return;
+      answered = true;
+      var q = questions[currentQ];
+      var isCorrect = selected === q.answer;
+      if (isCorrect) score++;
+
+      optionsEl.querySelectorAll('.btn').forEach(function(btn) {
+        btn.disabled = true;
+        var ans = btn.dataset.answer;
+        if (ans === q.answer) {
+          btn.className = 'btn btn--correct';
+        } else if (ans === selected && !isCorrect) {
+          btn.className = 'btn btn--incorrect';
+        }
+      });
+
+      explanationEl.textContent = (isCorrect ? 'Correct! ' : 'Not quite. ') + q.explanation;
+      explanationEl.className = 'quiz__explanation ' + (isCorrect ? 'quiz__explanation--correct' : 'quiz__explanation--incorrect');
+      explanationEl.style.display = 'block';
+
+      progressBar.style.width = ((currentQ + 1) / questions.length * 100) + '%';
+
+      if (currentQ < questions.length - 1) {
+        nextBtn.style.display = 'inline-flex';
+      } else {
+        setTimeout(showSummary, 800);
+      }
+    }
+
+    function showSummary() {
+      cardEl.style.display = 'none';
+      progressBar.parentElement.style.display = 'none';
+      progressText.style.display = 'none';
+      nextBtn.style.display = 'none';
+      summaryEl.style.display = 'block';
+      scoreEl.textContent = score + ' out of ' + questions.length;
+
+      var messages = [
+        'Worth a re-read \u2014 the concepts will click with another pass!',
+        'Worth a re-read \u2014 the concepts will click with another pass!',
+        'You\'ve got the basics. Review queues and feedback loops are worth revisiting.',
+        'Solid understanding of the fundamentals!',
+        'Strong grasp \u2014 you\'re thinking like someone who truly gets this.',
+        'Perfect score. You\'ve nailed the core concepts.'
+      ];
+      summaryTextEl.textContent = messages[score];
+    }
+
+    function reset() {
+      currentQ = 0;
+      score = 0;
+      cardEl.style.display = 'block';
+      progressBar.parentElement.style.display = 'block';
+      progressText.style.display = 'block';
+      summaryEl.style.display = 'none';
+      loadQuestion();
+    }
+
+    optionsEl.addEventListener('click', function(e) {
+      var btn = e.target.closest('[data-answer]');
+      if (!btn) return;
+      handleAnswer(btn.dataset.answer);
+    });
+
+    nextBtn.addEventListener('click', function() {
+      currentQ++;
+      loadQuestion();
+    });
+
+    retryBtn.addEventListener('click', reset);
+
+    loadQuestion();
   })();
   </script>
 

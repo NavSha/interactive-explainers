@@ -694,6 +694,38 @@
     </div>
   </div>
 
+  <!-- ================================================================
+       Capstone Quiz: Article Recap
+       ================================================================ -->
+  <div class="wide-container">
+    <div class="widget" id="widget-capstone-quiz">
+      <div class="widget__label">Test your understanding</div>
+      <div class="widget__title">Article Recap</div>
+      <div class="widget__instruction">5 questions covering the key concepts from this article.</div>
+
+      <div class="quiz__progress">
+        <div class="quiz__progress-bar" id="quiz-progress-bar"></div>
+      </div>
+      <div class="quiz__progress-text" id="quiz-progress-text">1 of 5</div>
+
+      <div class="quiz__card" id="quiz-card">
+        <p class="quiz__scenario" id="quiz-scenario"></p>
+        <div class="widget__controls" id="quiz-options"></div>
+        <div class="quiz__explanation" id="quiz-explanation" style="display: none;"></div>
+      </div>
+
+      <div class="widget__controls widget__controls--mt">
+        <button class="btn btn--primary" id="quiz-next" style="display: none;">Next Question &rarr;</button>
+      </div>
+
+      <div class="quiz__summary" id="quiz-summary" style="display: none;">
+        <div class="quiz__score" id="quiz-score"></div>
+        <p class="quiz__summary-text" id="quiz-summary-text"></p>
+        <button class="btn btn--secondary" id="quiz-retry" style="margin-top: var(--space-4);">Try Again</button>
+      </div>
+    </div>
+  </div>
+
   <article class="prose">
 
     <!-- ================================================================
@@ -1203,6 +1235,179 @@
     sliderResponse.addEventListener('input', update);
 
     update();
+  })();
+
+  // ====================================================================
+  // Capstone Quiz: Article Recap
+  // ====================================================================
+  (function() {
+    var questions = [
+      {
+        question: 'A PM on your team says: "We don\'t need to worry about context management \u2014 the model keeps track of the conversation on its own." What\'s the most accurate correction?',
+        options: [
+          { label: 'The model remembers the last 10 messages automatically, but forgets older ones', key: 'a' },
+          { label: 'The model has no memory between API calls \u2014 your application must re-send the full conversation each time', key: 'b' },
+          { label: 'The model stores conversation state on the provider\'s servers between calls', key: 'c' },
+          { label: 'The model remembers everything within a session but resets between sessions', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'Every API call is completely independent. The model has zero memory between calls \u2014 it\'s your application that re-sends the conversation history each time. Options A and D describe partial memory that doesn\'t exist. Option C confuses conversation logging with actual model state \u2014 the model itself is stateless, period.'
+      },
+      {
+        question: 'Your team is building a document analysis tool. An engineer proposes using the largest available context window (1M tokens) for every request to avoid ever hitting limits. What\'s the strongest counterargument?',
+        options: [
+          { label: 'Filling a large window costs dramatically more, increases latency, and degrades quality on content in the middle', key: 'a' },
+          { label: 'Large context windows aren\'t available through any current API', key: 'b' },
+          { label: 'Models with large context windows always produce lower quality output than smaller models', key: 'c' },
+          { label: 'Context windows larger than 128K tokens are only available for image inputs, not text', key: 'd' }
+        ],
+        answer: 'a',
+        explanation: 'Cost scales linearly with context length, latency increases with more tokens, and the "lost in the middle" problem means quality degrades for content buried in long contexts. Option B is factually wrong \u2014 1M-token windows exist. Option C overgeneralizes; the issue is how you use the window, not its maximum size. Option D is fabricated entirely.'
+      },
+      {
+        question: 'You\'re designing a RAG-powered support agent. Your team retrieves 8 document chunks and places them in the middle of the context, between the system prompt and the user\'s question. Users report the agent often ignores relevant retrieved information. What\'s most likely happening?',
+        options: [
+          { label: 'The retrieval algorithm is returning irrelevant documents', key: 'a' },
+          { label: 'Eight chunks exceed the model\'s context window limit', key: 'b' },
+          { label: 'The chunks are in the "lost in the middle" zone where the model pays least attention', key: 'c' },
+          { label: 'The model can\'t read retrieved documents \u2014 only system prompts and user messages', key: 'd' }
+        ],
+        answer: 'c',
+        explanation: 'The U-shaped attention curve means models pay most attention to content at the beginning and end of the context. Documents sandwiched in the middle sit in the danger zone. Option A is plausible but doesn\'t explain why the agent ignores information that is relevant. Option B is unlikely with just 8 chunks. Option D is completely false \u2014 models process all text in the context equally in terms of access, just not equally in terms of attention.'
+      },
+      {
+        question: 'Your AI feature uses an 8K-token model. The system prompt is 500 tokens, you keep 10 turns of history (~3,000 tokens), retrieve 3 RAG chunks (~1,500 tokens), and reserve 1,000 tokens for the response. A user reports that after long conversations, the bot\'s personality completely changes. What\'s the most likely cause?',
+        options: [
+          { label: 'The model is "learning" from the conversation and developing a new personality over time', key: 'a' },
+          { label: 'The context budget is at 73% capacity, so the conversation history is silently being truncated and the system prompt is being dropped', key: 'b' },
+          { label: 'The RAG chunks are overriding the system prompt instructions', key: 'c' },
+          { label: 'As conversations get longer, the growing history pushes total tokens past the limit, and middleware silently truncates from the start \u2014 removing the system prompt', key: 'd' }
+        ],
+        answer: 'd',
+        explanation: 'With 10 turns at ~300 tokens each, the budget is already at 73% before the conversation gets long. As history grows beyond 10 turns (if the app keeps adding), total tokens exceed 8,192. Silent truncation typically drops tokens from the start \u2014 which is where the system prompt lives. The personality vanishes because the instructions that defined it are gone. Option A misunderstands statelessness. Option B gets the math right for 10 turns but doesn\'t account for growth. Option C is possible but doesn\'t explain why personality changes correlate with conversation length.'
+      },
+      {
+        question: 'An engineer says: "Context management is a technical implementation detail \u2014 the PM doesn\'t need to be involved." Based on what you\'ve learned, why is this wrong?',
+        options: [
+          { label: 'PMs need to write the system prompts, which are part of the context', key: 'a' },
+          { label: 'Context window sizes are a pricing decision and PMs own the budget', key: 'b' },
+          { label: 'PMs need to choose which LLM provider to use, and each has different context limits', key: 'c' },
+          { label: 'How many turns to keep, when to summarize, and what happens at the ceiling are product decisions that directly shape user experience', key: 'd' }
+        ],
+        answer: 'd',
+        explanation: 'Context management is an architecture problem, not an afterthought. Decisions about history length, summarization triggers, and overflow handling directly impact what users experience \u2014 whether the bot "remembers" them, how fast it responds, what it costs. Option A is partially true but narrow. Option B reduces it to budget when it\'s really about experience. Option C is a valid concern but misses the core point: context management decisions are product decisions regardless of which provider you choose.'
+      }
+    ];
+
+    var currentQ = 0;
+    var score = 0;
+    var answered = false;
+
+    var scenarioEl = document.getElementById('quiz-scenario');
+    var optionsEl = document.getElementById('quiz-options');
+    var explanationEl = document.getElementById('quiz-explanation');
+    var progressBar = document.getElementById('quiz-progress-bar');
+    var progressText = document.getElementById('quiz-progress-text');
+    var nextBtn = document.getElementById('quiz-next');
+    var summaryEl = document.getElementById('quiz-summary');
+    var scoreEl = document.getElementById('quiz-score');
+    var summaryTextEl = document.getElementById('quiz-summary-text');
+    var cardEl = document.getElementById('quiz-card');
+    var retryBtn = document.getElementById('quiz-retry');
+
+    function loadQuestion() {
+      answered = false;
+      var q = questions[currentQ];
+      scenarioEl.textContent = q.question;
+      explanationEl.style.display = 'none';
+      nextBtn.style.display = 'none';
+
+      optionsEl.innerHTML = '';
+      q.options.forEach(function(opt) {
+        var btn = document.createElement('button');
+        btn.className = 'btn btn--secondary';
+        btn.dataset.answer = opt.key;
+        btn.textContent = opt.label;
+        optionsEl.appendChild(btn);
+      });
+
+      progressBar.style.width = ((currentQ) / questions.length * 100) + '%';
+      progressText.textContent = (currentQ + 1) + ' of ' + questions.length;
+    }
+
+    function handleAnswer(selected) {
+      if (answered) return;
+      answered = true;
+      var q = questions[currentQ];
+      var isCorrect = selected === q.answer;
+      if (isCorrect) score++;
+
+      optionsEl.querySelectorAll('.btn').forEach(function(btn) {
+        btn.disabled = true;
+        var ans = btn.dataset.answer;
+        if (ans === q.answer) {
+          btn.className = 'btn btn--correct';
+        } else if (ans === selected && !isCorrect) {
+          btn.className = 'btn btn--incorrect';
+        }
+      });
+
+      explanationEl.textContent = (isCorrect ? 'Correct! ' : 'Not quite. ') + q.explanation;
+      explanationEl.className = 'quiz__explanation ' + (isCorrect ? 'quiz__explanation--correct' : 'quiz__explanation--incorrect');
+      explanationEl.style.display = 'block';
+
+      progressBar.style.width = ((currentQ + 1) / questions.length * 100) + '%';
+
+      if (currentQ < questions.length - 1) {
+        nextBtn.style.display = 'inline-flex';
+      } else {
+        setTimeout(showSummary, 800);
+      }
+    }
+
+    function showSummary() {
+      cardEl.style.display = 'none';
+      progressBar.parentElement.style.display = 'none';
+      progressText.style.display = 'none';
+      nextBtn.style.display = 'none';
+      summaryEl.style.display = 'block';
+      scoreEl.textContent = score + ' out of ' + questions.length;
+
+      var messages = [
+        'Worth a re-read \u2014 the concepts will click with another pass!',
+        'Worth a re-read \u2014 the concepts will click with another pass!',
+        'You\'ve got the basics. Context windows and token budgets are worth revisiting.',
+        'Solid understanding of the fundamentals!',
+        'Strong grasp \u2014 you\'re thinking like someone who truly gets this.',
+        'Perfect score. You\'ve nailed the core concepts.'
+      ];
+      summaryTextEl.textContent = messages[score];
+    }
+
+    function reset() {
+      currentQ = 0;
+      score = 0;
+      cardEl.style.display = 'block';
+      progressBar.parentElement.style.display = 'block';
+      progressText.style.display = 'block';
+      summaryEl.style.display = 'none';
+      loadQuestion();
+    }
+
+    optionsEl.addEventListener('click', function(e) {
+      var btn = e.target.closest('[data-answer]');
+      if (!btn) return;
+      handleAnswer(btn.dataset.answer);
+    });
+
+    nextBtn.addEventListener('click', function() {
+      currentQ++;
+      loadQuestion();
+    });
+
+    retryBtn.addEventListener('click', reset);
+
+    loadQuestion();
   })();
   </script>
 

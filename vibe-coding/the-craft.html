@@ -648,6 +648,38 @@
     </div>
   </div>
 
+  <!-- ================================================================
+       Capstone Quiz: Article Recap
+       ================================================================ -->
+  <div class="wide-container">
+    <div class="widget" id="widget-capstone-quiz">
+      <div class="widget__label">Test your understanding</div>
+      <div class="widget__title">Article Recap</div>
+      <div class="widget__instruction">5 questions covering the key concepts from this article.</div>
+
+      <div class="quiz__progress">
+        <div class="quiz__progress-bar" id="quiz-progress-bar"></div>
+      </div>
+      <div class="quiz__progress-text" id="quiz-progress-text">1 of 5</div>
+
+      <div class="quiz__card" id="quiz-card">
+        <p class="quiz__scenario" id="quiz-scenario"></p>
+        <div class="widget__controls" id="quiz-options"></div>
+        <div class="quiz__explanation" id="quiz-explanation" style="display: none;"></div>
+      </div>
+
+      <div class="widget__controls widget__controls--mt">
+        <button class="btn btn--primary" id="quiz-next" style="display: none;">Next Question &rarr;</button>
+      </div>
+
+      <div class="quiz__summary" id="quiz-summary" style="display: none;">
+        <div class="quiz__score" id="quiz-score"></div>
+        <p class="quiz__summary-text" id="quiz-summary-text"></p>
+        <button class="btn btn--secondary" id="quiz-retry" style="margin-top: var(--space-4);">Try Again</button>
+      </div>
+    </div>
+  </div>
+
   <article class="prose">
 
     <!-- ================================================================
@@ -1095,6 +1127,179 @@
 
     slider.addEventListener('input', update);
     update();
+  })();
+
+  // ====================================================================
+  // Capstone Quiz: Article Recap
+  // ====================================================================
+  (function() {
+    var questions = [
+      {
+        question: 'A PM complains that their AI coding tool keeps producing login pages that "look wrong" even though they work. Their prompt was: "Build me a login page." What\'s the root cause?',
+        options: [
+          { label: 'The AI tool they\'re using is low-quality and should be replaced', key: 'a' },
+          { label: 'They\'re treating prompting as commanding instead of collaborating \u2014 the AI is filling in every unspecified detail with its own guesses about style, layout, and behavior', key: 'b' },
+          { label: 'Login pages are too complex for AI tools to build correctly', key: 'c' },
+          { label: 'They should write the CSS themselves and only use AI for the JavaScript logic', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'The problem isn\'t the tool or the task complexity. The prompt "build me a login page" leaves style, layout, error handling, and behavior entirely to the AI\'s guesswork. The PM is treating the tool like a command line that executes instructions literally, when it\'s actually interpreting intent and making dozens of decisions about everything unspecified. Adding context (which app, which style system) and constraints (match existing pages) would fix this without switching tools.'
+      },
+      {
+        question: 'An engineer reviews a PM\'s prompt and says it\'s too vague: "Add a way for users to filter products." The PM rewrites it to: "Create a FilterDropdown component that takes a categories array prop, maps over it to render option elements, and calls an onFilterChange callback with the selected value." What went wrong with the rewrite?',
+        options: [
+          { label: 'The rewrite is perfect \u2014 more specific is always better', key: 'a' },
+          { label: 'The rewrite should have included CSS styling instructions too', key: 'b' },
+          { label: 'The rewrite dictates implementation instead of intent \u2014 it should describe the outcome ("Users should filter products by category to find items faster") and let the AI choose the best approach', key: 'c' },
+          { label: 'The rewrite has too many technical terms for a PM to use', key: 'd' }
+        ],
+        answer: 'c',
+        explanation: 'The PM swung from one extreme (too vague) to the other (dictating implementation). Specifying component names, prop shapes, and callback patterns locks the AI into one approach that may not be the best. The middle ground is describing the outcome with context and constraints: "Users should filter products by category. Match the existing dropdown style on the settings page. Use our /api/products endpoint." The PM knows the outcome better; the AI knows the implementation better. Play to both strengths.'
+      },
+      {
+        question: 'A PM built a task management app in one mega-prompt: "Build a task app with lists, drag-and-drop reordering, due dates, priority levels, tagging, search, filters, recurring tasks, and email notifications." The result has subtle bugs in three different features. What should they have done differently?',
+        options: [
+          { label: 'Written an even more detailed mega-prompt covering all the edge cases', key: 'a' },
+          { label: 'Used the scaffold-refine-polish loop: start with basic task list, then iterate on each feature in focused follow-up prompts', key: 'b' },
+          { label: 'Asked the AI to write tests first before building any features', key: 'c' },
+          { label: 'Split the work across multiple different AI tools simultaneously', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'The mega-prompt is a classic anti-pattern. Piling every feature into one prompt means the AI juggles too many requirements simultaneously, and subtle bugs emerge in the interactions between features. The iterative approach \u2014 scaffold the basic list, then add drag-and-drop, then due dates \u2014 lets you catch and fix problems while changes are small. Three focused prompts take less total time than one mega-prompt followed by a frustrating debugging cycle. More detail in the mega-prompt would make it worse, not better.'
+      },
+      {
+        question: 'After 25 turns of refining a feature, a PM notices the AI is repeating mistakes it already fixed and ignoring constraints they set earlier. They restart the session and the problems disappear. What explains this?',
+        options: [
+          { label: 'The AI tool had a temporary server-side bug that was fixed when they reconnected', key: 'a' },
+          { label: 'Restarting the session cleared a corrupted cache in the AI\'s memory', key: 'b' },
+          { label: 'The AI intentionally ignores old instructions to prioritize recent ones', key: 'c' },
+          { label: 'The context window filled up \u2014 early decisions and constraints were pushed out of working memory by recent code, so the AI was working from fragments of the original conversation', key: 'd' }
+        ],
+        answer: 'd',
+        explanation: 'AI tools have a finite context window \u2014 the amount of information they can hold in working memory. After 25 turns, the early architectural decisions and constraints had been pushed out to make room for recent code. The AI wasn\'t ignoring constraints intentionally or experiencing bugs; it literally couldn\'t see them anymore. This is why persistent project files (like CLAUDE.md) matter \u2014 they\'re re-read every session, so critical context survives even when conversation history fades.'
+      },
+      {
+        question: 'A PM wants their AI coding tool to consistently follow the team\'s naming conventions, avoid modifying the auth middleware, and use Tailwind instead of inline styles. They keep repeating these instructions every session. What\'s the better approach?',
+        options: [
+          { label: 'Create a project file like CLAUDE.md with these standing instructions so they\'re automatically loaded at the start of every session', key: 'a' },
+          { label: 'Copy and paste the instructions as the first message of every new conversation', key: 'b' },
+          { label: 'These rules can\'t be enforced with AI tools \u2014 the PM needs to manually check every change', key: 'c' },
+          { label: 'Train a custom AI model on the team\'s codebase to learn these patterns automatically', key: 'd' }
+        ],
+        answer: 'a',
+        explanation: 'Project files like CLAUDE.md are the purpose-built solution for this exact problem. They\'re read automatically at session start, creating persistent context that survives across conversations. Copy-pasting works but wastes context window space and is error-prone. Manual review is still important but shouldn\'t be the only guardrail. Training a custom model is wildly disproportionate to the problem. A 30-minute investment in a good project file pays back every session by anchoring the AI to your stack, conventions, and "never do X" rules.'
+      }
+    ];
+
+    var currentQ = 0;
+    var score = 0;
+    var answered = false;
+
+    var scenarioEl = document.getElementById('quiz-scenario');
+    var optionsEl = document.getElementById('quiz-options');
+    var explanationEl = document.getElementById('quiz-explanation');
+    var progressBar = document.getElementById('quiz-progress-bar');
+    var progressText = document.getElementById('quiz-progress-text');
+    var nextBtn = document.getElementById('quiz-next');
+    var summaryEl = document.getElementById('quiz-summary');
+    var scoreEl = document.getElementById('quiz-score');
+    var summaryTextEl = document.getElementById('quiz-summary-text');
+    var cardEl = document.getElementById('quiz-card');
+    var retryBtn = document.getElementById('quiz-retry');
+
+    function loadQuestion() {
+      answered = false;
+      var q = questions[currentQ];
+      scenarioEl.textContent = q.question;
+      explanationEl.style.display = 'none';
+      nextBtn.style.display = 'none';
+
+      optionsEl.innerHTML = '';
+      q.options.forEach(function(opt) {
+        var btn = document.createElement('button');
+        btn.className = 'btn btn--secondary';
+        btn.dataset.answer = opt.key;
+        btn.textContent = opt.label;
+        optionsEl.appendChild(btn);
+      });
+
+      progressBar.style.width = ((currentQ) / questions.length * 100) + '%';
+      progressText.textContent = (currentQ + 1) + ' of ' + questions.length;
+    }
+
+    function handleAnswer(selected) {
+      if (answered) return;
+      answered = true;
+      var q = questions[currentQ];
+      var isCorrect = selected === q.answer;
+      if (isCorrect) score++;
+
+      optionsEl.querySelectorAll('.btn').forEach(function(btn) {
+        btn.disabled = true;
+        var ans = btn.dataset.answer;
+        if (ans === q.answer) {
+          btn.className = 'btn btn--correct';
+        } else if (ans === selected && !isCorrect) {
+          btn.className = 'btn btn--incorrect';
+        }
+      });
+
+      explanationEl.textContent = (isCorrect ? 'Correct! ' : 'Not quite. ') + q.explanation;
+      explanationEl.className = 'quiz__explanation ' + (isCorrect ? 'quiz__explanation--correct' : 'quiz__explanation--incorrect');
+      explanationEl.style.display = 'block';
+
+      progressBar.style.width = ((currentQ + 1) / questions.length * 100) + '%';
+
+      if (currentQ < questions.length - 1) {
+        nextBtn.style.display = 'inline-flex';
+      } else {
+        setTimeout(showSummary, 800);
+      }
+    }
+
+    function showSummary() {
+      cardEl.style.display = 'none';
+      progressBar.parentElement.style.display = 'none';
+      progressText.style.display = 'none';
+      nextBtn.style.display = 'none';
+      summaryEl.style.display = 'block';
+      scoreEl.textContent = score + ' out of ' + questions.length;
+
+      var messages = [
+        'Worth a re-read \u2014 the concepts will click with another pass!',
+        'Worth a re-read \u2014 the concepts will click with another pass!',
+        'You\'ve got the basics. The prompting framework and iteration patterns are worth revisiting.',
+        'Solid understanding of the fundamentals!',
+        'Strong grasp \u2014 you\'re thinking like someone who truly gets this.',
+        'Perfect score. You\'ve nailed the core concepts.'
+      ];
+      summaryTextEl.textContent = messages[score];
+    }
+
+    function reset() {
+      currentQ = 0;
+      score = 0;
+      cardEl.style.display = 'block';
+      progressBar.parentElement.style.display = 'block';
+      progressText.style.display = 'block';
+      summaryEl.style.display = 'none';
+      loadQuestion();
+    }
+
+    optionsEl.addEventListener('click', function(e) {
+      var btn = e.target.closest('[data-answer]');
+      if (!btn) return;
+      handleAnswer(btn.dataset.answer);
+    });
+
+    nextBtn.addEventListener('click', function() {
+      currentQ++;
+      loadQuestion();
+    });
+
+    retryBtn.addEventListener('click', reset);
+
+    loadQuestion();
   })();
   </script>
 

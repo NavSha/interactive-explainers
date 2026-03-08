@@ -409,6 +409,38 @@
     </div>
   </div>
 
+  <!-- ================================================================
+       Capstone Quiz: Article Recap
+       ================================================================ -->
+  <div class="wide-container">
+    <div class="widget" id="widget-capstone-quiz">
+      <div class="widget__label">Test your understanding</div>
+      <div class="widget__title">Article Recap</div>
+      <div class="widget__instruction">5 questions covering the key concepts from this article.</div>
+
+      <div class="quiz__progress">
+        <div class="quiz__progress-bar" id="quiz-progress-bar"></div>
+      </div>
+      <div class="quiz__progress-text" id="quiz-progress-text">1 of 5</div>
+
+      <div class="quiz__card" id="quiz-card">
+        <p class="quiz__scenario" id="quiz-scenario"></p>
+        <div class="widget__controls" id="quiz-options"></div>
+        <div class="quiz__explanation" id="quiz-explanation" style="display: none;"></div>
+      </div>
+
+      <div class="widget__controls widget__controls--mt">
+        <button class="btn btn--primary" id="quiz-next" style="display: none;">Next Question &rarr;</button>
+      </div>
+
+      <div class="quiz__summary" id="quiz-summary" style="display: none;">
+        <div class="quiz__score" id="quiz-score"></div>
+        <p class="quiz__summary-text" id="quiz-summary-text"></p>
+        <button class="btn btn--secondary" id="quiz-retry" style="margin-top: var(--space-4);">Try Again</button>
+      </div>
+    </div>
+  </div>
+
   <article class="prose">
 
     <!-- ================================================================
@@ -1018,6 +1050,179 @@
 
     // Init with first pair
     selectPair(0);
+  })();
+
+  // ====================================================================
+  // Capstone Quiz: Article Recap
+  // ====================================================================
+  (function() {
+    var questions = [
+      {
+        question: 'A vendor tells your team: "Our model is self-supervised \u2014 it learned from 2 trillion tokens without any human labeling." A junior PM asks how that\'s possible without labeled data. What\'s the best explanation?',
+        options: [
+          { label: 'The model uses unsupervised clustering to group similar tokens, then assigns its own labels automatically.', key: 'a' },
+          { label: 'The text itself provides the labels \u2014 the model learns by predicting the next token, so every word in the corpus is both input and target.', key: 'b' },
+          { label: 'Humans actually did label the data, but at scale using crowdsourcing platforms, so the vendor is being misleading.', key: 'c' },
+          { label: 'The model doesn\'t need labels because it only learns word frequencies, not relationships between words.', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'Self-supervised learning hides the next token and trains the model to predict it \u2014 the text IS the label. Option A describes unsupervised clustering, which is a different paradigm. Option C is wrong because self-supervised genuinely requires no human annotation. Option D undersells what the model learns \u2014 it captures deep contextual relationships, not just frequencies.'
+      },
+      {
+        question: 'Your team is evaluating an ML vendor who proudly reports 97% accuracy on their benchmark dataset. During a pilot, the model only hits 74% on your real customer data. What\'s the most likely root cause?',
+        options: [
+          { label: 'The model is underfitting \u2014 it\'s too simple to capture the complexity of your data.', key: 'a' },
+          { label: 'Your data has more classes than the benchmark, so the accuracy metric isn\'t comparable.', key: 'b' },
+          { label: 'The model overfit to the benchmark data and doesn\'t generalize to the messier patterns in your real-world inputs.', key: 'c' },
+          { label: 'The vendor is using a different model for the benchmark than the one deployed in the pilot.', key: 'd' }
+        ],
+        answer: 'c',
+        explanation: 'A 23-point drop between benchmark and production is the classic signature of overfitting \u2014 the model memorized the curated benchmark patterns but can\'t handle real-world messiness. Option A would show poor accuracy on BOTH datasets. Option B is possible but unlikely to explain such a large gap alone. Option D is a vendor trust issue, not a technical explanation for the pattern described.'
+      },
+      {
+        question: 'An engineer proposes skipping the validation set to give the model more training data. "We\'ll just evaluate on the test set after each training epoch instead," they argue. Why is this a problem?',
+        options: [
+          { label: 'The test set is too small to provide statistically meaningful feedback during training.', key: 'a' },
+          { label: 'Training will take longer because evaluating on the test set adds computational overhead at each epoch.', key: 'b' },
+          { label: 'The model will underfit because it has fewer parameters to learn from without the validation examples.', key: 'c' },
+          { label: 'Using the test set for tuning decisions effectively turns it into a validation set, contaminating your final evaluation and making your reported accuracy unreliable.', key: 'd' }
+        ],
+        answer: 'd',
+        explanation: 'The test set must be used exactly once \u2014 as a final exam. If you use it to make training decisions (like when to stop), you\'re leaking test information into the training process. Your reported accuracy becomes optimistic and unreliable. Option A may or may not be true but misses the core issue of data contamination. Option B is a minor concern, not the fundamental problem. Option C confuses data volume with model capacity.'
+      },
+      {
+        question: 'Your product team wants to make the AI chatbot match your brand\'s distinctive, casual tone. You\'ve spent two weeks iterating on the system prompt with examples and style instructions, but the model still sounds generic 30% of the time. What should you do next?',
+        options: [
+          { label: 'Collect 500+ examples of ideal brand-voice responses and fine-tune the model on them.', key: 'a' },
+          { label: 'Switch to a larger frontier model \u2014 more parameters means better instruction following for tone.', key: 'b' },
+          { label: 'Add even more examples to the system prompt until the context window is nearly full.', key: 'c' },
+          { label: 'Remove the style instructions and let the model\'s default tone come through, since prompting clearly doesn\'t work for tone.', key: 'd' }
+        ],
+        answer: 'a',
+        explanation: 'You\'ve followed the right sequence: start with prompting, measure the gap. After two weeks of prompt iteration, 30% inconsistency on tone is exactly the kind of ceiling that fine-tuning solves \u2014 you\'re teaching the model how to BE, not just what to do. Option B may help marginally but doesn\'t address the fundamental limit of instructing tone. Option C risks crowding out the actual conversation and hitting context limits. Option D throws away progress rather than building on it.'
+      },
+      {
+        question: 'A PM is designing a support ticket routing system that should send tickets to the right team based on what the customer is describing \u2014 not the specific words they use. A customer writes "I can\'t get into my account" and another writes "Login page shows an error." Which approach best ensures both route to the same team?',
+        options: [
+          { label: 'Build a keyword-matching system that maps words like "account," "login," and "error" to the Access team.', key: 'a' },
+          { label: 'Use embeddings to represent each ticket as a meaning vector, then route based on which team cluster the vector is closest to.', key: 'b' },
+          { label: 'Use a regex-based classifier that checks for patterns like "can\'t * account" or "login * error."', key: 'c' },
+          { label: 'Have the LLM generate a one-word category label for each ticket and route based on that label.', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'Embeddings capture meaning, not keywords \u2014 so "can\'t get into my account" and "login page shows an error" would land near each other in vector space despite sharing zero words. Option A and C both rely on specific words or patterns and would miss semantically similar but lexically different messages. Option D could work but adds latency, cost, and fragility compared to the deterministic embedding approach.'
+      }
+    ];
+
+    var currentQ = 0;
+    var score = 0;
+    var answered = false;
+
+    var scenarioEl = document.getElementById('quiz-scenario');
+    var optionsEl = document.getElementById('quiz-options');
+    var explanationEl = document.getElementById('quiz-explanation');
+    var progressBar = document.getElementById('quiz-progress-bar');
+    var progressText = document.getElementById('quiz-progress-text');
+    var nextBtn = document.getElementById('quiz-next');
+    var summaryEl = document.getElementById('quiz-summary');
+    var scoreEl = document.getElementById('quiz-score');
+    var summaryTextEl = document.getElementById('quiz-summary-text');
+    var cardEl = document.getElementById('quiz-card');
+    var retryBtn = document.getElementById('quiz-retry');
+
+    function loadQuestion() {
+      answered = false;
+      var q = questions[currentQ];
+      scenarioEl.textContent = q.question;
+      explanationEl.style.display = 'none';
+      nextBtn.style.display = 'none';
+
+      optionsEl.innerHTML = '';
+      q.options.forEach(function(opt) {
+        var btn = document.createElement('button');
+        btn.className = 'btn btn--secondary';
+        btn.dataset.answer = opt.key;
+        btn.textContent = opt.label;
+        optionsEl.appendChild(btn);
+      });
+
+      progressBar.style.width = ((currentQ) / questions.length * 100) + '%';
+      progressText.textContent = (currentQ + 1) + ' of ' + questions.length;
+    }
+
+    function handleAnswer(selected) {
+      if (answered) return;
+      answered = true;
+      var q = questions[currentQ];
+      var isCorrect = selected === q.answer;
+      if (isCorrect) score++;
+
+      optionsEl.querySelectorAll('.btn').forEach(function(btn) {
+        btn.disabled = true;
+        var ans = btn.dataset.answer;
+        if (ans === q.answer) {
+          btn.className = 'btn btn--correct';
+        } else if (ans === selected && !isCorrect) {
+          btn.className = 'btn btn--incorrect';
+        }
+      });
+
+      explanationEl.textContent = (isCorrect ? 'Correct! ' : 'Not quite. ') + q.explanation;
+      explanationEl.className = 'quiz__explanation ' + (isCorrect ? 'quiz__explanation--correct' : 'quiz__explanation--incorrect');
+      explanationEl.style.display = 'block';
+
+      progressBar.style.width = ((currentQ + 1) / questions.length * 100) + '%';
+
+      if (currentQ < questions.length - 1) {
+        nextBtn.style.display = 'inline-flex';
+      } else {
+        setTimeout(showSummary, 800);
+      }
+    }
+
+    function showSummary() {
+      cardEl.style.display = 'none';
+      progressBar.parentElement.style.display = 'none';
+      progressText.style.display = 'none';
+      nextBtn.style.display = 'none';
+      summaryEl.style.display = 'block';
+      scoreEl.textContent = score + ' out of ' + questions.length;
+
+      var messages = [
+        'Worth a re-read \u2014 the concepts will click with another pass!',
+        'Worth a re-read \u2014 the concepts will click with another pass!',
+        'You\'ve got the basics. Overfitting and the train/test split are worth revisiting.',
+        'Solid understanding of the fundamentals!',
+        'Strong grasp \u2014 you\'re thinking like someone who truly gets this.',
+        'Perfect score. You\'ve nailed the core concepts.'
+      ];
+      summaryTextEl.textContent = messages[score];
+    }
+
+    function reset() {
+      currentQ = 0;
+      score = 0;
+      cardEl.style.display = 'block';
+      progressBar.parentElement.style.display = 'block';
+      progressText.style.display = 'block';
+      summaryEl.style.display = 'none';
+      loadQuestion();
+    }
+
+    optionsEl.addEventListener('click', function(e) {
+      var btn = e.target.closest('[data-answer]');
+      if (!btn) return;
+      handleAnswer(btn.dataset.answer);
+    });
+
+    nextBtn.addEventListener('click', function() {
+      currentQ++;
+      loadQuestion();
+    });
+
+    retryBtn.addEventListener('click', reset);
+
+    loadQuestion();
   })();
   </script>
 

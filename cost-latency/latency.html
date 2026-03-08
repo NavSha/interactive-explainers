@@ -327,6 +327,38 @@
     </div>
   </div>
 
+  <!-- ================================================================
+       Capstone Quiz: Article Recap
+       ================================================================ -->
+  <div class="wide-container">
+    <div class="widget" id="widget-capstone-quiz">
+      <div class="widget__label">Test your understanding</div>
+      <div class="widget__title">Article Recap</div>
+      <div class="widget__instruction">5 questions covering the key concepts from this article.</div>
+
+      <div class="quiz__progress">
+        <div class="quiz__progress-bar" id="quiz-progress-bar"></div>
+      </div>
+      <div class="quiz__progress-text" id="quiz-progress-text">1 of 5</div>
+
+      <div class="quiz__card" id="quiz-card">
+        <p class="quiz__scenario" id="quiz-scenario"></p>
+        <div class="widget__controls" id="quiz-options"></div>
+        <div class="quiz__explanation" id="quiz-explanation" style="display: none;"></div>
+      </div>
+
+      <div class="widget__controls widget__controls--mt">
+        <button class="btn btn--primary" id="quiz-next" style="display: none;">Next Question &rarr;</button>
+      </div>
+
+      <div class="quiz__summary" id="quiz-summary" style="display: none;">
+        <div class="quiz__score" id="quiz-score"></div>
+        <p class="quiz__summary-text" id="quiz-summary-text"></p>
+        <button class="btn btn--secondary" id="quiz-retry" style="margin-top: var(--space-4);">Try Again</button>
+      </div>
+    </div>
+  </div>
+
   <article class="prose">
 
     <h2 id="wrapping-up"><span class="section-number">V</span> Wrapping Up</h2>
@@ -579,6 +611,179 @@
       document.getElementById('tri-rec-title').textContent = f.title;
       document.getElementById('tri-rec-body').textContent = f.body;
     });
+  })();
+
+  // ====================================================================
+  // Capstone Quiz: Article Recap
+  // ====================================================================
+  (function() {
+    var questions = [
+      {
+        question: 'A stakeholder complains: "Our AI feature takes 6 seconds to respond. Google Search takes 200ms. Why is our product so slow?" How do you best explain the discrepancy?',
+        options: [
+          { label: 'LLMs are just inherently slower technology and will always be 10-30x slower than search engines', key: 'a' },
+          { label: 'The LLM has two latency components \u2014 Time to First Token (processing the input) and Time Per Output Token (generating sequentially) \u2014 and both scale with model size and prompt length, unlike search which is a lookup operation', key: 'b' },
+          { label: 'The 6 seconds is entirely network latency from the API provider, not the model itself', key: 'c' },
+          { label: 'Google caches every result, which is why it\'s fast \u2014 once we cache our LLM responses we\'ll match that speed', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'LLM latency comes from two distinct phases: TTFT (processing the entire input, which includes network round-trip) and TPOT (generating each output token sequentially). A 300-token response at 50 tokens/second takes 6 seconds of generation alone. Search engines perform lookups against pre-built indexes, which is fundamentally different. Option A is too fatalistic \u2014 small models can respond in under a second. Option C ignores that most latency is computation, not network. Option D oversimplifies \u2014 caching helps but can\'t match search speeds for novel queries.'
+      },
+      {
+        question: 'Your team ships an AI writing assistant. Without streaming, the average response takes 8 seconds. With streaming enabled, it still takes 8 seconds total. A data analyst argues streaming is pointless since it doesn\'t reduce actual latency. What\'s wrong with this analysis?',
+        options: [
+          { label: 'Streaming does reduce actual latency \u2014 it makes the model generate tokens faster', key: 'a' },
+          { label: 'The analyst is correct \u2014 streaming only matters for responses longer than 15 seconds', key: 'b' },
+          { label: 'Perceived latency matters more than measured latency \u2014 streaming delivers the first word in ~300ms instead of 8,000ms, letting users read while the model generates', key: 'c' },
+          { label: 'Streaming reduces server-side load, which indirectly improves latency for other users', key: 'd' }
+        ],
+        answer: 'c',
+        explanation: 'Streaming doesn\'t change total generation time, but it transforms the user experience. Without streaming, the user stares at a blank screen for 8 seconds. With streaming, the first token arrives in ~300ms and users can begin reading immediately. A streamed 8-second response actually feels faster than a non-streamed 4-second response because the content itself becomes the loading indicator. Option A is wrong \u2014 streaming doesn\'t speed up generation. Option B sets an arbitrary threshold that doesn\'t exist. Option D confuses streaming with server architecture.'
+      },
+      {
+        question: 'Your AI product handles 100K daily requests. An engineer proposes adding prompt caching for the system prompt (saves 40% on input costs and reduces TTFT) and response caching for common queries (eliminates 30% of LLM calls). A PM asks: "Which should we build first?" What\'s the best reasoning?',
+        options: [
+          { label: 'Prompt caching \u2014 because it improves both cost and latency for every single request', key: 'a' },
+          { label: 'Response caching \u2014 because eliminating 30% of LLM calls entirely saves more than reducing input cost on 100% of calls', key: 'b' },
+          { label: 'Neither \u2014 model routing should always come first since it has the highest impact', key: 'c' },
+          { label: 'It doesn\'t matter \u2014 optimizations are independent and order has no impact on total savings', key: 'd' }
+        ],
+        answer: 'a',
+        explanation: 'Prompt caching improves both cost and latency for every request that hits the LLM, making it a safe, universal win. Response caching eliminates some calls entirely, which is powerful, but it only helps the fraction of queries that are cacheable (common/repeated queries). The interaction matters too: prompt caching reduces the cost of every remaining call that response caching doesn\'t eliminate. Option C is a reasonable instinct (routing is high-impact), but the question asks between these two specific options. Option D is wrong because implementation order affects how quickly you see returns.'
+      },
+      {
+        question: 'You\'re the PM for three features: (1) a legal document reviewer, (2) an autocomplete widget, and (3) a customer support chatbot. Your VP asks you to use the same Sonnet-class model for all three to "simplify the architecture." What\'s the problem with this approach?',
+        options: [
+          { label: 'Sonnet-class is too expensive for any of these use cases', key: 'a' },
+          { label: 'Each feature has a different position in the cost-latency-quality triangle \u2014 autocomplete needs a tiny, fast model; legal review needs a large, accurate model; the chatbot needs a balanced medium model with streaming', key: 'b' },
+          { label: 'Using one model creates a single point of failure if the provider has an outage', key: 'c' },
+          { label: 'The problem is only that autocomplete will be too slow \u2014 the other two features work fine with Sonnet', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'The cost-latency-quality triangle means each feature has different priorities. Autocomplete prioritizes speed above all \u2014 a Sonnet-class model is overkill and too slow (users expect sub-200ms). Legal review prioritizes quality \u2014 a Sonnet may miss nuances that an Opus-class model catches, and the stakes of errors are high. The chatbot is actually the best fit for Sonnet. One model for all three means two out of three features are poorly optimized. Option A is too absolute. Option C is a valid ops concern but not the architectural problem. Option D misses that legal review is also poorly served.'
+      },
+      {
+        question: 'After enabling all five optimization levers (model routing, prompt caching, shorter prompts, response caching, fewer output tokens), your team sees an 85% cost reduction. A new PM joins and asks, "Which single optimization contributed the most?" What\'s the most accurate answer?',
+        options: [
+          { label: 'Response caching \u2014 eliminating LLM calls entirely is always the biggest savings', key: 'a' },
+          { label: 'Shorter prompts \u2014 because input tokens are the largest cost driver in most applications', key: 'b' },
+          { label: 'It\'s impossible to say \u2014 optimizations stack multiplicatively, so the 85% is a combined effect where no single lever deserves most of the credit', key: 'c' },
+          { label: 'Model routing \u2014 it alone typically delivers 50-80% cost reduction by exploiting the 60x price range between model tiers', key: 'd' }
+        ],
+        answer: 'd',
+        explanation: 'Model routing is consistently the highest-impact single optimization because it exploits the massive price difference between model tiers (up to 60x). Routing 70% of traffic to a small model alone delivers 50-80% savings. The other optimizations are valuable but work on smaller multipliers: caching saves 30-50% of remaining costs, prompt trimming saves proportionally to tokens cut. Option C sounds sophisticated but dodges the question \u2014 while optimizations do stack, model routing clearly contributes the largest individual share. Option A overestimates response caching since only a fraction of queries are cacheable. Option B is wrong because output tokens (not input) are usually the bigger cost per token.'
+      }
+    ];
+
+    var currentQ = 0;
+    var score = 0;
+    var answered = false;
+
+    var scenarioEl = document.getElementById('quiz-scenario');
+    var optionsEl = document.getElementById('quiz-options');
+    var explanationEl = document.getElementById('quiz-explanation');
+    var progressBar = document.getElementById('quiz-progress-bar');
+    var progressText = document.getElementById('quiz-progress-text');
+    var nextBtn = document.getElementById('quiz-next');
+    var summaryEl = document.getElementById('quiz-summary');
+    var scoreEl = document.getElementById('quiz-score');
+    var summaryTextEl = document.getElementById('quiz-summary-text');
+    var cardEl = document.getElementById('quiz-card');
+    var retryBtn = document.getElementById('quiz-retry');
+
+    function loadQuestion() {
+      answered = false;
+      var q = questions[currentQ];
+      scenarioEl.textContent = q.question;
+      explanationEl.style.display = 'none';
+      nextBtn.style.display = 'none';
+
+      optionsEl.innerHTML = '';
+      q.options.forEach(function(opt) {
+        var btn = document.createElement('button');
+        btn.className = 'btn btn--secondary';
+        btn.dataset.answer = opt.key;
+        btn.textContent = opt.label;
+        optionsEl.appendChild(btn);
+      });
+
+      progressBar.style.width = ((currentQ) / questions.length * 100) + '%';
+      progressText.textContent = (currentQ + 1) + ' of ' + questions.length;
+    }
+
+    function handleAnswer(selected) {
+      if (answered) return;
+      answered = true;
+      var q = questions[currentQ];
+      var isCorrect = selected === q.answer;
+      if (isCorrect) score++;
+
+      optionsEl.querySelectorAll('.btn').forEach(function(btn) {
+        btn.disabled = true;
+        var ans = btn.dataset.answer;
+        if (ans === q.answer) {
+          btn.className = 'btn btn--correct';
+        } else if (ans === selected && !isCorrect) {
+          btn.className = 'btn btn--incorrect';
+        }
+      });
+
+      explanationEl.textContent = (isCorrect ? 'Correct! ' : 'Not quite. ') + q.explanation;
+      explanationEl.className = 'quiz__explanation ' + (isCorrect ? 'quiz__explanation--correct' : 'quiz__explanation--incorrect');
+      explanationEl.style.display = 'block';
+
+      progressBar.style.width = ((currentQ + 1) / questions.length * 100) + '%';
+
+      if (currentQ < questions.length - 1) {
+        nextBtn.style.display = 'inline-flex';
+      } else {
+        setTimeout(showSummary, 800);
+      }
+    }
+
+    function showSummary() {
+      cardEl.style.display = 'none';
+      progressBar.parentElement.style.display = 'none';
+      progressText.style.display = 'none';
+      nextBtn.style.display = 'none';
+      summaryEl.style.display = 'block';
+      scoreEl.textContent = score + ' out of ' + questions.length;
+
+      var messages = [
+        'Worth a re-read \u2014 the concepts will click with another pass!',
+        'Worth a re-read \u2014 the concepts will click with another pass!',
+        'You\'ve got the basics. Streaming, caching, and the cost-latency-quality triangle are worth revisiting.',
+        'Solid understanding of the fundamentals!',
+        'Strong grasp \u2014 you\'re thinking like someone who truly gets this.',
+        'Perfect score. You\'ve nailed the core concepts.'
+      ];
+      summaryTextEl.textContent = messages[score];
+    }
+
+    function reset() {
+      currentQ = 0;
+      score = 0;
+      cardEl.style.display = 'block';
+      progressBar.parentElement.style.display = 'block';
+      progressText.style.display = 'block';
+      summaryEl.style.display = 'none';
+      loadQuestion();
+    }
+
+    optionsEl.addEventListener('click', function(e) {
+      var btn = e.target.closest('[data-answer]');
+      if (!btn) return;
+      handleAnswer(btn.dataset.answer);
+    });
+
+    nextBtn.addEventListener('click', function() {
+      currentQ++;
+      loadQuestion();
+    });
+
+    retryBtn.addEventListener('click', reset);
+
+    loadQuestion();
   })();
   </script>
 

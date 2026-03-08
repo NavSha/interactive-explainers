@@ -26,6 +26,8 @@
     .btn--active { background: var(--accent-vibe); border-color: var(--accent-vibe); }
     .btn--secondary:hover:not(:disabled) { border-color: var(--accent-vibe); color: var(--accent-vibe); }
     .tier-table tbody tr:hover { background: var(--accent-vibe-light); }
+    .quiz__progress-bar { background: var(--accent-vibe); }
+    .quiz__score { color: var(--accent-vibe); }
 
     /* Pick Your Tool Widget */
     .tool-picker__card {
@@ -340,6 +342,38 @@
     </div>
   </div>
 
+  <!-- ================================================================
+       Capstone Quiz: Article Recap
+       ================================================================ -->
+  <div class="wide-container">
+    <div class="widget" id="widget-capstone-quiz">
+      <div class="widget__label">Test your understanding</div>
+      <div class="widget__title">Article Recap</div>
+      <div class="widget__instruction">5 questions covering the key concepts from this article.</div>
+
+      <div class="quiz__progress">
+        <div class="quiz__progress-bar" id="quiz-progress-bar"></div>
+      </div>
+      <div class="quiz__progress-text" id="quiz-progress-text">1 of 5</div>
+
+      <div class="quiz__card" id="quiz-card">
+        <p class="quiz__scenario" id="quiz-scenario"></p>
+        <div class="widget__controls" id="quiz-options"></div>
+        <div class="quiz__explanation" id="quiz-explanation" style="display: none;"></div>
+      </div>
+
+      <div class="widget__controls widget__controls--mt">
+        <button class="btn btn--primary" id="quiz-next" style="display: none;">Next Question &rarr;</button>
+      </div>
+
+      <div class="quiz__summary" id="quiz-summary" style="display: none;">
+        <div class="quiz__score" id="quiz-score"></div>
+        <p class="quiz__summary-text" id="quiz-summary-text"></p>
+        <button class="btn btn--secondary" id="quiz-retry" style="margin-top: var(--space-4);">Try Again</button>
+      </div>
+    </div>
+  </div>
+
   <article class="prose">
 
     <div class="callout callout--summary">
@@ -597,6 +631,179 @@
 
     // Initial render
     showQuestion(0);
+  })();
+
+  // ====================================================================
+  // Capstone Quiz: Article Recap
+  // ====================================================================
+  (function() {
+    var questions = [
+      {
+        question: 'A PM tells you they\'ve been "fully vibing" \u2014 accepting whatever the AI generates without reading it \u2014 to build an internal analytics dashboard that the sales team will use daily. They\'re about to deploy it. What\'s the most important concern?',
+        options: [
+          { label: 'The code probably has syntax errors since nobody reviewed it', key: 'a' },
+          { label: 'Fully vibing works fine for internal tools since the stakes are low', key: 'b' },
+          { label: 'They should switch to a different AI tool that generates better code', key: 'c' },
+          { label: 'A daily-use tool needs directed collaboration \u2014 unreviewed AI decisions about data handling and error cases will compound into real problems', key: 'd' }
+        ],
+        answer: 'd',
+        explanation: 'Fully vibing is appropriate for throwaway experiments, not tools with regular users. The issue isn\'t syntax errors (AI code usually runs) or the tool choice \u2014 it\'s the unreviewed decisions about data structure, error handling, and edge cases that accumulate when nobody reads the code. Internal tools have lower stakes than customer-facing ones, but "used daily by a team" is well past the throwaway threshold.'
+      },
+      {
+        question: 'Your VP asks why PMs should learn vibe coding when the company already has a strong engineering team. Which argument best captures the value?',
+        options: [
+          { label: 'PMs can replace engineers for most frontend features, reducing headcount', key: 'a' },
+          { label: 'PMs carry user context from interviews and support tickets that flows directly into prototypes, eliminating lossy translation through specs and tickets', key: 'b' },
+          { label: 'Engineering teams are too slow and vibe coding lets PMs bypass them', key: 'c' },
+          { label: 'Learning to code is a required skill for modern PMs regardless of whether they use AI', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'The core value isn\'t replacing engineers or bypassing them \u2014 both framings create adversarial dynamics. And traditional coding skill isn\'t the point here. The real unlock is that PMs hold user context (from interviews, support tickets, user research) that\'s hard to fully transfer through written specs. When PMs prototype directly, that context flows into the build without lossy translation, producing more accurate demonstrations of intent.'
+      },
+      {
+        question: 'A non-technical PM is choosing between Replit and Claude Code for their first vibe coding project \u2014 an internal dashboard. They\'ve never used a terminal. What should you recommend?',
+        options: [
+          { label: 'Replit, because the browser-based workflow and one-click deploy eliminate the terminal learning curve for a first project', key: 'a' },
+          { label: 'Claude Code, because dashboards need deep codebase context', key: 'b' },
+          { label: 'Neither \u2014 they should learn basic coding first before using AI tools', key: 'c' },
+          { label: 'Cursor, since it has the best VS Code integration', key: 'd' }
+        ],
+        answer: 'a',
+        explanation: 'For a first project by a non-technical PM, Replit\'s zero-setup browser environment removes the biggest friction point. Claude Code requires terminal comfort, which this PM doesn\'t have. Cursor also requires VS Code familiarity. And there\'s no prerequisite to learn coding first \u2014 the whole point of vibe coding is that the AI handles implementation. Start with the tool matching your comfort level; graduate later.'
+      },
+      {
+        question: 'An engineer on your team says Claude Code is strictly better than Replit because it works on real codebases. How should you frame the tradeoff?',
+        options: [
+          { label: 'They\'re right \u2014 Claude Code is more powerful in every dimension', key: 'a' },
+          { label: 'They\'re wrong \u2014 Replit\'s AI agent is more capable than Claude Code', key: 'b' },
+          { label: 'Claude Code has a higher ceiling for complex work, but Replit has a lower floor for getting started \u2014 the right tool depends on what you\'re building and your technical comfort', key: 'c' },
+          { label: 'The tools are identical in capability and only differ in their user interface', key: 'd' }
+        ],
+        answer: 'c',
+        explanation: 'Neither tool is strictly better. Claude Code excels at extending existing codebases with deep context and git integration, giving it a higher ceiling for production-grade work. But Replit gets you to a working, deployed prototype faster with zero setup. The engineer is seeing it from their perspective (terminal comfort, real codebases), but for PMs building demos or internal tools, Replit\'s lower floor matters more than Claude Code\'s higher ceiling.'
+      },
+      {
+        question: 'Your team is debating which single AI coding tool to standardize on. A senior PM argues they should pick one and commit. What\'s wrong with this approach?',
+        options: [
+          { label: 'Most practitioners use two or three tools depending on the task \u2014 Replit for fast demos, Claude Code for serious building, Lovable when design matters \u2014 treating it as a toolkit rather than a religion', key: 'a' },
+          { label: 'They should wait six months because the tools are changing too fast', key: 'b' },
+          { label: 'Standardizing is fine as long as they pick the most popular tool', key: 'c' },
+          { label: 'They should let each person pick their own tool with no coordination', key: 'd' }
+        ],
+        answer: 'a',
+        explanation: 'The "one tool" mindset misses how these tools complement each other. Replit excels at rapid prototyping with instant deploy, Claude Code at extending real codebases, and Lovable at design-forward interfaces. Picking one means either giving up speed (no Replit) or giving up depth (no Claude Code). Waiting six months just delays building. And complete anarchy with no coordination creates different problems. The right approach is a small toolkit with clear guidance on when to use each tool.'
+      }
+    ];
+
+    var currentQ = 0;
+    var score = 0;
+    var answered = false;
+
+    var scenarioEl = document.getElementById('quiz-scenario');
+    var optionsEl = document.getElementById('quiz-options');
+    var explanationEl = document.getElementById('quiz-explanation');
+    var progressBar = document.getElementById('quiz-progress-bar');
+    var progressText = document.getElementById('quiz-progress-text');
+    var nextBtn = document.getElementById('quiz-next');
+    var summaryEl = document.getElementById('quiz-summary');
+    var scoreEl = document.getElementById('quiz-score');
+    var summaryTextEl = document.getElementById('quiz-summary-text');
+    var cardEl = document.getElementById('quiz-card');
+    var retryBtn = document.getElementById('quiz-retry');
+
+    function loadQuestion() {
+      answered = false;
+      var q = questions[currentQ];
+      scenarioEl.textContent = q.question;
+      explanationEl.style.display = 'none';
+      nextBtn.style.display = 'none';
+
+      optionsEl.innerHTML = '';
+      q.options.forEach(function(opt) {
+        var btn = document.createElement('button');
+        btn.className = 'btn btn--secondary';
+        btn.dataset.answer = opt.key;
+        btn.textContent = opt.label;
+        optionsEl.appendChild(btn);
+      });
+
+      progressBar.style.width = ((currentQ) / questions.length * 100) + '%';
+      progressText.textContent = (currentQ + 1) + ' of ' + questions.length;
+    }
+
+    function handleAnswer(selected) {
+      if (answered) return;
+      answered = true;
+      var q = questions[currentQ];
+      var isCorrect = selected === q.answer;
+      if (isCorrect) score++;
+
+      optionsEl.querySelectorAll('.btn').forEach(function(btn) {
+        btn.disabled = true;
+        var ans = btn.dataset.answer;
+        if (ans === q.answer) {
+          btn.className = 'btn btn--correct';
+        } else if (ans === selected && !isCorrect) {
+          btn.className = 'btn btn--incorrect';
+        }
+      });
+
+      explanationEl.textContent = (isCorrect ? 'Correct! ' : 'Not quite. ') + q.explanation;
+      explanationEl.className = 'quiz__explanation ' + (isCorrect ? 'quiz__explanation--correct' : 'quiz__explanation--incorrect');
+      explanationEl.style.display = 'block';
+
+      progressBar.style.width = ((currentQ + 1) / questions.length * 100) + '%';
+
+      if (currentQ < questions.length - 1) {
+        nextBtn.style.display = 'inline-flex';
+      } else {
+        setTimeout(showSummary, 800);
+      }
+    }
+
+    function showSummary() {
+      cardEl.style.display = 'none';
+      progressBar.parentElement.style.display = 'none';
+      progressText.style.display = 'none';
+      nextBtn.style.display = 'none';
+      summaryEl.style.display = 'block';
+      scoreEl.textContent = score + ' out of ' + questions.length;
+
+      var messages = [
+        'Worth a re-read \u2014 the concepts will click with another pass!',
+        'Worth a re-read \u2014 the concepts will click with another pass!',
+        'You\'ve got the basics. The tool tradeoffs and vibe coding spectrum are worth revisiting.',
+        'Solid understanding of the fundamentals!',
+        'Strong grasp \u2014 you\'re thinking like someone who truly gets this.',
+        'Perfect score. You\'ve nailed the core concepts.'
+      ];
+      summaryTextEl.textContent = messages[score];
+    }
+
+    function reset() {
+      currentQ = 0;
+      score = 0;
+      cardEl.style.display = 'block';
+      progressBar.parentElement.style.display = 'block';
+      progressText.style.display = 'block';
+      summaryEl.style.display = 'none';
+      loadQuestion();
+    }
+
+    optionsEl.addEventListener('click', function(e) {
+      var btn = e.target.closest('[data-answer]');
+      if (!btn) return;
+      handleAnswer(btn.dataset.answer);
+    });
+
+    nextBtn.addEventListener('click', function() {
+      currentQ++;
+      loadQuestion();
+    });
+
+    retryBtn.addEventListener('click', reset);
+
+    loadQuestion();
   })();
   </script>
 

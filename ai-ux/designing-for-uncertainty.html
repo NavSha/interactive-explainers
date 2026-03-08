@@ -691,7 +691,41 @@
     <p>The pattern is consistent across all four scenarios. The worst approach gives no context and no next step. The middle approach explains what happened but still leaves the user passively waiting. The best approach explains, offers agency, and turns a failure into a choice the user can make.</p>
 
     <p>This matters more than you might think. Users who encounter a thoughtful error message are significantly more likely to retry, more likely to complete their task, and — critically — more likely to trust the product's correct outputs in the future. A product that handles failure well is perceived as more reliable than a product that never shows you when it fails.</p>
+  </article>
 
+  <!-- ================================================================
+       Capstone Quiz: Article Recap
+       ================================================================ -->
+  <div class="wide-container">
+    <div class="widget" id="widget-capstone-quiz">
+      <div class="widget__label">Test your understanding</div>
+      <div class="widget__title">Article Recap</div>
+      <div class="widget__instruction">5 questions covering the key concepts from this article.</div>
+
+      <div class="quiz__progress">
+        <div class="quiz__progress-bar" id="quiz-progress-bar"></div>
+      </div>
+      <div class="quiz__progress-text" id="quiz-progress-text">1 of 5</div>
+
+      <div class="quiz__card" id="quiz-card">
+        <p class="quiz__scenario" id="quiz-scenario"></p>
+        <div class="widget__controls" id="quiz-options"></div>
+        <div class="quiz__explanation" id="quiz-explanation" style="display: none;"></div>
+      </div>
+
+      <div class="widget__controls widget__controls--mt">
+        <button class="btn btn--primary" id="quiz-next" style="display: none;">Next Question &rarr;</button>
+      </div>
+
+      <div class="quiz__summary" id="quiz-summary" style="display: none;">
+        <div class="quiz__score" id="quiz-score"></div>
+        <p class="quiz__summary-text" id="quiz-summary-text"></p>
+        <button class="btn btn--secondary" id="quiz-retry" style="margin-top: var(--space-4);">Try Again</button>
+      </div>
+    </div>
+  </div>
+
+  <article class="prose">
     <!-- ================================================================
          Section VI: What's Next
          ================================================================ -->
@@ -1103,6 +1137,179 @@
         }, 600);
       }
     });
+  })();
+
+  // ====================================================================
+  // Capstone Quiz: Article Recap
+  // ====================================================================
+  (function() {
+    var questions = [
+      {
+        question: 'A PM is building a legal document review tool. The AI summarizes contract clauses and the team debates whether to show confidence information. An engineer argues that showing uncertainty will make the product look unreliable. What is the strongest counterargument?',
+        options: [
+          { label: 'Users will feel more comfortable if the interface looks polished and confident, so hide uncertainty signals behind a settings toggle.', key: 'a' },
+          { label: 'In high-stakes domains, no confidence signal implicitly frames every output as authoritative \u2014 which is more dangerous than looking unreliable.', key: 'b' },
+          { label: 'Add a generic disclaimer at the bottom of every page instead of per-response signals \u2014 it covers liability without cluttering the UI.', key: 'c' },
+          { label: 'Wait until users complain about inaccuracies before investing in confidence signals \u2014 premature optimization is wasteful.', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'In high-stakes domains like legal review, the absence of confidence signals is not neutral \u2014 it actively misleads users into trusting every output as fact. A generic disclaimer (option C) is easily ignored and doesn\'t calibrate trust per response. Waiting for complaints (option D) means real damage has already occurred. The goal isn\'t to look polished \u2014 it\'s to help users make informed decisions about when to trust the AI.'
+      },
+      {
+        question: 'Your team is designing an AI research assistant that returns a conclusion, a reasoning chain, ten source documents, and a list of caveats. A designer proposes showing all of this information on first load so users can judge quality immediately. What is the best response?',
+        options: [
+          { label: 'Agree \u2014 transparency requires showing everything upfront so users can make fully informed judgments.', key: 'a' },
+          { label: 'Show only the conclusion and hide everything else permanently \u2014 most users just want the answer.', key: 'b' },
+          { label: 'Lead with the conclusion, then let users expand into reasoning, sources, and caveats on demand with clearly labeled layers.', key: 'c' },
+          { label: 'Show the reasoning chain first so users can follow the AI\'s thought process before seeing the conclusion.', key: 'd' }
+        ],
+        answer: 'c',
+        explanation: 'Progressive disclosure layers information by importance: answer first, evidence on demand. Dumping everything at once (option A) overwhelms users and buries the answer they asked for. Hiding evidence permanently (option B) removes the ability to verify. Leading with reasoning (option D) forces users to "watch the model think" before getting what they need. The right pattern is like a news article \u2014 headline first, depth for those who want it.'
+      },
+      {
+        question: 'An engineer proposes adding a multi-step progress indicator to a single API call that takes 8 seconds. The stages would be "Analyzing...", "Processing...", "Generating..." with timed transitions, even though there are no actual intermediate steps. What should you do?',
+        options: [
+          { label: 'Approve it \u2014 progress indicators reduce perceived wait time by 40%, and users won\'t know the stages aren\'t real.', key: 'a' },
+          { label: 'Reject it \u2014 8 seconds is fast enough that a spinner with a timer is sufficient.', key: 'b' },
+          { label: 'Approve it but randomize the stage durations so it looks more natural.', key: 'c' },
+          { label: 'Reject it \u2014 fake progress is worse than no progress because it breaks trust when users notice the pattern. Use streaming text output or a skeleton loader instead.', key: 'd' }
+        ],
+        answer: 'd',
+        explanation: 'Fake progress stages are worse than honest alternatives because users will notice Stage 2 always takes exactly the same time regardless of input \u2014 and fabricated stages break the very trust you\'re trying to build. Randomizing durations (option C) is still deceptive. An 8-second wait with just a spinner (option B) underestimates the impact on user experience. Honest alternatives like streaming text or skeleton loaders communicate progress without fabrication.'
+      },
+      {
+        question: 'Your AI content moderation tool blocks a user\'s legitimate request because a safety guardrail misfired. The current error message reads: "Your request could not be completed due to content policy restrictions." A designer asks how to improve it. What matters most?',
+        options: [
+          { label: 'Explain what triggered the filter, deliver any safe portions of the response, and offer a way to rephrase or regenerate.', key: 'a' },
+          { label: 'Remove the error message entirely and silently retry with a different prompt to avoid frustrating the user.', key: 'b' },
+          { label: 'Add a "Contact Support" button so users can escalate when the filter is wrong.', key: 'c' },
+          { label: 'Show the full unfiltered response with a warning banner, since the user should decide what\'s appropriate.', key: 'd' }
+        ],
+        answer: 'a',
+        explanation: 'Every AI error state should answer three questions: what happened, why, and what the user can do next. A "Contact Support" button (option C) adds a next step but doesn\'t explain the situation or deliver partial value. Silent retries (option B) hide the problem but may fail again. Showing unfiltered content (option D) defeats the purpose of the safety system. The best approach explains the trigger, shares what it can, and gives the user agency to continue.'
+      },
+      {
+        question: 'A startup founder says: "Our AI chatbot answers correctly 98% of the time, so we don\'t need any uncertainty UX \u2014 that would just make us look less confident than competitors." What is the most important flaw in this reasoning?',
+        options: [
+          { label: 'The 2% error rate will generate too many support tickets, so they need better error pages.', key: 'a' },
+          { label: 'Without uncertainty signals, users cannot distinguish the 98% correct outputs from the 2% wrong ones, so they either over-trust everything or under-trust everything.', key: 'b' },
+          { label: 'Competitors will eventually add confidence signals and the startup will look behind.', key: 'c' },
+          { label: '98% accuracy is not actually that high \u2014 they should focus on improving the model before worrying about UX.', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'The core issue isn\'t the error rate itself \u2014 it\'s that without confidence signals, the 2% of wrong answers look identical to the 98% of right ones. Users default to one of two extremes: blind trust (dangerous) or blanket skepticism (useless). Support tickets (option A) are a symptom, not the root problem. Competitive pressure (option C) is speculative. And improving the model (option D) doesn\'t solve the UX problem \u2014 even a 99.9% accurate model still needs users to know when that 0.1% hits.'
+      }
+    ];
+
+    var currentQ = 0;
+    var score = 0;
+    var answered = false;
+
+    var scenarioEl = document.getElementById('quiz-scenario');
+    var optionsEl = document.getElementById('quiz-options');
+    var explanationEl = document.getElementById('quiz-explanation');
+    var progressBar = document.getElementById('quiz-progress-bar');
+    var progressText = document.getElementById('quiz-progress-text');
+    var nextBtn = document.getElementById('quiz-next');
+    var summaryEl = document.getElementById('quiz-summary');
+    var scoreEl = document.getElementById('quiz-score');
+    var summaryTextEl = document.getElementById('quiz-summary-text');
+    var cardEl = document.getElementById('quiz-card');
+    var retryBtn = document.getElementById('quiz-retry');
+
+    function loadQuestion() {
+      answered = false;
+      var q = questions[currentQ];
+      scenarioEl.textContent = q.question;
+      explanationEl.style.display = 'none';
+      nextBtn.style.display = 'none';
+
+      optionsEl.innerHTML = '';
+      q.options.forEach(function(opt) {
+        var btn = document.createElement('button');
+        btn.className = 'btn btn--secondary';
+        btn.dataset.answer = opt.key;
+        btn.textContent = opt.label;
+        optionsEl.appendChild(btn);
+      });
+
+      progressBar.style.width = ((currentQ) / questions.length * 100) + '%';
+      progressText.textContent = (currentQ + 1) + ' of ' + questions.length;
+    }
+
+    function handleAnswer(selected) {
+      if (answered) return;
+      answered = true;
+      var q = questions[currentQ];
+      var isCorrect = selected === q.answer;
+      if (isCorrect) score++;
+
+      optionsEl.querySelectorAll('.btn').forEach(function(btn) {
+        btn.disabled = true;
+        var ans = btn.dataset.answer;
+        if (ans === q.answer) {
+          btn.className = 'btn btn--correct';
+        } else if (ans === selected && !isCorrect) {
+          btn.className = 'btn btn--incorrect';
+        }
+      });
+
+      explanationEl.textContent = (isCorrect ? 'Correct! ' : 'Not quite. ') + q.explanation;
+      explanationEl.className = 'quiz__explanation ' + (isCorrect ? 'quiz__explanation--correct' : 'quiz__explanation--incorrect');
+      explanationEl.style.display = 'block';
+
+      progressBar.style.width = ((currentQ + 1) / questions.length * 100) + '%';
+
+      if (currentQ < questions.length - 1) {
+        nextBtn.style.display = 'inline-flex';
+      } else {
+        setTimeout(showSummary, 800);
+      }
+    }
+
+    function showSummary() {
+      cardEl.style.display = 'none';
+      progressBar.parentElement.style.display = 'none';
+      progressText.style.display = 'none';
+      nextBtn.style.display = 'none';
+      summaryEl.style.display = 'block';
+      scoreEl.textContent = score + ' out of ' + questions.length;
+
+      var messages = [
+        'Worth a re-read \u2014 the concepts will click with another pass!',
+        'Worth a re-read \u2014 the concepts will click with another pass!',
+        'You\'ve got the basics. Confidence signals and progressive disclosure are worth revisiting.',
+        'Solid understanding of the fundamentals!',
+        'Strong grasp \u2014 you\'re thinking like someone who truly gets this.',
+        'Perfect score. You\'ve nailed the core concepts.'
+      ];
+      summaryTextEl.textContent = messages[score];
+    }
+
+    function reset() {
+      currentQ = 0;
+      score = 0;
+      cardEl.style.display = 'block';
+      progressBar.parentElement.style.display = 'block';
+      progressText.style.display = 'block';
+      summaryEl.style.display = 'none';
+      loadQuestion();
+    }
+
+    optionsEl.addEventListener('click', function(e) {
+      var btn = e.target.closest('[data-answer]');
+      if (!btn) return;
+      handleAnswer(btn.dataset.answer);
+    });
+
+    nextBtn.addEventListener('click', function() {
+      currentQ++;
+      loadQuestion();
+    });
+
+    retryBtn.addEventListener('click', reset);
+
+    loadQuestion();
   })();
   </script>
 

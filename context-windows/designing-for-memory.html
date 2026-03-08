@@ -363,6 +363,38 @@
     </div>
   </div>
 
+  <!-- ================================================================
+       Capstone Quiz: Article Recap
+       ================================================================ -->
+  <div class="wide-container">
+    <div class="widget" id="widget-capstone-quiz">
+      <div class="widget__label">Test your understanding</div>
+      <div class="widget__title">Article Recap</div>
+      <div class="widget__instruction">5 questions covering the key concepts from this article.</div>
+
+      <div class="quiz__progress">
+        <div class="quiz__progress-bar" id="quiz-progress-bar"></div>
+      </div>
+      <div class="quiz__progress-text" id="quiz-progress-text">1 of 5</div>
+
+      <div class="quiz__card" id="quiz-card">
+        <p class="quiz__scenario" id="quiz-scenario"></p>
+        <div class="widget__controls" id="quiz-options"></div>
+        <div class="quiz__explanation" id="quiz-explanation" style="display: none;"></div>
+      </div>
+
+      <div class="widget__controls widget__controls--mt">
+        <button class="btn btn--primary" id="quiz-next" style="display: none;">Next Question &rarr;</button>
+      </div>
+
+      <div class="quiz__summary" id="quiz-summary" style="display: none;">
+        <div class="quiz__score" id="quiz-score"></div>
+        <p class="quiz__summary-text" id="quiz-summary-text"></p>
+        <button class="btn btn--secondary" id="quiz-retry" style="margin-top: var(--space-4);">Try Again</button>
+      </div>
+    </div>
+  </div>
+
   <article class="prose">
 
     <!-- ================================================================
@@ -942,6 +974,179 @@
 
     // Init
     fullUpdate();
+  })();
+
+  // ====================================================================
+  // Capstone Quiz: Article Recap
+  // ====================================================================
+  (function() {
+    var questions = [
+      {
+        question: 'A stakeholder reviews your AI chatbot prototype and says: "The model clearly remembers users between sessions \u2014 it greeted a returning user by name." How should you explain what\'s actually happening?',
+        options: [
+          { label: 'The model stored the user\'s name in its weights during fine-tuning', key: 'a' },
+          { label: 'The provider caches conversation history server-side and injects it automatically', key: 'b' },
+          { label: 'The application loaded the user\'s name from a database and included it in the context sent to the model', key: 'c' },
+          { label: 'Large language models develop persistent memory after enough interactions with the same user', key: 'd' }
+        ],
+        answer: 'c',
+        explanation: 'Every API call is completely independent \u2014 the model is stateless. Any apparent "memory" is your application doing the work: loading user data from a database and injecting it into the context. Option A confuses inference with training. Option B describes a feature that doesn\'t exist in standard APIs. Option D fundamentally misunderstands how LLMs work \u2014 they don\'t learn from individual conversations.'
+      },
+      {
+        question: 'Your team is debating memory strategies for a customer support bot. Conversations average 40 turns, and users get frustrated when the bot forgets their name or account details from earlier in the chat. An engineer suggests a sliding window of the last 8 turns. What\'s the biggest risk?',
+        options: [
+          { label: 'Eight turns will exceed the model\'s context window', key: 'a' },
+          { label: 'Critical information shared early in the conversation \u2014 like the customer\'s name, account number, and commitments made \u2014 will be permanently dropped', key: 'b' },
+          { label: 'Sliding windows are incompatible with models that have context windows larger than 32K tokens', key: 'c' },
+          { label: 'The model will hallucinate fake earlier messages to fill in the gaps', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'A sliding window only keeps recent turns \u2014 everything older is gone. In a 40-turn conversation with an 8-turn window, the customer\'s name from turn 1, their account number from turn 3, and the refund promise from turn 8 all vanish by mid-conversation. Option A is wrong \u2014 8 turns is a small token footprint. Option C is fabricated. Option D overstates the failure mode; the model won\'t invent old messages, but it may confidently guess wrong about details it no longer has.'
+      },
+      {
+        question: 'Your team implements progressive summarization for a long-running AI assistant. After a few weeks in production, users report that specific details \u2014 exact dollar amounts, dates, and names \u2014 are getting "fuzzy" in longer conversations. What\'s the most likely cause?',
+        options: [
+          { label: 'The summarization model has a lower context window than the main model', key: 'a' },
+          { label: 'The summaries are too long and triggering the "lost in the middle" problem', key: 'b' },
+          { label: 'Progressive summarization is inherently unreliable and should never be used in production', key: 'c' },
+          { label: 'Each summarization round loses fidelity, like a photocopy of a photocopy \u2014 specific entities decay unless explicitly preserved', key: 'd' }
+        ],
+        answer: 'd',
+        explanation: 'Progressive summarization compresses the previous summary plus new messages, so each round can lose detail. Specific entities like "$49.99" and "March 15th" are especially vulnerable to being generalized or dropped. The fix is entity extraction \u2014 maintaining a structured list of key facts alongside the narrative summary. Option A is possible but doesn\'t explain why specific details degrade over time. Option B misidentifies the mechanism. Option C is too absolute \u2014 progressive summarization works well when paired with entity preservation.'
+      },
+      {
+        question: 'A PM at a startup says: "We\'re building a knowledge base chatbot. We\'ll just dump all our help articles into the context window \u2014 our model supports 200K tokens, so we have plenty of room." What\'s the best response?',
+        options: [
+          { label: 'Use a vector database to store articles as embeddings and retrieve only the relevant ones per query \u2014 it\'s cheaper, faster, and produces better results', key: 'a' },
+          { label: 'That approach works fine as long as you stay under 200K tokens', key: 'b' },
+          { label: 'Switch to a model with a 1M-token window so you can fit even more articles', key: 'c' },
+          { label: 'Compress all the articles into summaries first, then dump those into the context', key: 'd' }
+        ],
+        answer: 'a',
+        explanation: 'External memory via vector databases and retrieval (RAG) turns a finite context window into an effectively unlimited knowledge base. Dumping everything into the context is wasteful \u2014 most articles are irrelevant to any given query \u2014 and triggers the "lost in the middle" problem. Option B ignores cost, latency, and quality degradation. Option C throws money at the wrong problem. Option D reduces token count but still includes irrelevant content and loses important detail.'
+      },
+      {
+        question: 'You\'re architecting the memory stack for a new AI coding assistant. An engineer proposes this context order: retrieved code snippets first, then recent messages, then summarized history, then the system prompt at the bottom. What should you change?',
+        options: [
+          { label: 'Nothing \u2014 this order ensures the most relevant code is processed first', key: 'a' },
+          { label: 'Move the system prompt to the top and retrieved context near the end, close to the user\'s latest message', key: 'b' },
+          { label: 'Remove the summarized history entirely to save tokens for more retrieved code', key: 'c' },
+          { label: 'Reverse the entire order so the system prompt comes first and retrieved snippets come last', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'The "lost in the middle" problem means models attend most to content at the beginning and end of the context. The system prompt belongs at the top (it defines behavior and should always be attended to), and retrieved context belongs near the end, close to the user\'s question (since it\'s most relevant to the current query). Option A ignores the attention curve entirely. Option C sacrifices conversation continuity. Option D gets the system prompt right but puts retrieved context far from the user\'s message, reducing its effectiveness.'
+      }
+    ];
+
+    var currentQ = 0;
+    var score = 0;
+    var answered = false;
+
+    var scenarioEl = document.getElementById('quiz-scenario');
+    var optionsEl = document.getElementById('quiz-options');
+    var explanationEl = document.getElementById('quiz-explanation');
+    var progressBar = document.getElementById('quiz-progress-bar');
+    var progressText = document.getElementById('quiz-progress-text');
+    var nextBtn = document.getElementById('quiz-next');
+    var summaryEl = document.getElementById('quiz-summary');
+    var scoreEl = document.getElementById('quiz-score');
+    var summaryTextEl = document.getElementById('quiz-summary-text');
+    var cardEl = document.getElementById('quiz-card');
+    var retryBtn = document.getElementById('quiz-retry');
+
+    function loadQuestion() {
+      answered = false;
+      var q = questions[currentQ];
+      scenarioEl.textContent = q.question;
+      explanationEl.style.display = 'none';
+      nextBtn.style.display = 'none';
+
+      optionsEl.innerHTML = '';
+      q.options.forEach(function(opt) {
+        var btn = document.createElement('button');
+        btn.className = 'btn btn--secondary';
+        btn.dataset.answer = opt.key;
+        btn.textContent = opt.label;
+        optionsEl.appendChild(btn);
+      });
+
+      progressBar.style.width = ((currentQ) / questions.length * 100) + '%';
+      progressText.textContent = (currentQ + 1) + ' of ' + questions.length;
+    }
+
+    function handleAnswer(selected) {
+      if (answered) return;
+      answered = true;
+      var q = questions[currentQ];
+      var isCorrect = selected === q.answer;
+      if (isCorrect) score++;
+
+      optionsEl.querySelectorAll('.btn').forEach(function(btn) {
+        btn.disabled = true;
+        var ans = btn.dataset.answer;
+        if (ans === q.answer) {
+          btn.className = 'btn btn--correct';
+        } else if (ans === selected && !isCorrect) {
+          btn.className = 'btn btn--incorrect';
+        }
+      });
+
+      explanationEl.textContent = (isCorrect ? 'Correct! ' : 'Not quite. ') + q.explanation;
+      explanationEl.className = 'quiz__explanation ' + (isCorrect ? 'quiz__explanation--correct' : 'quiz__explanation--incorrect');
+      explanationEl.style.display = 'block';
+
+      progressBar.style.width = ((currentQ + 1) / questions.length * 100) + '%';
+
+      if (currentQ < questions.length - 1) {
+        nextBtn.style.display = 'inline-flex';
+      } else {
+        setTimeout(showSummary, 800);
+      }
+    }
+
+    function showSummary() {
+      cardEl.style.display = 'none';
+      progressBar.parentElement.style.display = 'none';
+      progressText.style.display = 'none';
+      nextBtn.style.display = 'none';
+      summaryEl.style.display = 'block';
+      scoreEl.textContent = score + ' out of ' + questions.length;
+
+      var messages = [
+        'Worth a re-read \u2014 the concepts will click with another pass!',
+        'Worth a re-read \u2014 the concepts will click with another pass!',
+        'You\'ve got the basics. Memory strategies and the stack architecture are worth revisiting.',
+        'Solid understanding of the fundamentals!',
+        'Strong grasp \u2014 you\'re thinking like someone who truly gets this.',
+        'Perfect score. You\'ve nailed the core concepts.'
+      ];
+      summaryTextEl.textContent = messages[score];
+    }
+
+    function reset() {
+      currentQ = 0;
+      score = 0;
+      cardEl.style.display = 'block';
+      progressBar.parentElement.style.display = 'block';
+      progressText.style.display = 'block';
+      summaryEl.style.display = 'none';
+      loadQuestion();
+    }
+
+    optionsEl.addEventListener('click', function(e) {
+      var btn = e.target.closest('[data-answer]');
+      if (!btn) return;
+      handleAnswer(btn.dataset.answer);
+    });
+
+    nextBtn.addEventListener('click', function() {
+      currentQ++;
+      loadQuestion();
+    });
+
+    retryBtn.addEventListener('click', reset);
+
+    loadQuestion();
   })();
 
   })();

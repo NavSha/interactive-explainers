@@ -235,6 +235,38 @@
     </div>
   </div>
 
+  <!-- ================================================================
+       Capstone Quiz: Article Recap
+       ================================================================ -->
+  <div class="wide-container">
+    <div class="widget" id="widget-capstone-quiz">
+      <div class="widget__label">Test your understanding</div>
+      <div class="widget__title">Article Recap</div>
+      <div class="widget__instruction">5 questions covering the key concepts from this article.</div>
+
+      <div class="quiz__progress">
+        <div class="quiz__progress-bar" id="quiz-progress-bar"></div>
+      </div>
+      <div class="quiz__progress-text" id="quiz-progress-text">1 of 5</div>
+
+      <div class="quiz__card" id="quiz-card">
+        <p class="quiz__scenario" id="quiz-scenario"></p>
+        <div class="widget__controls" id="quiz-options"></div>
+        <div class="quiz__explanation" id="quiz-explanation" style="display: none;"></div>
+      </div>
+
+      <div class="widget__controls widget__controls--mt">
+        <button class="btn btn--primary" id="quiz-next" style="display: none;">Next Question &rarr;</button>
+      </div>
+
+      <div class="quiz__summary" id="quiz-summary" style="display: none;">
+        <div class="quiz__score" id="quiz-score"></div>
+        <p class="quiz__summary-text" id="quiz-summary-text"></p>
+        <button class="btn btn--secondary" id="quiz-retry" style="margin-top: var(--space-4);">Try Again</button>
+      </div>
+    </div>
+  </div>
+
   <article class="prose">
 
     <!-- ================================================================
@@ -937,6 +969,179 @@
     });
 
     render();
+  })();
+
+  // ====================================================================
+  // Capstone Quiz: Article Recap
+  // ====================================================================
+  (function() {
+    var questions = [
+      {
+        question: 'A PM on your team proposes evaluating a new AI summarization feature by running 10 prompts, reading the outputs, and deciding whether they "feel good." She argues this is sufficient because the team is still in early development. What\'s the most accurate assessment of this approach?',
+        options: [
+          { label: 'This is fine \u2014 vibes-based evaluation is the gold standard for early-stage features', key: 'a' },
+          { label: 'This works for a prototype but will fail the moment you need to compare model versions or track quality over time', key: 'b' },
+          { label: 'This is always wrong \u2014 you need automated metrics from day one', key: 'c' },
+          { label: 'This would work if she increased the sample size to 50 prompts', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'Vibes-based evaluation is acceptable for hackathons and early exploration, but it\'s unstructured, unreproducible, and unscalable. The problem isn\'t sample size (option D) \u2014 it\'s that ad-hoc judgment can\'t tell you whether this week\'s model is better than last week\'s. You don\'t need automated metrics on day one (option C), but you do need to plan the transition before shipping to real users.'
+      },
+      {
+        question: 'Your team\'s customer support chatbot occasionally declines to answer questions about medication interactions, responding with "I can\'t provide medical advice." A stakeholder flags this as a critical bug. An engineer argues it\'s actually a safety feature working as intended. Who\'s right?',
+        options: [
+          { label: 'The stakeholder \u2014 any declined request is a failure that hurts user experience', key: 'a' },
+          { label: 'The engineer \u2014 safety guardrails should never be loosened, even if users are frustrated', key: 'b' },
+          { label: 'Neither \u2014 this is an excessive refusal, which is a distinct failure mode that needs to be evaluated against the specific use case', key: 'c' },
+          { label: 'Both \u2014 the model should answer the question but add a disclaimer about consulting a doctor', key: 'd' }
+        ],
+        answer: 'c',
+        explanation: 'Refusals are the mirror image of unsafe outputs \u2014 equally damaging to user experience. Calling it simply a "bug" (option A) ignores that some refusals are appropriate. Treating all safety guardrails as untouchable (option B) ignores that excessive caution has real costs. Option D jumps to a solution without first classifying the failure type. The right first step is recognizing this as a refusal and evaluating whether it\'s appropriate for your specific use case.'
+      },
+      {
+        question: 'Your team is choosing an evaluation method for an AI feature that generates personalized marketing emails. The feature produces open-ended creative text, you need to evaluate thousands of outputs per week, and your budget is limited. Which approach is the best primary method?',
+        options: [
+          { label: 'Human evaluation \u2014 only humans can judge creative writing quality', key: 'a' },
+          { label: 'Skip formal evaluation and rely on customer engagement metrics like open rates', key: 'b' },
+          { label: 'Automated metrics like ROUGE \u2014 they\'re fast and cheap enough for the volume', key: 'c' },
+          { label: 'LLM-as-judge with a detailed rubric \u2014 it achieves 80\u201390% human agreement at a fraction of the cost', key: 'd' }
+        ],
+        answer: 'd',
+        explanation: 'Human evaluation (option A) is the gold standard for nuance but costs $5\u201350 per judgment \u2014 unsustainable at thousands per week on a limited budget. ROUGE (option C) measures text overlap, which is nearly useless for open-ended creative text where many different phrasings are equally valid. Customer metrics (option B) provide signal but only after shipping, with long feedback loops. LLM-as-judge hits the sweet spot: fast enough for volume, cheap enough for the budget, and capable of evaluating open-ended quality when given a precise rubric.'
+      },
+      {
+        question: 'An engineer on your team builds a single "quality score" (1\u201310) for evaluating AI outputs and proposes using it as the primary metric. A colleague argues that they should use rubric-based scoring with separate dimensions instead. The engineer pushes back, saying a single score is simpler and easier to track. What\'s the strongest argument for multi-dimensional scoring?',
+        options: [
+          { label: 'When a single score drops, you can\'t tell whether accuracy, tone, safety, or completeness degraded \u2014 making the score actionable requires dimensions', key: 'a' },
+          { label: 'Single scores are always less reliable than multi-dimensional ones', key: 'b' },
+          { label: 'Multi-dimensional scoring eliminates subjectivity in evaluation', key: 'c' },
+          { label: 'Rubrics are industry standard and will look better in stakeholder presentations', key: 'd' }
+        ],
+        answer: 'a',
+        explanation: 'The core issue is actionability. A single score that drops from 7 to 5 tells you "something got worse" but not what. Did accuracy degrade? Did tone shift? Did safety slip? Without that information, you can\'t fix the problem. Option B is too absolute \u2014 single scores can be reliable, just not diagnostic. Option D confuses presentation with substance. Option C is wrong because multi-dimensional scoring reduces subjectivity but doesn\'t eliminate it \u2014 inter-rater agreement is still 60\u201375%.'
+      },
+      {
+        question: 'Your team is at the "structured review" level of evaluation maturity: they have a test set and rubric, and they score outputs manually before each release. A VP asks why you haven\'t built a fully automated eval suite with production monitoring yet. What\'s the best response?',
+        options: [
+          { label: 'We should prioritize building that immediately \u2014 structured review is inadequate for a production feature', key: 'a' },
+          { label: 'Structured review is sufficient for most teams and automated evals are overengineered for our stage', key: 'b' },
+          { label: 'We\'re progressing through the maturity spectrum deliberately \u2014 our next step is automating the eval suite, and structured review is appropriate for our current scale', key: 'c' },
+          { label: 'We need to hire a dedicated ML ops team before we can build automated evals', key: 'd' }
+        ],
+        answer: 'c',
+        explanation: 'The eval spectrum exists because teams should progress through it intentionally. Jumping straight to Level 4 (option A) risks building infrastructure before you understand what to measure. Staying at structured review indefinitely (option B) doesn\'t scale \u2014 it\'s not a permanent solution for any team shipping to real users. Gatekeeping on hiring (option D) is a false blocker. The right posture is knowing where you are and pushing one level higher before a production incident forces the conversation.'
+      }
+    ];
+
+    var currentQ = 0;
+    var score = 0;
+    var answered = false;
+
+    var scenarioEl = document.getElementById('quiz-scenario');
+    var optionsEl = document.getElementById('quiz-options');
+    var explanationEl = document.getElementById('quiz-explanation');
+    var progressBar = document.getElementById('quiz-progress-bar');
+    var progressText = document.getElementById('quiz-progress-text');
+    var nextBtn = document.getElementById('quiz-next');
+    var summaryEl = document.getElementById('quiz-summary');
+    var scoreEl = document.getElementById('quiz-score');
+    var summaryTextEl = document.getElementById('quiz-summary-text');
+    var cardEl = document.getElementById('quiz-card');
+    var retryBtn = document.getElementById('quiz-retry');
+
+    function loadQuestion() {
+      answered = false;
+      var q = questions[currentQ];
+      scenarioEl.textContent = q.question;
+      explanationEl.style.display = 'none';
+      nextBtn.style.display = 'none';
+
+      optionsEl.innerHTML = '';
+      q.options.forEach(function(opt) {
+        var btn = document.createElement('button');
+        btn.className = 'btn btn--secondary';
+        btn.dataset.answer = opt.key;
+        btn.textContent = opt.label;
+        optionsEl.appendChild(btn);
+      });
+
+      progressBar.style.width = ((currentQ) / questions.length * 100) + '%';
+      progressText.textContent = (currentQ + 1) + ' of ' + questions.length;
+    }
+
+    function handleAnswer(selected) {
+      if (answered) return;
+      answered = true;
+      var q = questions[currentQ];
+      var isCorrect = selected === q.answer;
+      if (isCorrect) score++;
+
+      optionsEl.querySelectorAll('.btn').forEach(function(btn) {
+        btn.disabled = true;
+        var ans = btn.dataset.answer;
+        if (ans === q.answer) {
+          btn.className = 'btn btn--correct';
+        } else if (ans === selected && !isCorrect) {
+          btn.className = 'btn btn--incorrect';
+        }
+      });
+
+      explanationEl.textContent = (isCorrect ? 'Correct! ' : 'Not quite. ') + q.explanation;
+      explanationEl.className = 'quiz__explanation ' + (isCorrect ? 'quiz__explanation--correct' : 'quiz__explanation--incorrect');
+      explanationEl.style.display = 'block';
+
+      progressBar.style.width = ((currentQ + 1) / questions.length * 100) + '%';
+
+      if (currentQ < questions.length - 1) {
+        nextBtn.style.display = 'inline-flex';
+      } else {
+        setTimeout(showSummary, 800);
+      }
+    }
+
+    function showSummary() {
+      cardEl.style.display = 'none';
+      progressBar.parentElement.style.display = 'none';
+      progressText.style.display = 'none';
+      nextBtn.style.display = 'none';
+      summaryEl.style.display = 'block';
+      scoreEl.textContent = score + ' out of ' + questions.length;
+
+      var messages = [
+        'Worth a re-read \u2014 the concepts will click with another pass!',
+        'Worth a re-read \u2014 the concepts will click with another pass!',
+        'You\'ve got the basics. Failure modes and evaluation methods are worth revisiting.',
+        'Solid understanding of the fundamentals!',
+        'Strong grasp \u2014 you\'re thinking like someone who truly gets this.',
+        'Perfect score. You\'ve nailed the core concepts.'
+      ];
+      summaryTextEl.textContent = messages[score];
+    }
+
+    function reset() {
+      currentQ = 0;
+      score = 0;
+      cardEl.style.display = 'block';
+      progressBar.parentElement.style.display = 'block';
+      progressText.style.display = 'block';
+      summaryEl.style.display = 'none';
+      loadQuestion();
+    }
+
+    optionsEl.addEventListener('click', function(e) {
+      var btn = e.target.closest('[data-answer]');
+      if (!btn) return;
+      handleAnswer(btn.dataset.answer);
+    });
+
+    nextBtn.addEventListener('click', function() {
+      currentQ++;
+      loadQuestion();
+    });
+
+    retryBtn.addEventListener('click', reset);
+
+    loadQuestion();
   })();
   </script>
 
