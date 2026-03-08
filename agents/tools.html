@@ -338,6 +338,42 @@
       <div class="callout__body"><strong>Start small with 3-5 tools.</strong> Measure accuracy, then expand one tool at a time based on real user needs — not hypothetical ones. Most production agents work best with 5-15 well-designed tools. If you need dozens, use <strong>tool routing</strong>: a lightweight classifier that selects a relevant subset per request instead of dumping the entire catalog into the prompt.</div>
     </div>
 
+  </article>
+
+  <!-- ================================================================
+       Capstone Quiz: Article Recap
+       ================================================================ -->
+  <div class="wide-container">
+    <div class="widget" id="widget-capstone-quiz">
+      <div class="widget__label">Test your understanding</div>
+      <div class="widget__title">Article Recap</div>
+      <div class="widget__instruction">5 questions covering the key concepts from this article.</div>
+
+      <div class="quiz__progress">
+        <div class="quiz__progress-bar" id="quiz-progress-bar"></div>
+      </div>
+      <div class="quiz__progress-text" id="quiz-progress-text">1 of 5</div>
+
+      <div class="quiz__card" id="quiz-card">
+        <p class="quiz__scenario" id="quiz-scenario"></p>
+        <div class="widget__controls" id="quiz-options"></div>
+        <div class="quiz__explanation" id="quiz-explanation" style="display: none;"></div>
+      </div>
+
+      <div class="widget__controls widget__controls--mt">
+        <button class="btn btn--primary" id="quiz-next" style="display: none;">Next Question &rarr;</button>
+      </div>
+
+      <div class="quiz__summary" id="quiz-summary" style="display: none;">
+        <div class="quiz__score" id="quiz-score"></div>
+        <p class="quiz__summary-text" id="quiz-summary-text"></p>
+        <button class="btn btn--secondary" id="quiz-retry" style="margin-top: var(--space-4);">Try Again</button>
+      </div>
+    </div>
+  </div>
+
+  <article class="prose">
+
     <!-- ================================================================
          Section VI: What's Next
          ================================================================ -->
@@ -698,6 +734,179 @@
 
     slider.addEventListener('input', update);
     update();
+  })();
+
+  // ====================================================================
+  // Capstone Quiz: Article Recap
+  // ====================================================================
+  (function() {
+    var questions = [
+      {
+        question: 'An agent calls delete_customer(id: 12345) and the customer record is removed. Who actually deleted the record?',
+        options: [
+          { label: 'The agent framework\'s built-in execution engine', key: 'a' },
+          { label: 'The LLM \u2014 it issued the delete command directly', key: 'b' },
+          { label: 'The tool itself \u2014 tools are self-executing once defined', key: 'c' },
+          { label: 'Your application code \u2014 the LLM only expressed intent, your code ran the deletion', key: 'd' }
+        ],
+        answer: 'd',
+        explanation: 'The LLM never executes anything. It generates a structured request that says "I\'d like to call delete_customer." Your application code receives that request, runs the actual deletion, and sends the result back. The LLM is the brain; your code is the hands.'
+      },
+      {
+        question: 'Your agent keeps calling search_flights when users ask about hotel availability. The tool name and parameters are correct. What\'s the most likely cause?',
+        options: [
+          { label: 'The LLM isn\'t powerful enough to distinguish between travel-related tools', key: 'a' },
+          { label: 'The tool description doesn\'t specify when to use it \u2014 it lacks usage context', key: 'b' },
+          { label: 'You need to add a hotel_only parameter to filter out non-hotel queries', key: 'c' },
+          { label: 'The search_flights tool should be renamed to something less generic', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'The description is the most important field for reliability. Without clear "use when" context, the LLM pattern-matches on surface features \u2014 "travel-related query, travel-related tool, close enough." The name search_flights is already specific; the description needs to say when to use it and when not to.'
+      },
+      {
+        question: 'A junior developer proposes giving the LLM direct database credentials so it can "skip the middleware and query faster." Why is this a bad idea?',
+        options: [
+          { label: 'LLMs can\'t process SQL \u2014 they only understand natural language', key: 'a' },
+          { label: 'Database queries require compiled code, which LLMs can\'t produce', key: 'b' },
+          { label: 'It would work but would be slower because LLMs add latency to every query', key: 'c' },
+          { label: 'It breaks the security boundary \u2014 the LLM should only express intent, never execute directly', key: 'd' }
+        ],
+        answer: 'd',
+        explanation: 'The function calling protocol exists for a reason: the LLM never sees your API keys, never touches your database, never executes code. It only expresses intent. Your code handles execution. Options A and B are wrong \u2014 LLMs can absolutely generate SQL. Option C concedes the premise when the real issue is security.'
+      },
+      {
+        question: 'You\'re designing a tool for updating customer records. Which approach best follows the article\'s design principles?',
+        options: [
+          { label: 'update_customer_email \u2014 a specific tool with enum-constrained fields and a clear "use when" description', key: 'a' },
+          { label: 'manage_customer \u2014 one flexible tool that handles create, read, update, and delete with an action parameter', key: 'b' },
+          { label: 'customer_update \u2014 a general update tool with a free-text changes field for maximum flexibility', key: 'c' },
+          { label: 'modify_record \u2014 a generic tool that works across all database tables to reduce tool count', key: 'd' }
+        ],
+        answer: 'a',
+        explanation: 'Three principles at work. Option B violates "do one thing well" \u2014 it bundles four operations. Option C violates "constrain inputs" \u2014 free-text fields invite hallucinated values. Option D violates "name for the LLM" \u2014 modify_record is too vague for the model to know when to use it.'
+      },
+      {
+        question: 'Your agent has 40 tools and accuracy has dropped to 55%. A teammate suggests adding detailed descriptions to every tool to fix it. Will this help?',
+        options: [
+          { label: 'Yes \u2014 better descriptions always improve accuracy regardless of tool count', key: 'a' },
+          { label: 'Partially \u2014 descriptions help, but the real fix is reducing the set the LLM sees per request via tool routing', key: 'b' },
+          { label: 'No \u2014 descriptions don\'t affect accuracy, only tool names matter', key: 'c' },
+          { label: 'Yes \u2014 but only if you also increase the model\'s context window size', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'Descriptions matter, so better ones help at the margin. But at 40 tools, the fundamental problem is selection overload and context window consumption. The fix is tool routing: a lightweight classifier that selects a relevant subset per request, so the LLM only sees 5\u201310 tools at a time.'
+      }
+    ];
+
+    var currentQ = 0;
+    var score = 0;
+    var answered = false;
+
+    var scenarioEl = document.getElementById('quiz-scenario');
+    var optionsEl = document.getElementById('quiz-options');
+    var explanationEl = document.getElementById('quiz-explanation');
+    var progressBar = document.getElementById('quiz-progress-bar');
+    var progressText = document.getElementById('quiz-progress-text');
+    var nextBtn = document.getElementById('quiz-next');
+    var summaryEl = document.getElementById('quiz-summary');
+    var scoreEl = document.getElementById('quiz-score');
+    var summaryTextEl = document.getElementById('quiz-summary-text');
+    var cardEl = document.getElementById('quiz-card');
+    var retryBtn = document.getElementById('quiz-retry');
+
+    function loadQuestion() {
+      answered = false;
+      var q = questions[currentQ];
+      scenarioEl.textContent = q.question;
+      explanationEl.style.display = 'none';
+      nextBtn.style.display = 'none';
+
+      optionsEl.innerHTML = '';
+      q.options.forEach(function(opt) {
+        var btn = document.createElement('button');
+        btn.className = 'btn btn--secondary';
+        btn.dataset.answer = opt.key;
+        btn.textContent = opt.label;
+        optionsEl.appendChild(btn);
+      });
+
+      progressBar.style.width = ((currentQ) / questions.length * 100) + '%';
+      progressText.textContent = (currentQ + 1) + ' of ' + questions.length;
+    }
+
+    function handleAnswer(selected) {
+      if (answered) return;
+      answered = true;
+      var q = questions[currentQ];
+      var isCorrect = selected === q.answer;
+      if (isCorrect) score++;
+
+      optionsEl.querySelectorAll('.btn').forEach(function(btn) {
+        btn.disabled = true;
+        var ans = btn.dataset.answer;
+        if (ans === q.answer) {
+          btn.className = 'btn btn--correct';
+        } else if (ans === selected && !isCorrect) {
+          btn.className = 'btn btn--incorrect';
+        }
+      });
+
+      explanationEl.textContent = (isCorrect ? 'Correct! ' : 'Not quite. ') + q.explanation;
+      explanationEl.className = 'quiz__explanation ' + (isCorrect ? 'quiz__explanation--correct' : 'quiz__explanation--incorrect');
+      explanationEl.style.display = 'block';
+
+      progressBar.style.width = ((currentQ + 1) / questions.length * 100) + '%';
+
+      if (currentQ < questions.length - 1) {
+        nextBtn.style.display = 'inline-flex';
+      } else {
+        setTimeout(showSummary, 800);
+      }
+    }
+
+    function showSummary() {
+      cardEl.style.display = 'none';
+      progressBar.parentElement.style.display = 'none';
+      progressText.style.display = 'none';
+      nextBtn.style.display = 'none';
+      summaryEl.style.display = 'block';
+      scoreEl.textContent = score + ' out of ' + questions.length;
+
+      var messages = [
+        'Worth a re-read \u2014 the concepts will click with another pass!',
+        'Worth a re-read \u2014 the concepts will click with another pass!',
+        'You\'ve got the basics. Tool design and the protocol are worth revisiting.',
+        'Solid understanding of the fundamentals!',
+        'Strong grasp \u2014 you\'re thinking like a PM who designs tool-first.',
+        'Perfect score. You\'ve nailed the core concepts.'
+      ];
+      summaryTextEl.textContent = messages[score];
+    }
+
+    function reset() {
+      currentQ = 0;
+      score = 0;
+      cardEl.style.display = 'block';
+      progressBar.parentElement.style.display = 'block';
+      progressText.style.display = 'block';
+      summaryEl.style.display = 'none';
+      loadQuestion();
+    }
+
+    optionsEl.addEventListener('click', function(e) {
+      var btn = e.target.closest('[data-answer]');
+      if (!btn) return;
+      handleAnswer(btn.dataset.answer);
+    });
+
+    nextBtn.addEventListener('click', function() {
+      currentQ++;
+      loadQuestion();
+    });
+
+    retryBtn.addEventListener('click', reset);
+
+    loadQuestion();
   })();
   </script>
 

@@ -293,6 +293,46 @@
   </div>
 
   <article class="prose">
+    <div class="callout callout--insight">
+      <div class="callout__label">Key Insight</div>
+      <div class="callout__body">The four questions aren't a checklist — they're a <strong>negotiation between capability and risk.</strong> Most real-world products land somewhere between "workflow" and "agent with guardrails." The PM's job is finding that line.</div>
+    </div>
+
+  </article>
+
+  <!-- ================================================================
+       Capstone Quiz: Article Recap
+       ================================================================ -->
+  <div class="wide-container">
+    <div class="widget" id="widget-capstone-quiz">
+      <div class="widget__label">Test your understanding</div>
+      <div class="widget__title">Article Recap</div>
+      <div class="widget__instruction">5 questions covering the key concepts from this article.</div>
+
+      <div class="quiz__progress">
+        <div class="quiz__progress-bar" id="quiz-progress-bar"></div>
+      </div>
+      <div class="quiz__progress-text" id="quiz-progress-text">1 of 5</div>
+
+      <div class="quiz__card" id="quiz-card">
+        <p class="quiz__scenario" id="quiz-scenario"></p>
+        <div class="widget__controls" id="quiz-options"></div>
+        <div class="quiz__explanation" id="quiz-explanation" style="display: none;"></div>
+      </div>
+
+      <div class="widget__controls widget__controls--mt">
+        <button class="btn btn--primary" id="quiz-next" style="display: none;">Next Question &rarr;</button>
+      </div>
+
+      <div class="quiz__summary" id="quiz-summary" style="display: none;">
+        <div class="quiz__score" id="quiz-score"></div>
+        <p class="quiz__summary-text" id="quiz-summary-text"></p>
+        <button class="btn btn--secondary" id="quiz-retry" style="margin-top: var(--space-4);">Try Again</button>
+      </div>
+    </div>
+  </div>
+
+  <article class="prose">
 
     <!-- ================================================================
          Section VI: Wrapping Up
@@ -667,6 +707,179 @@
     });
 
     renderQuestion();
+  })();
+
+  // ====================================================================
+  // Capstone Quiz: Article Recap
+  // ====================================================================
+  (function() {
+    var questions = [
+      {
+        question: 'Your team demos an agent that impresses leadership. The VP asks: "Why can\'t we ship this next sprint?" What\'s the most accurate answer?',
+        options: [
+          { label: 'Demo conditions hide failure modes \u2014 we need guardrails, cost modeling, and failure analysis before production', key: 'a' },
+          { label: 'We need to upgrade to a more capable model for production workloads', key: 'b' },
+          { label: 'We just need error messages and loading states before it\'s ready', key: 'c' },
+          { label: 'The agent is ready \u2014 we just need production-grade infrastructure to handle scale', key: 'd' }
+        ],
+        answer: 'a',
+        explanation: 'The gap between demo and production is almost entirely about understanding failure. Demos run in controlled conditions with cherry-picked inputs. Production means adversarial users, edge cases, infinite loops, and cost surprises. Guardrails, failure analysis, and cost modeling close that gap \u2014 not bigger models or better infrastructure.'
+      },
+      {
+        question: 'An agent calls get_user(id: "usr_847293") and the API returns a 404. The agent then tries get_user(id: "usr_847294"). What failure mode is this?',
+        options: [
+          { label: 'Infinite loop \u2014 it\'s retrying the same action with minor variations', key: 'a' },
+          { label: 'Wrong tool selection \u2014 it should be using a different API entirely', key: 'b' },
+          { label: 'Hallucinated parameters \u2014 both IDs were fabricated, and incrementing didn\'t make them less fabricated', key: 'c' },
+          { label: 'Misinterpreting results \u2014 it read the 404 as "try the next ID"', key: 'd' }
+        ],
+        answer: 'c',
+        explanation: 'The root cause is fabricated data. The LLM generated "usr_847293" from patterns in its training data, not from your actual database. When it failed, the LLM generated another plausible-looking ID by incrementing \u2014 still fabricated. It looks like a loop, but the core failure is hallucinated parameters. Parameter validation would catch this before the call ever executes.'
+      },
+      {
+        question: 'Model A costs $3/million tokens and completes a task in 8 steps. Model B costs $15/million tokens but completes the same task in 3 steps. Which is likely cheaper per task?',
+        options: [
+          { label: 'Model A \u2014 it\'s 5x cheaper per token, so it wins regardless of step count', key: 'a' },
+          { label: 'Model B \u2014 fewer steps mean less context accumulation, and costs grow super-linearly with steps', key: 'b' },
+          { label: 'They\'re roughly equal \u2014 the per-token savings offset the extra steps', key: 'c' },
+          { label: 'Impossible to say without knowing the exact token counts per step', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'Costs grow super-linearly because the LLM re-processes the full conversation history on every iteration \u2014 the context snowballs. At 8 steps, Model A\'s context is enormous. A pricier model that finishes in 3 steps often costs less total than a cheap model that stumbles through 8. Model the math before picking the "cheaper" model.'
+      },
+      {
+        question: 'Your agent can send emails on behalf of users. A PM argues that requiring confirmation for every email "ruins the magic" of automation. How should you handle this?',
+        options: [
+          { label: 'Remove the confirmation \u2014 seamless automation is the whole point of building an agent', key: 'a' },
+          { label: 'Keep confirmation for all emails \u2014 the risk of a wrong email always outweighs the friction', key: 'b' },
+          { label: 'Replace email sending with a draft-only tool so the agent can never actually send', key: 'c' },
+          { label: 'Add confirmation for high-stakes emails (external, financial) but auto-send routine internal ones', key: 'd' }
+        ],
+        answer: 'd',
+        explanation: 'Designing the human-in-the-loop boundary is the PM\'s job. Not every email carries the same risk \u2014 an internal FYI is low-stakes, an email to a client with pricing is not. Option A ignores risk entirely. Option B is too conservative and kills the value. Option C defeats the purpose. The right answer is a graduated boundary based on actual stakes.'
+      },
+      {
+        question: 'A team wants to automate expense reports: extract receipt data, categorize expenses, check against policy limits, and flag violations for review. They\'re considering an agent. What\'s your recommendation?',
+        options: [
+          { label: 'Agent \u2014 it needs to make judgment calls about policy violations', key: 'a' },
+          { label: 'Workflow \u2014 the steps are predictable and follow the same sequence, with the LLM handling extraction and categorization within a fixed pipeline', key: 'b' },
+          { label: 'Simple prompt \u2014 a single LLM call can handle extraction, categorization, and policy checking at once', key: 'c' },
+          { label: 'Agent \u2014 it needs to connect to multiple systems (receipts, categories, policies)', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'Same steps, same order, every time: extract, categorize, check, flag. That\'s a workflow. The LLM is useful inside the pipeline for extraction and categorization (ambiguous tasks), but the overall flow is fixed and deterministic. Option A sounds right but policy rules are known, not discovered. Option D repeats a common trap \u2014 connecting to multiple APIs doesn\'t require an agent; workflows chain API calls just fine.'
+      }
+    ];
+
+    var currentQ = 0;
+    var score = 0;
+    var answered = false;
+
+    var scenarioEl = document.getElementById('quiz-scenario');
+    var optionsEl = document.getElementById('quiz-options');
+    var explanationEl = document.getElementById('quiz-explanation');
+    var progressBar = document.getElementById('quiz-progress-bar');
+    var progressText = document.getElementById('quiz-progress-text');
+    var nextBtn = document.getElementById('quiz-next');
+    var summaryEl = document.getElementById('quiz-summary');
+    var scoreEl = document.getElementById('quiz-score');
+    var summaryTextEl = document.getElementById('quiz-summary-text');
+    var cardEl = document.getElementById('quiz-card');
+    var retryBtn = document.getElementById('quiz-retry');
+
+    function loadQuestion() {
+      answered = false;
+      var q = questions[currentQ];
+      scenarioEl.textContent = q.question;
+      explanationEl.style.display = 'none';
+      nextBtn.style.display = 'none';
+
+      optionsEl.innerHTML = '';
+      q.options.forEach(function(opt) {
+        var btn = document.createElement('button');
+        btn.className = 'btn btn--secondary';
+        btn.dataset.answer = opt.key;
+        btn.textContent = opt.label;
+        optionsEl.appendChild(btn);
+      });
+
+      progressBar.style.width = ((currentQ) / questions.length * 100) + '%';
+      progressText.textContent = (currentQ + 1) + ' of ' + questions.length;
+    }
+
+    function handleAnswer(selected) {
+      if (answered) return;
+      answered = true;
+      var q = questions[currentQ];
+      var isCorrect = selected === q.answer;
+      if (isCorrect) score++;
+
+      optionsEl.querySelectorAll('.btn').forEach(function(btn) {
+        btn.disabled = true;
+        var ans = btn.dataset.answer;
+        if (ans === q.answer) {
+          btn.className = 'btn btn--correct';
+        } else if (ans === selected && !isCorrect) {
+          btn.className = 'btn btn--incorrect';
+        }
+      });
+
+      explanationEl.textContent = (isCorrect ? 'Correct! ' : 'Not quite. ') + q.explanation;
+      explanationEl.className = 'quiz__explanation ' + (isCorrect ? 'quiz__explanation--correct' : 'quiz__explanation--incorrect');
+      explanationEl.style.display = 'block';
+
+      progressBar.style.width = ((currentQ + 1) / questions.length * 100) + '%';
+
+      if (currentQ < questions.length - 1) {
+        nextBtn.style.display = 'inline-flex';
+      } else {
+        setTimeout(showSummary, 800);
+      }
+    }
+
+    function showSummary() {
+      cardEl.style.display = 'none';
+      progressBar.parentElement.style.display = 'none';
+      progressText.style.display = 'none';
+      nextBtn.style.display = 'none';
+      summaryEl.style.display = 'block';
+      scoreEl.textContent = score + ' out of ' + questions.length;
+
+      var messages = [
+        'Worth a re-read \u2014 the concepts will click with another pass!',
+        'Worth a re-read \u2014 the concepts will click with another pass!',
+        'You\'ve got the basics. Failure modes and guardrails are worth revisiting.',
+        'Solid understanding of the fundamentals!',
+        'Strong grasp \u2014 you\'re thinking like a PM who ships agents responsibly.',
+        'Perfect score. You\'ve nailed the core concepts.'
+      ];
+      summaryTextEl.textContent = messages[score];
+    }
+
+    function reset() {
+      currentQ = 0;
+      score = 0;
+      cardEl.style.display = 'block';
+      progressBar.parentElement.style.display = 'block';
+      progressText.style.display = 'block';
+      summaryEl.style.display = 'none';
+      loadQuestion();
+    }
+
+    optionsEl.addEventListener('click', function(e) {
+      var btn = e.target.closest('[data-answer]');
+      if (!btn) return;
+      handleAnswer(btn.dataset.answer);
+    });
+
+    nextBtn.addEventListener('click', function() {
+      currentQ++;
+      loadQuestion();
+    });
+
+    retryBtn.addEventListener('click', reset);
+
+    loadQuestion();
   })();
   </script>
 
