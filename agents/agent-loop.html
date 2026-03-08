@@ -16,8 +16,70 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../styles/shared.css?v=8">
+  <style>
+    /* Reading Progress Bar */
+    .reading-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      z-index: 1000;
+      pointer-events: none;
+      background: transparent;
+    }
+    .reading-progress__bar {
+      height: 100%;
+      width: 0%;
+      background: #2563EB;
+      transition: width 0.15s ease-out;
+    }
+
+    /* TOC Active Highlighting */
+    .toc__item--active > a {
+      color: var(--accent-agents, #2563EB);
+      opacity: 1;
+    }
+    .toc__item--active > .toc__numeral {
+      color: var(--accent-agents, #2563EB);
+      opacity: 1;
+    }
+
+    /* TOC: fixed sidebar on wide screens, hidden until past hero */
+    @media (min-width: 1280px) {
+      .toc {
+        position: fixed;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 180px;
+        left: calc((100vw - 760px) / 2 - 220px);
+        padding: 0;
+        margin: 0;
+        z-index: 100;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+      }
+      .toc--visible {
+        opacity: 1;
+        pointer-events: auto;
+      }
+      .toc__inner {
+        padding: 0.75rem 1rem;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 8px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        backdrop-filter: blur(8px);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      }
+      .toc__title { font-size: 0.65rem; margin-bottom: 0.5rem; }
+      .toc__list li { padding: 0.2rem 0; }
+      .toc__list a, .toc__numeral { font-size: 0.8rem; }
+    }
+  </style>
 </head>
 <body>
+  <div class="reading-progress"><div class="reading-progress__bar" id="reading-progress-bar"></div></div>
 
   <header class="article-hero" id="article-hero">
     <canvas class="article-hero__canvas" id="hero-canvas"></canvas>
@@ -271,17 +333,16 @@
       <div class="callout__body">The decision comes down to one question: <strong>how much ambiguity is there?</strong> If the task is predictable, use a simpler approach. If it requires exploration and judgment, that's where agents shine.</div>
     </div>
 
-    <p>Test your intuition:</p>
   </article>
 
   <!-- ================================================================
-       Widget 4: Choose Your Approach (Quiz)
+       Capstone Quiz: Article Recap
        ================================================================ -->
   <div class="wide-container">
-    <div class="widget" id="widget-quiz">
+    <div class="widget" id="widget-capstone-quiz">
       <div class="widget__label">Test your understanding</div>
-      <div class="widget__title">Choose Your Approach</div>
-      <div class="widget__instruction">For each scenario, decide: is this a simple prompt, a workflow, or an agent?</div>
+      <div class="widget__title">Article Recap</div>
+      <div class="widget__instruction">5 questions covering the key concepts from this article.</div>
 
       <div class="quiz__progress">
         <div class="quiz__progress-bar" id="quiz-progress-bar"></div>
@@ -290,16 +351,12 @@
 
       <div class="quiz__card" id="quiz-card">
         <p class="quiz__scenario" id="quiz-scenario"></p>
-        <div class="widget__controls" id="quiz-options">
-          <button class="btn btn--secondary" data-answer="prompt">Simple Prompt</button>
-          <button class="btn btn--secondary" data-answer="workflow">Workflow</button>
-          <button class="btn btn--secondary" data-answer="agent">Agent</button>
-        </div>
+        <div class="widget__controls" id="quiz-options"></div>
         <div class="quiz__explanation" id="quiz-explanation" style="display: none;"></div>
       </div>
 
       <div class="widget__controls widget__controls--mt">
-        <button class="btn btn--primary" id="quiz-next" style="display: none;">Next Scenario &rarr;</button>
+        <button class="btn btn--primary" id="quiz-next" style="display: none;">Next Question &rarr;</button>
       </div>
 
       <div class="quiz__summary" id="quiz-summary" style="display: none;">
@@ -925,34 +982,64 @@
   })();
 
   // ====================================================================
-  // Widget 4: Choose Your Approach (Quiz)
+  // Capstone Quiz: Article Recap
   // ====================================================================
   (function() {
-    var scenarios = [
+    var questions = [
       {
-        scenario: 'Translate this product requirements document from English into French.',
-        answer: 'prompt',
-        explanation: 'This is a self-contained task. The LLM has everything it needs in the prompt — the document and the instruction. No external data, no actions, no ambiguity.'
+        question: 'A team builds a support bot with GPT-4. It drafts helpful replies, but a human still clicks "Send," looks up order info, and issues refunds. Is this an agent?',
+        options: [
+          { label: 'Yes \u2014 it uses a frontier LLM, which makes it agentic', key: 'a' },
+          { label: 'Yes \u2014 it\'s part of an automated support pipeline, so it qualifies', key: 'b' },
+          { label: 'No \u2014 agents must operate without any human involvement at all', key: 'c' },
+          { label: 'No \u2014 it generates text but doesn\'t take actions in external systems itself', key: 'd' }
+        ],
+        answer: 'd',
+        explanation: 'Power isn\'t agency. It can draft a perfect reply \u2014 but until it can look up the order, issue the refund, and send the message itself, it\'s a chatbot with a human doing the real work. Option C is a common trap: agents can absolutely have humans in the loop.'
       },
       {
-        scenario: 'When a new customer signs up, send a welcome email, create a CRM entry, and assign them to a sales rep based on their region.',
-        answer: 'workflow',
-        explanation: 'The steps are known and fixed: every signup triggers the same sequence. The LLM might draft the email or classify the region, but the orchestration is deterministic. No exploration or judgment needed.'
+        question: 'An LLM confidently states: "Your main database has 3 healthy replicas." You haven\'t given it any tool access. What should you conclude?',
+        options: [
+          { label: 'The information is fabricated \u2014 without tools, the LLM can\'t check live infrastructure', key: 'a' },
+          { label: 'The LLM inferred your setup from context clues in your question', key: 'b' },
+          { label: 'The LLM accessed monitoring data it encountered during training', key: 'c' },
+          { label: 'This is expected \u2014 LLMs have implicit access to cloud APIs', key: 'd' }
+        ],
+        answer: 'a',
+        explanation: 'No tools, no data. The LLM has zero access to your infrastructure \u2014 it\'s pattern-matching from training data and filling in plausible-sounding details. This is exactly the kind of confident fabrication that makes tool access essential for real-world tasks.'
       },
       {
-        scenario: 'Our checkout conversion rate dropped 8% this week. Figure out why and recommend fixes.',
-        answer: 'agent',
-        explanation: 'This is an open-ended investigation. The agent needs to query analytics, compare time periods, check for recent deployments, examine funnel stages — and the exact steps depend on what it discovers along the way.'
+        question: 'An agent queries a database and gets back an empty result set. What happens next in the agent loop?',
+        options: [
+          { label: 'The agent reports failure \u2014 an empty result means the task can\'t be completed', key: 'a' },
+          { label: 'The agent retries the same query, since empty results are usually transient errors', key: 'b' },
+          { label: 'The empty result enters the Observe phase, and the agent reasons about a different approach', key: 'c' },
+          { label: 'The agent escalates to a human, since unexpected results require intervention', key: 'd' }
+        ],
+        answer: 'c',
+        explanation: 'An empty result isn\'t a failure \u2014 it\'s information. The Observe phase feeds it back into context, and the Think phase figures out what to try next. That\'s the whole point of the loop: adapt based on what you learn, even when what you learn is "that didn\'t work."'
       },
       {
-        scenario: 'Every morning at 9am, pull yesterday\'s key metrics from our analytics dashboard and post a summary to #team-updates on Slack.',
-        answer: 'workflow',
-        explanation: 'Same steps, same order, every day. Pull metrics, format summary, post to Slack. This is a scheduled workflow — predictable and repeatable. No dynamic decision-making required.'
+        question: 'In the Sentry example, the agent made a second API call to fetch user-impact data \u2014 something not in the original request. Why does this matter?',
+        options: [
+          { label: 'It shows agents are inefficient \u2014 a well-designed workflow would have gotten everything in one call', key: 'a' },
+          { label: 'It shows the agent made a judgment call at runtime that no developer pre-programmed', key: 'b' },
+          { label: 'It means the agent overstepped \u2014 the user only asked for frequency data', key: 'c' },
+          { label: 'It proves agents need explicit guardrails to prevent unnecessary API calls', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'Nobody told the agent to fetch user-impact data separately. It recognized that frequency alone doesn\'t equal user impact and made a judgment call. This is what separates an agent from a workflow: the steps emerge at runtime based on what the agent learns.'
       },
       {
-        scenario: 'A customer reports they were double-charged. Investigate their account, find the issue, process a refund if appropriate, and send them an update.',
-        answer: 'agent',
-        explanation: 'This requires investigation and judgment. The agent needs to look up the customer, examine transaction history, determine if the double-charge is real, decide whether a refund is warranted, and then take action. The path varies depending on what it finds.'
+        question: 'Automate this: classify incoming support tickets by urgency, pull the customer\'s account history, draft a response, and send it for human review. Which approach fits best?',
+        options: [
+          { label: 'Simple prompt \u2014 the LLM can handle classification and drafting in a single call', key: 'a' },
+          { label: 'Agent \u2014 the task touches multiple systems and requires connecting to external APIs', key: 'b' },
+          { label: 'Workflow \u2014 the steps are known, fixed, and follow the same sequence every time', key: 'c' },
+          { label: 'Agent \u2014 only agentic systems can make judgment calls about urgency', key: 'd' }
+        ],
+        answer: 'c',
+        explanation: 'Every ticket follows the same path: classify, pull history, draft, review. No branching, no exploration, no judgment about what to do next. That\'s a workflow. The "multiple APIs" distractor is common \u2014 workflows chain API calls just fine. You need an agent when the steps themselves are unknown.'
       }
     ];
 
@@ -974,25 +1061,29 @@
 
     function loadQuestion() {
       answered = false;
-      var q = scenarios[currentQ];
-      scenarioEl.textContent = '"' + q.scenario + '"';
+      var q = questions[currentQ];
+      scenarioEl.textContent = q.question;
       explanationEl.style.display = 'none';
       nextBtn.style.display = 'none';
 
-      // Reset buttons
-      optionsEl.querySelectorAll('.btn').forEach(function(btn) {
+      // Build option buttons
+      optionsEl.innerHTML = '';
+      q.options.forEach(function(opt) {
+        var btn = document.createElement('button');
         btn.className = 'btn btn--secondary';
-        btn.disabled = false;
+        btn.dataset.answer = opt.key;
+        btn.textContent = opt.label;
+        optionsEl.appendChild(btn);
       });
 
-      progressBar.style.width = ((currentQ) / scenarios.length * 100) + '%';
-      progressText.textContent = (currentQ + 1) + ' of ' + scenarios.length;
+      progressBar.style.width = ((currentQ) / questions.length * 100) + '%';
+      progressText.textContent = (currentQ + 1) + ' of ' + questions.length;
     }
 
     function handleAnswer(selected) {
       if (answered) return;
       answered = true;
-      var q = scenarios[currentQ];
+      var q = questions[currentQ];
       var isCorrect = selected === q.answer;
       if (isCorrect) score++;
 
@@ -1012,12 +1103,11 @@
       explanationEl.className = 'quiz__explanation ' + (isCorrect ? 'quiz__explanation--correct' : 'quiz__explanation--incorrect');
       explanationEl.style.display = 'block';
 
-      progressBar.style.width = ((currentQ + 1) / scenarios.length * 100) + '%';
+      progressBar.style.width = ((currentQ + 1) / questions.length * 100) + '%';
 
-      if (currentQ < scenarios.length - 1) {
+      if (currentQ < questions.length - 1) {
         nextBtn.style.display = 'inline-flex';
       } else {
-        // Show summary after a short delay
         setTimeout(showSummary, 800);
       }
     }
@@ -1028,14 +1118,15 @@
       progressText.style.display = 'none';
       nextBtn.style.display = 'none';
       summaryEl.style.display = 'block';
-      scoreEl.textContent = score + ' out of ' + scenarios.length;
+      scoreEl.textContent = score + ' out of ' + questions.length;
 
       var messages = [
-        'Keep exploring — the concepts will click with practice!',
-        'A solid start! Review the agent vs. workflow distinction.',
-        'Good grasp of the fundamentals!',
-        'Strong intuition! You\'re thinking like a PM who builds with agents.',
-        'Perfect score! You\'ve nailed the framework.'
+        'Worth a re-read \u2014 the concepts will click with another pass!',
+        'Worth a re-read \u2014 the concepts will click with another pass!',
+        'You\'ve got the basics. The loop and the gap are worth revisiting.',
+        'Solid understanding of the fundamentals!',
+        'Strong grasp \u2014 you\'re thinking like a PM who builds with agents.',
+        'Perfect score. You\'ve nailed the core concepts.'
       ];
       summaryTextEl.textContent = messages[score];
     }
@@ -1065,6 +1156,89 @@
 
     // Init
     loadQuestion();
+  })();
+
+  // ====================================================================
+  // Reading Progress Bar
+  // ====================================================================
+  (function() {
+    var bar = document.getElementById('reading-progress-bar');
+    var ticking = false;
+
+    function updateProgress() {
+      var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      var progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+      bar.style.width = Math.min(100, Math.max(0, progress)) + '%';
+      ticking = false;
+    }
+
+    window.addEventListener('scroll', function() {
+      if (!ticking) {
+        requestAnimationFrame(updateProgress);
+        ticking = true;
+      }
+    }, { passive: true });
+
+    updateProgress();
+  })();
+
+  // ====================================================================
+  // TOC Sidebar Visibility (show after scrolling past hero)
+  // ====================================================================
+  (function() {
+    var toc = document.querySelector('.toc');
+    var hero = document.getElementById('article-hero');
+
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        toc.classList.toggle('toc--visible', !entry.isIntersecting);
+      });
+    }, { threshold: 0 });
+
+    observer.observe(hero);
+  })();
+
+  // ====================================================================
+  // TOC Section Highlighting
+  // ====================================================================
+  (function() {
+    var headings = document.querySelectorAll('h2[id]');
+    var tocItems = document.querySelectorAll('.toc__list li');
+    var tocLinks = {};
+
+    tocItems.forEach(function(item) {
+      var link = item.querySelector('a');
+      if (link) {
+        var href = link.getAttribute('href');
+        if (href && href.startsWith('#')) {
+          tocLinks[href.substring(1)] = item;
+        }
+      }
+    });
+
+    function activate(item) {
+      tocItems.forEach(function(li) { li.classList.remove('toc__item--active'); });
+      item.classList.add('toc__item--active');
+    }
+
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (!entry.isIntersecting) return;
+        var id = entry.target.getAttribute('id');
+        var item = tocLinks[id];
+        if (item) activate(item);
+      });
+    }, { rootMargin: '0px 0px -70% 0px' });
+
+    headings.forEach(function(h) { observer.observe(h); });
+
+    // Activate last section when scrolled to bottom
+    window.addEventListener('scroll', function() {
+      if ((window.innerHeight + window.scrollY) >= document.documentElement.scrollHeight - 50) {
+        activate(tocItems[tocItems.length - 1]);
+      }
+    }, { passive: true });
   })();
   </script>
 
