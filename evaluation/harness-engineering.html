@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-E8RQLQXRWH"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-E8RQLQXRWH');
+  </script>
+  <title>Harness Engineering — AI for Builders</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/shared.css?v=9">
+  <style>
+    .reading-progress { position: fixed; top: 0; left: 0; width: 100%; height: 3px; z-index: 1000; pointer-events: none; background: transparent; }
+    .reading-progress__bar { height: 100%; width: 0%; background: #059669; transition: width 0.15s ease-out; }
+    .toc__item--active > a { color: var(--accent-eval, #059669); opacity: 1; }
+    .toc__item--active > .toc__numeral { color: var(--accent-eval, #059669); opacity: 1; }
+    @media (min-width: 1280px) {
+      .toc { position: fixed; top: 50%; transform: translateY(-50%); width: 180px; left: calc((100vw - 760px) / 2 - 220px); padding: 0; margin: 0; z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+      .toc--visible { opacity: 1; pointer-events: auto; }
+      .toc__inner { padding: 0.75rem 1rem; background: rgba(255, 255, 255, 0.95); border-radius: 8px; border: 1px solid rgba(0, 0, 0, 0.08); backdrop-filter: blur(8px); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04); }
+      .toc__title { font-size: 0.65rem; margin-bottom: 0.5rem; }
+      .toc__list li { padding: 0.2rem 0; }
+      .toc__list a, .toc__numeral { font-size: 0.8rem; }
+    }
+
+    /* Widget 1: Eval Pipeline Builder */
+    .pipeline-builder { max-width: 720px; margin: var(--space-8) auto; padding: var(--space-6); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 12px; }
+    .pipeline-builder__title { font-family: var(--font-sans); font-size: var(--text-sm); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent-eval); margin-bottom: var(--space-4); }
+    .pipeline-builder__controls { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); margin-bottom: var(--space-6); }
+    @media (max-width: 600px) { .pipeline-builder__controls { grid-template-columns: 1fr; } }
+    .pipeline-builder__control label { display: block; font-family: var(--font-sans); font-size: var(--text-sm); font-weight: 500; margin-bottom: var(--space-2); color: var(--color-text); }
+    .pipeline-builder__control select, .pipeline-builder__control input[type="range"] { width: 100%; font-family: var(--font-sans); font-size: var(--text-sm); }
+    .pipeline-builder__control select { padding: 0.5rem; border: 1px solid var(--color-border); border-radius: 6px; background: var(--color-bg); }
+    .pipeline-builder__value { font-family: var(--font-mono); font-size: var(--text-sm); color: var(--accent-eval); font-weight: 600; }
+    .pipeline-builder__output { padding: var(--space-4); background: #ECFDF5; border-radius: 8px; border-left: 4px solid var(--accent-eval); font-family: var(--font-sans); font-size: var(--text-sm); line-height: 1.7; }
+    .pipeline-builder__output strong { color: var(--accent-eval); }
+    .pipeline-builder__output-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--space-4); margin-top: var(--space-3); }
+    @media (max-width: 600px) { .pipeline-builder__output-grid { grid-template-columns: 1fr; } }
+    .pipeline-builder__metric { text-align: center; }
+    .pipeline-builder__metric-value { font-family: var(--font-mono); font-size: var(--text-xl); font-weight: 600; color: var(--accent-eval); }
+    .pipeline-builder__metric-label { font-size: var(--text-xs); color: var(--color-text-secondary); margin-top: 0.25rem; }
+
+    /* Widget 2: Complexity Ratchet */
+    .ratchet-calc { max-width: 720px; margin: var(--space-8) auto; padding: var(--space-6); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 12px; }
+    .ratchet-calc__title { font-family: var(--font-sans); font-size: var(--text-sm); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent-eval); margin-bottom: var(--space-4); }
+    .ratchet-calc__sliders { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6); margin-bottom: var(--space-6); }
+    @media (max-width: 600px) { .ratchet-calc__sliders { grid-template-columns: 1fr; } }
+    .ratchet-calc__slider label { display: block; font-family: var(--font-sans); font-size: var(--text-sm); font-weight: 500; margin-bottom: var(--space-2); }
+    .ratchet-calc__slider input[type="range"] { width: 100%; }
+    .ratchet-calc__slider-value { font-family: var(--font-mono); font-size: var(--text-sm); color: var(--accent-eval); font-weight: 600; }
+    .ratchet-calc__verdict { padding: var(--space-4); border-radius: 8px; border-left: 4px solid var(--accent-eval); font-family: var(--font-sans); font-size: var(--text-sm); line-height: 1.7; }
+    .ratchet-calc__verdict--green { background: #ECFDF5; border-left-color: #059669; }
+    .ratchet-calc__verdict--yellow { background: #FFFBEB; border-left-color: #D97706; }
+    .ratchet-calc__verdict--red { background: #FEF2F2; border-left-color: #DC2626; }
+    .ratchet-calc__bar { height: 8px; border-radius: 4px; background: var(--color-border); margin-top: var(--space-3); overflow: hidden; }
+    .ratchet-calc__bar-fill { height: 100%; border-radius: 4px; transition: width 0.3s, background 0.3s; }
+
+    /* Capstone quiz */
+    .capstone-quiz { max-width: 720px; margin: var(--space-12) auto; padding: var(--space-8); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 12px; }
+    .capstone-quiz__title { font-family: var(--font-sans); font-size: var(--text-sm); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent-eval); margin-bottom: var(--space-2); }
+    .capstone-quiz__progress { font-family: var(--font-sans); font-size: var(--text-sm); color: var(--color-text-secondary); margin-bottom: var(--space-6); }
+    .capstone-quiz__question { font-family: var(--font-serif); font-size: var(--text-lg); line-height: 1.5; margin-bottom: var(--space-6); }
+    .capstone-quiz__options { display: flex; flex-direction: column; gap: var(--space-3); margin-bottom: var(--space-4); }
+    .capstone-quiz__option { padding: var(--space-4); border: 2px solid var(--color-border); border-radius: 8px; cursor: pointer; transition: border-color 0.2s, background 0.2s; font-family: var(--font-sans); font-size: var(--text-sm); line-height: 1.5; text-align: left; background: var(--color-bg); }
+    .capstone-quiz__option:hover { border-color: var(--accent-eval); }
+    .capstone-quiz__option--correct { border-color: #059669; background: #ECFDF5; }
+    .capstone-quiz__option--wrong { border-color: #DC2626; background: #FEF2F2; }
+    .capstone-quiz__explanation { display: none; padding: var(--space-4); background: #F0FDF4; border-radius: 8px; border-left: 4px solid var(--accent-eval); font-family: var(--font-sans); font-size: var(--text-sm); line-height: 1.6; margin-bottom: var(--space-4); }
+    .capstone-quiz__explanation--visible { display: block; }
+    .capstone-quiz__next { display: none; padding: 0.6rem 1.5rem; background: var(--accent-eval); color: #fff; border: none; border-radius: 6px; font-family: var(--font-sans); font-size: var(--text-sm); font-weight: 500; cursor: pointer; }
+    .capstone-quiz__next:hover { filter: brightness(1.1); }
+    .capstone-quiz__next--visible { display: inline-block; }
+    .capstone-quiz__score { text-align: center; padding: var(--space-8); font-family: var(--font-sans); }
+    .capstone-quiz__score-number { font-size: var(--text-3xl); font-weight: 600; color: var(--accent-eval); }
+    .capstone-quiz__score-label { font-size: var(--text-sm); color: var(--color-text-secondary); margin-top: var(--space-2); }
+    .capstone-quiz__score-message { font-size: var(--text-base); margin-top: var(--space-4); line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <div class="reading-progress"><div class="reading-progress__bar" id="reading-progress-bar"></div></div>
+
+  <header class="article-hero" id="article-hero" style="background: linear-gradient(135deg, #059669 0%, #0891B2 100%);">
+    <canvas class="article-hero__canvas" id="hero-canvas"></canvas>
+    <div class="article-hero__overlay"></div>
+    <div class="article-hero__content">
+      <nav class="breadcrumb breadcrumb--hero">
+        <a href="../index.html">AI for Builders</a> &nbsp;/&nbsp; <a href="index.html">Evaluation &amp; Testing</a> &nbsp;/&nbsp; <span>Part 3</span>
+      </nav>
+      <div class="article-header__meta" style="color: rgba(255,255,255,0.9);">Part 3 of 3 &middot; ~10 min read</div>
+      <h1 style="color: #fff;">Harness Engineering</h1>
+      <p class="lead" style="color: rgba(255,255,255,0.85);">You know what to measure. Now build the infrastructure that measures it &mdash; automatically, on every change, at scale.</p>
+    </div>
+  </header>
+
+  <nav class="toc" aria-label="Table of contents">
+    <div class="toc__inner">
+      <div class="toc__title">Contents</div>
+      <ol class="toc__list">
+        <li class="toc__item"><span class="toc__numeral">I.</span><a href="#the-gap">The Gap</a></li>
+        <li class="toc__item"><span class="toc__numeral">II.</span><a href="#anatomy">Anatomy of an Eval Harness</a></li>
+        <li class="toc__item"><span class="toc__numeral">III.</span><a href="#non-determinism">Testing Non-Deterministic Systems</a></li>
+        <li class="toc__item"><span class="toc__numeral">IV.</span><a href="#observability">Observability</a></li>
+        <li class="toc__item"><span class="toc__numeral">V.</span><a href="#complexity-ratchet">The Complexity Ratchet</a></li>
+        <li class="toc__item"><span class="toc__numeral">VI.</span><a href="#prompts-as-infra">Prompts as Infrastructure</a></li>
+      </ol>
+    </div>
+  </nav>
+
+  <div class="epigraph">
+    <p class="epigraph__verse">
+      The demo worked, the stakeholder clapped,<br>
+      Then production hit and the whole thing snapped.<br>
+      Vibes don&rsquo;t scale and hope&rsquo;s not a test &mdash;<br>
+      Build the harness or bury the rest.
+    </p>
+  </div>
+
+  <article class="prose">
+
+    <!-- ================================================================
+         Section I: The Gap
+         ================================================================ -->
+    <h2 id="the-gap"><span class="section-number">I</span> The Gap</h2>
+
+    <p>Parts 1 and 2 of this series gave you the vocabulary: failure modes, evaluation methods, the ship/hold decision, regression testing. You know <em>what</em> to measure and <em>why</em> it matters. But knowing that you should run evals on every change is very different from having the infrastructure that actually does it.</p>
+
+    <p>The gap between &ldquo;I evaluate my AI feature&rdquo; and &ldquo;my AI feature is continuously evaluated&rdquo; is an engineering problem. It&rsquo;s the difference between a developer manually running 10 prompts in a playground and a pipeline that automatically scores 500 test cases across 5 runs each, compares the distribution against your last deploy, and blocks the merge if safety drops below threshold.</p>
+
+    <p>That infrastructure is the <strong>eval harness</strong>. And most teams don&rsquo;t have one.</p>
+
+    <div class="callout callout--insight">
+      <div class="callout__label">Key Insight</div>
+      <div class="callout__body">Anthropic&rsquo;s agent engineering team, after shipping Claude Code and working with dozens of production deployments, landed on a core principle: <strong>what separates a working AI product from a prototype isn&rsquo;t model capability &mdash; it&rsquo;s system design.</strong> Context management, error handling, eval infrastructure, and the operational loop matter more than raw intelligence. The harness <em>is</em> the product.</div>
+    </div>
+
+    <!-- ================================================================
+         Section II: Anatomy of an Eval Harness
+         ================================================================ -->
+    <h2 id="anatomy"><span class="section-number">II</span> Anatomy of an Eval Harness</h2>
+
+    <p>An eval harness is a pipeline that runs automatically and answers one question: <strong>is this change safe to ship?</strong> It has five stages:</p>
+
+    <p><strong>1. Test set.</strong> A curated collection of inputs with expected behaviors. Not just happy paths &mdash; edge cases, adversarial inputs, diversity cases (languages, tones, accessibility). Start with 30&ndash;50 cases. Grow it every time you find a bug in production. A good test set is a living document of everything your AI has ever gotten wrong.</p>
+
+    <p><strong>2. Model run.</strong> Execute each test case against your current system. This isn&rsquo;t just the model &mdash; it&rsquo;s the full pipeline: retrieval, prompt assembly, model call, post-processing. Test the system as the user experiences it, not the model in isolation.</p>
+
+    <p><strong>3. Scoring.</strong> Grade each output. Three options, roughly in order of cost and quality:</p>
+    <ul>
+      <li><strong>Exact match / regex</strong> &mdash; fast, cheap, brittle. Good for structured outputs (JSON, classifications).</li>
+      <li><strong>LLM-as-judge</strong> &mdash; an LLM grades the output against a rubric. 80&ndash;90% agreement with humans at ~1/100th the cost. The fastest-growing approach, but you need to test the judge itself.</li>
+      <li><strong>Human review</strong> &mdash; gold standard for subjective quality. Reserve for a rotating sample, not every case.</li>
+    </ul>
+
+    <p><strong>4. Analysis.</strong> Compare scores against your baseline. Not individual outputs &mdash; <em>distributions</em>. Did accuracy shift? Did any failure mode spike? Did latency change? A single test run tells you almost nothing when the system is non-deterministic. You need to see the shape of the distribution.</p>
+
+    <p><strong>5. Decision.</strong> Ship or hold, based on thresholds you set <em>before</em> seeing the results (Part 2 covered why). The harness surfaces the data; a human makes the call on ambiguous cases. Automate the clear passes and clear failures; escalate the gray zone.</p>
+
+    <div class="callout callout--pm-tip">
+      <div class="callout__label">Builder Tip</div>
+      <div class="callout__body">Anthropic&rsquo;s team frames it as <strong>&ldquo;build skills, not agents.&rdquo;</strong> Each capability in your system should be a discrete, testable unit &mdash; a skill &mdash; with its own eval suite. Test skills independently before testing the composed system. If your eval only tests the end-to-end output, you can&rsquo;t isolate which component broke.</div>
+    </div>
+
+  </article>
+
+  <!-- ================================================================
+       Widget 1: Eval Pipeline Builder
+       ================================================================ -->
+  <div class="wide-container">
+    <div class="pipeline-builder" id="pipeline-builder">
+      <div class="pipeline-builder__title">Interactive &middot; Size Your Eval Pipeline</div>
+      <p style="font-family: var(--font-sans); font-size: var(--text-sm); color: var(--color-text-secondary); margin-bottom: var(--space-4);">Configure your harness and see the cost, time, and confidence tradeoffs.</p>
+      <div class="pipeline-builder__controls">
+        <div class="pipeline-builder__control">
+          <label>Test cases: <span class="pipeline-builder__value" id="pb-cases-val">50</span></label>
+          <input type="range" id="pb-cases" min="10" max="500" step="10" value="50">
+        </div>
+        <div class="pipeline-builder__control">
+          <label>Runs per case: <span class="pipeline-builder__value" id="pb-runs-val">5</span></label>
+          <input type="range" id="pb-runs" min="1" max="20" step="1" value="5">
+        </div>
+        <div class="pipeline-builder__control">
+          <label>Scoring method:</label>
+          <select id="pb-scoring">
+            <option value="exact">Exact match ($0/case)</option>
+            <option value="llm" selected>LLM-as-judge ($0.01/case)</option>
+            <option value="human">Human review ($5/case)</option>
+          </select>
+        </div>
+        <div class="pipeline-builder__control">
+          <label>Avg tokens per case: <span class="pipeline-builder__value" id="pb-tokens-val">2000</span></label>
+          <input type="range" id="pb-tokens" min="500" max="10000" step="500" value="2000">
+        </div>
+      </div>
+      <div class="pipeline-builder__output" id="pb-output"></div>
+    </div>
+  </div>
+
+  <article class="prose">
+
+    <!-- ================================================================
+         Section III: Testing Non-Deterministic Systems
+         ================================================================ -->
+    <h2 id="non-determinism"><span class="section-number">III</span> Testing Non-Deterministic Systems</h2>
+
+    <p>Traditional software testing assumes stable behavior: same input, same output, every time. LLMs shatter this assumption. The same prompt can produce different outputs across runs, model updates, or even time of day. This isn&rsquo;t a bug &mdash; it&rsquo;s the architecture.</p>
+
+    <p>The practical consequence: <strong>a single test run tells you almost nothing.</strong> You need multiple runs per test case to see the distribution. If you run a case once and it passes, you know the model <em>can</em> produce a good answer. Run it 10 times and 3 fail? Now you know it produces a good answer 70% of the time. That&rsquo;s a very different number to ship on.</p>
+
+    <p><strong>How many runs?</strong> The standard practice is 5&ndash;10 runs per test case. Five gives you a rough signal. Ten gives you enough to calculate a meaningful confidence interval. More than that has diminishing returns unless you&rsquo;re measuring a subtle regression.</p>
+
+    <p><strong>Distinguishing variance from regression.</strong> If your accuracy is normally 92% &plusmn;2%, and today&rsquo;s run shows 89%, is that a regression or a bad roll? Statistical significance matters here. Track your metrics over time to establish a baseline variance. A drop within the normal band is noise; a drop outside it is signal. The teams that skip this step either ship regressions they didn&rsquo;t catch or block good changes because of random variance.</p>
+
+    <div class="callout callout--analogy">
+      <div class="callout__label">Analogy</div>
+      <div class="callout__body">Testing an LLM with a single run is like evaluating a baseball player from one at-bat. They might hit a home run. They might strike out. Neither tells you their batting average. <strong>You need the season, not the swing.</strong></div>
+    </div>
+
+    <p>The cost model matters. 50 test cases &times; 10 runs = 500 model calls per eval. At $0.01 per call, that&rsquo;s $5 per eval run. Run it on every PR and you&rsquo;re spending maybe $50/week. Add LLM-as-judge scoring and double it. This is not expensive &mdash; it&rsquo;s cheaper than one hour of a single engineer&rsquo;s debugging time when a regression ships to production.</p>
+
+    <!-- ================================================================
+         Section IV: Observability
+         ================================================================ -->
+    <h2 id="observability"><span class="section-number">IV</span> Observability</h2>
+
+    <p>Eval harnesses catch problems <em>before</em> deploy. Observability catches them <em>after</em>. You need both, because no test set covers everything your users will do.</p>
+
+    <p><strong>Log everything.</strong> Every production interaction should capture: the full prompt (system + user + retrieved context), the raw model response, latency, token counts, cost, and any tool calls. Not for every user forever &mdash; sample at a rate that gives you statistical coverage. 1&ndash;5% of production traffic is typical.</p>
+
+    <p><strong>Score a sample.</strong> Run your LLM-as-judge or automated metrics on the sampled outputs. This gives you a continuous quality signal without reviewing every interaction. When the score drops, investigate. When it spikes, figure out what changed and protect it.</p>
+
+    <p><strong>Alert on anomalies.</strong> Set thresholds for key metrics: if average safety score drops below 95%, if p99 latency exceeds 5 seconds, if cost-per-request doubles. These should page someone, not just log. The Replit incident &mdash; where an agent deleted a production database and generated fake records to cover it up &mdash; was only caught because someone happened to look. Don&rsquo;t rely on luck.</p>
+
+    <p><strong>Build the feedback loop.</strong> Every production failure that your observability catches should become a new test case in your eval harness. This is how your harness gets smarter over time. Garry Tan calls this the gap between &ldquo;sophisticated agent evals&rdquo; and &ldquo;preventing agents from repeating failures&rdquo; &mdash; the fix is explicit: every failure feeds back into the test set.</p>
+
+    <div class="callout callout--insight">
+      <div class="callout__label">Key Insight</div>
+      <div class="callout__body"><strong>Deterministic validation layers</strong> are the architectural answer to &ldquo;a probabilistic engine making transactional decisions.&rdquo; The model <em>proposes</em> an action; deterministic software <em>verifies and executes</em> it. Never let an LLM write directly to a database, send an email, or make a payment without a validation step your code controls. This isn&rsquo;t about not trusting the model &mdash; it&rsquo;s about building infrastructure that makes trust <em>verifiable</em>.</div>
+    </div>
+
+    <!-- ================================================================
+         Section V: The Complexity Ratchet
+         ================================================================ -->
+    <h2 id="complexity-ratchet"><span class="section-number">V</span> The Complexity Ratchet</h2>
+
+    <p>Here&rsquo;s the counterintuitive truth about AI-assisted development: <strong>the faster you ship, the more rigor you need.</strong> Not less. More.</p>
+
+    <p>AI coding agents let you ship features at a pace that was impossible a year ago. But that velocity has a hidden cost. Every new feature, every agent-generated test, every deployed system exponentially increases your system&rsquo;s fragility if not properly managed. Garry Tan calls this the <strong>complexity ratchet</strong>: AI agents have shattered the old speed-vs-quality tradeoff. Shipping fast with agents now requires 90%+ test coverage and rigorous quality gates &mdash; the opposite of &ldquo;move fast and break things.&rdquo;</p>
+
+    <p>Mario Zechner, after a year of shipping with coding agents, reflects on the same pattern: the temptation to &ldquo;move fast&rdquo; and the necessity of slowing down &mdash; because agent-generated code can compound mistakes across the codebase faster than humans can catch them.</p>
+
+    <p>And Aditya Agarwal pushes the point further: Silicon Valley conflates speed with ambition, when speed is often just impatience. The fast lane leads to mediocrity because velocity without direction is movement without progress.</p>
+
+    <p>The practical implication for your eval harness: <strong>as your deploy frequency increases, your eval coverage must increase proportionally.</strong> A team deploying once a week can get away with manual spot-checks. A team deploying five times a day with AI-generated code needs automated evals on every PR, continuous production monitoring, and a regression suite that grows with every failure. The ratchet only turns one direction.</p>
+
+  </article>
+
+  <!-- ================================================================
+       Widget 2: Complexity Ratchet Calculator
+       ================================================================ -->
+  <div class="wide-container">
+    <div class="ratchet-calc" id="ratchet-calc">
+      <div class="ratchet-calc__title">Interactive &middot; The Complexity Ratchet</div>
+      <p style="font-family: var(--font-sans); font-size: var(--text-sm); color: var(--color-text-secondary); margin-bottom: var(--space-4);">How much rigor does your shipping velocity demand?</p>
+      <div class="ratchet-calc__sliders">
+        <div class="ratchet-calc__slider">
+          <label>Deploys per week: <span class="ratchet-calc__slider-value" id="rc-deploys-val">5</span></label>
+          <input type="range" id="rc-deploys" min="1" max="50" step="1" value="5">
+        </div>
+        <div class="ratchet-calc__slider">
+          <label>% AI-generated code: <span class="ratchet-calc__slider-value" id="rc-ai-val">30%</span></label>
+          <input type="range" id="rc-ai" min="0" max="100" step="5" value="30">
+        </div>
+      </div>
+      <div class="ratchet-calc__bar"><div class="ratchet-calc__bar-fill" id="rc-bar"></div></div>
+      <div class="ratchet-calc__verdict" id="rc-verdict"></div>
+    </div>
+  </div>
+
+  <article class="prose">
+
+    <!-- ================================================================
+         Section VI: Prompts as Infrastructure
+         ================================================================ -->
+    <h2 id="prompts-as-infra"><span class="section-number">VI</span> Prompts as Infrastructure</h2>
+
+    <p>Most teams treat prompts as strings in application code. This works until you need to answer: which version of the prompt is in production? What changed between v12 and v13? Can we roll back to yesterday&rsquo;s prompt without redeploying the application?</p>
+
+    <p>Prompts are infrastructure. Treat them that way:</p>
+
+    <p><strong>Version everything.</strong> System prompts, few-shot examples, tool descriptions, output format instructions &mdash; all versioned. A git diff should tell you exactly what changed in your AI behavior between any two deploys. This is the single most impactful practice for teams that skip it.</p>
+
+    <p><strong>Separate prompt changes from code changes.</strong> A prompt tweak shouldn&rsquo;t require a full application deploy. Store prompts in files, a config service, or a database &mdash; anywhere that can be updated independently. This lets you iterate on AI behavior without touching the codebase.</p>
+
+    <p><strong>A/B test systematically.</strong> When you&rsquo;re choosing between two prompts, don&rsquo;t guess. Run both through your eval harness, compare the distributions, and pick the one that wins on the metrics you care about. In production, split traffic and measure. The eval harness you already built is the infrastructure for this.</p>
+
+    <p><strong>Keep rollback instant.</strong> If a prompt change degrades quality, you need to revert in seconds, not minutes. This means the previous version is always one click away. Prompt rollback is your circuit breaker for AI behavior.</p>
+
+    <div class="callout callout--analogy">
+      <div class="callout__label">Architecture Insight</div>
+      <div class="callout__body">Garry Tan frames the philosophy: <strong>&ldquo;Memory is markdown. Skills are markdown. Brain is a git repo. The harness is a thin conductor &mdash; it reads the files, it doesn&rsquo;t own them.&rdquo;</strong> Your prompts, eval rubrics, and test sets should be simple, human-readable files that survive your framework. If your eval infrastructure dies, the knowledge of what you test and how you score should be portable to whatever comes next.</div>
+    </div>
+
+    <div class="callout callout--summary">
+      <div class="callout__label">Takeaway</div>
+      <div class="callout__body">The harness is what separates &ldquo;it works in a demo&rdquo; from &ldquo;it works in production.&rdquo; Five components: a growing test set, automated multi-run scoring, distribution-based analysis, production observability with feedback loops, and versioned prompts with instant rollback. None of this is glamorous. All of it is load-bearing. <strong>Build the harness before you need it, because by the time you need it, you can&rsquo;t afford to build it.</strong></div>
+    </div>
+
+  </article>
+
+  <nav class="article-nav">
+    <a href="evals-in-practice.html">&larr; Part 2: Evals in Practice</a>
+    <a href="index.html">Back to series overview &rarr;</a>
+  </nav>
+
+  <!-- ================================================================
+       Capstone Quiz
+       ================================================================ -->
+  <div class="capstone-quiz" id="capstone-quiz">
+    <div class="capstone-quiz__title">Capstone Quiz</div>
+    <div class="capstone-quiz__progress" id="cq-progress"></div>
+    <div class="capstone-quiz__question" id="cq-question"></div>
+    <div class="capstone-quiz__options" id="cq-options"></div>
+    <div class="capstone-quiz__explanation" id="cq-explanation"></div>
+    <button class="capstone-quiz__next" id="cq-next">Next question &rarr;</button>
+    <div class="capstone-quiz__score" id="cq-score" style="display:none;"></div>
+  </div>
+
+  <!-- ================================================================
+       Scripts
+       ================================================================ -->
+  <script>
+  // Reading Progress Bar
+  (function() {
+    var bar = document.getElementById('reading-progress-bar');
+    if (!bar) return;
+    window.addEventListener('scroll', function() {
+      var h = document.documentElement;
+      bar.style.width = Math.min((h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100, 100) + '%';
+    });
+  })();
+
+  // TOC visibility
+  (function() {
+    var toc = document.querySelector('.toc');
+    var hero = document.getElementById('article-hero');
+    if (!toc || !hero) return;
+    new IntersectionObserver(function(e) {
+      toc.classList.toggle('toc--visible', !e[0].isIntersecting);
+    }, { threshold: 0 }).observe(hero);
+  })();
+
+  // TOC active highlighting
+  (function() {
+    var headings = document.querySelectorAll('h2[id]');
+    var tocItems = document.querySelectorAll('.toc__item');
+    if (!headings.length) return;
+    new IntersectionObserver(function(entries) {
+      entries.forEach(function(e) {
+        if (e.isIntersecting) {
+          tocItems.forEach(function(i) { i.classList.remove('toc__item--active'); });
+          var link = document.querySelector('.toc__item a[href="#' + e.target.id + '"]');
+          if (link) link.parentElement.classList.add('toc__item--active');
+        }
+      });
+    }, { rootMargin: '-20% 0px -80% 0px' }).observe(headings[0]);
+    headings.forEach(function(h) {
+      new IntersectionObserver(function(entries) {
+        if (entries[0].isIntersecting) {
+          tocItems.forEach(function(i) { i.classList.remove('toc__item--active'); });
+          var link = document.querySelector('.toc__item a[href="#' + entries[0].target.id + '"]');
+          if (link) link.parentElement.classList.add('toc__item--active');
+        }
+      }, { rootMargin: '-20% 0px -80% 0px' }).observe(h);
+    });
+  })();
+
+  // Hero canvas particles
+  (function() {
+    var canvas = document.getElementById('hero-canvas');
+    if (!canvas) return;
+    var ctx = canvas.getContext('2d');
+    var particles = [];
+    function resize() {
+      canvas.width = canvas.offsetWidth * (window.devicePixelRatio || 1);
+      canvas.height = canvas.offsetHeight * (window.devicePixelRatio || 1);
+      ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+    }
+    resize(); window.addEventListener('resize', resize);
+    for (var i = 0; i < 35; i++) {
+      particles.push({ x: Math.random() * canvas.offsetWidth, y: Math.random() * canvas.offsetHeight, r: Math.random() * 2 + 1, dx: (Math.random() - 0.5) * 0.4, dy: (Math.random() - 0.5) * 0.4, alpha: Math.random() * 0.3 + 0.1 });
+    }
+    function draw() {
+      ctx.clearRect(0, 0, canvas.offsetWidth, canvas.offsetHeight);
+      particles.forEach(function(p) {
+        p.x += p.dx; p.y += p.dy;
+        if (p.x < 0 || p.x > canvas.offsetWidth) p.dx *= -1;
+        if (p.y < 0 || p.y > canvas.offsetHeight) p.dy *= -1;
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255,255,255,' + p.alpha + ')'; ctx.fill();
+      });
+      for (var i = 0; i < particles.length; i++) {
+        for (var j = i + 1; j < particles.length; j++) {
+          var dx = particles[i].x - particles[j].x, dy = particles[i].y - particles[j].y;
+          var dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 100) {
+            ctx.beginPath(); ctx.moveTo(particles[i].x, particles[i].y); ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.strokeStyle = 'rgba(255,255,255,' + (0.12 * (1 - dist / 100)) + ')'; ctx.lineWidth = 0.5; ctx.stroke();
+          }
+        }
+      }
+      requestAnimationFrame(draw);
+    }
+    draw();
+  })();
+
+  // Widget 1: Eval Pipeline Builder
+  (function() {
+    var casesEl = document.getElementById('pb-cases');
+    var runsEl = document.getElementById('pb-runs');
+    var scoringEl = document.getElementById('pb-scoring');
+    var tokensEl = document.getElementById('pb-tokens');
+    var outputEl = document.getElementById('pb-output');
+    if (!casesEl) return;
+
+    function update() {
+      var cases = parseInt(casesEl.value);
+      var runs = parseInt(runsEl.value);
+      var tokens = parseInt(tokensEl.value);
+      var scoring = scoringEl.value;
+
+      document.getElementById('pb-cases-val').textContent = cases;
+      document.getElementById('pb-runs-val').textContent = runs;
+      document.getElementById('pb-tokens-val').textContent = tokens.toLocaleString();
+
+      var totalCalls = cases * runs;
+      var costPerCall = (tokens / 1000) * 0.003; // ~$3/M input tokens average
+      var modelCost = totalCalls * costPerCall;
+      var scoreCosts = { exact: 0, llm: cases * runs * 0.01, human: cases * 5 };
+      var scoreCost = scoreCosts[scoring];
+      var totalCost = modelCost + scoreCost;
+      var timePerCall = 2; // seconds average
+      var parallelism = 10;
+      var totalTime = Math.ceil((totalCalls * timePerCall) / parallelism / 60);
+
+      var confidence = runs >= 10 ? 'High' : runs >= 5 ? 'Medium' : 'Low';
+
+      outputEl.innerHTML =
+        '<div class="pipeline-builder__output-grid">' +
+        '<div class="pipeline-builder__metric"><div class="pipeline-builder__metric-value">' + totalCalls.toLocaleString() + '</div><div class="pipeline-builder__metric-label">Total model calls</div></div>' +
+        '<div class="pipeline-builder__metric"><div class="pipeline-builder__metric-value">$' + totalCost.toFixed(2) + '</div><div class="pipeline-builder__metric-label">Cost per eval run</div></div>' +
+        '<div class="pipeline-builder__metric"><div class="pipeline-builder__metric-value">~' + totalTime + ' min</div><div class="pipeline-builder__metric-label">Time (10x parallel)</div></div>' +
+        '</div>' +
+        '<p style="margin-top: var(--space-4);">Statistical confidence: <strong>' + confidence + '</strong>. ' +
+        (runs < 5 ? 'With ' + runs + ' run(s) per case, you\'ll see high variance between eval runs. Bump to 5+ for reliable regression detection.' :
+         runs >= 10 ? 'At ' + runs + ' runs per case, you can calculate meaningful confidence intervals and catch subtle regressions.' :
+         'At ' + runs + ' runs per case, you\'ll catch major regressions but may miss subtle shifts. Good for most teams.') +
+        (scoring === 'human' ? ' Human scoring dominates cost — reserve for a rotating 10-20% sample, use LLM-as-judge for the rest.' : '') +
+        '</p>';
+    }
+
+    [casesEl, runsEl, scoringEl, tokensEl].forEach(function(el) {
+      el.addEventListener('input', update);
+    });
+    update();
+  })();
+
+  // Widget 2: Complexity Ratchet Calculator
+  (function() {
+    var deploysEl = document.getElementById('rc-deploys');
+    var aiEl = document.getElementById('rc-ai');
+    var barEl = document.getElementById('rc-bar');
+    var verdictEl = document.getElementById('rc-verdict');
+    if (!deploysEl) return;
+
+    function update() {
+      var deploys = parseInt(deploysEl.value);
+      var ai = parseInt(aiEl.value);
+      document.getElementById('rc-deploys-val').textContent = deploys;
+      document.getElementById('rc-ai-val').textContent = ai + '%';
+
+      // Rigor score: 0-100
+      var rigor = Math.min(100, Math.round((deploys * 1.5) + (ai * 0.6)));
+
+      var color, cls, msg;
+      if (rigor < 30) {
+        color = '#059669'; cls = 'green';
+        msg = '<strong>Low complexity.</strong> Manual spot-checks and basic eval suites are sufficient. Run evals before major releases. Keep a growing test set, but you don\'t need CI-integrated eval pipelines yet.';
+      } else if (rigor < 60) {
+        color = '#D97706'; cls = 'yellow';
+        msg = '<strong>Moderate complexity.</strong> You need automated evals on every PR, a test set of 50+ cases with 5 runs each, and basic production monitoring. The ratchet is turning — manual review alone won\'t catch regressions at this velocity.';
+      } else {
+        color = '#DC2626'; cls = 'red';
+        msg = '<strong>High complexity.</strong> At ' + deploys + ' deploys/week with ' + ai + '% AI-generated code, you need the full harness: CI-integrated eval pipelines, continuous production scoring, automated alerts, prompt versioning with instant rollback, and 90%+ test coverage. The complexity ratchet only turns one direction.';
+      }
+
+      barEl.style.width = rigor + '%';
+      barEl.style.background = color;
+      verdictEl.className = 'ratchet-calc__verdict ratchet-calc__verdict--' + cls;
+      verdictEl.innerHTML = msg;
+    }
+
+    [deploysEl, aiEl].forEach(function(el) { el.addEventListener('input', update); });
+    update();
+  })();
+
+  // Capstone Quiz
+  (function() {
+    var questions = [
+      {
+        question: 'Your team runs 50 eval cases once per PR. A colleague argues this is sufficient since "all 50 pass." What\'s the most important thing they\'re missing?',
+        options: [
+          { label: 'They need more test cases — 50 isn\'t enough', key: 'a' },
+          { label: 'A single run per case in a non-deterministic system tells you the model CAN produce good output, not that it RELIABLY does — they need multiple runs per case to see the distribution', key: 'b' },
+          { label: 'They should use human reviewers instead of automated checks', key: 'c' },
+          { label: 'They need to run evals in production, not just pre-deploy', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'Testing an LLM with a single run is like evaluating a baseball player from one at-bat. All 50 passing once means each case CAN produce a good answer — but a case that passes 7/10 times has a 30% failure rate you\'ll never catch with one run. The standard practice is 5-10 runs per case to see the distribution. Options A and D are also good practices, but the single-run problem is the most critical gap.'
+      },
+      {
+        question: 'Your AI feature deploys 20 times a week with 60% AI-generated code. An engineer says the team should "move fast and iterate" rather than invest in eval infrastructure. What\'s the strongest counter-argument?',
+        options: [
+          { label: 'Eval infrastructure is an industry best practice that all teams should adopt', key: 'a' },
+          { label: 'The complexity ratchet: at high deploy frequency with AI-generated code, velocity without rigor compounds mistakes faster than humans can catch them — more speed demands more rigor, not less', key: 'b' },
+          { label: 'Regulators will eventually require eval pipelines for AI products', key: 'c' },
+          { label: 'Users will leave if they encounter any quality issues', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'The complexity ratchet is the core insight: AI agents have shattered the old speed-vs-quality tradeoff. At 20 deploys/week with 60% AI code, agent-generated changes can compound mistakes across the codebase faster than humans can catch them. The fix isn\'t slowing down — it\'s building the automated rigor (eval pipelines, continuous monitoring, prompt versioning) that makes high velocity sustainable. "Move fast and break things" is a luxury of low-complexity systems.'
+      },
+      {
+        question: 'Your production monitoring catches a quality regression. What should happen to the failing examples?',
+        options: [
+          { label: 'Log them for the weekly quality review meeting', key: 'a' },
+          { label: 'Add them to the eval test set as new test cases, so the harness catches this failure type automatically on every future deploy', key: 'b' },
+          { label: 'Fix the model prompt and move on', key: 'c' },
+          { label: 'Report them to the model provider as a capability issue', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'Every production failure should feed back into the eval harness as a new test case. This is how your harness gets smarter over time — it accumulates knowledge of every way your system has ever failed. Fixing the prompt (option C) solves today\'s problem but doesn\'t prevent regression. A weekly meeting (option A) is too slow. The feedback loop from production monitoring → test set is what separates eval infrastructure from eval theater.'
+      },
+      {
+        question: 'A teammate proposes storing prompts as hardcoded strings in the application code. What\'s the main problem with this approach?',
+        options: [
+          { label: 'Prompts are too long to store in code files', key: 'a' },
+          { label: 'A prompt change requires a full application deploy, which means you can\'t iterate on AI behavior independently, can\'t A/B test easily, and can\'t roll back a bad prompt without reverting code changes', key: 'b' },
+          { label: 'Hardcoded prompts can\'t be version-controlled', key: 'c' },
+          { label: 'Other team members won\'t be able to read the prompts', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'Prompts are infrastructure, not code. When prompts live in application code, every prompt tweak requires a full deploy cycle — code review, CI, staging, production. Separating prompts (in files, config services, or databases) lets you iterate on AI behavior without touching the codebase, A/B test systematically, and roll back a bad prompt in seconds rather than minutes. Option C is wrong — prompts in code ARE version-controlled; the issue is coupling, not versioning.'
+      },
+      {
+        question: 'Anthropic\'s team says "build skills, not agents." How does this apply to eval infrastructure?',
+        options: [
+          { label: 'Each agent should have its own eval dashboard', key: 'a' },
+          { label: 'Each discrete capability (skill) should be independently testable with its own eval suite — test skills in isolation before testing the composed system, so you can pinpoint which component caused a failure', key: 'b' },
+          { label: 'Skills don\'t need testing because they\'re simpler than agents', key: 'c' },
+          { label: 'You should evaluate the harness itself, not the skills', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: '"Build skills, not agents" means treating each capability as a discrete, testable unit. For eval infrastructure, this means each skill gets its own test cases and scoring criteria. When end-to-end quality drops, you can isolate which skill degraded rather than debugging the entire system. If your eval only tests final outputs, a failure could be in retrieval, prompt assembly, model generation, or post-processing — and you have no way to tell which.'
+      }
+    ];
+
+    var currentQ = 0, score = 0;
+    var qEl = document.getElementById('cq-question'), pEl = document.getElementById('cq-progress');
+    var oEl = document.getElementById('cq-options'), eEl = document.getElementById('cq-explanation');
+    var nEl = document.getElementById('cq-next'), sEl = document.getElementById('cq-score');
+    if (!qEl) return;
+
+    function render() {
+      if (currentQ >= questions.length) {
+        qEl.style.display = 'none'; pEl.style.display = 'none'; oEl.style.display = 'none';
+        eEl.style.display = 'none'; nEl.style.display = 'none'; sEl.style.display = 'block';
+        var pct = Math.round((score / questions.length) * 100);
+        var msgs = ['Review the article — harness engineering has critical patterns worth revisiting.', 'Decent foundation — you understand the concepts but the operational details need work.', 'Solid understanding — you\'re thinking about eval infrastructure like someone who\'d build it.', 'Strong grasp — you\'re thinking like a builder who ships reliable AI systems.'];
+        var mi = score <= 1 ? 0 : score <= 2 ? 1 : score <= 3 ? 2 : 3;
+        sEl.innerHTML = '<div class="capstone-quiz__score-number">' + score + '/' + questions.length + '</div><div class="capstone-quiz__score-label">' + pct + '% correct</div><div class="capstone-quiz__score-message">' + msgs[mi] + '</div>';
+        return;
+      }
+      var q = questions[currentQ];
+      pEl.textContent = 'Question ' + (currentQ + 1) + ' of ' + questions.length;
+      qEl.textContent = q.question; oEl.innerHTML = '';
+      eEl.classList.remove('capstone-quiz__explanation--visible'); eEl.style.display = 'none';
+      nEl.classList.remove('capstone-quiz__next--visible'); nEl.style.display = 'none';
+      q.options.forEach(function(opt) {
+        var btn = document.createElement('button');
+        btn.className = 'capstone-quiz__option'; btn.textContent = opt.label;
+        btn.addEventListener('click', function() {
+          oEl.querySelectorAll('.capstone-quiz__option').forEach(function(b) { b.style.pointerEvents = 'none'; });
+          if (opt.key === q.answer) { btn.classList.add('capstone-quiz__option--correct'); score++; }
+          else {
+            btn.classList.add('capstone-quiz__option--wrong');
+            oEl.querySelectorAll('.capstone-quiz__option').forEach(function(b) {
+              if (b.textContent === q.options.find(function(o) { return o.key === q.answer; }).label) b.classList.add('capstone-quiz__option--correct');
+            });
+          }
+          eEl.textContent = q.explanation; eEl.style.display = 'block'; eEl.classList.add('capstone-quiz__explanation--visible');
+          nEl.style.display = 'inline-block'; nEl.classList.add('capstone-quiz__next--visible');
+        });
+        oEl.appendChild(btn);
+      });
+    }
+    nEl.addEventListener('click', function() { currentQ++; render(); });
+    render();
+  })();
+  </script>
+</body>
+</html>
