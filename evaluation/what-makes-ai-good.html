@@ -138,7 +138,7 @@
 
     <p><strong>Subjectivity.</strong> &ldquo;Good&rdquo; depends on who&rsquo;s judging. A &ldquo;friendly&rdquo; email reads &ldquo;too casual&rdquo; to one reviewer. A &ldquo;concise&rdquo; summary feels &ldquo;incomplete&rdquo; to another. Inter-rater agreement on open-ended quality hovers around 60&ndash;75% &mdash; a number that should give any builder pause.</p>
 
-    <p><strong>Multi-dimensionality.</strong> AI outputs can be accurate but unhelpful, helpful but unsafe, safe but boring, creative but wrong. Quality isn&rsquo;t a number &mdash; it&rsquo;s a vector. A medical chatbot and a creative writing tool have almost opposite quality criteria.</p>
+    <p><strong>Multi-dimensionality.</strong> AI outputs can be accurate but unhelpful, helpful but unsafe, safe but boring, creative but wrong. Quality isn&rsquo;t a number &mdash; it&rsquo;s a vector. A medical chatbot and a creative writing tool have almost opposite quality criteria. Stanford&rsquo;s 2026 AI Index calls this the &ldquo;jagged frontier&rdquo;: Google&rsquo;s Gemini earned an International Math Olympiad gold medal but reads analog clocks correctly just 50.1% of the time. Gold-medal peaks and coin-flip valleys in the same model.</p>
 
     <div class="callout callout--insight">
       <div class="callout__label">Key Insight</div>
@@ -152,13 +152,13 @@
 
     <p>Not all AI failures are created equal. Before you evaluate anything, you need a taxonomy of how outputs go wrong. Six failure modes every builder should know:</p>
 
-    <p><strong>1. Hallucination</strong> &mdash; the model states fabricated information with total confidence. It invents statistics, cites papers that don&rsquo;t exist, describes features your company has never built. The danger: hallucinated content <em>reads</em> exactly like factual content. No hedging, no uncertainty flags &mdash; just fiction wearing a lab coat.</p>
+    <p><strong>1. Hallucination</strong> &mdash; the model states fabricated information with total confidence. It invents statistics, cites papers that don&rsquo;t exist, describes features your company has never built. The danger: hallucinated content <em>reads</em> exactly like factual content. No hedging, no uncertainty flags &mdash; just fiction wearing a lab coat. The Penrose accounting benchmark showed why this matters for multi-step workflows: small per-step errors compound silently, so a model that&rsquo;s 95% accurate on each step can be wildly wrong by the end of a ten-step task.</p>
 
     <p><strong>2. Tone mismatch</strong> &mdash; correct information, wrong register. A legal compliance response written like a blog post. A customer apology that sounds like it was drafted by a committee of lawyers. The facts are right; the packaging undermines them.</p>
 
     <p><strong>3. Format errors</strong> &mdash; you asked for a bulleted list and got prose. Asked for JSON, got markdown. Asked for three options, got seven. Seems minor until downstream code tries to parse the output and crashes.</p>
 
-    <p><strong>4. Unsafe outputs</strong> &mdash; harmful, biased, or inappropriate content. Ranges from subtle bias in hiring recommendations to overtly harmful instructions. The highest-stakes failure mode by reputational and legal risk.</p>
+    <p><strong>4. Unsafe outputs</strong> &mdash; harmful, biased, or inappropriate content. Ranges from subtle bias in hiring recommendations to overtly harmful instructions. The highest-stakes failure mode by reputational and legal risk. And the trend is going the wrong way: Stanford HAI documented 362 AI-related incidents in 2025, up 55% year-over-year, while responsible AI benchmark reporting among frontier developers remains spotty at best.</p>
 
     <p><strong>5. Refusals</strong> &mdash; the model declines a perfectly valid request out of excessive caution. A user asks about medication interactions and gets &ldquo;I can&rsquo;t provide medical advice.&rdquo; The mirror image of unsafe outputs &mdash; and equally damaging to user experience.</p>
 

@@ -228,7 +228,7 @@
 
     <div class="callout callout--pm-tip">
       <div class="callout__label">Builder Tip</div>
-      <div class="callout__body">Start with model routing. Most production workloads are 70% simple tasks that a small model handles perfectly. Sending every request to GPT-4-class models is the API-cost equivalent of hiring a surgeon to apply bandaids.</div>
+      <div class="callout__body">Start with model routing. Most production workloads are 70% simple tasks that a small model handles perfectly. Sending every request to GPT-4-class models is the API-cost equivalent of hiring a surgeon to apply bandaids. This isn't hypothetical — Anthropic's data shows that ~50% of all agentic tool calls are software engineering, where teams have already learned to route simple completions to fast, cheap models and reserve heavyweight reasoning for complex tasks.</div>
     </div>
 
     <p>Explore how these levers interact:</p>
@@ -336,7 +336,7 @@
       <li><strong>Quality</strong> — output accuracy and user satisfaction.</li>
     </ul>
 
-    <p>A large model gives quality but costs more. A small model is cheap and fast but less capable. Aggressive caching is cheap and fast but risks stale output. You can't max all three — the physics won't allow it.</p>
+    <p>A large model gives quality but costs more. A small model is cheap and fast but less capable. Aggressive caching is cheap and fast but risks stale output. You can't max all three — the physics won't allow it. The industry is already voting with its wallets: a16z reported that the 2025 coding tools ecosystem alone generated over <strong>$1 billion in new revenue</strong>, largely because those tools got the triangle right — fast enough for developer flow, capable enough to be useful, and priced to sustain daily use.</p>
 
     <div class="callout callout--pm-tip">
       <div class="callout__label">Builder Tip</div>

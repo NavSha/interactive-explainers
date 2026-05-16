@@ -65,7 +65,7 @@
 
     <p>After Parts 1 and 2, agents sound incredible. Loop through problems, call tools, adapt on the fly. So why doesn't every product just use them for everything?</p>
 
-    <p>Because agents fail. Not occasionally — <em>regularly.</em> Unpredictably, expensively, and in ways that make debugging feel like archaeology. The gap between a demo that wows the room and a product that survives production is almost entirely about understanding failure.</p>
+    <p>Because agents fail. Not occasionally — <em>regularly.</em> Unpredictably, expensively, and in ways that make debugging feel like archaeology. Andrej Karpathy calls this the "loopy era" — agent capabilities are being discovered in real-time, and the field lacks stable intuitions about what works. The gap between a demo that wows the room and a product that survives production is almost entirely about understanding failure.</p>
 
     <div class="callout callout--analogy">
       <div class="callout__label">Analogy</div>
@@ -83,7 +83,7 @@
 
     <p><strong>2. Hallucinated parameters.</strong> The agent invents values wholesale. It calls <code>get_user(id: "usr_847293")</code> with a user ID it fabricated from thin air. The function call is structurally perfect and factually fiction.</p>
 
-    <p><strong>3. Infinite loops.</strong> The agent retries a failed action with minor variations, forever. "No results... let me try a different query... still nothing... one more time..." Your bill, meanwhile, grows with each lap.</p>
+    <p><strong>3. Infinite loops.</strong> The agent retries a failed action with minor variations, forever. "No results... let me try a different query... still nothing... one more time..." Your bill, meanwhile, grows with each lap. Garry Tan has flagged a related pattern: agents making the <em>same</em> mistakes repeatedly across sessions. Tools can detect the repetition, but fixing it requires process changes — the agent has no memory of its past failures.</p>
 
     <p><strong>4. Premature stopping.</strong> The opposite: the agent quits early. "Here are the top 2 bugs" when you asked for 5. Task declared complete; task not actually complete.</p>
 
@@ -250,7 +250,7 @@
       </tbody>
     </table>
 
-    <p>These aren't optional polish. They're as fundamental to an agent product as error handling is to a web app. Ship without them and your first production week will feel like an incident response marathon — except nobody knows what the incidents are, because you forgot to log anything.</p>
+    <p>These aren't optional polish. They're as fundamental to an agent product as error handling is to a web app. There's also a deeper structural issue: LLMs live in a perpetual present. They have no native ability to learn from past interactions or carry forward lessons without architectural workarounds. Every team building agents is trying to patch memory differently, and nobody has a bulletproof solution yet. Ship without guardrails and your first production week will feel like an incident response marathon — except nobody knows what the incidents are, because you forgot to log anything.</p>
 
     <div class="callout callout--summary">
       <div class="callout__label">Takeaway</div>
@@ -353,7 +353,7 @@
       <div class="callout__body">Whether you're building agents or making decisions about them, you need to speak the language. When someone says "the agent is selecting the wrong tool," think tool descriptions and toolbox size. When someone asks "why can't it just do everything automatically," think failure modes, costs, and human-in-the-loop design.</div>
     </div>
 
-    <p>The most successful AI products aren't the most autonomous. They're the ones where someone made smart decisions about what to automate, what to guard, and where to keep a human in the loop.</p>
+    <p>The most successful AI products aren't the most autonomous. They're the ones where someone made smart decisions about what to automate, what to guard, and where to keep a human in the loop. The proof is in the numbers: on SWE-bench Verified, coding agent performance rose from 60% to near 100% in a single year — the most dramatic capability jump in any domain. But that success came precisely because coding has machine-checkable outputs, well-defined tools, and tight feedback loops. The domains that lack those properties are still waiting.</p>
 
     <p>That someone is you.</p>
   </article>

@@ -189,7 +189,7 @@
 
     <p>Three principles for designing effective tools:</p>
 
-    <p><strong>Principle 1: Do one thing well.</strong> Each tool should have a single, clear purpose. Don't build a <code>manage_calendar</code> tool that creates, updates, deletes, and searches events. Build <code>create_event</code>, <code>update_event</code>, <code>delete_event</code>, and <code>search_events</code> separately. The LLM makes better decisions when tools are specific.</p>
+    <p><strong>Principle 1: Do one thing well.</strong> Each tool should have a single, clear purpose. Don't build a <code>manage_calendar</code> tool that creates, updates, deletes, and searches events. Build <code>create_event</code>, <code>update_event</code>, <code>delete_event</code>, and <code>search_events</code> separately. Anthropic's internal mantra for this is "thin harness, fat skills" — keep the orchestration logic minimal and put the real intelligence inside each individual tool. The LLM makes better decisions when tools are specific.</p>
 
     <p><strong>Principle 2: Name and describe for the LLM, not just for humans.</strong> The model reads your tool names and descriptions to decide what to call. <code>update_crm</code> is ambiguous — update what? <code>update_contact_email</code> is clear. The description should say <em>when</em> to use it, not just what it does: "Use this when the user wants to change a contact's email address in the CRM."</p>
 
@@ -263,7 +263,7 @@
   <article class="prose">
     <p>Notice how the agent adapts. With the right tools, it executes the full task. Remove a critical tool, and it gracefully degrades. Add too many, and it becomes the overachieving intern who CC's the entire company on a routine email — technically thorough, practically obnoxious.</p>
 
-    <p>This is why tool design is a <strong>product decision, not just an engineering one.</strong> The tools you expose define the boundaries of what your agent can do.</p>
+    <p>This is why tool design is a <strong>product decision, not just an engineering one.</strong> The tools you expose define the boundaries of what your agent can do. And it's not theoretical — Anthropic's own data shows roughly 50% of all agentic tool calls in the wild are software-engineering tasks (file edits, terminal commands, code search), where tools are naturally well-defined and outputs are machine-checkable. Domains with fuzzier tool boundaries lag far behind.</p>
 
     <!-- ================================================================
          Section V: The Toolbox Problem
@@ -336,7 +336,7 @@
   <article class="prose">
     <div class="callout callout--summary">
       <div class="callout__label">Summary</div>
-      <div class="callout__body"><strong>Start small with 3-5 tools.</strong> Measure accuracy, then expand one tool at a time based on real user needs — not hypothetical ones. Most production agents work best with 5-15 well-designed tools. If you need dozens, use <strong>tool routing</strong>: a lightweight classifier that selects a relevant subset per request instead of dumping the entire catalog into the prompt.</div>
+      <div class="callout__body"><strong>Start small with 3-5 tools.</strong> Measure accuracy, then expand one tool at a time based on real user needs — not hypothetical ones. Most production agents work best with 5-15 well-designed tools. If you need dozens, use <strong>tool routing</strong>: a lightweight classifier that selects a relevant subset per request instead of dumping the entire catalog into the prompt. Boris Cherny, who leads Claude Code at Anthropic, frames this as the shift from "coding" to "directing" — the human's job is no longer to write every tool call, but to design the toolbox and validate the system's decisions.</div>
     </div>
 
   </article>

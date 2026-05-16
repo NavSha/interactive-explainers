@@ -480,7 +480,7 @@
 
     <p>Traditional software is deterministic. Click "Calculate Total" and you get the same number every time. The search bar returns the same results for the same query. Buttons do what their labels say. Users have spent decades building mental models around this predictability, and for good reason: it works.</p>
 
-    <p>AI breaks that contract. The same prompt can produce different outputs on different runs. Quality varies from brilliant to embarrassingly wrong within the same session. The model might confidently hallucinate a fact, hedge on something it actually knows, or refuse a perfectly reasonable request because a guardrail misfired.</p>
+    <p>AI breaks that contract. The same prompt can produce different outputs on different runs. Quality varies from brilliant to embarrassingly wrong within the same session. The model might confidently hallucinate a fact, hedge on something it actually knows, or refuse a perfectly reasonable request because a guardrail misfired. And the trust problem runs deeper than individual interactions: Stanford HAI's 2026 AI Index found that 73% of AI experts expect positive job impact, but only 23% of the general public agrees &mdash; a 50-point gap between the people building AI products and the people using them.</p>
 
     <p>This creates a design problem that most product teams wildly underestimate. <strong>You are shipping a feature whose output you cannot fully predict.</strong> That's not a minor UX wrinkle &mdash; it's a foundational break from how software has worked for decades. The happy path is easy to design. The challenge is everything else: how does the user know when to trust the output? What happens when the model is wrong? How do you communicate uncertainty without undermining confidence in the product?</p>
 
@@ -498,7 +498,7 @@
 
     <p>When a doctor says "I think this is a migraine," the word "think" is doing important work. It tells you this is a judgment, not a lab result. It invites you to ask follow-up questions. It sets expectations for what comes next.</p>
 
-    <p>AI responses need the same kind of calibration. Without confidence signals, users default to one of two extremes: they either trust everything the model says (dangerous) or trust nothing (useless). Neither serves your product.</p>
+    <p>AI responses need the same kind of calibration. Without confidence signals, users default to one of two extremes: they either trust everything the model says (dangerous) or trust nothing (useless). Neither serves your product. Anthropic's own usage data bears this out: new users auto-approve only about 20% of agent actions, while experienced users with 750+ sessions approve over 40%. Trust grows with exposure, but even power users still override the majority of the time. Confidence signals accelerate that trust curve by giving users something concrete to calibrate against.</p>
 
     <p>The design space for confidence signals spans a wide range:</p>
 
@@ -795,7 +795,7 @@
 
     <p>You now have four design patterns for AI products that earn trust instead of demanding it: confidence signals that calibrate expectations, progressive disclosure that respects attention, loading states that communicate progress, and error handling that turns failures into choices.</p>
 
-    <p>But here's the deeper question these patterns raise. In high-stakes domains &mdash; medical diagnosis, financial advice, legal analysis, content moderation &mdash; no amount of clever UX removes the need for a human to verify, approve, or override the AI's output. The best confidence badge in the world doesn't help if the stakes are someone's health or livelihood. So when should you keep humans in the loop? Where should the handoff happen?</p>
+    <p>But here's the deeper question these patterns raise. In high-stakes domains &mdash; medical diagnosis, financial advice, legal analysis, content moderation &mdash; no amount of clever UX removes the need for a human to verify, approve, or override the AI's output. The best confidence badge in the world doesn't help if the stakes are someone's health or livelihood. The trust problem has three distinct layers: user comfort (will individuals accept the output?), organizational governance (can the company defend the deployment to regulators?), and public trust (does society believe this should be automated at all?). Good uncertainty UX addresses the first layer, but the other two require something different entirely. So when should you keep humans in the loop? Where should the handoff happen?</p>
 
     <p>That's Part 2: <strong>When to Keep Humans in the Loop</strong>.</p>
   </article>

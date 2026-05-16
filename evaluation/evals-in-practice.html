@@ -219,7 +219,7 @@
 
     <p>LLMs have a <strong>temperature</strong> parameter that controls randomness. At temperature 0, outputs are nearly deterministic. At temperature 1, they vary wildly in style, structure, and accuracy.</p>
 
-    <p>This means <strong>a single test run tells you almost nothing.</strong> The model passed the safety check this time? Would it pass the next 9 times? Serious eval pipelines run each test case 5-10 times and evaluate the <em>distribution</em> of results. 9/10 passes = 90% reliability, probably fine. 7/10 = 70%, probably not.</p>
+    <p>This means <strong>a single test run tells you almost nothing.</strong> The model passed the safety check this time? Would it pass the next 9 times? Serious eval pipelines run each test case 5-10 times and evaluate the <em>distribution</em> of results. 9/10 passes = 90% reliability, probably fine. 7/10 = 70%, probably not. And 70% isn&rsquo;t a hypothetical worst case &mdash; CMU&rsquo;s AgentCompany benchmark found failure rates up to 70% on realistic workplace tasks. Meanwhile, METR research shows agent performance roughly doubling every seven months, and Stanford HAI&rsquo;s data confirms it: SWE-bench coding scores leapt from 60% to near-perfect in a single year, while general computer tasks (OSWorld) went from 12% to 66%. The capability is accelerating fast, but the frontier is jagged &mdash; agents still fail one in three attempts on structured benchmarks.</p>
 
     <div class="callout callout--insight">
       <div class="callout__label">Key Insight</div>
@@ -289,7 +289,7 @@
       <div class="callout__body">The "good enough" threshold is a product decision, not an engineering one. Set it before you see the numbers &mdash; not after. Backing into a threshold that happens to match your results isn't strategy, it's rationalization.</div>
     </div>
 
-    <p>Sometimes you ship with known gaps, and that's okay. A model that's 95% accurate today beats one that's 99% accurate next quarter &mdash; if the failure cases are low-severity and you have good fallbacks. The key is making that tradeoff <em>deliberately</em>, not accidentally. Ship fast, but ship with eyes open &mdash; not just hoping nobody screenshots the bad outputs before you push a fix.</p>
+    <p>Sometimes you ship with known gaps, and that's okay. A model that's 95% accurate today beats one that's 99% accurate next quarter &mdash; if the failure cases are low-severity and you have good fallbacks. The key is making that tradeoff <em>deliberately</em>, not accidentally. Stanford HAI&rsquo;s 2026 AI Index found that improving one responsible AI dimension (say, safety) can measurably degrade another (say, accuracy) &mdash; so the tradeoff isn&rsquo;t theoretical. It&rsquo;s baked into the models themselves. Ship fast, but ship with eyes open &mdash; not just hoping nobody screenshots the bad outputs before you push a fix.</p>
 
     <p>And when the numbers are ambiguous &mdash; accuracy up slightly, safety down slightly, a new edge case that didn't exist before &mdash; that's where your judgment earns its keep. No formula will tell you the right answer. But having the data in front of you makes the judgment call immeasurably better than guessing.</p>
 

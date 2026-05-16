@@ -182,7 +182,7 @@
          ================================================================ -->
     <h2 id="the-loop"><span class="section-number">III</span> The Loop</h2>
 
-    <p>The agent loop transforms an LLM from a one-shot oracle into an iterative problem-solver. Four phases, repeated until the task is complete:</p>
+    <p>The agent loop transforms an LLM from a one-shot oracle into an iterative problem-solver. Anthropic's engineering team, after shipping Claude Code and working with dozens of production deployments, landed on a core principle: what separates a working agent from a prototype isn't model capability — it's system design. Context management, error handling, and the loop itself matter more than raw intelligence. Four phases, repeated until the task is complete:</p>
 
     <ol>
       <li><strong>Think.</strong> The LLM examines the current context and reasons about what to do next.</li>
@@ -295,7 +295,7 @@
          ================================================================ -->
     <h2 id="when-to-use-what"><span class="section-number">V</span> When to Use What</h2>
 
-    <p>Agents are powerful — and slow, expensive, and unpredictable. The engineering equivalent of calling in a specialist when a bandaid would do. Use the right tier:</p>
+    <p>Agents are powerful — and slow, expensive, and unpredictable. The engineering equivalent of calling in a specialist when a bandaid would do. It's also worth knowing where agents actually work today: Anthropic's analysis of millions of agent interactions found that roughly 50% of all agentic tool calls are software engineering tasks. Every other domain — BI, customer service, sales, finance — is in the single digits each. Coding dominates because outputs are machine-checkable, tools are already API-first, and a meaningful unit of work fits inside an agent's attention budget. Use the right tier:</p>
 
     <table class="tier-table">
       <thead>
@@ -376,7 +376,7 @@
 
     <p>The agent loop is the heartbeat of every AI agent — but it's only as useful as the actions the agent can take. Right now we've been hand-waving about "tool calls" and "API requests." In Part 2, we'll get specific.</p>
 
-    <p>You'll learn how tools are defined and exposed to the LLM, how the model decides which tool to call, and the design patterns that make tool use reliable. The loop gives agents their rhythm. Tools give them their reach.</p>
+    <p>You'll learn how tools are defined and exposed to the LLM, how the model decides which tool to call, and the design patterns that make tool use reliable. Anthropic's Barry Zhang puts it bluntly: "Build skills, not agents" — treat each tool as a discrete, testable capability, and let the loop orchestrate them. The loop gives agents their rhythm. Tools give them their reach.</p>
   </article>
 
   <!-- ================================================================

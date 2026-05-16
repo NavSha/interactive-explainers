@@ -534,7 +534,7 @@
 
     <p>A model that classifies customer support tickets at 95% accuracy sounds impressive. But that same 95% applied to medical triage means one in twenty patients gets a potentially dangerous misclassification. Same number, radically different consequences. <strong>The automation threshold isn't about model performance. It's about the cost of being wrong.</strong></p>
 
-    <p>This creates a spectrum. On one end, fully automated decisions where errors are cheap and reversible: auto-tagging photos, sorting emails into folders, generating first-draft summaries. On the other end, decisions where errors carry legal, financial, or human-safety consequences: approving loan applications, flagging child safety content, recommending treatment plans. Between these poles lies a broad gray zone where the right answer depends on your product, your users, and your risk tolerance.</p>
+    <p>This creates a spectrum. On one end, fully automated decisions where errors are cheap and reversible: auto-tagging photos, sorting emails into folders, generating first-draft summaries. On the other end, decisions where errors carry legal, financial, or human-safety consequences: approving loan applications, flagging child safety content, recommending treatment plans. Between these poles lies a broad gray zone where the right answer depends on your product, your users, and your risk tolerance. HBR frames this as a four-rung autonomy ladder: assistive output (drafts and summaries a human reviews), retrieval with guardrails (answering from governed data), supervised actions (proposing tasks a human confirms), and bounded autonomy (executing within narrow limits while humans check aggregates). Most production systems today sit on the first two rungs.</p>
 
     <div class="callout callout--insight">
       <div class="callout__label">Key Insight</div>
@@ -548,7 +548,7 @@
          ================================================================ -->
     <h2 id="review-queues"><span class="section-number">II</span> Review Queues</h2>
 
-    <p>The most common human-in-the-loop pattern is the review queue: AI handles the easy cases autonomously and routes uncertain ones to humans. Think of a content moderation system that auto-approves clearly safe posts and auto-removes obvious violations, but queues borderline content for human reviewers.</p>
+    <p>The most common human-in-the-loop pattern is the review queue: AI handles the easy cases autonomously and routes uncertain ones to humans. Think of a content moderation system that auto-approves clearly safe posts and auto-removes obvious violations, but queues borderline content for human reviewers. Klarna reached the top of the autonomy ladder by keeping scope razor-narrow: their AI handles customer service chat with immediate human-escalation paths, a textbook example of bounded autonomy in a domain where errors are annoying but not catastrophic. Meanwhile, benefits consultancy OneDigital deliberately stays on the lower rungs, using Azure OpenAI for summaries and recommendations that consultants always review &mdash; because in their world, a wrong benefits recommendation carries real legal exposure.</p>
 
     <p>The difference between a review queue that works and one that becomes a bottleneck comes down to three design choices:</p>
 
@@ -631,7 +631,7 @@
       <div class="callout__body">Think of these patterns like airport security. Confidence-based routing is the metal detector &mdash; everyone passes through, and only those who trigger it get pulled aside. Exception handling is the watch list &mdash; specific categories flagged in advance. Periodic sampling is the random pat-down &mdash; a small percentage checked regardless of how clean they look.</div>
     </div>
 
-    <p>Most production systems layer all three: confidence routing for real-time decisions, exception handling for known risk categories, and periodic sampling as a safety net. The combination creates defense in depth &mdash; no single failure mode goes unchecked.</p>
+    <p>Most production systems layer all three: confidence routing for real-time decisions, exception handling for known risk categories, and periodic sampling as a safety net. The combination creates defense in depth &mdash; no single failure mode goes unchecked. The ratio of humans to agents shifts dramatically as trust matures: Cars24, the Indian used-car marketplace, went from 15 people managing their AI coworkers down to 4 people overseeing 250 agents &mdash; but only after building the escalation infrastructure that made that ratio safe.</p>
 
     <p>Try processing a review queue yourself:</p>
   </article>
@@ -758,7 +758,7 @@
 
     <p>The goal of a HITL system isn't 100% automation &mdash; and if someone on your team is pitching that, they haven't thought through the long tail. Teams that chase full automation end up with brittle systems that fail spectacularly on the weird cases. Teams that review everything end up with expensive, slow systems that negate the point of using AI in the first place. The sweet spot is a clean handoff at the boundary between "easy" and "hard."</p>
 
-    <p>The boundary isn't static. As the feedback loop operates, cases that were once hard become easy. A customer complaint phrased in an unusual way stumps the model on week one, gets corrected by a human, feeds back into retraining, and gets handled automatically by week six. The 80/20 line drifts &mdash; more cases move from "needs review" to "fully automated" over time. But new edge cases always emerge, so the hard 20% refills with different content even as it shrinks in absolute terms.</p>
+    <p>The boundary isn't static. As the feedback loop operates, cases that were once hard become easy. A customer complaint phrased in an unusual way stumps the model on week one, gets corrected by a human, feeds back into retraining, and gets handled automatically by week six. The 80/20 line drifts &mdash; more cases move from "needs review" to "fully automated" over time. Anthropic's usage data shows this drift in action: experienced users with 750+ sessions auto-approve more than twice as many agent actions as newcomers (~20% vs. >40%), and the median autonomous run is still just 45 seconds &mdash; but the 99.9th percentile nearly doubled in three months. The frontier moves fast even when the median creeps. But new edge cases always emerge, so the hard 20% refills with different content even as it shrinks in absolute terms.</p>
 
     <div class="callout callout--summary">
       <div class="callout__label">Takeaway</div>
