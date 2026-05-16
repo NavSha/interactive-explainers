@@ -11,7 +11,7 @@
     gtag('js', new Date());
     gtag('config', 'G-E8RQLQXRWH');
   </script>
-  <title>When RAG Isn't Enough — AI for PMs</title>
+  <title>When RAG Isn't Enough — AI for Builders</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
@@ -404,7 +404,7 @@
     <div class="article-hero__overlay"></div>
     <div class="article-hero__content">
       <nav class="breadcrumb breadcrumb--hero">
-        <a href="../index.html">AI for PMs</a> &nbsp;/&nbsp; <a href="index.html">Grounding &amp; Guardrails</a> &nbsp;/&nbsp; <span>Part 2</span>
+        <a href="../index.html">AI for Builders</a> &nbsp;/&nbsp; <a href="index.html">Grounding &amp; Guardrails</a> &nbsp;/&nbsp; <span>Part 2</span>
       </nav>
       <div class="article-header__meta" style="color: rgba(255,255,255,0.9);">Part 2 of 3 &middot; ~8 min read</div>
       <h1 style="color: #fff;">When RAG Isn't Enough</h1>
@@ -571,7 +571,7 @@
     <p>The pattern is simple: retrieve broadly, then rerank precisely. First-stage retrieval casts a wide net (top-20 or top-50). The reranker narrows it down to the 3&ndash;5 best results that actually go into the LLM's context. This two-stage approach consistently outperforms single-stage retrieval, often by 15&ndash;30% on precision metrics.</p>
 
     <div class="callout callout--pm-tip">
-      <div class="callout__label">PM Tip</div>
+      <div class="callout__label">Builder Tip</div>
       <div class="callout__body">Reranking is one of the highest-ROI improvements you can make to a RAG pipeline. It adds 100&ndash;300ms of latency and costs fractions of a cent per query. If your team hasn't implemented reranking yet, it should be the next thing on the roadmap. Services like Cohere Rerank and open-source models like ColBERT make it a one-day integration.</div>
     </div>
 

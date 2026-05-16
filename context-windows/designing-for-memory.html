@@ -11,7 +11,7 @@
     gtag('js', new Date());
     gtag('config', 'G-E8RQLQXRWH');
   </script>
-  <title>Designing for Memory — AI for PMs</title>
+  <title>Designing for Memory — AI for Builders</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
@@ -87,7 +87,7 @@
     <div class="article-hero__overlay"></div>
     <div class="article-hero__content">
       <nav class="breadcrumb breadcrumb--hero">
-        <a href="../index.html">AI for PMs</a> &nbsp;/&nbsp; <a href="index.html">Context Windows &amp; Memory</a> &nbsp;/&nbsp; <span>Part 2</span>
+        <a href="../index.html">AI for Builders</a> &nbsp;/&nbsp; <a href="index.html">Context Windows &amp; Memory</a> &nbsp;/&nbsp; <span>Part 2</span>
       </nav>
       <div class="article-header__meta" style="color: rgba(255,255,255,0.9);">Part 2 of 2 &middot; ~7 min read</div>
       <h1 style="color: #fff;">Designing for Memory</h1>
@@ -132,7 +132,7 @@
       <div class="callout__body">Think of it like a doctor who reads your entire medical file before every appointment, then develops complete amnesia the moment you walk out the door. The file creates the continuity, not the doctor's brain.</div>
     </div>
 
-    <p>As a PM, this reframe is critical. You're not configuring the model's memory — you're <strong>designing what gets re-sent.</strong> Every "memory" feature is really a decision about what context to include in the next API call. And since context windows are finite, those decisions involve real tradeoffs.</p>
+    <p>This reframe is critical. You're not configuring the model's memory — you're <strong>designing what gets re-sent.</strong> Every "memory" feature is really a decision about what context to include in the next API call. And since context windows are finite, those decisions involve real tradeoffs.</p>
 
     <!-- ================================================================
          Section II: Conversation History Strategies
@@ -154,7 +154,7 @@
     <p>Periodically compress old messages into a summary. Preserves key facts in fewer tokens. The tradeoff: summaries lose nuance — tone, phrasing, the exact back-and-forth. And summarization itself costs money (another LLM call each time).</p>
 
     <div class="callout callout--pm-tip">
-      <div class="callout__label">PM Tip</div>
+      <div class="callout__label">Builder Tip</div>
       <div class="callout__body">No strategy is universally best. Use <strong>full history</strong> for short, high-stakes conversations. <strong>Sliding window</strong> for casual chat where recency beats history. <strong>Summarization</strong> for long sessions where key facts must persist. Most production apps use a hybrid.</div>
     </div>
   </article>
@@ -213,7 +213,7 @@
 
     <div class="callout callout--insight">
       <div class="callout__label">Key Insight</div>
-      <div class="callout__body">Every summarization call is another LLM invocation — more latency, more money. A 100-message conversation might need 10 summarization calls. PMs need to decide: how often to trigger summarization and what fidelity to maintain. These are product decisions that directly impact cost and experience.</div>
+      <div class="callout__body">Every summarization call is another LLM invocation — more latency, more money. A 100-message conversation might need 10 summarization calls. You need to decide: how often to trigger summarization and what fidelity to maintain. These are product decisions that directly impact cost and experience.</div>
     </div>
 
     <!-- ================================================================
@@ -301,7 +301,7 @@
          ================================================================ -->
     <h2 id="memory-stack"><span class="section-number">V</span> The Memory Stack</h2>
 
-    <p>Production AI applications don't use a single memory strategy — they layer their context window like a stack. Understanding this architecture is essential for any PM designing conversational AI features.</p>
+    <p>Production AI applications don't use a single memory strategy — they layer their context window like a stack. Understanding this architecture is essential for anyone designing conversational AI features.</p>
 
     <p>Here's the pattern, from top to bottom:</p>
 
@@ -316,7 +316,7 @@
     <p>The <strong>order matters</strong> — and if you read Part 1, you know why. Research on the "lost in the middle" problem shows that models pay most attention to content at the beginning and end of their context. So: system prompt at the start, the user's latest message at the end, and everything else layered in between, ordered by importance. The retrieved context sits close to the user's message because it's most relevant to the current query.</p>
 
     <div class="callout callout--pm-tip">
-      <div class="callout__label">PM Tip</div>
+      <div class="callout__label">Builder Tip</div>
       <div class="callout__body">Order matters in the memory stack. Models pay most attention to the beginning and end of context — the "lost in the middle" problem from Part 1. Getting this wrong is like burying the lead on page 7 of a memo nobody finishes. Put system instructions first, recent messages last, and retrieval results near the end.</div>
     </div>
 
@@ -1078,7 +1078,7 @@
         explanation: 'Progressive summarization compresses the previous summary plus new messages, so each round can lose detail. Specific entities like "$49.99" and "March 15th" are especially vulnerable to being generalized or dropped. The fix is entity extraction \u2014 maintaining a structured list of key facts alongside the narrative summary. Option A is possible but doesn\'t explain why specific details degrade over time. Option B misidentifies the mechanism. Option C is too absolute \u2014 progressive summarization works well when paired with entity preservation.'
       },
       {
-        question: 'A PM at a startup says: "We\'re building a knowledge base chatbot. We\'ll just dump all our help articles into the context window \u2014 our model supports 200K tokens, so we have plenty of room." What\'s the best response?',
+        question: 'A founder says: "We\'re building a knowledge base chatbot. We\'ll just dump all our help articles into the context window \u2014 our model supports 200K tokens, so we have plenty of room." What\'s the best response?',
         options: [
           { label: 'Use a vector database to store articles as embeddings and retrieve only the relevant ones per query \u2014 it\'s cheaper, faster, and produces better results', key: 'a' },
           { label: 'That approach works fine as long as you stay under 200K tokens', key: 'b' },

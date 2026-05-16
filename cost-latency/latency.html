@@ -11,7 +11,7 @@
     gtag('js', new Date());
     gtag('config', 'G-E8RQLQXRWH');
   </script>
-  <title>Latency, Streaming &amp; Optimization — AI for PMs</title>
+  <title>Latency, Streaming &amp; Optimization — AI for Builders</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
@@ -86,7 +86,7 @@
     <div class="article-hero__overlay"></div>
     <div class="article-hero__content">
       <nav class="breadcrumb breadcrumb--hero">
-        <a href="../index.html">AI for PMs</a> &nbsp;/&nbsp; <a href="index.html">Cost &amp; Latency</a> &nbsp;/&nbsp; <span>Part 2</span>
+        <a href="../index.html">AI for Builders</a> &nbsp;/&nbsp; <a href="index.html">Cost &amp; Latency</a> &nbsp;/&nbsp; <span>Part 2</span>
       </nav>
       <div class="article-header__meta" style="color: rgba(255,255,255,0.9);">Part 2 of 2 &middot; ~7 min read</div>
       <h1 style="color: #fff;">Latency, Streaming &amp; Optimization</h1>
@@ -227,7 +227,7 @@
     </table>
 
     <div class="callout callout--pm-tip">
-      <div class="callout__label">PM Tip</div>
+      <div class="callout__label">Builder Tip</div>
       <div class="callout__body">Start with model routing. Most production workloads are 70% simple tasks that a small model handles perfectly. Sending every request to GPT-4-class models is the API-cost equivalent of hiring a surgeon to apply bandaids.</div>
     </div>
 
@@ -339,7 +339,7 @@
     <p>A large model gives quality but costs more. A small model is cheap and fast but less capable. Aggressive caching is cheap and fast but risks stale output. You can't max all three — the physics won't allow it.</p>
 
     <div class="callout callout--pm-tip">
-      <div class="callout__label">PM Tip</div>
+      <div class="callout__label">Builder Tip</div>
       <div class="callout__body">Your job is to find the right position in this triangle <em>for each feature</em>. Autocomplete needs speed above all else — small model, aggressive caching. Legal document review needs quality — large model, accept the cost. A support bot needs balance — medium model, streaming, smart caching. One product, three different positions.</div>
     </div>
 
@@ -438,7 +438,7 @@
 
     <div class="callout callout--summary">
       <div class="callout__label">Takeaway</div>
-      <div class="callout__body">These aren't engineering details you can delegate. They're the foundation of every pricing decision, architecture choice, and "can we afford to build this?" conversation. Engineers handle the implementation. You handle the judgment.</div>
+      <div class="callout__body">These aren't details you can ignore. They're the foundation of every pricing decision, architecture choice, and "can we afford to build this?" conversation. Understanding the tradeoffs is what separates shipping a feature from shipping a cost center.</div>
     </div>
   </article>
 
@@ -703,7 +703,7 @@
         explanation: 'Streaming doesn\'t change total generation time, but it transforms the user experience. Without streaming, the user stares at a blank screen for 8 seconds. With streaming, the first token arrives in ~300ms and users can begin reading immediately. A streamed 8-second response actually feels faster than a non-streamed 4-second response because the content itself becomes the loading indicator. Option A is wrong \u2014 streaming doesn\'t speed up generation. Option B sets an arbitrary threshold that doesn\'t exist. Option D confuses streaming with server architecture.'
       },
       {
-        question: 'Your AI product handles 100K daily requests. An engineer proposes adding prompt caching for the system prompt (saves 40% on input costs and reduces TTFT) and response caching for common queries (eliminates 30% of LLM calls). A PM asks: "Which should we build first?" What\'s the best reasoning?',
+        question: 'Your AI product handles 100K daily requests. An engineer proposes adding prompt caching for the system prompt (saves 40% on input costs and reduces TTFT) and response caching for common queries (eliminates 30% of LLM calls). Someone asks: "Which should we build first?" What\'s the best reasoning?',
         options: [
           { label: 'Prompt caching \u2014 because it improves both cost and latency for every single request', key: 'a' },
           { label: 'Response caching \u2014 because eliminating 30% of LLM calls entirely saves more than reducing input cost on 100% of calls', key: 'b' },
@@ -714,7 +714,7 @@
         explanation: 'Prompt caching improves both cost and latency for every request that hits the LLM, making it a safe, universal win. Response caching eliminates some calls entirely, which is powerful, but it only helps the fraction of queries that are cacheable (common/repeated queries). The interaction matters too: prompt caching reduces the cost of every remaining call that response caching doesn\'t eliminate. Option C is a reasonable instinct (routing is high-impact), but the question asks between these two specific options. Option D is wrong because implementation order affects how quickly you see returns.'
       },
       {
-        question: 'You\'re the PM for three features: (1) a legal document reviewer, (2) an autocomplete widget, and (3) a customer support chatbot. Your VP asks you to use the same Sonnet-class model for all three to "simplify the architecture." What\'s the problem with this approach?',
+        question: 'You\'re building three features: (1) a legal document reviewer, (2) an autocomplete widget, and (3) a customer support chatbot. Your VP asks you to use the same Sonnet-class model for all three to "simplify the architecture." What\'s the problem with this approach?',
         options: [
           { label: 'Sonnet-class is too expensive for any of these use cases', key: 'a' },
           { label: 'Each feature has a different position in the cost-latency-quality triangle \u2014 autocomplete needs a tiny, fast model; legal review needs a large, accurate model; the chatbot needs a balanced medium model with streaming', key: 'b' },
@@ -725,7 +725,7 @@
         explanation: 'The cost-latency-quality triangle means each feature has different priorities. Autocomplete prioritizes speed above all \u2014 a Sonnet-class model is overkill and too slow (users expect sub-200ms). Legal review prioritizes quality \u2014 a Sonnet may miss nuances that an Opus-class model catches, and the stakes of errors are high. The chatbot is actually the best fit for Sonnet. One model for all three means two out of three features are poorly optimized. Option A is too absolute. Option C is a valid ops concern but not the architectural problem. Option D misses that legal review is also poorly served.'
       },
       {
-        question: 'After enabling all five optimization levers (model routing, prompt caching, shorter prompts, response caching, fewer output tokens), your team sees an 85% cost reduction. A new PM joins and asks, "Which single optimization contributed the most?" What\'s the most accurate answer?',
+        question: 'After enabling all five optimization levers (model routing, prompt caching, shorter prompts, response caching, fewer output tokens), your team sees an 85% cost reduction. A new teammate joins and asks, "Which single optimization contributed the most?" What\'s the most accurate answer?',
         options: [
           { label: 'Response caching \u2014 eliminating LLM calls entirely is always the biggest savings', key: 'a' },
           { label: 'Shorter prompts \u2014 because input tokens are the largest cost driver in most applications', key: 'b' },

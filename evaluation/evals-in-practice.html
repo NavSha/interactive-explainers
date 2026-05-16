@@ -11,7 +11,7 @@
     gtag('js', new Date());
     gtag('config', 'G-E8RQLQXRWH');
   </script>
-  <title>Evals in Practice — AI for PMs</title>
+  <title>Evals in Practice — AI for Builders</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
@@ -86,7 +86,7 @@
     <div class="article-hero__overlay"></div>
     <div class="article-hero__content">
       <nav class="breadcrumb breadcrumb--hero">
-        <a href="../index.html">AI for PMs</a> &nbsp;/&nbsp; <a href="index.html">Evaluation &amp; Testing</a> &nbsp;/&nbsp; <span>Part 2</span>
+        <a href="../index.html">AI for Builders</a> &nbsp;/&nbsp; <a href="index.html">Evaluation &amp; Testing</a> &nbsp;/&nbsp; <span>Part 2</span>
       </nav>
       <div class="article-header__meta" style="color: rgba(255,255,255,0.9);">Part 2 of 2 &middot; ~7 min read</div>
       <h1 style="color: #fff;">Evals in Practice</h1>
@@ -181,7 +181,7 @@
     <p>The 80/20 rule applies in reverse: 20% of test cases catch 80% of issues &mdash; but you won't know <em>which</em> 20% until you've built all of them. The edge case you dismissed as irrelevant is the one that goes viral on Twitter.</p>
 
     <div class="callout callout--pm-tip">
-      <div class="callout__label">PM Tip</div>
+      <div class="callout__label">Builder Tip</div>
       <div class="callout__body">Start with real user queries from production (anonymized). Add synthetic edge cases. Most importantly: <strong>grow the set over time.</strong> Every production failure becomes a new test case. Your eval set is a living document, not a one-time exercise.</div>
     </div>
 
@@ -285,13 +285,13 @@
     <p>The tricky part is that AI metrics are inherently noisy. A 2% accuracy drop might be random variance from non-determinism, or it might signal a real regression caused by your prompt change. This is why you need <strong>clear thresholds set before you start</strong> &mdash; not after you see the results. "We ship if accuracy is at least 92% AND safety score is at least 98% AND p95 latency is under 3 seconds." Write these down. Share them with the team. Don't negotiate with yourself after the numbers come in.</p>
 
     <div class="callout callout--pm-tip">
-      <div class="callout__label">PM Tip</div>
+      <div class="callout__label">Builder Tip</div>
       <div class="callout__body">The "good enough" threshold is a product decision, not an engineering one. Set it before you see the numbers &mdash; not after. Backing into a threshold that happens to match your results isn't strategy, it's rationalization.</div>
     </div>
 
     <p>Sometimes you ship with known gaps, and that's okay. A model that's 95% accurate today beats one that's 99% accurate next quarter &mdash; if the failure cases are low-severity and you have good fallbacks. The key is making that tradeoff <em>deliberately</em>, not accidentally. Ship fast, but ship with eyes open &mdash; not just hoping nobody screenshots the bad outputs before you push a fix.</p>
 
-    <p>And when the numbers are ambiguous &mdash; accuracy up slightly, safety down slightly, a new edge case that didn't exist before &mdash; that's where PM judgment earns its keep. No formula will tell you the right answer. But having the data in front of you makes the judgment call immeasurably better than guessing.</p>
+    <p>And when the numbers are ambiguous &mdash; accuracy up slightly, safety down slightly, a new edge case that didn't exist before &mdash; that's where your judgment earns its keep. No formula will tell you the right answer. But having the data in front of you makes the judgment call immeasurably better than guessing.</p>
 
   </article>
 
@@ -357,7 +357,7 @@
     <p>Four things to take from this series:</p>
 
     <ol>
-      <li><strong>Evaluation is a product problem.</strong> PMs own what "good" looks like. Engineers measure it. The bar is yours to set.</li>
+      <li><strong>Evaluation is a product problem.</strong> You own what "good" looks like. The bar is yours to set — whether you measure it yourself or work with your team to build the harness.</li>
       <li><strong>Start with vibes, build toward pipelines.</strong> Manual review gets you started. Automated evals get you to scale and ship with confidence.</li>
       <li><strong>Think in distributions, not individual outputs.</strong> AI is non-deterministic. A single test tells you nothing. Run each case multiple times.</li>
       <li><strong>Set thresholds before you see the numbers.</strong> Decide what's good enough in advance. Trust your criteria, or update them deliberately.</li>
@@ -1307,10 +1307,10 @@
   (function() {
     var questions = [
       {
-        question: 'Your team is about to ship a prompt change for an AI customer support feature. An engineer suggests just testing it manually in the playground before deploying. A senior engineer insists on running it through the full eval pipeline first. The PM argues the change is "minor" and doesn\'t warrant a full pipeline run. Who has the right approach?',
+        question: 'Your team is about to ship a prompt change for an AI customer support feature. An engineer suggests just testing it manually in the playground before deploying. A senior engineer insists on running it through the full eval pipeline first. The product lead argues the change is "minor" and doesn\'t warrant a full pipeline run. Who has the right approach?',
         options: [
           { label: 'The senior engineer \u2014 every prompt change should run through the eval pipeline, because "minor" changes can cause unexpected regressions', key: 'a' },
-          { label: 'The PM \u2014 minor changes don\'t need the full pipeline, that\'s what manual testing is for', key: 'b' },
+          { label: 'The product lead \u2014 minor changes don\'t need the full pipeline, that\'s what manual testing is for', key: 'b' },
           { label: 'It depends on whether the team has automated evals set up yet', key: 'c' },
           { label: 'The first engineer \u2014 playground testing is sufficient if you check enough examples', key: 'd' }
         ],
@@ -1351,10 +1351,10 @@
         explanation: 'This is exactly why you set thresholds before seeing results. All three metrics are above their pre-defined bars. The accuracy drop is real but still within acceptable bounds. Option A treats any regression as a blocker, which would paralyze shipping. Option C sounds scientific but is actually threshold-negotiation in disguise \u2014 if your eval suite is properly designed with multiple runs, the numbers already account for variance. Option D replaces data-driven criteria with consensus-seeking, which is the rationalization trap the article warns against.'
       },
       {
-        question: 'A PM at your company proposes setting the accuracy threshold for a new AI feature at 85% "because that\'s where our eval results landed after the first round of testing." She argues this is data-driven decision making. What\'s wrong with this approach?',
+        question: 'A teammate proposes setting the accuracy threshold for a new AI feature at 85% "because that\'s where our eval results landed after the first round of testing." She argues this is data-driven decision making. What\'s wrong with this approach?',
         options: [
           { label: 'Nothing \u2014 using actual performance data to set thresholds is best practice', key: 'a' },
-          { label: 'The threshold should be set by engineering, not the PM, since it\'s a technical metric', key: 'b' },
+          { label: 'The threshold should be set by engineering, not product, since it\'s a technical metric', key: 'b' },
           { label: '85% is too low for any production AI feature \u2014 the threshold should be at least 95%', key: 'c' },
           { label: 'Thresholds should be set before seeing results, based on product requirements \u2014 backing into a number that matches your current performance is rationalization, not strategy', key: 'd' }
         ],

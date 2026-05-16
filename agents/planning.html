@@ -11,7 +11,7 @@
     gtag('js', new Date());
     gtag('config', 'G-E8RQLQXRWH');
   </script>
-  <title>Planning, Failure &amp; Tradeoffs — AI for PMs</title>
+  <title>Planning, Failure &amp; Tradeoffs — AI for Builders</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
@@ -25,7 +25,7 @@
     <div class="article-hero__overlay"></div>
     <div class="article-hero__content">
       <nav class="breadcrumb breadcrumb--hero">
-        <a href="../index.html">AI for PMs</a> &nbsp;/&nbsp; <a href="index.html">Agents &amp; Tool Use</a> &nbsp;/&nbsp; <span>Part 3</span>
+        <a href="../index.html">AI for Builders</a> &nbsp;/&nbsp; <a href="index.html">Agents &amp; Tool Use</a> &nbsp;/&nbsp; <span>Part 3</span>
       </nav>
       <div class="article-header__meta" style="color: rgba(255,255,255,0.9);">Part 3 of 3 &middot; ~7 min read</div>
       <h1 style="color: #fff;">Planning, Failure &amp; Tradeoffs</h1>
@@ -202,7 +202,7 @@
   <article class="prose">
 
     <div class="callout callout--pm-tip">
-      <div class="callout__label">PM Tip</div>
+      <div class="callout__label">Builder Tip</div>
       <div class="callout__body">Model the cost <em>before</em> committing to an agent architecture. $0.01 per action sounds trivial until you multiply by 100,000 DAU. Conversely, an expensive model might be the right call if it halves the loop count and doubles reliability.</div>
     </div>
 
@@ -254,7 +254,7 @@
 
     <div class="callout callout--summary">
       <div class="callout__label">Takeaway</div>
-      <div class="callout__body">The best AI products aren't fully autonomous. They're <strong>human-in-the-loop</strong> systems: the agent handles the routine, humans handle the exceptions. Designing that boundary is the PM's job.</div>
+      <div class="callout__body">The best AI products aren't fully autonomous. They're <strong>human-in-the-loop</strong> systems: the agent handles the routine, humans handle the exceptions. Designing that boundary is your job.</div>
     </div>
 
     <!-- ================================================================
@@ -296,7 +296,7 @@
   <article class="prose">
     <div class="callout callout--insight">
       <div class="callout__label">Key Insight</div>
-      <div class="callout__body">The four questions aren't a checklist — they're a <strong>negotiation between capability and risk.</strong> Most real-world products land somewhere between "workflow" and "agent with guardrails." The PM's job is finding that line.</div>
+      <div class="callout__body">The four questions aren't a checklist — they're a <strong>negotiation between capability and risk.</strong> Most real-world products land somewhere between "workflow" and "agent with guardrails." Your job is finding that line.</div>
     </div>
 
   </article>
@@ -349,8 +349,8 @@
     </ul>
 
     <div class="callout callout--pm-tip">
-      <div class="callout__label">PM Tip</div>
-      <div class="callout__body">You don't need to build agents. You need to speak the language. When engineering says "the agent is selecting the wrong tool," think tool descriptions and toolbox size. When a stakeholder asks "why can't it just do everything automatically," think failure modes, costs, and human-in-the-loop design.</div>
+      <div class="callout__label">Builder Tip</div>
+      <div class="callout__body">Whether you're building agents or making decisions about them, you need to speak the language. When someone says "the agent is selecting the wrong tool," think tool descriptions and toolbox size. When someone asks "why can't it just do everything automatically," think failure modes, costs, and human-in-the-loop design.</div>
     </div>
 
     <p>The most successful AI products aren't the most autonomous. They're the ones where someone made smart decisions about what to automate, what to guard, and where to keep a human in the loop.</p>
@@ -749,7 +749,7 @@
         explanation: 'Costs grow super-linearly because the LLM re-processes the full conversation history on every iteration \u2014 the context snowballs. At 8 steps, Model A\'s context is enormous. A pricier model that finishes in 3 steps often costs less total than a cheap model that stumbles through 8. Model the math before picking the "cheaper" model.'
       },
       {
-        question: 'Your agent can send emails on behalf of users. A PM argues that requiring confirmation for every email "ruins the magic" of automation. How should you handle this?',
+        question: 'Your agent can send emails on behalf of users. A teammate argues that requiring confirmation for every email "ruins the magic" of automation. How should you handle this?',
         options: [
           { label: 'Remove the confirmation \u2014 seamless automation is the whole point of building an agent', key: 'a' },
           { label: 'Keep confirmation for all emails \u2014 the risk of a wrong email always outweighs the friction', key: 'b' },
@@ -757,7 +757,7 @@
           { label: 'Add confirmation for high-stakes emails (external, financial) but auto-send routine internal ones', key: 'd' }
         ],
         answer: 'd',
-        explanation: 'Designing the human-in-the-loop boundary is the PM\'s job. Not every email carries the same risk \u2014 an internal FYI is low-stakes, an email to a client with pricing is not. Option A ignores risk entirely. Option B is too conservative and kills the value. Option C defeats the purpose. The right answer is a graduated boundary based on actual stakes.'
+        explanation: 'Designing the human-in-the-loop boundary is the builder\'s job. Not every email carries the same risk \u2014 an internal FYI is low-stakes, an email to a client with pricing is not. Option A ignores risk entirely. Option B is too conservative and kills the value. Option C defeats the purpose. The right answer is a graduated boundary based on actual stakes.'
       },
       {
         question: 'A team wants to automate expense reports: extract receipt data, categorize expenses, check against policy limits, and flag violations for review. They\'re considering an agent. What\'s your recommendation?',
@@ -851,7 +851,7 @@
         'Worth a re-read \u2014 the concepts will click with another pass!',
         'You\'ve got the basics. Failure modes and guardrails are worth revisiting.',
         'Solid understanding of the fundamentals!',
-        'Strong grasp \u2014 you\'re thinking like a PM who ships agents responsibly.',
+        'Strong grasp \u2014 you\'re thinking like a builder who ships agents responsibly.',
         'Perfect score. You\'ve nailed the core concepts.'
       ];
       summaryTextEl.textContent = messages[score];

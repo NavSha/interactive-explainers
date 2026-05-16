@@ -11,7 +11,7 @@
     gtag('js', new Date());
     gtag('config', 'G-E8RQLQXRWH');
   </script>
-  <title>The Context Window — AI for PMs</title>
+  <title>The Context Window — AI for Builders</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
@@ -523,7 +523,7 @@
     <div class="article-hero__overlay"></div>
     <div class="article-hero__content">
       <nav class="breadcrumb breadcrumb--hero">
-        <a href="../index.html">AI for PMs</a> &nbsp;/&nbsp; <a href="index.html">Context Windows &amp; Memory</a> &nbsp;/&nbsp; <span>Part 1</span>
+        <a href="../index.html">AI for Builders</a> &nbsp;/&nbsp; <a href="index.html">Context Windows &amp; Memory</a> &nbsp;/&nbsp; <span>Part 1</span>
       </nav>
       <div class="article-header__meta" style="color: rgba(255,255,255,0.9);">Part 1 of 2 &middot; ~7 min read</div>
       <h1 style="color: #fff;">The Context Window</h1>
@@ -574,7 +574,7 @@
       <div class="callout__body"><strong>LLMs feel like they remember, but they don't.</strong> When ChatGPT references something you said ten messages ago, the application is re-sending your entire conversation history on every API call. Every apparent "memory" is your application doing the work.</div>
     </div>
 
-    <p>For PMs, this is the takeaway: your application decides what goes on the desk. You choose what context to include, what to leave out, how to structure it. Context management isn't the model's job &mdash; it's yours.</p>
+    <p>Here's the takeaway: your application decides what goes on the desk. You choose what context to include, what to leave out, how to structure it. Context management isn't the model's job &mdash; it's yours.</p>
 
     <!-- ================================================================
          Section II: How Big Is Big?
@@ -586,7 +586,7 @@
     <p><strong>Bigger isn't free.</strong> Cost scales linearly with context length: filling a 200K-token window costs roughly 50x more than filling a 4K window. Latency increases too &mdash; more context means longer time-to-first-token. And quality actually degrades. Models are great with the first and last few pages of a 500-page dump, and fuzzy on everything in between (more on that in Section III).</p>
 
     <div class="callout callout--pm-tip">
-      <div class="callout__label">PM Tip</div>
+      <div class="callout__label">Builder Tip</div>
       <div class="callout__body">Match the window to the task, not the other way around. A support chatbot might need 4K&ndash;8K tokens. A document analysis tool might need 128K. A "chat with your codebase" feature might genuinely need 1M. Every token you send costs money, time, and potentially quality.</div>
     </div>
 
@@ -1306,7 +1306,7 @@
   (function() {
     var questions = [
       {
-        question: 'A PM on your team says: "We don\'t need to worry about context management \u2014 the model keeps track of the conversation on its own." What\'s the most accurate correction?',
+        question: 'Someone on your team says: "We don\'t need to worry about context management \u2014 the model keeps track of the conversation on its own." What\'s the most accurate correction?',
         options: [
           { label: 'The model remembers the last 10 messages automatically, but forgets older ones', key: 'a' },
           { label: 'The model has no memory between API calls \u2014 your application must re-send the full conversation each time', key: 'b' },
@@ -1350,11 +1350,11 @@
         explanation: 'With 10 turns at ~300 tokens each, the budget is already at 73% before the conversation gets long. As history grows beyond 10 turns (if the app keeps adding), total tokens exceed 8,192. Silent truncation typically drops tokens from the start \u2014 which is where the system prompt lives. The personality vanishes because the instructions that defined it are gone. Option A misunderstands statelessness. Option B gets the math right for 10 turns but doesn\'t account for growth. Option C is possible but doesn\'t explain why personality changes correlate with conversation length.'
       },
       {
-        question: 'An engineer says: "Context management is a technical implementation detail \u2014 the PM doesn\'t need to be involved." Based on what you\'ve learned, why is this wrong?',
+        question: 'Someone on the team says: "Context management is a technical implementation detail \u2014 don\'t worry about it." Based on what you\'ve learned, why is this wrong?',
         options: [
-          { label: 'PMs need to write the system prompts, which are part of the context', key: 'a' },
-          { label: 'Context window sizes are a pricing decision and PMs own the budget', key: 'b' },
-          { label: 'PMs need to choose which LLM provider to use, and each has different context limits', key: 'c' },
+          { label: 'You need to write the system prompts, which are part of the context', key: 'a' },
+          { label: 'Context window sizes are a pricing decision and someone needs to own the budget', key: 'b' },
+          { label: 'You need to choose which LLM provider to use, and each has different context limits', key: 'c' },
           { label: 'How many turns to keep, when to summarize, and what happens at the ceiling are product decisions that directly shape user experience', key: 'd' }
         ],
         answer: 'd',

@@ -11,7 +11,7 @@
     gtag('js', new Date());
     gtag('config', 'G-E8RQLQXRWH');
   </script>
-  <title>Grounding Models in Your Data — AI for PMs</title>
+  <title>Grounding Models in Your Data — AI for Builders</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
@@ -339,7 +339,7 @@
     <div class="article-hero__overlay"></div>
     <div class="article-hero__content">
       <nav class="breadcrumb breadcrumb--hero">
-        <a href="../index.html">AI for PMs</a> &nbsp;/&nbsp; <a href="index.html">Grounding &amp; Guardrails</a> &nbsp;/&nbsp; <span>Part 1</span>
+        <a href="../index.html">AI for Builders</a> &nbsp;/&nbsp; <a href="index.html">Grounding &amp; Guardrails</a> &nbsp;/&nbsp; <span>Part 1</span>
       </nav>
       <div class="article-header__meta" style="color: rgba(255,255,255,0.9);">Part 1 of 3 &middot; ~9 min read</div>
       <h1 style="color: #fff;">Grounding Models in Your Data</h1>
@@ -463,7 +463,7 @@
     <p>To do this at scale — millions of document chunks, sub-second latency — you need a <strong>vector database</strong>. Tools like Pinecone, Weaviate, Qdrant, and pgvector (a PostgreSQL extension) are purpose-built for this. They use approximate nearest-neighbor algorithms that trade a tiny bit of accuracy for dramatic speed improvements.</p>
 
     <div class="callout callout--pm-tip">
-      <div class="callout__label">PM Tip</div>
+      <div class="callout__label">Builder Tip</div>
       <div class="callout__body">When evaluating vector databases, focus on three things: <strong>latency at your scale</strong> (test with realistic data volumes, not demo datasets), <strong>filtering support</strong> (can you scope searches by user, team, or document type?), and <strong>operational simplicity</strong> (managed services save months of infrastructure work). For most early-stage products, pgvector in your existing Postgres instance is the pragmatic choice.</div>
     </div>
 
@@ -1311,7 +1311,7 @@
         explanation: 'This is the grounding problem. LLMs are trained on public internet data and don\u2019t know your company\u2019s specific policies. A better system prompt won\u2019t help because the model simply doesn\u2019t have the information \u2014 it confabulates plausible answers instead. Fine-tuning could help but is expensive and slow; RAG is the practical solution for connecting the model to your authoritative data.'
       },
       {
-        question: 'A PM pitches RAG to stakeholders by saying: "We\u2019ll retrain the model on our internal docs so it knows our product." A senior engineer pushes back. What\u2019s the most accurate correction?',
+        question: 'Someone pitches RAG to the team by saying: "We\u2019ll retrain the model on our internal docs so it knows our product." A teammate pushes back. What\u2019s the most accurate correction?',
         options: [
           { label: 'RAG does retrain the model, but only on the retrieved documents for each query', key: 'a' },
           { label: 'RAG doesn\u2019t retrain anything \u2014 it retrieves relevant documents at query time and injects them into the prompt so the model can reference them', key: 'c' },

@@ -11,7 +11,7 @@
     gtag('js', new Date());
     gtag('config', 'G-E8RQLQXRWH');
   </script>
-  <title>The Tools — AI for PMs</title>
+  <title>The Tools — AI for Builders</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
@@ -188,7 +188,7 @@
     <div class="article-hero__overlay"></div>
     <div class="article-hero__content">
       <nav class="breadcrumb breadcrumb--hero">
-        <a href="../index.html">AI for PMs</a> &nbsp;/&nbsp; <a href="index.html">Vibe Coding</a> &nbsp;/&nbsp; <span>Part 1</span>
+        <a href="../index.html">AI for Builders</a> &nbsp;/&nbsp; <a href="index.html">Vibe Coding</a> &nbsp;/&nbsp; <span>Part 1</span>
       </nav>
       <div class="article-header__meta" style="color: rgba(255,255,255,0.9);">Part 1 of 3 &middot; ~10 min read</div>
       <h1 style="color: #fff;">The Tools</h1>
@@ -201,7 +201,7 @@
       <div class="toc__title">Contents</div>
       <ol class="toc__list">
         <li><span class="toc__numeral">I.</span><a href="#what-is-vibe-coding">What Is Vibe Coding?</a></li>
-        <li><span class="toc__numeral">II.</span><a href="#why-pms-should-care">Why PMs Should Care</a></li>
+        <li><span class="toc__numeral">II.</span><a href="#why-pms-should-care">Why This Changes How You Build</a></li>
         <li><span class="toc__numeral">III.</span><a href="#replit">Replit</a></li>
         <li><span class="toc__numeral">IV.</span><a href="#claude-code">Claude Code</a></li>
         <li><span class="toc__numeral">V.</span><a href="#the-landscape">The Landscape</a></li>
@@ -244,22 +244,22 @@
     <p>This series takes a clear stance: <strong>use AI to build, but stay in control.</strong> The "fully vibing" approach works for throwaway experiments. For anything with users, data, or consequences, you want the directed collaboration end of the spectrum. The goal isn't to eliminate thinking &mdash; it's to eliminate the gap between thinking and building.</p>
 
     <!-- ================================================================
-         Section II: Why PMs Should Care
+         Section II: Why This Changes How You Build
          ================================================================ -->
-    <h2 id="why-pms-should-care"><span class="section-number">II</span> Why PMs Should Care</h2>
+    <h2 id="why-this-changes-how-you-build"><span class="section-number">II</span> Why This Changes How You Build</h2>
 
-    <p>You've written the spec. You've refined the user stories. You've argued about edge cases in three different meetings. And then you hand it off to engineering and wait. Days. Sometimes weeks. By the time you see a working version, the market has moved, the stakeholder has changed their mind, and the thing you specified doesn't quite feel right in practice.</p>
+    <p>You've scoped the feature. You've debated edge cases. You've written it all down. And then you wait &mdash; for the build to come back, for the review cycle, for the version that doesn't quite feel right in practice. Days. Sometimes weeks. By the time you see a working version, the market has moved, requirements have shifted, and the thing you specified doesn't match what you actually needed.</p>
 
-    <p>Vibe coding collapses that feedback loop. Not for everything &mdash; you're not going to build a distributed payment system by talking to an AI for an afternoon. But for a surprising number of PM workflows, the gap between "idea" and "interactive prototype" can shrink from weeks to hours.</p>
+    <p>Vibe coding collapses that feedback loop. Not for everything &mdash; you're not going to build a distributed payment system by talking to an AI for an afternoon. But for a surprising number of workflows, the gap between "idea" and "interactive prototype" can shrink from weeks to hours.</p>
 
-    <p><strong>Working prototypes beat specifications.</strong> A clickable prototype communicates intent better than any PRD. When you can put a working thing in front of a stakeholder &mdash; something they can click, break, and react to &mdash; the conversation changes. You stop debating abstractions and start refining reality.</p>
+    <p><strong>Working prototypes beat specifications.</strong> A clickable prototype communicates intent better than any document. When you can put a working thing in front of someone &mdash; something they can click, break, and react to &mdash; the conversation changes. You stop debating abstractions and start refining reality.</p>
 
-    <p><strong>You carry user context that engineers don't.</strong> You've watched the user interviews. You've read the support tickets. You know <em>why</em> the feature matters in a way that's hard to fully transfer in a ticket. When you're the one prompting the AI, that context flows directly into the code without lossy translation.</p>
+    <p><strong>You carry context that's hard to transfer.</strong> You've talked to users. You've read the support tickets. You know <em>why</em> the feature matters in a way that's hard to fully capture in writing. When you're the one prompting the AI, that context flows directly into the code without lossy translation.</p>
 
-    <p><strong>AI-native teams are already forming.</strong> Companies are discovering that the most effective AI products come from teams where everyone &mdash; PMs included &mdash; can prototype with AI tools. This isn't about replacing engineers. It's about PMs arriving at the planning meeting with a working demo instead of a slide deck.</p>
+    <p><strong>AI-native teams are already forming.</strong> Companies are discovering that the most effective AI products come from teams where everyone can prototype with AI tools. This isn't about replacing specialists. It's about arriving at the decision point with a working demo instead of a slide deck.</p>
 
     <div class="callout callout--pm-tip">
-      <div class="callout__label">PM Tip</div>
+      <div class="callout__label">Builder Tip</div>
       <div class="callout__body"><strong>Start with internal tools.</strong> Your first vibe coding project shouldn't be customer-facing. Build the dashboard your team keeps asking for. Automate the weekly report that takes two hours. Create the internal tool that's been sitting in the backlog for six months. Low stakes, high learning, immediate value &mdash; and nobody cares if the CSS is slightly off.</div>
     </div>
 
@@ -299,7 +299,7 @@
 
     <p>Claude Code works differently. Instead of a browser IDE, it lives in your terminal. You open it in a directory &mdash; any directory, on your machine, with your files &mdash; and start a conversation. It reads your existing code, understands the project structure, and makes changes in place. There's no separate environment, no cloud workspace. It works on <em>your</em> stuff.</p>
 
-    <p>This matters more than it sounds. When an AI tool has full context of your actual codebase &mdash; your folder structure, your naming conventions, your existing patterns &mdash; the code it writes fits in. It doesn't scaffold a new project from scratch; it extends the one you already have. For PMs building on top of existing repos, this is the difference between useful output and output you have to rewrite.</p>
+    <p>This matters more than it sounds. When an AI tool has full context of your actual codebase &mdash; your folder structure, your naming conventions, your existing patterns &mdash; the code it writes fits in. It doesn't scaffold a new project from scratch; it extends the one you already have. For anyone building on top of an existing codebase, this is the difference between useful output and output you have to rewrite.</p>
 
     <p><strong>Where Claude Code shines:</strong></p>
     <ul>
@@ -323,7 +323,7 @@
          ================================================================ -->
     <h2 id="the-landscape"><span class="section-number">V</span> The Landscape</h2>
 
-    <p>Replit and Claude Code aren't the only options. The AI-assisted building space is moving fast, with new tools launching monthly. Here's how the current leaders compare across the dimensions that matter most for PMs.</p>
+    <p>Replit and Claude Code aren't the only options. The AI-assisted building space is moving fast, with new tools launching monthly. Here's how the current leaders compare across the dimensions that matter most.</p>
 
     <table class="tier-table">
       <thead>
@@ -363,7 +363,7 @@
         </tr>
         <tr>
           <td>Cursor</td>
-          <td>Engineers and technical PMs already using VS Code</td>
+          <td>Engineers and technical builders already using VS Code</td>
           <td>Medium &mdash; VS Code familiarity helps</td>
           <td>BYO hosting</td>
           <td>Strong &mdash; full IDE capabilities</td>
@@ -701,7 +701,7 @@
   (function() {
     var questions = [
       {
-        question: 'A PM tells you they\'ve been "fully vibing" \u2014 accepting whatever the AI generates without reading it \u2014 to build an internal analytics dashboard that the sales team will use daily. They\'re about to deploy it. What\'s the most important concern?',
+        question: 'Someone tells you they\'ve been "fully vibing" \u2014 accepting whatever the AI generates without reading it \u2014 to build an internal analytics dashboard that the sales team will use daily. They\'re about to deploy it. What\'s the most important concern?',
         options: [
           { label: 'The code probably has syntax errors since nobody reviewed it', key: 'a' },
           { label: 'Fully vibing works fine for internal tools since the stakes are low', key: 'b' },
@@ -712,18 +712,18 @@
         explanation: 'Fully vibing is appropriate for throwaway experiments, not tools with regular users. The issue isn\'t syntax errors (AI code usually runs) or the tool choice \u2014 it\'s the unreviewed decisions about data structure, error handling, and edge cases that accumulate when nobody reads the code. Internal tools have lower stakes than customer-facing ones, but "used daily by a team" is well past the throwaway threshold.'
       },
       {
-        question: 'Your VP asks why PMs should learn vibe coding when the company already has a strong engineering team. Which argument best captures the value?',
+        question: 'A skeptic asks why non-engineers should learn vibe coding when the company already has a strong engineering team. Which argument best captures the value?',
         options: [
-          { label: 'PMs can replace engineers for most frontend features, reducing headcount', key: 'a' },
-          { label: 'PMs carry user context from interviews and support tickets that flows directly into prototypes, eliminating lossy translation through specs and tickets', key: 'b' },
-          { label: 'Engineering teams are too slow and vibe coding lets PMs bypass them', key: 'c' },
-          { label: 'Learning to code is a required skill for modern PMs regardless of whether they use AI', key: 'd' }
+          { label: 'Non-engineers can replace engineers for most frontend features, reducing headcount', key: 'a' },
+          { label: 'Builders closest to the problem carry context from user research and support tickets that flows directly into prototypes, eliminating lossy translation through specs and tickets', key: 'b' },
+          { label: 'Engineering teams are too slow and vibe coding lets you bypass them', key: 'c' },
+          { label: 'Learning to code is a required skill for modern product people regardless of whether they use AI', key: 'd' }
         ],
         answer: 'b',
-        explanation: 'The core value isn\'t replacing engineers or bypassing them \u2014 both framings create adversarial dynamics. And traditional coding skill isn\'t the point here. The real unlock is that PMs hold user context (from interviews, support tickets, user research) that\'s hard to fully transfer through written specs. When PMs prototype directly, that context flows into the build without lossy translation, producing more accurate demonstrations of intent.'
+        explanation: 'The core value isn\'t replacing engineers or bypassing them \u2014 both framings create adversarial dynamics. And traditional coding skill isn\'t the point here. The real unlock is that builders closest to the problem hold context (from user research, support tickets, domain expertise) that\'s hard to fully transfer through written specs. When they prototype directly, that context flows into the build without lossy translation, producing more accurate demonstrations of intent.'
       },
       {
-        question: 'A non-technical PM is choosing between Replit and Claude Code for their first vibe coding project \u2014 an internal dashboard. They\'ve never used a terminal. What should you recommend?',
+        question: 'A non-technical builder is choosing between Replit and Claude Code for their first vibe coding project \u2014 an internal dashboard. They\'ve never used a terminal. What should you recommend?',
         options: [
           { label: 'Replit, because the browser-based workflow and one-click deploy eliminate the terminal learning curve for a first project', key: 'a' },
           { label: 'Claude Code, because dashboards need deep codebase context', key: 'b' },
@@ -731,7 +731,7 @@
           { label: 'Cursor, since it has the best VS Code integration', key: 'd' }
         ],
         answer: 'a',
-        explanation: 'For a first project by a non-technical PM, Replit\'s zero-setup browser environment removes the biggest friction point. Claude Code requires terminal comfort, which this PM doesn\'t have. Cursor also requires VS Code familiarity. And there\'s no prerequisite to learn coding first \u2014 the whole point of vibe coding is that the AI handles implementation. Start with the tool matching your comfort level; graduate later.'
+        explanation: 'For a first project by a non-technical builder, Replit\'s zero-setup browser environment removes the biggest friction point. Claude Code requires terminal comfort, which this builder doesn\'t have. Cursor also requires VS Code familiarity. And there\'s no prerequisite to learn coding first \u2014 the whole point of vibe coding is that the AI handles implementation. Start with the tool matching your comfort level; graduate later.'
       },
       {
         question: 'An engineer on your team says Claude Code is strictly better than Replit because it works on real codebases. How should you frame the tradeoff?',
@@ -742,10 +742,10 @@
           { label: 'The tools are identical in capability and only differ in their user interface', key: 'd' }
         ],
         answer: 'c',
-        explanation: 'Neither tool is strictly better. Claude Code excels at extending existing codebases with deep context and git integration, giving it a higher ceiling for production-grade work. But Replit gets you to a working, deployed prototype faster with zero setup. The engineer is seeing it from their perspective (terminal comfort, real codebases), but for PMs building demos or internal tools, Replit\'s lower floor matters more than Claude Code\'s higher ceiling.'
+        explanation: 'Neither tool is strictly better. Claude Code excels at extending existing codebases with deep context and git integration, giving it a higher ceiling for production-grade work. But Replit gets you to a working, deployed prototype faster with zero setup. The engineer is seeing it from their perspective (terminal comfort, real codebases), but for builders creating demos or internal tools, Replit\'s lower floor matters more than Claude Code\'s higher ceiling.'
       },
       {
-        question: 'Your team is debating which single AI coding tool to standardize on. A senior PM argues they should pick one and commit. What\'s wrong with this approach?',
+        question: 'Your team is debating which single AI coding tool to standardize on. A senior teammate argues they should pick one and commit. What\'s wrong with this approach?',
         options: [
           { label: 'Most practitioners use two or three tools depending on the task \u2014 Replit for fast demos, Claude Code for serious building, Lovable when design matters \u2014 treating it as a toolkit rather than a religion', key: 'a' },
           { label: 'They should wait six months because the tools are changing too fast', key: 'b' },
