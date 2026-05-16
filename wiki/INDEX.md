@@ -3,7 +3,7 @@
 Planning layer for the "AI for PMs" site. Tracks what's covered, what's planned,
 what's missing, and what concepts cut across topics.
 
-Last updated: 2026-04-17
+Last updated: 2026-05-16
 
 Conventions in [`SCHEMA.md`](SCHEMA.md).
 
@@ -35,8 +35,30 @@ Canonical slugs (match directory names in repo root).
 
 **Totals:** 19 article pages · 8 topic indexes · 3 infographics · 1 root index = 31 HTML files.
 
+## Themes
+
+Cross-cutting concepts backed by dedicated pages in `themes/`.
+
+- [RAG](themes/rag.md) — retrieval-augmented generation (grounding, context-windows, llm-fundamentals)
+- [Hallucinations](themes/hallucinations.md) — confabulation by design (grounding, evaluation, ai-ux, llm-fundamentals)
+- [HITL](themes/hitl.md) — human-in-the-loop (ai-ux, agents, grounding, llm-fundamentals)
+- [Cost–Quality–Latency](themes/cost-quality-tradeoff.md) — the triangle (all topics)
+- [Tool-Use Reliability](themes/tool-use-reliability.md) — compound failure in agent loops (agents, evaluation)
+- [Next-Token Prediction](themes/next-token-prediction.md) — the site's core thesis (llm-fundamentals, grounding)
+
+## Entities
+
+Named things referenced across articles, backed by dedicated pages in `entities/`.
+
+- [RAG Pipeline](entities/rag-pipeline.md) — pattern (grounding, context-windows)
+- [MCP](entities/mcp.md) — Model Context Protocol (agents, grounding)
+- [Claude](entities/claude.md) — Anthropic's model family (all topics)
+- [Vector Database](entities/vector-db.md) — tool class (grounding, context-windows)
+- [ReAct Pattern](entities/react-pattern.md) — Reasoning + Acting (agents, vibe-coding)
+- [Claude Code](entities/claude-code.md) — agentic coding CLI (vibe-coding, agents)
+
 ## Health
 
-- Latest lint: 2026-04-17 (first pass) — see [`LINT.md`](LINT.md)
-- Latest reflect: pending first pass — see [`REFLECT.md`](REFLECT.md)
-- Run `python3 scripts/lint.py` to regenerate.
+- Latest lint: 2026-04-17 — see [`LINT.md`](LINT.md)
+- Latest reflect: 2026-05-16 (first pass) — see [`REFLECT.md`](REFLECT.md)
+- Run `python3 scripts/lint.py` to regenerate lint.
