@@ -1,5 +1,5 @@
 /* ==========================================================================
-   AI for PMs — Design System
+   AI for Builders — Design System
    ========================================================================== */
 
 /* --- Custom Properties --- */
@@ -353,10 +353,22 @@ h1, h2, h3 {
 .site-subtitle {
   font-family: var(--font-sans);
   font-size: var(--text-lg);
-  color: var(--color-text-secondary);
-  max-width: 480px;
+  font-weight: 500;
+  color: var(--color-text);
+  max-width: 540px;
   margin: 0 auto;
   line-height: 1.5;
+  letter-spacing: -0.01em;
+}
+
+.site-hook {
+  font-family: var(--font-serif);
+  font-size: var(--text-base);
+  font-style: italic;
+  color: var(--color-text-secondary);
+  max-width: 540px;
+  margin: var(--space-4) auto 0;
+  line-height: 1.6;
 }
 
 /* --- Site Footer --- */
