@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-E8RQLQXRWH"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-E8RQLQXRWH');
+  </script>
+  <title>Streaming UX Patterns — AI for Builders</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/shared.css?v=9">
+  <style>
+    .reading-progress { position: fixed; top: 0; left: 0; width: 100%; height: 3px; z-index: 1000; pointer-events: none; background: transparent; }
+    .reading-progress__bar { height: 100%; width: 0%; background: #4F46E5; transition: width 0.15s ease-out; }
+    .toc__item--active > a { color: var(--accent-ux, #4F46E5); opacity: 1; }
+    .toc__item--active > .toc__numeral { color: var(--accent-ux, #4F46E5); opacity: 1; }
+    @media (min-width: 1280px) {
+      .toc { position: fixed; top: 50%; transform: translateY(-50%); width: 180px; left: calc((100vw - 760px) / 2 - 220px); padding: 0; margin: 0; z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+      .toc--visible { opacity: 1; pointer-events: auto; }
+      .toc__inner { padding: 0.75rem 1rem; background: rgba(255, 255, 255, 0.95); border-radius: 8px; border: 1px solid rgba(0, 0, 0, 0.08); backdrop-filter: blur(8px); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04); }
+      .toc__title { font-size: 0.65rem; margin-bottom: 0.5rem; }
+      .toc__list li { padding: 0.2rem 0; }
+      .toc__list a, .toc__numeral { font-size: 0.8rem; }
+    }
+
+    /* Widget: Stream Mode Demo */
+    .stream-demo { max-width: 720px; margin: var(--space-8) auto; padding: var(--space-6); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 12px; }
+    .stream-demo__title { font-family: var(--font-sans); font-size: var(--text-sm); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent-ux); margin-bottom: var(--space-4); }
+    .stream-demo__tabs { display: flex; gap: var(--space-2); margin-bottom: var(--space-4); }
+    .stream-demo__tab { padding: 0.5rem 1rem; border: 2px solid var(--color-border); border-radius: 6px; background: var(--color-bg); cursor: pointer; font-family: var(--font-sans); font-size: var(--text-sm); font-weight: 500; transition: border-color 0.2s, background 0.2s; }
+    .stream-demo__tab:hover { border-color: var(--accent-ux); }
+    .stream-demo__tab--active { border-color: var(--accent-ux); background: #EEF2FF; color: var(--accent-ux); }
+    .stream-demo__screen { min-height: 200px; padding: var(--space-4); background: #1a1a2e; border-radius: 8px; font-family: var(--font-sans); font-size: var(--text-sm); color: #e0e0e0; line-height: 1.7; position: relative; overflow: hidden; }
+    .stream-demo__cursor { display: inline-block; width: 2px; height: 1.1em; background: var(--accent-ux); animation: blink 1s step-end infinite; vertical-align: text-bottom; margin-left: 1px; }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+    .stream-demo__skeleton { height: 14px; border-radius: 4px; background: #2a2a3e; margin-bottom: 8px; }
+    .stream-demo__skeleton--filled { background: linear-gradient(90deg, #4F46E5 0%, #818CF8 100%); transition: background 0.3s; }
+    .stream-demo__play { display: block; margin: var(--space-4) auto 0; padding: 0.5rem 1.5rem; background: var(--accent-ux); color: #fff; border: none; border-radius: 6px; font-family: var(--font-sans); font-size: var(--text-sm); font-weight: 500; cursor: pointer; }
+    .stream-demo__play:hover { filter: brightness(1.1); }
+    .stream-demo__note { font-family: var(--font-sans); font-size: var(--text-xs); color: var(--color-text-secondary); text-align: center; margin-top: var(--space-3); }
+
+    /* Widget: Error Recovery */
+    .error-demo { max-width: 720px; margin: var(--space-8) auto; padding: var(--space-6); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 12px; }
+    .error-demo__title { font-family: var(--font-sans); font-size: var(--text-sm); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent-ux); margin-bottom: var(--space-4); }
+    .error-demo__scenarios { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--space-3); margin-bottom: var(--space-4); }
+    @media (max-width: 600px) { .error-demo__scenarios { grid-template-columns: 1fr; } }
+    .error-demo__scenario { padding: var(--space-4); border: 2px solid var(--color-border); border-radius: 8px; cursor: pointer; transition: border-color 0.2s, background 0.2s; font-family: var(--font-sans); font-size: var(--text-sm); text-align: center; }
+    .error-demo__scenario:hover { border-color: var(--accent-ux); }
+    .error-demo__scenario--active { border-color: var(--accent-ux); background: #EEF2FF; }
+    .error-demo__scenario strong { display: block; margin-bottom: 0.25rem; }
+    .error-demo__result { padding: var(--space-4); background: #EEF2FF; border-radius: 8px; border-left: 4px solid var(--accent-ux); font-family: var(--font-sans); font-size: var(--text-sm); line-height: 1.6; display: none; }
+    .error-demo__result--visible { display: block; }
+
+    /* Capstone quiz */
+    .capstone-quiz { max-width: 720px; margin: var(--space-12) auto; padding: var(--space-8); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 12px; }
+    .capstone-quiz__title { font-family: var(--font-sans); font-size: var(--text-sm); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent-ux); margin-bottom: var(--space-2); }
+    .capstone-quiz__progress { font-family: var(--font-sans); font-size: var(--text-sm); color: var(--color-text-secondary); margin-bottom: var(--space-6); }
+    .capstone-quiz__question { font-family: var(--font-serif); font-size: var(--text-lg); line-height: 1.5; margin-bottom: var(--space-6); }
+    .capstone-quiz__options { display: flex; flex-direction: column; gap: var(--space-3); margin-bottom: var(--space-4); }
+    .capstone-quiz__option { padding: var(--space-4); border: 2px solid var(--color-border); border-radius: 8px; cursor: pointer; transition: border-color 0.2s, background 0.2s; font-family: var(--font-sans); font-size: var(--text-sm); line-height: 1.5; text-align: left; background: var(--color-bg); }
+    .capstone-quiz__option:hover { border-color: var(--accent-ux); }
+    .capstone-quiz__option--correct { border-color: #059669; background: #ECFDF5; }
+    .capstone-quiz__option--wrong { border-color: #DC2626; background: #FEF2F2; }
+    .capstone-quiz__explanation { display: none; padding: var(--space-4); background: #EEF2FF; border-radius: 8px; border-left: 4px solid var(--accent-ux); font-family: var(--font-sans); font-size: var(--text-sm); line-height: 1.6; margin-bottom: var(--space-4); }
+    .capstone-quiz__explanation--visible { display: block; }
+    .capstone-quiz__next { display: none; padding: 0.6rem 1.5rem; background: var(--accent-ux); color: #fff; border: none; border-radius: 6px; font-family: var(--font-sans); font-size: var(--text-sm); font-weight: 500; cursor: pointer; }
+    .capstone-quiz__next:hover { filter: brightness(1.1); }
+    .capstone-quiz__next--visible { display: inline-block; }
+    .capstone-quiz__score { text-align: center; padding: var(--space-8); font-family: var(--font-sans); }
+    .capstone-quiz__score-number { font-size: var(--text-3xl); font-weight: 600; color: var(--accent-ux); }
+    .capstone-quiz__score-label { font-size: var(--text-sm); color: var(--color-text-secondary); margin-top: var(--space-2); }
+    .capstone-quiz__score-message { font-size: var(--text-base); margin-top: var(--space-4); line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <div class="reading-progress"><div class="reading-progress__bar" id="reading-progress-bar"></div></div>
+
+  <header class="article-hero" id="article-hero" style="background: linear-gradient(135deg, #4338CA 0%, #818CF8 100%);">
+    <canvas class="article-hero__canvas" id="hero-canvas"></canvas>
+    <div class="article-hero__overlay"></div>
+    <div class="article-hero__content">
+      <nav class="breadcrumb breadcrumb--hero">
+        <a href="../index.html">AI for Builders</a> &nbsp;/&nbsp; <a href="index.html">AI UX &amp; Human-in-the-Loop</a> &nbsp;/&nbsp; <span>Part 3</span>
+      </nav>
+      <div class="article-header__meta" style="color: rgba(255,255,255,0.9);">Part 3 of 3 &middot; ~9 min read</div>
+      <h1 style="color: #fff;">Streaming UX Patterns</h1>
+      <p class="lead" style="color: rgba(255,255,255,0.85);">Token by token, chunk by chunk &mdash; streaming changes how users read, trust, and interact with AI output. Here&rsquo;s the craft of doing it well.</p>
+    </div>
+  </header>
+
+  <nav class="toc" aria-label="Table of contents">
+    <div class="toc__inner">
+      <div class="toc__title">Contents</div>
+      <ol class="toc__list">
+        <li class="toc__item"><span class="toc__numeral">I.</span><a href="#why-streaming-is-ux">Why Streaming Is a UX Decision</a></li>
+        <li class="toc__item"><span class="toc__numeral">II.</span><a href="#three-modes">The Three Modes</a></li>
+        <li class="toc__item"><span class="toc__numeral">III.</span><a href="#designing-the-stream">Designing the Stream</a></li>
+        <li class="toc__item"><span class="toc__numeral">IV.</span><a href="#errors-mid-stream">Errors Mid-Stream</a></li>
+        <li class="toc__item"><span class="toc__numeral">V.</span><a href="#beyond-chat">Beyond the Chat Box</a></li>
+        <li class="toc__item"><span class="toc__numeral">VI.</span><a href="#post-stream">The Post-Stream Moment</a></li>
+      </ol>
+    </div>
+  </nav>
+
+  <div class="epigraph">
+    <p class="epigraph__verse">
+      Word by word the answer grows,<br>
+      Cursor blinking, user knows<br>
+      Something&rsquo;s thinking, something&rsquo;s near &mdash;<br>
+      Blank screens break trust. Streams build it here.
+    </p>
+  </div>
+
+  <article class="prose">
+
+    <h2 id="why-streaming-is-ux"><span class="section-number">I</span> Why Streaming Is a UX Decision</h2>
+
+    <p>The <a href="../cost-latency/latency.html">Cost &amp; Latency</a> series covered streaming as a performance optimization: same total time, better perceived speed. That&rsquo;s true but incomplete. Streaming fundamentally changes the user&rsquo;s relationship with AI output.</p>
+
+    <p><strong>Streaming builds trust through transparency.</strong> When a user watches text appear word by word, they&rsquo;re seeing the AI &ldquo;think.&rdquo; They can start evaluating the response before it&rsquo;s complete. They can interrupt if it&rsquo;s heading in the wrong direction. This isn&rsquo;t just faster &mdash; it&rsquo;s a fundamentally different cognitive experience than staring at a blank screen and then receiving a wall of text.</p>
+
+    <p><strong>Streaming changes reading behavior.</strong> With batch responses, users scan. With streaming, they <em>follow</em> &mdash; reading at roughly the pace of generation. This means the first few sentences carry disproportionate weight. If the opening is wrong, the user has already mentally rejected the response before it finishes. If the opening is right, they&rsquo;re engaged and forgiving of later rough patches.</p>
+
+    <p><strong>Streaming creates the illusion of dialogue.</strong> Even in a single turn, token-by-token output feels like a conversation &mdash; someone formulating a thought in real time. This matters for trust: users rate identical content higher when it appears to stream versus appearing all at once. The medium shapes perception of the message.</p>
+
+    <div class="callout callout--insight">
+      <div class="callout__label">Key Insight</div>
+      <div class="callout__body">Streaming is not optional for AI products. It&rsquo;s the baseline UX expectation. Users who&rsquo;ve experienced ChatGPT, Claude, or Gemini expect token-by-token output everywhere. A product that shows a loading spinner for 8 seconds and then dumps text feels broken by comparison &mdash; even if the response is better. <strong>Perceived quality is actual quality in UX.</strong></div>
+    </div>
+
+    <h2 id="three-modes"><span class="section-number">II</span> The Three Modes</h2>
+
+    <p>Not all streaming is created equal. Three patterns cover most use cases, and picking the wrong one creates a jarring experience.</p>
+
+    <h3>Token-by-Token</h3>
+    <p>The classic. Characters appear as the model generates them, like watching someone type. Best for <strong>conversational interfaces</strong> where the output is prose &mdash; chat, email drafts, explanations, summaries. The user reads along with the generation and the stream itself is the experience.</p>
+    <p><strong>When it breaks:</strong> Structured output. Watching a JSON object appear character by character is meaningless to most users. A table streaming cell by cell is confusing. If the output has structure, token-by-token exposes the wrong level of abstraction.</p>
+
+    <h3>Chunked Reveal</h3>
+    <p>Output appears in meaningful chunks &mdash; a complete paragraph, a finished table row, a full code function. The model streams behind the scenes; your UI buffers until a logical unit is complete, then reveals it with a smooth transition. Best for <strong>structured or sectioned output</strong> where partial tokens are meaningless.</p>
+    <p><strong>When it breaks:</strong> Long waits between chunks. If your model writes 500 tokens before the first chunk is ready, the user sits through a loading state that streaming was supposed to eliminate. The chunk size needs to balance coherence with perceived responsiveness.</p>
+
+    <h3>Skeleton-to-Content</h3>
+    <p>Show the output structure immediately &mdash; headers, placeholders, empty sections &mdash; then fill in each section as the model completes it. Best for <strong>dashboards, reports, and multi-section outputs</strong> where the user wants to see the shape of the answer before the details arrive.</p>
+    <p><strong>When it breaks:</strong> Unpredictable structure. If the model might produce 3 sections or 7, showing a skeleton with 5 placeholders creates a mismatch. Skeleton-to-content works when you know the output structure in advance &mdash; which means it works best with constrained prompts.</p>
+
+  </article>
+
+  <!-- Widget 1: Stream Mode Demo -->
+  <div class="wide-container">
+    <div class="stream-demo" id="stream-demo">
+      <div class="stream-demo__title">Interactive &middot; Stream Modes Compared</div>
+      <p style="font-family: var(--font-sans); font-size: var(--text-sm); color: var(--color-text-secondary); margin-bottom: var(--space-4);">Click a mode, then play to see the difference.</p>
+      <div class="stream-demo__tabs">
+        <button class="stream-demo__tab stream-demo__tab--active" data-mode="token">Token-by-Token</button>
+        <button class="stream-demo__tab" data-mode="chunk">Chunked Reveal</button>
+        <button class="stream-demo__tab" data-mode="skeleton">Skeleton-to-Content</button>
+      </div>
+      <div class="stream-demo__screen" id="sd-screen"></div>
+      <button class="stream-demo__play" id="sd-play">&#9654; Play</button>
+      <div class="stream-demo__note" id="sd-note"></div>
+    </div>
+  </div>
+
+  <article class="prose">
+
+    <h2 id="designing-the-stream"><span class="section-number">III</span> Designing the Stream</h2>
+
+    <p>The details of streaming UX are the difference between &ldquo;feels alive&rdquo; and &ldquo;feels janky.&rdquo;</p>
+
+    <p><strong>Typography.</strong> Streaming text needs slightly more line-height than static text because the user&rsquo;s eye is tracking a moving target. 1.6&ndash;1.8 for body text (vs. 1.4&ndash;1.5 for static). Use a serif or proportional font &mdash; monospace fonts make token-by-token streaming look like a terminal, which is fine for code but alienating for prose.</p>
+
+    <p><strong>The cursor.</strong> A blinking cursor at the insertion point is the universal &ldquo;still generating&rdquo; signal. Remove it the moment generation completes. If the cursor lingers after the response is done, users wait for more text that never comes. If it disappears during generation (a common bug), users think the response is finished.</p>
+
+    <p><strong>Scroll management.</strong> Auto-scroll to keep the latest content visible, but <em>stop auto-scrolling if the user scrolls up.</em> Nothing is more frustrating than reading the middle of a response and being yanked back to the bottom. Resume auto-scroll only when the user scrolls back to the bottom themselves. This is a solved problem that teams still get wrong constantly.</p>
+
+    <p><strong>The &ldquo;stop generating&rdquo; button.</strong> Every streaming interface needs one. Prominent, always visible during generation, and it must actually work &mdash; stopping the stream and keeping whatever was generated so far. Users use this more than you think: they see the answer they need in the first paragraph and don&rsquo;t want to wait (or pay) for the rest.</p>
+
+    <div class="callout callout--pm-tip">
+      <div class="callout__label">Builder Tip</div>
+      <div class="callout__body"><strong>Stream the first token fast.</strong> Time-to-first-token (TTFT) matters more than total generation time for perceived speed. A response that starts in 200ms and takes 5 seconds to complete feels faster than one that starts in 2 seconds and takes 3 seconds total. Optimize TTFT: smaller system prompts, prompt caching, model routing to faster models for simple queries.</div>
+    </div>
+
+    <h2 id="errors-mid-stream"><span class="section-number">IV</span> Errors Mid-Stream</h2>
+
+    <p>What happens when the model fails halfway through a response? The user has already read three paragraphs. They&rsquo;ve started forming an opinion. And then &mdash; nothing. The stream stops. Or worse, the entire response disappears and gets replaced with &ldquo;Something went wrong.&rdquo;</p>
+
+    <p>Three patterns for handling mid-stream failures, in order of user experience quality:</p>
+
+    <p><strong>1. Keep and mark.</strong> Preserve everything generated so far. Append a clear indicator: &ldquo;[Response interrupted &mdash; the model encountered an error. What was generated above may be incomplete.]&rdquo; The user keeps the partial output and decides whether it&rsquo;s useful. This is almost always the right choice &mdash; partial information is better than no information.</p>
+
+    <p><strong>2. Keep and retry.</strong> Preserve the partial output, then automatically retry from where it stopped. Show a brief &ldquo;Continuing...&rdquo; indicator. This works well for network timeouts but poorly for model errors (which will likely recur). Use with a retry limit &mdash; two attempts, then fall back to &ldquo;keep and mark.&rdquo;</p>
+
+    <p><strong>3. Replace and retry.</strong> Clear the partial output and start over. This is the worst user experience (they watched three paragraphs vanish) but sometimes necessary for errors that corrupt the output context. Only use this for errors where partial output is actively misleading &mdash; not for timeouts or rate limits.</p>
+
+    <div class="callout callout--insight">
+      <div class="callout__label">Key Insight</div>
+      <div class="callout__body"><strong>Never silently discard partial output.</strong> Users saw it appear. They started processing it. Deleting it without explanation feels like gaslighting. Even if you need to retry, tell the user what happened and give them the choice to keep or discard what they already saw.</div>
+    </div>
+
+  </article>
+
+  <!-- Widget 2: Error Recovery Demo -->
+  <div class="wide-container">
+    <div class="error-demo" id="error-demo">
+      <div class="error-demo__title">Interactive &middot; Error Recovery Patterns</div>
+      <p style="font-family: var(--font-sans); font-size: var(--text-sm); color: var(--color-text-secondary); margin-bottom: var(--space-4);">The model failed at 60% completion. Click a recovery pattern to see how it looks.</p>
+      <div class="error-demo__scenarios" id="ed-scenarios"></div>
+      <div class="error-demo__result" id="ed-result"></div>
+    </div>
+  </div>
+
+  <article class="prose">
+
+    <h2 id="beyond-chat"><span class="section-number">V</span> Beyond the Chat Box</h2>
+
+    <p>Most streaming UX advice assumes a chat interface. But AI is increasingly embedded in non-chat contexts where streaming needs different patterns.</p>
+
+    <p><strong>Tables.</strong> A financial report with 20 rows. Don&rsquo;t stream cell by cell &mdash; it&rsquo;s unreadable. Stream row by row with a subtle slide-in animation. Show column headers immediately (you know the structure). Add a running count: &ldquo;12 of ~20 rows.&rdquo; Users can start working with early rows while later ones generate.</p>
+
+    <p><strong>Code.</strong> Stream function by function, not character by character. Buffer tokens until a logical unit is complete (a function, a class, a comment block), then reveal with syntax highlighting already applied. Character-by-character code streaming causes layout thrash as the highlighter re-parses on every token.</p>
+
+    <p><strong>Summaries and reports.</strong> Use skeleton-to-content. Show the section headers immediately (&ldquo;Key Findings,&rdquo; &ldquo;Risks,&rdquo; &ldquo;Recommendations&rdquo;), then fill each section as it completes. Users can jump to the section they care about without waiting for the whole document. This is how a16z frames the next phase of AI UX: away from chat-as-interface, toward structured outputs that the user navigates rather than reads linearly.</p>
+
+    <p><strong>Suggestions and autocomplete.</strong> These need to appear <em>instantly</em> or not at all. Any visible streaming in an autocomplete widget feels laggy. Buffer the full suggestion behind the scenes and reveal it as a single unit. If the model can&rsquo;t respond in under 300ms, show nothing &mdash; a slow suggestion is worse than no suggestion because it interrupts the user&rsquo;s flow.</p>
+
+    <div class="callout callout--analogy">
+      <div class="callout__label">Analogy</div>
+      <div class="callout__body">Think of streaming modes like presentation styles. Token-by-token is a live speaker &mdash; you follow their train of thought in real time. Chunked reveal is a slideshow &mdash; each slide appears complete. Skeleton-to-content is an outline that fills in &mdash; you see the structure immediately and the details arrive. <strong>Match the streaming mode to how your users actually consume the output.</strong></div>
+    </div>
+
+    <h2 id="post-stream"><span class="section-number">VI</span> The Post-Stream Moment</h2>
+
+    <p>Generation complete. Cursor gone. Now what? Most AI products treat the end of streaming as the end of the interaction. That&rsquo;s a missed opportunity and sometimes a dead end.</p>
+
+    <p><strong>Edit affordances.</strong> The moment streaming stops, the output should become editable or actionable. Copy buttons appear. Edit icons become active. If the output is a draft email, an &ldquo;Edit before sending&rdquo; button materializes. The transition from &ldquo;generating&rdquo; to &ldquo;ready&rdquo; should be visible and immediate.</p>
+
+    <p><strong>Follow-up prompts.</strong> Suggest 2&ndash;3 natural next actions based on what was generated. &ldquo;Make it shorter,&rdquo; &ldquo;Change the tone to formal,&rdquo; &ldquo;Add examples.&rdquo; These reduce the blank-prompt-box problem &mdash; users who don&rsquo;t know what to ask next will click a suggestion. Users who know exactly what they want will ignore them.</p>
+
+    <p><strong>The dead-end problem.</strong> If the AI&rsquo;s response is wrong or unhelpful, the user needs a clear path forward. &ldquo;Regenerate&rdquo; is the minimum. Better: &ldquo;Regenerate with different approach,&rdquo; which signals to the model that the first attempt was unsatisfactory. Best: an inline feedback mechanism (&ldquo;What was wrong?&rdquo;) that informs the retry.</p>
+
+    <div class="callout callout--summary">
+      <div class="callout__label">Takeaway</div>
+      <div class="callout__body">Streaming is the AI UX baseline. The three modes (token-by-token, chunked reveal, skeleton-to-content) each fit different output types. The craft is in the details: fast first token, smart scroll behavior, a stop button that works, graceful mid-stream error recovery, and a post-stream moment that turns output into action. <strong>Every second the user watches a blank screen is a second they&rsquo;re losing trust.</strong></div>
+    </div>
+
+  </article>
+
+  <nav class="article-nav">
+    <a href="human-in-the-loop.html">&larr; Part 2: When to Keep Humans in the Loop</a>
+    <a href="index.html">Back to series overview &rarr;</a>
+  </nav>
+
+  <!-- Capstone Quiz -->
+  <div class="capstone-quiz" id="capstone-quiz">
+    <div class="capstone-quiz__title">Capstone Quiz</div>
+    <div class="capstone-quiz__progress" id="cq-progress"></div>
+    <div class="capstone-quiz__question" id="cq-question"></div>
+    <div class="capstone-quiz__options" id="cq-options"></div>
+    <div class="capstone-quiz__explanation" id="cq-explanation"></div>
+    <button class="capstone-quiz__next" id="cq-next">Next question &rarr;</button>
+    <div class="capstone-quiz__score" id="cq-score" style="display:none;"></div>
+  </div>
+
+  <script>
+  // Reading Progress
+  (function() { var bar = document.getElementById('reading-progress-bar'); if (!bar) return; window.addEventListener('scroll', function() { var h = document.documentElement; bar.style.width = Math.min((h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100, 100) + '%'; }); })();
+  // TOC visibility
+  (function() { var toc = document.querySelector('.toc'), hero = document.getElementById('article-hero'); if (!toc || !hero) return; new IntersectionObserver(function(e) { toc.classList.toggle('toc--visible', !e[0].isIntersecting); }, { threshold: 0 }).observe(hero); })();
+  // TOC active
+  (function() { var h = document.querySelectorAll('h2[id]'), ti = document.querySelectorAll('.toc__item'); if (!h.length) return; h.forEach(function(hd) { new IntersectionObserver(function(e) { if (e[0].isIntersecting) { ti.forEach(function(i) { i.classList.remove('toc__item--active'); }); var l = document.querySelector('.toc__item a[href="#' + e[0].target.id + '"]'); if (l) l.parentElement.classList.add('toc__item--active'); } }, { rootMargin: '-20% 0px -80% 0px' }).observe(hd); }); })();
+  // Hero canvas
+  (function() { var c = document.getElementById('hero-canvas'); if (!c) return; var ctx = c.getContext('2d'), p = []; function r() { c.width = c.offsetWidth * (window.devicePixelRatio || 1); c.height = c.offsetHeight * (window.devicePixelRatio || 1); ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1); } r(); window.addEventListener('resize', r); for (var i = 0; i < 35; i++) p.push({ x: Math.random() * c.offsetWidth, y: Math.random() * c.offsetHeight, r: Math.random() * 2 + 1, dx: (Math.random() - 0.5) * 0.4, dy: (Math.random() - 0.5) * 0.4, a: Math.random() * 0.3 + 0.1 }); function d() { ctx.clearRect(0, 0, c.offsetWidth, c.offsetHeight); p.forEach(function(pt) { pt.x += pt.dx; pt.y += pt.dy; if (pt.x < 0 || pt.x > c.offsetWidth) pt.dx *= -1; if (pt.y < 0 || pt.y > c.offsetHeight) pt.dy *= -1; ctx.beginPath(); ctx.arc(pt.x, pt.y, pt.r, 0, Math.PI * 2); ctx.fillStyle = 'rgba(255,255,255,' + pt.a + ')'; ctx.fill(); }); for (var i = 0; i < p.length; i++) for (var j = i + 1; j < p.length; j++) { var dx = p[i].x - p[j].x, dy = p[i].y - p[j].y, dist = Math.sqrt(dx * dx + dy * dy); if (dist < 100) { ctx.beginPath(); ctx.moveTo(p[i].x, p[i].y); ctx.lineTo(p[j].x, p[j].y); ctx.strokeStyle = 'rgba(255,255,255,' + (0.12 * (1 - dist / 100)) + ')'; ctx.lineWidth = 0.5; ctx.stroke(); } } requestAnimationFrame(d); } d(); })();
+
+  // Widget 1: Stream Mode Demo
+  (function() {
+    var screen = document.getElementById('sd-screen');
+    var playBtn = document.getElementById('sd-play');
+    var noteEl = document.getElementById('sd-note');
+    var tabs = document.querySelectorAll('.stream-demo__tab');
+    var mode = 'token';
+    var running = false;
+
+    var text = "Based on your quarterly data, revenue grew 12% year-over-year, driven primarily by the enterprise segment. However, customer acquisition cost increased 23%, which partially offset the gains. Three recommendations: (1) Focus retention campaigns on mid-market accounts showing churn signals. (2) Renegotiate the paid acquisition channels that drove the CAC increase. (3) Accelerate the self-serve onboarding flow to reduce dependency on sales-assisted deals.";
+
+    tabs.forEach(function(tab) {
+      tab.addEventListener('click', function() {
+        tabs.forEach(function(t) { t.classList.remove('stream-demo__tab--active'); });
+        tab.classList.add('stream-demo__tab--active');
+        mode = tab.dataset.mode;
+        screen.innerHTML = '';
+        noteEl.textContent = '';
+      });
+    });
+
+    playBtn.addEventListener('click', function() {
+      if (running) return;
+      running = true;
+      screen.innerHTML = '';
+      noteEl.textContent = '';
+
+      if (mode === 'token') {
+        var i = 0;
+        var cursor = '<span class="stream-demo__cursor"></span>';
+        function typeNext() {
+          if (i >= text.length) { screen.innerHTML = text; noteEl.textContent = 'Token-by-token: user reads along with generation. Best for prose and conversation.'; running = false; return; }
+          screen.innerHTML = text.substring(0, i + 1) + cursor;
+          i++;
+          setTimeout(typeNext, 15 + Math.random() * 25);
+        }
+        typeNext();
+      } else if (mode === 'chunk') {
+        var sentences = text.match(/[^.!]+[.!]+/g) || [text];
+        var idx = 0;
+        screen.innerHTML = '<div style="color: #818CF8; font-size: 12px;">Generating...</div>';
+        function showChunk() {
+          if (idx >= sentences.length) { noteEl.textContent = 'Chunked reveal: each sentence appears complete. Best for structured output.'; running = false; return; }
+          if (idx === 0) screen.innerHTML = '';
+          var p = document.createElement('div');
+          p.style.opacity = '0';
+          p.style.transition = 'opacity 0.3s';
+          p.textContent = sentences[idx].trim();
+          p.style.marginBottom = '8px';
+          screen.appendChild(p);
+          setTimeout(function() { p.style.opacity = '1'; }, 50);
+          idx++;
+          setTimeout(showChunk, 800 + Math.random() * 400);
+        }
+        setTimeout(showChunk, 1200);
+      } else {
+        var sections = [
+          { label: 'Revenue Summary', content: 'Revenue grew 12% year-over-year, driven primarily by the enterprise segment.' },
+          { label: 'Cost Analysis', content: 'Customer acquisition cost increased 23%, which partially offset the gains.' },
+          { label: 'Recommendations', content: '(1) Focus retention campaigns on mid-market accounts. (2) Renegotiate paid acquisition channels. (3) Accelerate self-serve onboarding.' }
+        ];
+        screen.innerHTML = sections.map(function(s) {
+          return '<div style="margin-bottom: 12px;"><div style="color: #818CF8; font-weight: 600; font-size: 12px; text-transform: uppercase; margin-bottom: 4px;">' + s.label + '</div><div class="stream-demo__skeleton" style="width: 100%;"></div><div class="stream-demo__skeleton" style="width: 80%;"></div></div>';
+        }).join('');
+        var idx = 0;
+        function fillSection() {
+          if (idx >= sections.length) { noteEl.textContent = 'Skeleton-to-content: structure appears instantly, details fill in. Best for reports and dashboards.'; running = false; return; }
+          var divs = screen.querySelectorAll(':scope > div');
+          divs[idx].innerHTML = '<div style="color: #818CF8; font-weight: 600; font-size: 12px; text-transform: uppercase; margin-bottom: 4px;">' + sections[idx].label + '</div><div style="opacity: 0; transition: opacity 0.4s;">' + sections[idx].content + '</div>';
+          setTimeout(function() { divs[idx - 1].querySelector('div:last-child').style.opacity = '1'; }, 50);
+          idx++;
+          setTimeout(fillSection, 1000 + Math.random() * 500);
+        }
+        setTimeout(function() { idx = 0; fillSection(); }, 600);
+      }
+    });
+  })();
+
+  // Widget 2: Error Recovery Demo
+  (function() {
+    var scenarios = [
+      { label: '<strong>Keep & Mark</strong><span style="font-size: 11px; display: block; color: var(--color-text-secondary);">Preserve + indicate</span>',
+        html: '<p style="color: #e0e0e0; margin-bottom: 12px;">"Based on your quarterly data, revenue grew 12% year-over-year, driven primarily by the enterprise segment. However, customer acquisition cost increased 23%, which partially—"</p><div style="padding: 8px 12px; background: rgba(220, 38, 38, 0.15); border: 1px solid rgba(220, 38, 38, 0.3); border-radius: 6px; font-size: 12px; color: #FCA5A5;">\u26A0 Response interrupted — the model encountered an error. What was generated above may be incomplete.<br><button style="margin-top: 8px; padding: 4px 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; color: #e0e0e0; cursor: pointer; font-size: 12px;">Continue generating</button></div><p style="margin-top: 12px; font-size: 12px; color: #059669;"><strong>Best for:</strong> Most errors. User keeps partial value and decides next step.</p>' },
+      { label: '<strong>Keep & Retry</strong><span style="font-size: 11px; display: block; color: var(--color-text-secondary);">Preserve + auto-continue</span>',
+        html: '<p style="color: #e0e0e0; margin-bottom: 12px;">"Based on your quarterly data, revenue grew 12% year-over-year, driven primarily by the enterprise segment. However, customer acquisition cost increased 23%, which partially—"</p><div style="padding: 8px 12px; background: rgba(79, 70, 229, 0.15); border: 1px solid rgba(79, 70, 229, 0.3); border-radius: 6px; font-size: 12px; color: #A5B4FC;">Continuing from where it stopped...<span class="stream-demo__cursor" style="background: #818CF8;"></span></div><p style="margin-top: 8px; color: #e0e0e0;">"—offset the gains. Three recommendations: (1) Focus retention campaigns..."</p><p style="margin-top: 12px; font-size: 12px; color: #D97706;"><strong>Best for:</strong> Network timeouts. Use with retry limit (max 2 attempts).</p>' },
+      { label: '<strong>Replace & Retry</strong><span style="font-size: 11px; display: block; color: var(--color-text-secondary);">Clear + start over</span>',
+        html: '<p style="color: #6b6b6b; text-decoration: line-through; margin-bottom: 12px; font-size: 12px;">"Based on your quarterly data, revenue grew 12%..."</p><div style="padding: 8px 12px; background: rgba(220, 38, 38, 0.15); border: 1px solid rgba(220, 38, 38, 0.3); border-radius: 6px; font-size: 12px; color: #FCA5A5; margin-bottom: 12px;">Previous response was incomplete. Regenerating...</div><p style="color: #e0e0e0;">"Based on your quarterly data, revenue grew 12% year-over-year, driven primarily by the enterprise segment..."<span class="stream-demo__cursor" style="background: #818CF8;"></span></p><p style="margin-top: 12px; font-size: 12px; color: #DC2626;"><strong>Use sparingly:</strong> Only when partial output would be actively misleading. Users watched it vanish.</p>' }
+    ];
+
+    var container = document.getElementById('ed-scenarios');
+    var resultEl = document.getElementById('ed-result');
+    if (!container) return;
+
+    scenarios.forEach(function(s, i) {
+      var btn = document.createElement('div');
+      btn.className = 'error-demo__scenario';
+      btn.innerHTML = s.label;
+      btn.addEventListener('click', function() {
+        container.querySelectorAll('.error-demo__scenario').forEach(function(b) { b.classList.remove('error-demo__scenario--active'); });
+        btn.classList.add('error-demo__scenario--active');
+        resultEl.innerHTML = '<div style="padding: 16px; background: #1a1a2e; border-radius: 8px; font-family: var(--font-sans); font-size: 14px; line-height: 1.7;">' + s.html + '</div>';
+        resultEl.classList.add('error-demo__result--visible');
+      });
+      container.appendChild(btn);
+    });
+  })();
+
+  // Capstone Quiz
+  (function() {
+    var questions = [
+      { question: 'Your AI product generates financial reports (tables + prose + recommendations). Which streaming mode is most appropriate?',
+        options: [
+          { label: 'Token-by-token — users should see each word appear for transparency', key: 'a' },
+          { label: 'Skeleton-to-content — show the report structure immediately (headers, sections), then fill each section as it completes', key: 'b' },
+          { label: 'No streaming — financial data should appear all at once to avoid showing partial numbers', key: 'c' },
+          { label: 'Chunked reveal — buffer each paragraph and reveal it complete', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'Financial reports have known structure (summary, analysis, recommendations). Skeleton-to-content shows the shape immediately and lets users jump to the section they care about. Token-by-token makes tables unreadable (cells streaming character by character). Chunked reveal works but doesn\'t give users the structural overview. No streaming at all means an 8-10 second blank screen — unacceptable when users have experienced streaming everywhere else.' },
+      { question: 'Your chat interface auto-scrolls to the latest content during streaming. Users complain that they can\'t read earlier parts of long responses. What\'s the fix?',
+        options: [
+          { label: 'Disable auto-scroll entirely and let users scroll manually', key: 'a' },
+          { label: 'Stop auto-scrolling when the user scrolls up, and resume only when they scroll back to the bottom', key: 'b' },
+          { label: 'Add a "scroll to bottom" button but keep auto-scroll always on', key: 'c' },
+          { label: 'Limit response length so users never need to scroll during generation', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'This is a solved UX pattern that teams still get wrong. Auto-scroll should be smart: active by default, paused when the user scrolls up (they\'re reading), resumed when they scroll back to the bottom (they\'re done reading). Disabling auto-scroll entirely (option A) means users have to manually chase the output. Always-on auto-scroll (option C) is the original problem. Limiting length (option D) constrains the product to fix a UX bug.' },
+      { question: 'The model fails 60% through generating a customer email draft. The user has been watching it stream. What should happen?',
+        options: [
+          { label: 'Show an error message and clear the partial output', key: 'a' },
+          { label: 'Keep the partial draft visible, show a clear error indicator, and offer "Continue generating" and "Start over" options', key: 'b' },
+          { label: 'Silently retry from the beginning without telling the user', key: 'c' },
+          { label: 'Keep the partial draft and auto-complete it with a template', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'Never silently discard partial output — users saw it appear and started processing it. The best pattern is "keep and mark": preserve what was generated, clearly indicate the error, and give the user agency to continue, start over, or work with what they have. Silent retry (option C) is disorienting. Clearing the output (option A) feels like gaslighting. Auto-completing with a template (option D) mixes AI and template content without transparency.' },
+      { question: 'Your autocomplete feature uses streaming to show suggestions as the model generates them. Users say it feels "laggy." The model responds in ~500ms. What\'s wrong?',
+        options: [
+          { label: 'The model is too slow — switch to a faster model', key: 'a' },
+          { label: '500ms is too slow for autocomplete — either buffer the full suggestion and show it as a single unit, or show nothing until the model can respond in under 300ms', key: 'b' },
+          { label: 'Add a loading indicator to set expectations', key: 'c' },
+          { label: 'Stream the suggestion token-by-token to show progress', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'Autocomplete has different UX requirements than chat. Any visible streaming or delay in autocomplete feels laggy because users expect instant responses while typing. The fix: buffer the full suggestion behind the scenes and reveal it as a single unit once complete — or don\'t show anything at all if the model can\'t respond in under 300ms. Token-by-token streaming (option D) is exactly the wrong pattern here — it draws attention to the delay. A loading indicator (option C) in an autocomplete widget is also jarring.' },
+      { question: 'A teammate says "we should just stream everything token-by-token since that\'s what ChatGPT does." What\'s the strongest counter-argument?',
+        options: [
+          { label: 'Token-by-token is patented and we can\'t use it', key: 'a' },
+          { label: 'Token-by-token is the right mode for chat prose but wrong for structured output (tables, code, JSON), autocomplete (needs instant reveal), and dashboards (needs skeleton-to-content). Match the streaming mode to how users consume the output.', key: 'b' },
+          { label: 'Token-by-token is too expensive because it requires server-sent events', key: 'c' },
+          { label: 'Users prefer batch responses because they can read at their own pace', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'Token-by-token is one of three streaming modes, not a universal solution. It works for prose but makes tables unreadable (cells stream character by character), makes code jittery (syntax highlighting re-parses every token), and makes autocomplete feel slow. The right approach: match the mode to the output type. Chat → token-by-token. Tables → row-by-row chunks. Reports → skeleton-to-content. Autocomplete → instant reveal or nothing.' }
+    ];
+    var currentQ = 0, score = 0;
+    var qEl = document.getElementById('cq-question'), pEl = document.getElementById('cq-progress');
+    var oEl = document.getElementById('cq-options'), eEl = document.getElementById('cq-explanation');
+    var nEl = document.getElementById('cq-next'), sEl = document.getElementById('cq-score');
+    if (!qEl) return;
+    function render() {
+      if (currentQ >= questions.length) {
+        qEl.style.display = 'none'; pEl.style.display = 'none'; oEl.style.display = 'none'; eEl.style.display = 'none'; nEl.style.display = 'none'; sEl.style.display = 'block';
+        var pct = Math.round((score / questions.length) * 100);
+        var msgs = ['Review the article — streaming UX has patterns worth studying.', 'Decent foundation — you get the basics but the craft details need work.', 'Solid understanding — you know when to stream and when not to.', 'Strong grasp — you\'re ready to build streaming UX that users trust.'];
+        var mi = score <= 1 ? 0 : score <= 2 ? 1 : score <= 3 ? 2 : 3;
+        sEl.innerHTML = '<div class="capstone-quiz__score-number">' + score + '/' + questions.length + '</div><div class="capstone-quiz__score-label">' + pct + '% correct</div><div class="capstone-quiz__score-message">' + msgs[mi] + '</div>';
+        return;
+      }
+      var q = questions[currentQ]; pEl.textContent = 'Question ' + (currentQ + 1) + ' of ' + questions.length; qEl.textContent = q.question; oEl.innerHTML = '';
+      eEl.classList.remove('capstone-quiz__explanation--visible'); eEl.style.display = 'none'; nEl.classList.remove('capstone-quiz__next--visible'); nEl.style.display = 'none';
+      q.options.forEach(function(opt) {
+        var btn = document.createElement('button'); btn.className = 'capstone-quiz__option'; btn.textContent = opt.label;
+        btn.addEventListener('click', function() {
+          oEl.querySelectorAll('.capstone-quiz__option').forEach(function(b) { b.style.pointerEvents = 'none'; });
+          if (opt.key === q.answer) { btn.classList.add('capstone-quiz__option--correct'); score++; }
+          else { btn.classList.add('capstone-quiz__option--wrong'); oEl.querySelectorAll('.capstone-quiz__option').forEach(function(b) { if (b.textContent === q.options.find(function(o) { return o.key === q.answer; }).label) b.classList.add('capstone-quiz__option--correct'); }); }
+          eEl.textContent = q.explanation; eEl.style.display = 'block'; eEl.classList.add('capstone-quiz__explanation--visible');
+          nEl.style.display = 'inline-block'; nEl.classList.add('capstone-quiz__next--visible');
+        });
+        oEl.appendChild(btn);
+      });
+    }
+    nEl.addEventListener('click', function() { currentQ++; render(); }); render();
+  })();
+  </script>
+</body>
+</html>
