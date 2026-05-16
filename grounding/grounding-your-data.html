@@ -381,7 +381,7 @@
 
     <p>This is the grounding problem. LLMs are trained on public data &mdash; books, websites, code repositories, Wikipedia. They know the world in general. They do not know <em>your</em> world in particular: your internal docs, your customer data, your product specs, your Confluence pages that haven't been updated since 2022 but somehow remain the canonical source of truth for half the company.</p>
 
-    <p>The gap between "general knowledge" and "your knowledge" is where hallucinations thrive. The model doesn't know what it doesn't know, so it fills the void with plausible-sounding fiction. For a consumer chatbot, that's an annoyance. For an enterprise product handling customer data, billing logic, or compliance rules, it's a liability.</p>
+    <p>The gap between "general knowledge" and "your knowledge" is where hallucinations thrive. The model doesn't know what it doesn't know, so it fills the void with plausible-sounding fiction. For a consumer chatbot, that's an annoyance. For an enterprise product handling customer data, billing logic, or compliance rules, it's a liability. HBR calls this <strong>content risk</strong> &mdash; the danger that a generative AI system might <em>say</em> something wrong &mdash; and it's the defining risk category for any retrieval-based product.</p>
 
     <p><strong>Grounding</strong> is the practice of connecting a model to authoritative data sources so its answers are rooted in fact rather than fabrication. And the most practical way to do it today is called RAG.</p>
 
@@ -406,6 +406,8 @@
     </div>
 
     <p>The beauty of RAG is that it separates <em>knowledge</em> from <em>reasoning</em>. The LLM provides the reasoning. Your data provides the knowledge. Update a document and the model's answers change immediately — no retraining, no fine-tuning, no waiting weeks for a new model version. You ship a doc update, and the next query reflects it.</p>
+
+    <p>That immediacy matters more than it sounds. Enterprise data is contradictory and versioned &mdash; a 2022 policy doc might still sit in your knowledge base alongside the 2024 replacement. As HBR researchers Telang, Hydari, and Iqbal point out, an agent acting on a stale policy isn't hallucinating &mdash; it's making a <em>retrieval mistake</em> with legal consequences. RAG gives you the mechanism to fix this: swap the doc, and the answers update in real time.</p>
 
     <!-- ================================================================
          Section III: Embeddings Explained

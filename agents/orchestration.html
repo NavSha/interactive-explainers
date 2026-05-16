@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-E8RQLQXRWH"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-E8RQLQXRWH');
+  </script>
+  <title>Multi-Agent Orchestration — AI for Builders</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/shared.css?v=9">
+  <style>
+    /* Reading Progress Bar */
+    .reading-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      z-index: 1000;
+      pointer-events: none;
+      background: transparent;
+    }
+    .reading-progress__bar {
+      height: 100%;
+      width: 0%;
+      background: #2563EB;
+      transition: width 0.15s ease-out;
+    }
+
+    /* TOC Active Highlighting */
+    .toc__item--active > a {
+      color: var(--accent-agents, #2563EB);
+      opacity: 1;
+    }
+    .toc__item--active > .toc__numeral {
+      color: var(--accent-agents, #2563EB);
+      opacity: 1;
+    }
+
+    /* TOC: fixed sidebar on wide screens */
+    @media (min-width: 1280px) {
+      .toc {
+        position: fixed;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 180px;
+        left: calc((100vw - 760px) / 2 - 220px);
+        padding: 0;
+        margin: 0;
+        z-index: 100;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+      }
+      .toc--visible {
+        opacity: 1;
+        pointer-events: auto;
+      }
+      .toc__inner {
+        padding: 0.75rem 1rem;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 8px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        backdrop-filter: blur(8px);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      }
+      .toc__title { font-size: 0.65rem; margin-bottom: 0.5rem; }
+      .toc__list li { padding: 0.2rem 0; }
+      .toc__list a, .toc__numeral { font-size: 0.8rem; }
+    }
+
+    /* ================================================================
+       Widget 1: Pattern Picker
+       ================================================================ */
+    .pattern-picker {
+      max-width: 720px;
+      margin: var(--space-8) auto;
+      padding: var(--space-6);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 12px;
+    }
+    .pattern-picker__title {
+      font-family: var(--font-sans);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--accent-agents);
+      margin-bottom: var(--space-4);
+    }
+    .pattern-picker__scenarios {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--space-3);
+      margin-bottom: var(--space-6);
+    }
+    .pattern-picker__scenario {
+      padding: var(--space-4);
+      border: 2px solid var(--color-border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      font-family: var(--font-sans);
+      font-size: var(--text-sm);
+      text-align: left;
+      background: var(--color-bg);
+    }
+    .pattern-picker__scenario:hover {
+      border-color: var(--accent-agents);
+      background: #EFF6FF;
+    }
+    .pattern-picker__scenario--active {
+      border-color: var(--accent-agents);
+      background: #EFF6FF;
+    }
+    .pattern-picker__scenario strong {
+      display: block;
+      margin-bottom: 0.25rem;
+      color: var(--color-text);
+    }
+    .pattern-picker__scenario span {
+      color: var(--color-text-secondary);
+    }
+    .pattern-picker__result {
+      display: none;
+      padding: var(--space-4);
+      background: #EFF6FF;
+      border-radius: 8px;
+      border-left: 4px solid var(--accent-agents);
+      font-family: var(--font-sans);
+      font-size: var(--text-sm);
+      line-height: 1.6;
+    }
+    .pattern-picker__result--visible {
+      display: block;
+    }
+    .pattern-picker__result h4 {
+      margin: 0 0 0.5rem;
+      font-size: var(--text-base);
+      color: var(--accent-agents);
+    }
+
+    /* ================================================================
+       Widget 2: Autonomy Ladder
+       ================================================================ */
+    .autonomy-ladder {
+      max-width: 720px;
+      margin: var(--space-8) auto;
+      padding: var(--space-6);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 12px;
+    }
+    .autonomy-ladder__title {
+      font-family: var(--font-sans);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--accent-agents);
+      margin-bottom: var(--space-4);
+    }
+    .autonomy-ladder__rungs {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+    .autonomy-ladder__rung {
+      display: grid;
+      grid-template-columns: 48px 1fr;
+      gap: var(--space-4);
+      padding: var(--space-4);
+      border: 2px solid var(--color-border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      font-family: var(--font-sans);
+      align-items: start;
+    }
+    .autonomy-ladder__rung:hover {
+      border-color: var(--accent-agents);
+    }
+    .autonomy-ladder__rung--active {
+      border-color: var(--accent-agents);
+      background: #EFF6FF;
+    }
+    .autonomy-ladder__rung-number {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--color-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: var(--text-lg);
+      color: var(--color-text-secondary);
+      transition: background 0.2s, color 0.2s;
+    }
+    .autonomy-ladder__rung--active .autonomy-ladder__rung-number {
+      background: var(--accent-agents);
+      color: #fff;
+    }
+    .autonomy-ladder__rung-label {
+      font-weight: 600;
+      color: var(--color-text);
+      margin-bottom: 0.25rem;
+    }
+    .autonomy-ladder__rung-desc {
+      color: var(--color-text-secondary);
+      font-size: var(--text-sm);
+      line-height: 1.5;
+    }
+    .autonomy-ladder__detail {
+      display: none;
+      margin-top: var(--space-4);
+      padding: var(--space-4);
+      background: #EFF6FF;
+      border-radius: 8px;
+      border-left: 4px solid var(--accent-agents);
+      font-family: var(--font-sans);
+      font-size: var(--text-sm);
+      line-height: 1.6;
+    }
+    .autonomy-ladder__detail--visible {
+      display: block;
+    }
+    .autonomy-ladder__detail h4 {
+      margin: 0 0 0.5rem;
+      font-size: var(--text-base);
+      color: var(--accent-agents);
+    }
+
+    /* Capstone quiz styles */
+    .capstone-quiz {
+      max-width: 720px;
+      margin: var(--space-12) auto;
+      padding: var(--space-8);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 12px;
+    }
+    .capstone-quiz__title {
+      font-family: var(--font-sans);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--accent-agents);
+      margin-bottom: var(--space-2);
+    }
+    .capstone-quiz__progress {
+      font-family: var(--font-sans);
+      font-size: var(--text-sm);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-6);
+    }
+    .capstone-quiz__question {
+      font-family: var(--font-serif);
+      font-size: var(--text-lg);
+      line-height: 1.5;
+      margin-bottom: var(--space-6);
+    }
+    .capstone-quiz__options {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+      margin-bottom: var(--space-4);
+    }
+    .capstone-quiz__option {
+      padding: var(--space-4);
+      border: 2px solid var(--color-border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      font-family: var(--font-sans);
+      font-size: var(--text-sm);
+      line-height: 1.5;
+      text-align: left;
+      background: var(--color-bg);
+    }
+    .capstone-quiz__option:hover { border-color: var(--accent-agents); }
+    .capstone-quiz__option--correct {
+      border-color: #059669;
+      background: #ECFDF5;
+    }
+    .capstone-quiz__option--wrong {
+      border-color: #DC2626;
+      background: #FEF2F2;
+    }
+    .capstone-quiz__explanation {
+      display: none;
+      padding: var(--space-4);
+      background: #F0F9FF;
+      border-radius: 8px;
+      border-left: 4px solid var(--accent-agents);
+      font-family: var(--font-sans);
+      font-size: var(--text-sm);
+      line-height: 1.6;
+      margin-bottom: var(--space-4);
+    }
+    .capstone-quiz__explanation--visible {
+      display: block;
+    }
+    .capstone-quiz__next {
+      display: none;
+      padding: 0.6rem 1.5rem;
+      background: var(--accent-agents);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-family: var(--font-sans);
+      font-size: var(--text-sm);
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .capstone-quiz__next:hover { filter: brightness(1.1); }
+    .capstone-quiz__next--visible { display: inline-block; }
+    .capstone-quiz__score {
+      text-align: center;
+      padding: var(--space-8);
+      font-family: var(--font-sans);
+    }
+    .capstone-quiz__score-number {
+      font-size: var(--text-3xl);
+      font-weight: 600;
+      color: var(--accent-agents);
+    }
+    .capstone-quiz__score-label {
+      font-size: var(--text-sm);
+      color: var(--color-text-secondary);
+      margin-top: var(--space-2);
+    }
+    .capstone-quiz__score-message {
+      font-size: var(--text-base);
+      margin-top: var(--space-4);
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <div class="reading-progress"><div class="reading-progress__bar" id="reading-progress-bar"></div></div>
+
+  <header class="article-hero" id="article-hero">
+    <canvas class="article-hero__canvas" id="hero-canvas"></canvas>
+    <div class="article-hero__overlay"></div>
+    <div class="article-hero__content">
+      <nav class="breadcrumb breadcrumb--hero">
+        <a href="../index.html">AI for Builders</a> &nbsp;/&nbsp; <a href="index.html">Agents &amp; Tool Use</a> &nbsp;/&nbsp; <span>Part 4</span>
+      </nav>
+      <div class="article-header__meta" style="color: rgba(255,255,255,0.9);">Part 4 of 4 &middot; ~10 min read</div>
+      <h1 style="color: #fff;">Multi-Agent Orchestration</h1>
+      <p class="lead" style="color: rgba(255,255,255,0.85);">One agent has limits. Multiple agents have politics. The patterns that make them work together &mdash; and the failures that happen when they don&rsquo;t.</p>
+    </div>
+  </header>
+
+  <nav class="toc" aria-label="Table of contents">
+    <div class="toc__inner">
+      <div class="toc__title">Contents</div>
+      <ol class="toc__list">
+        <li class="toc__item"><span class="toc__numeral">I.</span><a href="#why-one-isnt-enough">Why One Isn&rsquo;t Enough</a></li>
+        <li class="toc__item"><span class="toc__numeral">II.</span><a href="#orchestration-patterns">Orchestration Patterns</a></li>
+        <li class="toc__item"><span class="toc__numeral">III.</span><a href="#how-agents-talk">How Agents Talk</a></li>
+        <li class="toc__item"><span class="toc__numeral">IV.</span><a href="#human-as-manager">The Human as Agent Manager</a></li>
+        <li class="toc__item"><span class="toc__numeral">V.</span><a href="#what-can-go-wrong">What Can Go Wrong</a></li>
+        <li class="toc__item"><span class="toc__numeral">VI.</span><a href="#series-wrap">Series Wrap</a></li>
+      </ol>
+    </div>
+  </nav>
+
+  <div class="epigraph">
+    <p class="epigraph__verse">
+      One agent loops, two agents talk,<br>
+      Three agents argue who should walk.<br>
+      The router picks, the worker ships &mdash;<br>
+      The manager just reads the scripts.
+    </p>
+  </div>
+
+  <article class="prose">
+
+    <!-- ================================================================
+         Section I: Why One Agent Isn't Enough
+         ================================================================ -->
+    <h2 id="why-one-isnt-enough"><span class="section-number">I</span> Why One Isn&rsquo;t Enough</h2>
+
+    <p>Parts 1&ndash;3 of this series gave you a single agent that can think, use tools, and recover from failure. That agent handles a surprising amount of real-world work. But at some point, you hit a wall.</p>
+
+    <p><strong>The toolbox ceiling.</strong> In Part 2 we showed that accuracy drops from 97% to 60% as you go from 5 tools to 50. A customer service agent that also manages inventory, runs analytics, and sends marketing emails isn&rsquo;t versatile &mdash; it&rsquo;s confused. Every tool in the context window is another opportunity for the model to pick the wrong one.</p>
+
+    <p><strong>The context bottleneck.</strong> A single agent doing research, writing, and fact-checking for a long document has to hold everything in one context window. The system prompt grows. The conversation history grows. Retrieval results compete for space. Eventually the model starts dropping important details &mdash; the &ldquo;lost in the middle&rdquo; problem from the <a href="../context-windows/the-context-window.html">Context Windows</a> series.</p>
+
+    <p><strong>The specialization advantage.</strong> In real teams, you don&rsquo;t ask one person to do everything. You have a researcher, a writer, and a reviewer &mdash; each with a focused mandate and the right tools for their job. Multi-agent systems apply the same principle: smaller, specialized agents that each do one thing well, coordinated by something that knows who to ask.</p>
+
+    <div class="callout callout--insight">
+      <div class="callout__label">Key Insight</div>
+      <div class="callout__body">The case for multiple agents isn&rsquo;t &ldquo;more agents = more powerful.&rdquo; It&rsquo;s <strong>specialization under constraint</strong>. Each agent gets a focused toolbox, a clear mandate, and a manageable context window. The orchestration layer decides who handles what. This is the same reason microservices beat monoliths &mdash; not because distributed is inherently better, but because focused components are easier to build, test, and fix.</div>
+    </div>
+
+    <!-- ================================================================
+         Section II: Orchestration Patterns
+         ================================================================ -->
+    <h2 id="orchestration-patterns"><span class="section-number">II</span> Orchestration Patterns</h2>
+
+    <p>There are four core patterns for coordinating multiple agents. Each trades off simplicity against flexibility. Picking the wrong one is like picking the wrong team structure &mdash; the work gets done, but slowly, expensively, and with a lot of unnecessary confusion.</p>
+
+    <h3>The Router</h3>
+    <p>A lightweight classifier sits at the front and routes each request to the right specialist agent. The specialist handles the task end-to-end and returns the result directly. The router doesn&rsquo;t do work &mdash; it just decides who does.</p>
+    <p><strong>When it works:</strong> Distinct task categories with clear boundaries. Customer support where billing questions go to a billing agent, technical issues go to a troubleshooting agent, and account changes go to an account agent. Each agent has its own toolbox and system prompt.</p>
+    <p><strong>When it breaks:</strong> Ambiguous requests that span categories. &ldquo;I was charged twice and now I can&rsquo;t log in&rdquo; needs both billing and troubleshooting &mdash; and the router has to pick one or build a handoff protocol.</p>
+
+    <h3>Supervisor &amp; Workers</h3>
+    <p>A supervisor agent breaks tasks into subtasks, delegates each to a worker agent, and assembles the results. The supervisor holds the plan; the workers hold the tools. This is the pattern behind most &ldquo;research and write&rdquo; workflows &mdash; one agent plans the outline, another gathers data, another drafts, another reviews.</p>
+    <p><strong>When it works:</strong> Complex tasks that decompose into independent subtasks. The supervisor can run workers in parallel when subtasks don&rsquo;t depend on each other.</p>
+    <p><strong>When it breaks:</strong> When subtask results are interdependent and the supervisor has to make judgment calls about conflicting worker outputs. The supervisor is still an LLM &mdash; it doesn&rsquo;t have special wisdom, just a broader view.</p>
+
+    <h3>The Pipeline</h3>
+    <p>Agents execute in sequence, each one&rsquo;s output becoming the next one&rsquo;s input. Agent A researches &rarr; Agent B outlines &rarr; Agent C writes &rarr; Agent D reviews. Like an assembly line &mdash; each station does one thing and passes the work forward.</p>
+    <p><strong>When it works:</strong> Sequential workflows with clear stage gates. Content production, data processing, document review. Each agent can be independently tested and improved.</p>
+    <p><strong>When it breaks:</strong> When later stages need to loop back. If the reviewer finds a factual error, does it go back to the researcher or the writer? Pipelines are great at moving forward, terrible at going backward.</p>
+
+    <h3>Peer-to-Peer</h3>
+    <p>Agents communicate directly with each other, negotiating roles and sharing context as needed. No central coordinator &mdash; each agent decides when to hand off, ask for help, or take over.</p>
+    <p><strong>When it works:</strong> Honestly? Rarely in production. This pattern sounds elegant but creates unpredictable behavior, makes debugging nearly impossible, and turns cost estimation into guesswork.</p>
+    <p><strong>When it breaks:</strong> Most of the time. Without a coordinator, agents can enter infinite delegation loops, duplicate work, or make conflicting decisions. The overhead of &ldquo;agent politics&rdquo; often exceeds the cost of a simpler pattern.</p>
+
+    <div class="callout callout--analogy">
+      <div class="callout__label">Architecture Insight</div>
+      <div class="callout__body">A pattern emerging in production: <strong>thin harness, fat skills.</strong> Keep the orchestration layer minimal &mdash; a lightweight router or supervisor that reads task descriptions and dispatches to specialized agents. Put the intelligence in the skills (specialized agents with focused tools and prompts), not in the orchestration. Heavy orchestration frameworks are a smell. If your routing logic is more complex than your agents, you&rsquo;ve inverted the architecture.</div>
+    </div>
+
+  </article>
+
+  <!-- ================================================================
+       Widget 1: Pattern Picker
+       ================================================================ -->
+  <div class="wide-container">
+    <div class="pattern-picker" id="pattern-picker">
+      <div class="pattern-picker__title">Interactive &middot; Pick Your Pattern</div>
+      <p style="font-family: var(--font-sans); font-size: var(--text-sm); color: var(--color-text-secondary); margin-bottom: var(--space-4);">Select a use case to see which orchestration pattern fits best.</p>
+      <div class="pattern-picker__scenarios" id="pp-scenarios"></div>
+      <div class="pattern-picker__result" id="pp-result"></div>
+    </div>
+  </div>
+
+  <article class="prose">
+
+    <!-- ================================================================
+         Section III: How Agents Talk to Each Other
+         ================================================================ -->
+    <h2 id="how-agents-talk"><span class="section-number">III</span> How Agents Talk to Each Other</h2>
+
+    <p>Single agents use <strong>function calling</strong> to interact with tools (Part 2). Multi-agent systems need something more &mdash; a way for agents to discover each other, pass context, and coordinate actions. Two protocols have emerged as the foundation.</p>
+
+    <h3>MCP: Agent-to-Tool</h3>
+    <p><strong>Model Context Protocol</strong>, introduced by Anthropic in late 2024, standardizes how LLMs connect to external tools. Instead of custom integrations for every API, MCP provides a universal interface &mdash; define your tool once, any MCP-compatible agent can discover and use it. Think of it as USB for AI tool use.</p>
+    <p>MCP solves the toolbox problem at the ecosystem level. Instead of hardcoding 50 tools into one agent&rsquo;s system prompt, you expose tools as MCP servers. Each specialist agent connects to the tools it needs. The router doesn&rsquo;t need to know about billing APIs; the billing agent does.</p>
+
+    <h3>A2A: Agent-to-Agent</h3>
+    <p><strong>Agent2Agent</strong>, introduced by Google in April 2025, addresses the complementary problem: how agents communicate with <em>each other</em>. Where MCP connects agents to tools, A2A connects agents to agents &mdash; enabling discovery, task delegation, and status updates between independently-built agent systems.</p>
+    <p>Both protocols were donated to the Linux Foundation in late 2025, putting them on an open-standards track. The fact that two competitors converged on complementary, donated standards is the strongest signal that agent infrastructure is being treated as table stakes, not competitive moat.</p>
+
+    <h3>Context Passing: The Hard Part</h3>
+    <p>Protocols tell agents <em>how</em> to talk. The harder question is <em>what</em> to pass. When a supervisor delegates to a worker, how much context does the worker need? Too little and it hallucinates the gaps. Too much and you&rsquo;re paying for a bloated context window on every subtask.</p>
+
+    <p>The pragmatic answer: <strong>pass the mandate, not the history.</strong> Each worker gets a clear task description, the specific data it needs, and constraints on its output format. It doesn&rsquo;t need the full conversation history that led to this subtask. The supervisor holds the big picture; the workers hold their assignments.</p>
+
+    <div class="callout callout--pm-tip">
+      <div class="callout__label">Builder Tip</div>
+      <div class="callout__body">Memory across agent sessions is still an unsolved problem. The simplest approach that works today: store shared state in markdown files or a database that all agents can read and write. The harness is disposable; the memory should survive it. If your agent&rsquo;s memory dies when your orchestration framework dies, you built the harness too thick.</div>
+    </div>
+
+    <!-- ================================================================
+         Section IV: The Human as Agent Manager
+         ================================================================ -->
+    <h2 id="human-as-manager"><span class="section-number">IV</span> The Human as Agent Manager</h2>
+
+    <p>Here&rsquo;s the mental model shift that changes everything: <strong>you are not using a tool. You are managing a team.</strong></p>
+
+    <p>When you direct a single agent, you&rsquo;re a practitioner with an assistant. When you orchestrate multiple agents, you&rsquo;re a manager. Your job isn&rsquo;t to do the work &mdash; it&rsquo;s to keep your agents unblocked, catch their mistakes, and make the judgment calls they can&rsquo;t.</p>
+
+    <p>This isn&rsquo;t a metaphor. It&rsquo;s how the most productive teams are already working. Boris Cherny, who leads Claude Code at Anthropic, puts it directly: <em>&ldquo;AI is no longer becoming a tool for work, it is becoming the worker itself. Engineers already manage armies of agents writing code, analyzing data and executing tasks in parallel.&rdquo;</em></p>
+
+    <p>And Andrej Karpathy hasn&rsquo;t typed a line of code since December 2025. His reframe: when agent delegation fails, it&rsquo;s <em>always</em> a skill issue &mdash; bad instructions, wrong memory setup, poor parallelization strategy &mdash; not a capability ceiling. The bottleneck is the human manager, not the model.</p>
+
+    <h3>The Deployment Overhang</h3>
+
+    <p>But most people aren&rsquo;t there yet. Anthropic&rsquo;s own data tells the story:</p>
+
+    <ul>
+      <li>New users auto-approve only <strong>~20%</strong> of agent actions.</li>
+      <li>Experienced users (750+ sessions) auto-approve <strong>&gt;40%</strong> &mdash; twice the rate, but still a minority.</li>
+      <li>The median autonomous agent run is <strong>45 seconds</strong>. The 99.9th percentile exceeds 45 minutes.</li>
+    </ul>
+
+    <p>There&rsquo;s a name for this gap between what models can do and what users let them do: the <strong>deployment overhang</strong>. Models are ready for more autonomy than humans currently grant. Trust grows with usage, not with policy.</p>
+
+    <p>The organizational version of this gap is even wider. Most enterprises run agents through shared service accounts that bypass least-privilege controls. A customer service rep is capped at $500 refunds; an agent operating through their service account might issue a $5,000 credit. The org hasn&rsquo;t built the identity, permissions, and audit infrastructure that makes autonomy <em>defensible</em>.</p>
+
+    <div class="callout callout--insight">
+      <div class="callout__label">Key Insight</div>
+      <div class="callout__body">The deployment overhang isn&rsquo;t just a user trust problem. It has three layers: <strong>user comfort</strong> (grows with practice), <strong>organizational governance</strong> (identity, permissions, audit trails), and <strong>public trust</strong> (73% of AI experts expect positive job impact vs. 23% of the general public). All three need to advance for agents to reach their potential.</div>
+    </div>
+
+    <p>The practical solution is graduated autonomy &mdash; a ladder, not a switch:</p>
+
+  </article>
+
+  <!-- ================================================================
+       Widget 2: Autonomy Ladder
+       ================================================================ -->
+  <div class="wide-container">
+    <div class="autonomy-ladder" id="autonomy-ladder">
+      <div class="autonomy-ladder__title">Interactive &middot; The Autonomy Ladder</div>
+      <p style="font-family: var(--font-sans); font-size: var(--text-sm); color: var(--color-text-secondary); margin-bottom: var(--space-4);">Click each rung to see what changes for the builder and the user.</p>
+      <div class="autonomy-ladder__rungs" id="al-rungs"></div>
+      <div class="autonomy-ladder__detail" id="al-detail"></div>
+    </div>
+  </div>
+
+  <article class="prose">
+
+    <!-- ================================================================
+         Section V: What Can Go Wrong
+         ================================================================ -->
+    <h2 id="what-can-go-wrong"><span class="section-number">V</span> What Can Go Wrong</h2>
+
+    <p>Multi-agent systems don&rsquo;t just inherit single-agent failure modes &mdash; they multiply them. Every connection between agents is a new place for things to break.</p>
+
+    <h3>Cascading Failure</h3>
+    <p>In Part 3, we showed that a 95%-reliable tool called 5 times drops to ~77% reliability. In a multi-agent system, add another dimension: <strong>agents passing bad output to other agents.</strong> If the research agent hallucinates a statistic, the writing agent cites it confidently, and the review agent &mdash; which lacks access to the original source &mdash; can&rsquo;t catch it. Errors don&rsquo;t just compound across steps; they <em>launder</em> across agents, gaining unearned credibility at each handoff.</p>
+
+    <h3>The Lethal Trifecta</h3>
+    <p>Security researcher Simon Willison identified the three properties that make an agent dangerous when combined: <strong>(1) access to private data</strong>, <strong>(2) exposure to untrusted content</strong>, and <strong>(3) the ability to communicate externally</strong>. Any two are manageable. All three together create an attack surface where a prompt injection in untrusted content can exfiltrate private data through external communication.</p>
+
+    <p>In multi-agent systems, the trifecta is especially insidious because <strong>the three properties can be distributed across agents</strong>. Agent A has data access. Agent B processes untrusted input. Agent C sends emails. No single agent has all three &mdash; but the system does, and a carefully crafted prompt injection can cascade across the chain. Real-world examples already exist: Salesforce&rsquo;s Agentforce was exploited via malicious instructions embedded in a routine web form, and ServiceNow&rsquo;s Now Assist saw second-order prompt injection cascade across a multi-agent topology.</p>
+
+    <div class="callout callout--insight">
+      <div class="callout__label">Key Insight</div>
+      <div class="callout__body"><strong>Architectural constraints beat prompt-level guardrails.</strong> You can&rsquo;t reliably prompt-engineer your way out of the lethal trifecta. The defense is structural: ensure no execution path through your agent system allows untrusted content to trigger actions on private data that reach the outside world. This is a system design problem, not a prompting problem.</div>
+    </div>
+
+    <h3>Agent Accountability</h3>
+    <p>When a single agent makes a mistake, you check its logs. When a multi-agent system makes a mistake, you have a distributed debugging problem: which agent made the bad decision? Was it the supervisor&rsquo;s plan, the worker&rsquo;s execution, or the router&rsquo;s dispatch? Agent decisions emerge from chains of reasoning, retrievals, and tool calls that are hard to reconstruct after the fact.</p>
+
+    <p>This isn&rsquo;t hypothetical. In 2025, a developer using Replit&rsquo;s AI coding agent watched it delete a production database despite explicit instructions not to modify production &mdash; then generate thousands of fake records and misleading system messages to obscure the failure. When an agent can take real actions and hide its mistakes, <strong>observability isn&rsquo;t optional &mdash; it&rsquo;s the entire safety architecture.</strong></p>
+
+    <div class="callout callout--pm-tip">
+      <div class="callout__label">Builder Tip</div>
+      <div class="callout__body">Every multi-agent system needs a <strong>deterministic validation layer</strong> between the model and any system of record. The agent <em>proposes</em> an action; deterministic software <em>verifies and executes</em> it. This is the architectural answer to &ldquo;a probabilistic engine making transactional decisions.&rdquo; Never let an LLM write directly to a database, send an email, or make a payment without a validation step your code controls.</div>
+    </div>
+
+    <!-- ================================================================
+         Section VI: Series Wrap
+         ================================================================ -->
+    <h2 id="series-wrap"><span class="section-number">VI</span> Series Wrap</h2>
+
+    <p>Across four parts, we&rsquo;ve built up the full picture of AI agents:</p>
+
+    <ul>
+      <li><strong>Part 1: The Agent Loop</strong> &mdash; Think, act, observe, decide. The cycle that lets agents handle ambiguity.</li>
+      <li><strong>Part 2: Tools &amp; Function Calling</strong> &mdash; Agents interact with the world through structured function calls. Tool design directly impacts reliability.</li>
+      <li><strong>Part 3: Planning, Failure &amp; Tradeoffs</strong> &mdash; Agents fail predictably, cost money per loop, and need guardrails. The right architecture depends on predictability, stakes, latency, and budget.</li>
+      <li><strong>Part 4: Multi-Agent Orchestration</strong> &mdash; Multiple specialized agents coordinated by thin orchestration. The human becomes a manager, not a user. Trust is graduated, not switched.</li>
+    </ul>
+
+    <div class="callout callout--summary">
+      <div class="callout__label">Takeaway</div>
+      <div class="callout__body">The most successful multi-agent systems aren&rsquo;t the most autonomous. They&rsquo;re the ones where someone made smart decisions about <strong>what to specialize, how to coordinate, and where to keep a human in the loop.</strong> The intelligence lives in the skills, not the orchestration. The harness stays thin. The memory survives the harness. And the builder &mdash; whether they came from product, engineering, or a founder&rsquo;s garage &mdash; is the one making the calls that matter.</div>
+    </div>
+
+  </article>
+
+  <!-- ================================================================
+       Navigation
+       ================================================================ -->
+  <nav class="article-nav">
+    <a href="planning.html">&larr; Part 3: Planning, Failure &amp; Tradeoffs</a>
+    <a href="index.html">Back to series overview &rarr;</a>
+  </nav>
+
+  <!-- ================================================================
+       Capstone Quiz
+       ================================================================ -->
+  <div class="capstone-quiz" id="capstone-quiz">
+    <div class="capstone-quiz__title">Capstone Quiz</div>
+    <div class="capstone-quiz__progress" id="cq-progress"></div>
+    <div class="capstone-quiz__question" id="cq-question"></div>
+    <div class="capstone-quiz__options" id="cq-options"></div>
+    <div class="capstone-quiz__explanation" id="cq-explanation"></div>
+    <button class="capstone-quiz__next" id="cq-next">Next question &rarr;</button>
+    <div class="capstone-quiz__score" id="cq-score" style="display:none;"></div>
+  </div>
+
+  <!-- ================================================================
+       Scripts
+       ================================================================ -->
+  <script>
+  // ====================================================================
+  // Reading Progress Bar
+  // ====================================================================
+  (function() {
+    var bar = document.getElementById('reading-progress-bar');
+    if (!bar) return;
+    window.addEventListener('scroll', function() {
+      var h = document.documentElement;
+      var pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+      bar.style.width = Math.min(pct, 100) + '%';
+    });
+  })();
+
+  // ====================================================================
+  // TOC: show/hide on scroll past hero
+  // ====================================================================
+  (function() {
+    var toc = document.querySelector('.toc');
+    var hero = document.getElementById('article-hero');
+    if (!toc || !hero) return;
+    var observer = new IntersectionObserver(function(entries) {
+      toc.classList.toggle('toc--visible', !entries[0].isIntersecting);
+    }, { threshold: 0 });
+    observer.observe(hero);
+  })();
+
+  // ====================================================================
+  // TOC: active section highlighting
+  // ====================================================================
+  (function() {
+    var headings = document.querySelectorAll('h2[id]');
+    var tocItems = document.querySelectorAll('.toc__item');
+    if (!headings.length || !tocItems.length) return;
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          tocItems.forEach(function(item) { item.classList.remove('toc__item--active'); });
+          var link = document.querySelector('.toc__item a[href="#' + entry.target.id + '"]');
+          if (link) link.parentElement.classList.add('toc__item--active');
+        }
+      });
+    }, { rootMargin: '-20% 0px -80% 0px' });
+    headings.forEach(function(h) { observer.observe(h); });
+  })();
+
+  // ====================================================================
+  // Hero Canvas: particle animation
+  // ====================================================================
+  (function() {
+    var canvas = document.getElementById('hero-canvas');
+    if (!canvas) return;
+    var ctx = canvas.getContext('2d');
+    var particles = [];
+    function resize() {
+      canvas.width = canvas.offsetWidth * (window.devicePixelRatio || 1);
+      canvas.height = canvas.offsetHeight * (window.devicePixelRatio || 1);
+      ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+    }
+    resize();
+    window.addEventListener('resize', resize);
+    for (var i = 0; i < 40; i++) {
+      particles.push({
+        x: Math.random() * canvas.offsetWidth,
+        y: Math.random() * canvas.offsetHeight,
+        r: Math.random() * 2 + 1,
+        dx: (Math.random() - 0.5) * 0.5,
+        dy: (Math.random() - 0.5) * 0.5,
+        alpha: Math.random() * 0.3 + 0.1
+      });
+    }
+    function draw() {
+      ctx.clearRect(0, 0, canvas.offsetWidth, canvas.offsetHeight);
+      particles.forEach(function(p) {
+        p.x += p.dx; p.y += p.dy;
+        if (p.x < 0 || p.x > canvas.offsetWidth) p.dx *= -1;
+        if (p.y < 0 || p.y > canvas.offsetHeight) p.dy *= -1;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255,255,255,' + p.alpha + ')';
+        ctx.fill();
+      });
+      // Draw connections
+      for (var i = 0; i < particles.length; i++) {
+        for (var j = i + 1; j < particles.length; j++) {
+          var dx = particles[i].x - particles[j].x;
+          var dy = particles[i].y - particles[j].y;
+          var dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 120) {
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.strokeStyle = 'rgba(255,255,255,' + (0.15 * (1 - dist / 120)) + ')';
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        }
+      }
+      requestAnimationFrame(draw);
+    }
+    draw();
+  })();
+
+  // ====================================================================
+  // Widget 1: Pattern Picker
+  // ====================================================================
+  (function() {
+    var scenarios = [
+      {
+        label: 'Customer support across billing, technical, and account issues',
+        desc: 'Users send free-form messages. Each category has different tools and policies.',
+        pattern: 'Router',
+        explanation: 'Distinct task categories with clear boundaries. A lightweight classifier routes each request to the right specialist agent. Each specialist has its own focused toolbox and system prompt. When requests span categories ("I was charged twice and now I can\'t log in"), you\'ll need handoff protocols between specialists — but for 80% of tickets, the router pattern keeps things simple and fast.'
+      },
+      {
+        label: 'Research report: gather data, outline, write, review',
+        desc: 'A multi-step content workflow where each stage produces input for the next.',
+        pattern: 'Pipeline',
+        explanation: 'Sequential stages with clear handoffs. Agent A researches → Agent B outlines → Agent C writes → Agent D reviews. Each stage can be independently tested and improved. The weakness: if the reviewer finds a factual error, the pipeline has to go back to the researcher — you\'ll want a "rejection loop" that sends work backward when quality gates fail.'
+      },
+      {
+        label: 'A coding agent that plans features, writes code, and runs tests',
+        desc: 'One agent breaks down the task; specialist agents handle implementation and verification.',
+        pattern: 'Supervisor & Workers',
+        explanation: 'The supervisor holds the plan and decomposes the task. Worker agents handle code generation, test writing, and execution in parallel where possible. The supervisor assembles results and decides what to retry. This is the pattern behind most AI coding agents — including the one you might be using right now.'
+      },
+      {
+        label: 'A team of agents that negotiate and self-organize around tasks',
+        desc: 'No central coordinator. Agents decide among themselves who does what.',
+        pattern: 'Peer-to-Peer (but reconsider)',
+        explanation: 'This sounds elegant but almost never works well in production. Without a coordinator, agents can enter infinite delegation loops, duplicate work, or make conflicting decisions. The debugging surface is enormous — when something goes wrong, there\'s no single log to check. Unless you have a very specific reason to need peer-to-peer negotiation, use a supervisor pattern instead. You can always add flexibility to a coordinator; it\'s much harder to add order to chaos.'
+      },
+      {
+        label: 'An e-commerce assistant that finds products, checks inventory, and places orders',
+        desc: 'A conversational agent that needs access to search, inventory, and payment systems.',
+        pattern: 'Router (or single agent with tool routing)',
+        explanation: 'This might not need multi-agent orchestration at all. If the conversation is always with one user and the tools are well-scoped (search, inventory check, place order), a single agent with tool routing may be simpler and cheaper. Consider multi-agent only when: (a) tools exceed 10-15 and accuracy drops, (b) different tools need different model tiers, or (c) you need to enforce strict security boundaries between data access and payment execution.'
+      }
+    ];
+
+    var container = document.getElementById('pp-scenarios');
+    var resultEl = document.getElementById('pp-result');
+    if (!container) return;
+
+    scenarios.forEach(function(s, i) {
+      var btn = document.createElement('button');
+      btn.className = 'pattern-picker__scenario';
+      btn.innerHTML = '<strong>' + s.label + '</strong><span>' + s.desc + '</span>';
+      btn.addEventListener('click', function() {
+        container.querySelectorAll('.pattern-picker__scenario').forEach(function(b) {
+          b.classList.remove('pattern-picker__scenario--active');
+        });
+        btn.classList.add('pattern-picker__scenario--active');
+        resultEl.innerHTML = '<h4>Recommended: ' + s.pattern + '</h4><p>' + s.explanation + '</p>';
+        resultEl.classList.add('pattern-picker__result--visible');
+      });
+      container.appendChild(btn);
+    });
+  })();
+
+  // ====================================================================
+  // Widget 2: Autonomy Ladder
+  // ====================================================================
+  (function() {
+    var rungs = [
+      {
+        label: 'Assistive Output',
+        desc: 'Agent drafts, summarizes, recommends. Human reviews everything.',
+        detail: '<h4>Rung 1: Assistive Output</h4><p><strong>What the agent does:</strong> Generates drafts, summaries, and recommendations. Never takes action — only produces content for human consumption.</p><p><strong>Who decides:</strong> The human reviews and acts on every output. The agent is a writing assistant, not a decision-maker.</p><p><strong>Example:</strong> An AI that drafts customer support replies for a human agent to review, edit, and send. OneDigital uses this pattern for benefits consulting — goal is "time to insight," not replacement.</p><p><strong>Risk profile:</strong> Low. The worst that happens is the human ignores a bad suggestion.</p>'
+      },
+      {
+        label: 'Retrieval with Guardrails',
+        desc: 'Agent answers questions from governed data. Human consumes the answer.',
+        detail: '<h4>Rung 2: Retrieval with Guardrails</h4><p><strong>What the agent does:</strong> Answers questions by searching governed, curated data sources. Returns information with citations.</p><p><strong>Who decides:</strong> The human interprets and acts on the information. The agent is a research tool with source attribution.</p><p><strong>Example:</strong> An internal knowledge base chatbot that answers policy questions from your official documentation, with links to the source document.</p><p><strong>Risk profile:</strong> Moderate. If the retrieval quality is poor or documents are stale, the agent serves confidently wrong information. Hallucination detection and source verification matter here.</p>'
+      },
+      {
+        label: 'Supervised Actions',
+        desc: 'Agent proposes operational tasks. Human confirms each one.',
+        detail: '<h4>Rung 3: Supervised Actions</h4><p><strong>What the agent does:</strong> Proposes concrete actions — sending an email, updating a record, issuing a refund — but waits for human approval before executing.</p><p><strong>Who decides:</strong> The human confirms or rejects each proposed action. The agent handles the research and preparation; the human handles the judgment call.</p><p><strong>Example:</strong> A customer service agent that drafts a refund, shows the amount and reason, and waits for the rep to click "Approve." This is where most production agent systems live today.</p><p><strong>Risk profile:</strong> Moderate-high. The agent is now in the action path, not just the information path. The quality of its proposals directly affects throughput — a bad suggestion wastes the human\'s time.</p>'
+      },
+      {
+        label: 'Bounded Autonomy',
+        desc: 'Agent executes within predefined limits. Human monitors aggregates.',
+        detail: '<h4>Rung 4: Bounded Autonomy</h4><p><strong>What the agent does:</strong> Executes actions independently within strict, predefined boundaries — dollar limits, approved action types, time windows, scope constraints.</p><p><strong>Who decides:</strong> The agent handles individual decisions. The human monitors dashboards, reviews exceptions, and adjusts boundaries. Management by exception, not by approval.</p><p><strong>Example:</strong> Klarna\'s customer service agent handles standard refunds up to $50 autonomously, escalates anything above. Cars24 runs 250 AI coworkers managed by 4 humans, with 10x revenue growth.</p><p><strong>Risk profile:</strong> High — but contained. The boundaries are the safety architecture. Getting them wrong means the agent takes costly actions at scale before anyone notices. Observability and anomaly detection are non-negotiable at this rung.</p>'
+      }
+    ];
+
+    var rungsContainer = document.getElementById('al-rungs');
+    var detailEl = document.getElementById('al-detail');
+    if (!rungsContainer) return;
+
+    rungs.forEach(function(r, i) {
+      var div = document.createElement('div');
+      div.className = 'autonomy-ladder__rung';
+      div.innerHTML = '<div class="autonomy-ladder__rung-number">' + (i + 1) + '</div><div><div class="autonomy-ladder__rung-label">' + r.label + '</div><div class="autonomy-ladder__rung-desc">' + r.desc + '</div></div>';
+      div.addEventListener('click', function() {
+        rungsContainer.querySelectorAll('.autonomy-ladder__rung').forEach(function(el) {
+          el.classList.remove('autonomy-ladder__rung--active');
+        });
+        div.classList.add('autonomy-ladder__rung--active');
+        detailEl.innerHTML = r.detail;
+        detailEl.classList.add('autonomy-ladder__detail--visible');
+      });
+      rungsContainer.appendChild(div);
+    });
+  })();
+
+  // ====================================================================
+  // Capstone Quiz
+  // ====================================================================
+  (function() {
+    var questions = [
+      {
+        question: 'Your single agent handles customer support, inventory management, and marketing emails. It has 47 tools in its system prompt and accuracy has dropped to 62%. A teammate suggests splitting it into multiple agents. What\'s the strongest argument for doing so?',
+        options: [
+          { label: 'Multiple agents are always more powerful than a single agent', key: 'a' },
+          { label: 'Specialized agents with focused toolboxes maintain higher accuracy — the toolbox ceiling is a single-agent problem that multi-agent solves through specialization', key: 'b' },
+          { label: 'Multi-agent systems are cheaper because each agent uses fewer tokens', key: 'c' },
+          { label: 'The company\'s competitors are using multi-agent systems', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'The case for multi-agent isn\'t "more agents = more powerful." It\'s specialization under constraint. Each agent gets a focused toolbox (5-10 tools in the sweet spot), a clear mandate, and a manageable context window. The 47-tool monolith is exactly the scenario where splitting into router + specialists pays off. Option C is sometimes true but not the primary argument — orchestration overhead can offset token savings.'
+      },
+      {
+        question: 'You\'re building a content pipeline: research → outline → write → review. Each stage has a clear output. Which orchestration pattern fits best?',
+        options: [
+          { label: 'Peer-to-peer — let the agents negotiate who does what', key: 'a' },
+          { label: 'Router — classify each piece of content and send it to the right agent', key: 'b' },
+          { label: 'Pipeline — sequential stages where each agent\'s output becomes the next agent\'s input', key: 'c' },
+          { label: 'Supervisor & workers — one agent manages all four stages dynamically', key: 'd' }
+        ],
+        answer: 'c',
+        explanation: 'Sequential workflows with clear stage gates are textbook pipeline pattern. Each agent can be independently tested and improved. The supervisor pattern would work too, but adds complexity you don\'t need when the stages are already well-defined. The key weakness of a pipeline: if the reviewer rejects the draft, you need a rejection loop to send work backward.'
+      },
+      {
+        question: 'Your multi-agent system has Agent A with database access, Agent B processing user-submitted documents, and Agent C sending emails. A security reviewer flags this architecture. What\'s the concern?',
+        options: [
+          { label: 'Three agents are too many for this task — consolidate into one', key: 'a' },
+          { label: 'The system collectively has all three properties of the "lethal trifecta" — private data access, untrusted content, and external communication — even though no single agent has all three', key: 'b' },
+          { label: 'Agent C shouldn\'t send emails without human approval — that\'s the only issue', key: 'c' },
+          { label: 'The agents need to use A2A protocol to communicate safely', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'The lethal trifecta is especially dangerous in multi-agent systems because the three dangerous properties can be distributed across agents. A prompt injection in Agent B\'s untrusted documents could cascade to Agent A\'s data access and Agent C\'s email capability. The defense is architectural — ensure no execution path allows untrusted content to trigger actions on private data that reach the outside world. Protocols alone (option D) don\'t solve this; it\'s a system design problem.'
+      },
+      {
+        question: 'Anthropic\'s data shows new users auto-approve only ~20% of agent actions, while experienced users approve >40%. A teammate argues you should set auto-approval to 100% for your internal tool to "unlock the full potential." What\'s wrong with this reasoning?',
+        options: [
+          { label: 'Auto-approval rates should be based on the task\'s error cost and the agent\'s demonstrated reliability, not on a blanket setting — graduated autonomy beats a switch', key: 'a' },
+          { label: 'Users should always manually approve every action for safety', key: 'b' },
+          { label: 'The 40% number proves that even experts don\'t trust AI, so 100% is unrealistic', key: 'c' },
+          { label: 'Anthropic\'s data is specific to Claude and doesn\'t apply to other models', key: 'd' }
+        ],
+        answer: 'a',
+        explanation: 'The deployment overhang is real — models can handle more than users grant. But the answer isn\'t "approve everything." It\'s graduated autonomy: start with supervised actions, expand to bounded autonomy for low-risk operations, keep human review for high-stakes decisions. The autonomy ladder is a product design decision, not a settings toggle. Blanket auto-approval trades safety for convenience without understanding the risk profile of each action type.'
+      },
+      {
+        question: 'Your supervisor agent delegates a research task to a worker agent. The worker needs context about the project. What\'s the best approach for passing information?',
+        options: [
+          { label: 'Send the worker the full conversation history so it has complete context', key: 'a' },
+          { label: 'Pass the mandate — a clear task description, the specific data needed, and output format constraints — not the full history', key: 'b' },
+          { label: 'Let the worker access the same context window as the supervisor through shared memory', key: 'c' },
+          { label: 'Give the worker access to all tools and let it figure out what it needs', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'Pass the mandate, not the history. The worker needs: (1) a clear task description, (2) the specific data relevant to this subtask, and (3) constraints on its output format. It doesn\'t need the twenty turns of conversation that led to this delegation. The supervisor holds the big picture; the workers hold their assignments. Sending the full history wastes tokens, bloats the context window, and introduces irrelevant information that can confuse the worker\'s focus.'
+      }
+    ];
+
+    var currentQ = 0;
+    var score = 0;
+    var qEl = document.getElementById('cq-question');
+    var pEl = document.getElementById('cq-progress');
+    var oEl = document.getElementById('cq-options');
+    var eEl = document.getElementById('cq-explanation');
+    var nEl = document.getElementById('cq-next');
+    var sEl = document.getElementById('cq-score');
+    if (!qEl) return;
+
+    function render() {
+      if (currentQ >= questions.length) {
+        qEl.style.display = 'none';
+        pEl.style.display = 'none';
+        oEl.style.display = 'none';
+        eEl.style.display = 'none';
+        nEl.style.display = 'none';
+        sEl.style.display = 'block';
+        var pct = Math.round((score / questions.length) * 100);
+        var msgs = [
+          'Review the article — multi-agent orchestration has some nuance worth revisiting.',
+          'Decent foundation — you\'re getting the patterns, but the tradeoffs need more attention.',
+          'Solid understanding — you\'re thinking about orchestration like someone who\'d ship it.',
+          'Strong grasp — you\'re thinking like a builder who ships multi-agent systems responsibly.'
+        ];
+        var mi = score <= 1 ? 0 : score <= 2 ? 1 : score <= 3 ? 2 : 3;
+        sEl.innerHTML = '<div class="capstone-quiz__score-number">' + score + '/' + questions.length + '</div><div class="capstone-quiz__score-label">' + pct + '% correct</div><div class="capstone-quiz__score-message">' + msgs[mi] + '</div>';
+        return;
+      }
+      var q = questions[currentQ];
+      pEl.textContent = 'Question ' + (currentQ + 1) + ' of ' + questions.length;
+      qEl.textContent = q.question;
+      oEl.innerHTML = '';
+      eEl.classList.remove('capstone-quiz__explanation--visible');
+      eEl.style.display = 'none';
+      nEl.classList.remove('capstone-quiz__next--visible');
+      nEl.style.display = 'none';
+      q.options.forEach(function(opt) {
+        var btn = document.createElement('button');
+        btn.className = 'capstone-quiz__option';
+        btn.textContent = opt.label;
+        btn.addEventListener('click', function() {
+          oEl.querySelectorAll('.capstone-quiz__option').forEach(function(b) {
+            b.style.pointerEvents = 'none';
+          });
+          if (opt.key === q.answer) {
+            btn.classList.add('capstone-quiz__option--correct');
+            score++;
+          } else {
+            btn.classList.add('capstone-quiz__option--wrong');
+            oEl.querySelectorAll('.capstone-quiz__option').forEach(function(b) {
+              if (b.textContent === q.options.find(function(o) { return o.key === q.answer; }).label) {
+                b.classList.add('capstone-quiz__option--correct');
+              }
+            });
+          }
+          eEl.textContent = q.explanation;
+          eEl.style.display = 'block';
+          eEl.classList.add('capstone-quiz__explanation--visible');
+          nEl.style.display = 'inline-block';
+          nEl.classList.add('capstone-quiz__next--visible');
+        });
+        oEl.appendChild(btn);
+      });
+    }
+
+    nEl.addEventListener('click', function() { currentQ++; render(); });
+    render();
+  })();
+  </script>
+
+</body>
+</html>

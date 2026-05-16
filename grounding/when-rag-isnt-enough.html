@@ -446,7 +446,7 @@
 
     <p>A basic RAG pipeline &mdash; split documents into chunks, embed them, retrieve the top-K by cosine similarity &mdash; gets you surprisingly far. For FAQ-style questions where the answer lives in a single clean paragraph, it works beautifully. The trouble starts when it doesn't: when the answer spans two paragraphs, when the user's phrasing doesn't match the document's vocabulary, when the most relevant passage ranks sixth out of five retrieved.</p>
 
-    <p><strong>The ceiling is retrieval quality.</strong> Give the model perfect context and even a mediocre model produces excellent answers. Give a frontier model garbage context and you get confidently wrong answers with citations. Garbage in, eloquent garbage out.</p>
+    <p><strong>The ceiling is retrieval quality.</strong> Give the model perfect context and even a mediocre model produces excellent answers. Give a frontier model garbage context and you get confidently wrong answers with citations. Garbage in, eloquent garbage out. And the stakes go up fast: HBR draws a sharp line between <strong>content risk</strong> (the AI says something wrong) and <strong>execution risk</strong> (the AI <em>does</em> something wrong). A RAG system answering questions sits in content-risk territory. The moment that same system starts taking actions based on its own retrieved context &mdash; filing tickets, issuing refunds, updating records &mdash; bad retrieval becomes execution risk, and the severity class changes entirely.</p>
 
     <div class="callout callout--insight">
       <div class="callout__label">Key Insight</div>
@@ -464,7 +464,7 @@
 
     <p><strong>Fixed-size chunking</strong> is the default: split every 200 characters or 500 tokens regardless of content. It's fast and predictable, but it splits sentences mid-thought and frequently slices the answer to a question across two separate chunks. When the retriever pulls chunk 7 but the answer actually spans chunks 7 and 8, the model gets half the context it needs.</p>
 
-    <p><strong>Sentence-boundary chunking</strong> is a step up. Each chunk ends at a sentence boundary, so you never split a thought mid-sentence. But individual sentences are often too small to be useful &mdash; a standalone sentence like "The return window is 30 days" has no surrounding context to help the embedder understand what product or policy it refers to.</p>
+    <p><strong>Sentence-boundary chunking</strong> is a step up. Each chunk ends at a sentence boundary, so you never split a thought mid-sentence. But individual sentences are often too small to be useful &mdash; a standalone sentence like "The return window is 30 days" has no surrounding context to help the embedder understand what product or policy it refers to. This is what researchers call <strong>context fragmentation</strong> &mdash; enterprise data is contradictory and versioned, and a chunk without its surrounding policy context can lead the model to act on outdated or incomplete information. That's not a hallucination; it's a retrieval mistake with real consequences.</p>
 
     <p><strong>Semantic chunking</strong> groups related sentences together by measuring embedding similarity between consecutive sentences. When two adjacent sentences are semantically similar, they stay in the same chunk. When there's a topic shift, a new chunk begins. This produces chunks that map to coherent ideas rather than arbitrary boundaries.</p>
 
