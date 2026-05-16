@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-E8RQLQXRWH"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-E8RQLQXRWH');
+  </script>
+  <title>LLM-as-Judge Done Right — AI for Builders</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/shared.css?v=9">
+  <style>
+    .reading-progress { position: fixed; top: 0; left: 0; width: 100%; height: 3px; z-index: 1000; pointer-events: none; background: transparent; }
+    .reading-progress__bar { height: 100%; width: 0%; background: #059669; transition: width 0.15s ease-out; }
+    .toc__item--active > a { color: var(--accent-eval, #059669); opacity: 1; }
+    .toc__item--active > .toc__numeral { color: var(--accent-eval, #059669); opacity: 1; }
+    @media (min-width: 1280px) {
+      .toc { position: fixed; top: 50%; transform: translateY(-50%); width: 180px; left: calc((100vw - 760px) / 2 - 220px); padding: 0; margin: 0; z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+      .toc--visible { opacity: 1; pointer-events: auto; }
+      .toc__inner { padding: 0.75rem 1rem; background: rgba(255, 255, 255, 0.95); border-radius: 8px; border: 1px solid rgba(0, 0, 0, 0.08); backdrop-filter: blur(8px); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04); }
+      .toc__title { font-size: 0.65rem; margin-bottom: 0.5rem; }
+      .toc__list li { padding: 0.2rem 0; }
+      .toc__list a, .toc__numeral { font-size: 0.8rem; }
+    }
+
+    /* Widget: Rubric Tester */
+    .rubric-tester { max-width: 720px; margin: var(--space-8) auto; padding: var(--space-6); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 12px; }
+    .rubric-tester__title { font-family: var(--font-sans); font-size: var(--text-sm); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent-eval); margin-bottom: var(--space-4); }
+    .rubric-tester__pairs { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); margin-bottom: var(--space-4); }
+    @media (max-width: 600px) { .rubric-tester__pairs { grid-template-columns: 1fr; } }
+    .rubric-tester__card { padding: var(--space-4); border: 2px solid var(--color-border); border-radius: 8px; cursor: pointer; transition: border-color 0.2s, background 0.2s; }
+    .rubric-tester__card:hover { border-color: var(--accent-eval); }
+    .rubric-tester__card--active { border-color: var(--accent-eval); background: #ECFDF5; }
+    .rubric-tester__card-label { font-family: var(--font-sans); font-size: var(--text-xs); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: var(--space-2); }
+    .rubric-tester__card-label--vague { color: #DC2626; }
+    .rubric-tester__card-label--specific { color: #059669; }
+    .rubric-tester__card-text { font-family: var(--font-mono); font-size: var(--text-sm); line-height: 1.6; color: var(--color-text); }
+    .rubric-tester__result { display: none; padding: var(--space-4); border-radius: 8px; border-left: 4px solid var(--accent-eval); font-family: var(--font-sans); font-size: var(--text-sm); line-height: 1.6; background: #ECFDF5; }
+    .rubric-tester__result--visible { display: block; }
+    .rubric-tester__scores { display: flex; gap: var(--space-6); margin-bottom: var(--space-3); }
+    .rubric-tester__score-item { text-align: center; }
+    .rubric-tester__score-val { font-family: var(--font-mono); font-size: var(--text-xl); font-weight: 600; }
+    .rubric-tester__score-label { font-size: var(--text-xs); color: var(--color-text-secondary); }
+
+    /* Capstone quiz */
+    .capstone-quiz { max-width: 720px; margin: var(--space-12) auto; padding: var(--space-8); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 12px; }
+    .capstone-quiz__title { font-family: var(--font-sans); font-size: var(--text-sm); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent-eval); margin-bottom: var(--space-2); }
+    .capstone-quiz__progress { font-family: var(--font-sans); font-size: var(--text-sm); color: var(--color-text-secondary); margin-bottom: var(--space-6); }
+    .capstone-quiz__question { font-family: var(--font-serif); font-size: var(--text-lg); line-height: 1.5; margin-bottom: var(--space-6); }
+    .capstone-quiz__options { display: flex; flex-direction: column; gap: var(--space-3); margin-bottom: var(--space-4); }
+    .capstone-quiz__option { padding: var(--space-4); border: 2px solid var(--color-border); border-radius: 8px; cursor: pointer; transition: border-color 0.2s, background 0.2s; font-family: var(--font-sans); font-size: var(--text-sm); line-height: 1.5; text-align: left; background: var(--color-bg); }
+    .capstone-quiz__option:hover { border-color: var(--accent-eval); }
+    .capstone-quiz__option--correct { border-color: #059669; background: #ECFDF5; }
+    .capstone-quiz__option--wrong { border-color: #DC2626; background: #FEF2F2; }
+    .capstone-quiz__explanation { display: none; padding: var(--space-4); background: #F0FDF4; border-radius: 8px; border-left: 4px solid var(--accent-eval); font-family: var(--font-sans); font-size: var(--text-sm); line-height: 1.6; margin-bottom: var(--space-4); }
+    .capstone-quiz__explanation--visible { display: block; }
+    .capstone-quiz__next { display: none; padding: 0.6rem 1.5rem; background: var(--accent-eval); color: #fff; border: none; border-radius: 6px; font-family: var(--font-sans); font-size: var(--text-sm); font-weight: 500; cursor: pointer; }
+    .capstone-quiz__next:hover { filter: brightness(1.1); }
+    .capstone-quiz__next--visible { display: inline-block; }
+    .capstone-quiz__score { text-align: center; padding: var(--space-8); font-family: var(--font-sans); }
+    .capstone-quiz__score-number { font-size: var(--text-3xl); font-weight: 600; color: var(--accent-eval); }
+    .capstone-quiz__score-label { font-size: var(--text-sm); color: var(--color-text-secondary); margin-top: var(--space-2); }
+    .capstone-quiz__score-message { font-size: var(--text-base); margin-top: var(--space-4); line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <div class="reading-progress"><div class="reading-progress__bar" id="reading-progress-bar"></div></div>
+
+  <header class="article-hero" id="article-hero" style="background: linear-gradient(135deg, #059669 0%, #0891B2 100%);">
+    <canvas class="article-hero__canvas" id="hero-canvas"></canvas>
+    <div class="article-hero__overlay"></div>
+    <div class="article-hero__content">
+      <nav class="breadcrumb breadcrumb--hero">
+        <a href="../index.html">AI for Builders</a> &nbsp;/&nbsp; <a href="index.html">Evaluation &amp; Testing</a> &nbsp;/&nbsp; <span>Part 4</span>
+      </nav>
+      <div class="article-header__meta" style="color: rgba(255,255,255,0.9);">Part 4 of 4 &middot; ~9 min read</div>
+      <h1 style="color: #fff;">LLM-as-Judge Done Right</h1>
+      <p class="lead" style="color: rgba(255,255,255,0.85);">Using one LLM to judge another sounds circular. Done right, it&rsquo;s the most scalable eval method you have. Done wrong, it&rsquo;s expensive self-deception.</p>
+    </div>
+  </header>
+
+  <nav class="toc" aria-label="Table of contents">
+    <div class="toc__inner">
+      <div class="toc__title">Contents</div>
+      <ol class="toc__list">
+        <li class="toc__item"><span class="toc__numeral">I.</span><a href="#why-judge">Why Judge?</a></li>
+        <li class="toc__item"><span class="toc__numeral">II.</span><a href="#anatomy">Anatomy of a Judge</a></li>
+        <li class="toc__item"><span class="toc__numeral">III.</span><a href="#strengths-and-blindspots">Strengths &amp; Blindspots</a></li>
+        <li class="toc__item"><span class="toc__numeral">IV.</span><a href="#the-circular-problem">The Circular Problem</a></li>
+        <li class="toc__item"><span class="toc__numeral">V.</span><a href="#calibrating">Calibrating Your Judge</a></li>
+        <li class="toc__item"><span class="toc__numeral">VI.</span><a href="#at-scale">Judge at Scale</a></li>
+      </ol>
+    </div>
+  </nav>
+
+  <div class="epigraph">
+    <p class="epigraph__verse">
+      Who judges the judge when the judge is a model?<br>
+      Same weights, different prompt &mdash; full throttle.<br>
+      The rubric&rsquo;s the law, the score&rsquo;s the proof &mdash;<br>
+      Vague instructions? Expensive spoof.
+    </p>
+  </div>
+
+  <article class="prose">
+
+    <!-- ================================================================
+         Section I: Why Judge?
+         ================================================================ -->
+    <h2 id="why-judge"><span class="section-number">I</span> Why Judge?</h2>
+
+    <p>Part 1 introduced four evaluation methods: human eval, automated metrics, LLM-as-judge, and rubric-based scoring. In practice, most teams land on LLM-as-judge as their workhorse. Here&rsquo;s why.</p>
+
+    <p><strong>Human evaluation doesn&rsquo;t scale.</strong> At $5&ndash;50 per judgment, evaluating 500 test cases costs $2,500&ndash;25,000 per eval run. Run that on every PR and you&rsquo;re bankrupt by Tuesday. Human eval is the gold standard for <em>calibrating</em> your system, not for <em>running</em> it continuously.</p>
+
+    <p><strong>Automated metrics are too shallow.</strong> BLEU, ROUGE, exact match &mdash; these work for structured outputs but fall apart for open-ended generation. A perfectly good email summary can score 0.2 on ROUGE because it used different words than the reference. Metrics that compare strings miss everything about meaning, tone, and completeness.</p>
+
+    <p><strong>LLM-as-judge fills the gap.</strong> 80&ndash;90% agreement with human raters at roughly 1/100th the cost. Fast enough to run on every PR. Nuanced enough to evaluate open-ended outputs. The catch: that 80&ndash;90% agreement only holds when you do it right. A lazy judge prompt produces expensive random numbers.</p>
+
+    <div class="callout callout--insight">
+      <div class="callout__label">Key Insight</div>
+      <div class="callout__body">LLM-as-judge isn&rsquo;t a replacement for human evaluation. It&rsquo;s a <strong>proxy</strong> that you calibrate against human judgment. Humans set the standard (what does a 5/5 look like?). The judge scales it (score 10,000 outputs against that standard). If you skip the human calibration step, you&rsquo;re just measuring consistency, not quality.</div>
+    </div>
+
+    <!-- ================================================================
+         Section II: Anatomy of a Judge
+         ================================================================ -->
+    <h2 id="anatomy"><span class="section-number">II</span> Anatomy of a Judge</h2>
+
+    <p>A well-built LLM judge has four components. Miss any one and the scores become unreliable.</p>
+
+    <p><strong>1. The rubric.</strong> This is the entire game. A rubric defines what you&rsquo;re measuring, how to score it, and what each score level means. &ldquo;Is this response good?&rdquo; is not a rubric. &ldquo;Rate factual accuracy 1&ndash;5, where 1 = contains fabricated claims, 3 = mostly accurate with minor errors, 5 = every claim is verifiable&rdquo; is a rubric. The more specific your rubric, the more consistent your scores.</p>
+
+    <p><strong>2. The grading prompt.</strong> The system prompt that turns the LLM into a judge. It includes: the rubric, the scoring scale, instructions to evaluate <em>only</em> what the rubric asks (not general quality), and a requirement to provide evidence for the score. A judge that says &ldquo;4/5&rdquo; without explaining why is useless for debugging.</p>
+
+    <p><strong>3. The evidence requirement.</strong> Always require the judge to cite specific parts of the output that justify its score. &ldquo;I gave this a 2 because the response claims the product launched in 2023, but the source document says 2024&rdquo; is actionable. &ldquo;I gave this a 2 because it didn&rsquo;t seem accurate&rdquo; is not.</p>
+
+    <p><strong>4. Structured output.</strong> Have the judge return JSON, not prose. <code>{"accuracy": 4, "completeness": 3, "tone": 5, "evidence": "..."}</code> is parseable and aggregatable. A paragraph of feedback requires another LLM call to extract the scores.</p>
+
+    <div class="callout callout--pm-tip">
+      <div class="callout__label">Builder Tip</div>
+      <div class="callout__body"><strong>One dimension per judge call.</strong> Don&rsquo;t ask a judge to score accuracy, completeness, tone, and safety in a single prompt. Scores bleed into each other &mdash; a factually wrong but well-written response gets inflated accuracy scores because the judge is influenced by the good writing. Score each dimension in a separate call. It costs more but produces dramatically better data.</div>
+    </div>
+
+  </article>
+
+  <!-- ================================================================
+       Widget: Rubric Tester
+       ================================================================ -->
+  <div class="wide-container">
+    <div class="rubric-tester" id="rubric-tester">
+      <div class="rubric-tester__title">Interactive &middot; Vague vs. Specific Rubrics</div>
+      <p style="font-family: var(--font-sans); font-size: var(--text-sm); color: var(--color-text-secondary); margin-bottom: var(--space-4);">See how rubric precision affects scoring consistency. Click a pair to compare.</p>
+      <div id="rt-pairs"></div>
+      <div class="rubric-tester__result" id="rt-result"></div>
+    </div>
+  </div>
+
+  <article class="prose">
+
+    <!-- ================================================================
+         Section III: Strengths & Blindspots
+         ================================================================ -->
+    <h2 id="strengths-and-blindspots"><span class="section-number">III</span> Strengths &amp; Blindspots</h2>
+
+    <p>LLM judges are not universally reliable. They have specific strengths and specific blindspots, and knowing which is which determines whether your eval system works.</p>
+
+    <p><strong>Strong at:</strong></p>
+    <ul>
+      <li><strong>Factual accuracy</strong> &mdash; verifying claims against provided source material. The judge can cross-reference the output with the retrieval results and flag discrepancies.</li>
+      <li><strong>Format compliance</strong> &mdash; checking whether the output follows structural requirements (JSON schema, word count, required sections).</li>
+      <li><strong>Consistency</strong> &mdash; given the same rubric, an LLM judge produces more consistent scores than a rotating pool of human raters. No bad days, no lunch fatigue.</li>
+      <li><strong>Relative comparison</strong> &mdash; &ldquo;which of these two responses is better?&rdquo; produces more reliable results than &ldquo;rate this response 1&ndash;5.&rdquo; Pairwise comparison reduces calibration drift.</li>
+    </ul>
+
+    <p><strong>Weak at:</strong></p>
+    <ul>
+      <li><strong>Novelty and creativity</strong> &mdash; LLM judges reward fluent, conventional responses and penalize surprising but effective ones. If your product values originality, the judge will systematically underrate your best outputs.</li>
+      <li><strong>Cultural nuance</strong> &mdash; humor, formality norms, and communication styles vary across cultures. A judge trained on English-dominant data will misjudge outputs intended for other cultural contexts.</li>
+      <li><strong>Catching its own failure modes</strong> &mdash; if the judge uses the same model family as the generator, they share the same blindspots. Both might consider a confident hallucination &ldquo;well-written and plausible.&rdquo;</li>
+      <li><strong>Verbosity bias</strong> &mdash; LLM judges consistently rate longer, more detailed responses higher than concise ones, even when brevity is better. A judge evaluating customer support replies will prefer the 200-word essay over the 30-word answer that actually solves the problem.</li>
+    </ul>
+
+    <div class="callout callout--analogy">
+      <div class="callout__label">Analogy</div>
+      <div class="callout__body">An LLM judge is like a teaching assistant grading papers with a rubric. Given clear criteria, they&rsquo;re remarkably consistent and fast. But they grade <em>to the rubric</em>, not beyond it. If the rubric doesn&rsquo;t capture what matters, the TA will confidently assign scores that miss the point entirely. The rubric is the ceiling of the judge&rsquo;s intelligence.</div>
+    </div>
+
+    <!-- ================================================================
+         Section IV: The Circular Problem
+         ================================================================ -->
+    <h2 id="the-circular-problem"><span class="section-number">IV</span> The Circular Problem</h2>
+
+    <p>The obvious objection: using an LLM to judge an LLM is circular. If the model can&rsquo;t tell its own output is wrong, how can it tell another model&rsquo;s output is wrong?</p>
+
+    <p>The objection is half right. Here&rsquo;s when it&rsquo;s valid and when it&rsquo;s not:</p>
+
+    <p><strong>Circular (avoid):</strong></p>
+    <ul>
+      <li>Same model judges its own output. Claude evaluating Claude with no rubric is just the model saying &ldquo;yeah, that sounds like something I&rsquo;d say.&rdquo;</li>
+      <li>Judging on dimensions the model is known to be bad at. If your model hallucinates, using it to detect hallucinations in another model&rsquo;s output is asking the blind to lead the blind.</li>
+      <li>No ground truth for calibration. If you&rsquo;ve never had humans score a subset, you have no way to know if the judge&rsquo;s scores mean anything.</li>
+    </ul>
+
+    <p><strong>Not circular (use confidently):</strong></p>
+    <ul>
+      <li><strong>Different model judges a different model.</strong> GPT-4 judging Claude, or Opus judging Haiku. Different training data, different failure modes, different blindspots. Cross-model judging catches failures that same-model judging misses.</li>
+      <li><strong>Rubric-constrained evaluation.</strong> A well-crafted rubric with specific criteria and evidence requirements forces the judge to evaluate <em>specific claims</em>, not vibes. The rubric turns an open-ended question into a verification task, which LLMs are much better at.</li>
+      <li><strong>Verification is easier than generation.</strong> This is the fundamental reason LLM-as-judge works. Checking whether a response correctly cites a source document is much simpler than generating the response in the first place. The judge doesn&rsquo;t need to be smarter than the generator &mdash; it needs to be good at checking specific properties.</li>
+    </ul>
+
+    <div class="callout callout--insight">
+      <div class="callout__label">Key Insight</div>
+      <div class="callout__body"><strong>Verification is easier than generation.</strong> You don&rsquo;t need a PhD to grade a PhD thesis. You need clear criteria, access to references, and enough expertise to check claims. LLM judges work for the same reason &mdash; checking whether &ldquo;the response only contains claims supported by the retrieved documents&rdquo; is a simpler task than generating the response.</div>
+    </div>
+
+    <!-- ================================================================
+         Section V: Calibrating Your Judge
+         ================================================================ -->
+    <h2 id="calibrating"><span class="section-number">V</span> Calibrating Your Judge</h2>
+
+    <p>A judge is only as good as its calibration. Here&rsquo;s how to know if yours is reliable.</p>
+
+    <p><strong>Step 1: Human baseline.</strong> Have 2&ndash;3 human raters score 50&ndash;100 outputs using the same rubric the judge will use. Measure inter-rater agreement (humans disagreeing with each other). If your human raters only agree 70% of the time, your judge can&rsquo;t be expected to do better &mdash; that&rsquo;s the ceiling.</p>
+
+    <p><strong>Step 2: Judge-vs-human agreement.</strong> Run the same 50&ndash;100 outputs through your LLM judge. Compare judge scores to human scores. You want agreement at or above the human-vs-human baseline. If humans agree 75% of the time and the judge agrees with humans 73% of the time, that&rsquo;s a well-calibrated judge.</p>
+
+    <p><strong>Step 3: Failure analysis.</strong> Look at the cases where the judge and humans disagree. Are there patterns? Maybe the judge consistently overscores long responses (verbosity bias). Maybe it underscores creative writing. These patterns tell you where to add rubric specificity or where to fall back to human review.</p>
+
+    <p><strong>Step 4: Ongoing spot-checks.</strong> Calibration drifts. Model updates change behavior. Every week, pull 20&ndash;30 judge-scored outputs and have a human verify the scores. If agreement drops below your threshold, recalibrate the rubric. This is cheap insurance against silent degradation.</p>
+
+    <div class="callout callout--pm-tip">
+      <div class="callout__label">Builder Tip</div>
+      <div class="callout__body"><strong>Pairwise comparison beats absolute scoring.</strong> Instead of &ldquo;rate this response 1&ndash;5,&rdquo; try &ldquo;which of these two responses is better on [dimension]?&rdquo; Pairwise judgments have higher inter-judge agreement, sidestep calibration drift (no need to agree on what &ldquo;3&rdquo; means), and map naturally to A/B testing. The downside: you need O(n&sup2;) comparisons for n outputs, so it&rsquo;s best for small sets or tournament-style brackets.</div>
+    </div>
+
+    <!-- ================================================================
+         Section VI: Judge at Scale
+         ================================================================ -->
+    <h2 id="at-scale"><span class="section-number">VI</span> Judge at Scale</h2>
+
+    <p>Once your judge is calibrated, plug it into the eval harness from Part 3. Here&rsquo;s what changes at scale.</p>
+
+    <p><strong>Cost model.</strong> A typical judge call costs $0.005&ndash;0.02 per output (depending on model and output length). At 500 test cases &times; 5 runs &times; 3 dimensions scored separately = 7,500 judge calls per eval. At $0.01 each, that&rsquo;s $75 per eval run. Run it on every PR across a 10-person team and you&rsquo;re at maybe $500&ndash;1,000/month. Compare that to one production incident caused by a regression you didn&rsquo;t catch.</p>
+
+    <p><strong>Async scoring.</strong> Judge calls don&rsquo;t need to block the pipeline. Run your model outputs in parallel, queue the judge calls, and aggregate scores asynchronously. The developer sees &ldquo;eval running&rdquo; on the PR and gets results in minutes, not blocking their workflow.</p>
+
+    <p><strong>Escalation to human review.</strong> Build an escalation path for outputs the judge is uncertain about. If the judge scores accuracy at 2/5 but completeness at 5/5, that&rsquo;s a weird combination worth a human look. If the judge&rsquo;s confidence is low (scores cluster around the middle of the scale), escalate. Reserve your human review budget for the cases the judge flags, not random sampling.</p>
+
+    <p><strong>Version your rubrics.</strong> Rubrics evolve as your product evolves. When you change a rubric, scores before and after aren&rsquo;t comparable &mdash; treat it like a new metric. Version rubrics alongside prompts (Part 3), and re-run the calibration step when rubrics change.</p>
+
+    <div class="callout callout--summary">
+      <div class="callout__label">Takeaway</div>
+      <div class="callout__body">LLM-as-judge is the eval method that scales. The four things that make it work: <strong>a specific rubric</strong> (vague rubrics produce random numbers), <strong>one dimension per call</strong> (dimensions bleed into each other), <strong>evidence requirements</strong> (a score without reasoning is noise), and <strong>human calibration</strong> (you need a ground truth to validate against). Skip any of these and you&rsquo;re paying for confident nonsense.</div>
+    </div>
+
+  </article>
+
+  <nav class="article-nav">
+    <a href="harness-engineering.html">&larr; Part 3: Harness Engineering</a>
+    <a href="index.html">Back to series overview &rarr;</a>
+  </nav>
+
+  <!-- ================================================================
+       Capstone Quiz
+       ================================================================ -->
+  <div class="capstone-quiz" id="capstone-quiz">
+    <div class="capstone-quiz__title">Capstone Quiz</div>
+    <div class="capstone-quiz__progress" id="cq-progress"></div>
+    <div class="capstone-quiz__question" id="cq-question"></div>
+    <div class="capstone-quiz__options" id="cq-options"></div>
+    <div class="capstone-quiz__explanation" id="cq-explanation"></div>
+    <button class="capstone-quiz__next" id="cq-next">Next question &rarr;</button>
+    <div class="capstone-quiz__score" id="cq-score" style="display:none;"></div>
+  </div>
+
+  <script>
+  // Reading Progress Bar
+  (function() {
+    var bar = document.getElementById('reading-progress-bar');
+    if (!bar) return;
+    window.addEventListener('scroll', function() {
+      var h = document.documentElement;
+      bar.style.width = Math.min((h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100, 100) + '%';
+    });
+  })();
+
+  // TOC visibility
+  (function() {
+    var toc = document.querySelector('.toc'), hero = document.getElementById('article-hero');
+    if (!toc || !hero) return;
+    new IntersectionObserver(function(e) { toc.classList.toggle('toc--visible', !e[0].isIntersecting); }, { threshold: 0 }).observe(hero);
+  })();
+
+  // TOC active highlighting
+  (function() {
+    var headings = document.querySelectorAll('h2[id]'), tocItems = document.querySelectorAll('.toc__item');
+    if (!headings.length) return;
+    headings.forEach(function(h) {
+      new IntersectionObserver(function(entries) {
+        if (entries[0].isIntersecting) {
+          tocItems.forEach(function(i) { i.classList.remove('toc__item--active'); });
+          var link = document.querySelector('.toc__item a[href="#' + entries[0].target.id + '"]');
+          if (link) link.parentElement.classList.add('toc__item--active');
+        }
+      }, { rootMargin: '-20% 0px -80% 0px' }).observe(h);
+    });
+  })();
+
+  // Hero canvas particles
+  (function() {
+    var canvas = document.getElementById('hero-canvas');
+    if (!canvas) return;
+    var ctx = canvas.getContext('2d'), particles = [];
+    function resize() { canvas.width = canvas.offsetWidth * (window.devicePixelRatio || 1); canvas.height = canvas.offsetHeight * (window.devicePixelRatio || 1); ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1); }
+    resize(); window.addEventListener('resize', resize);
+    for (var i = 0; i < 35; i++) particles.push({ x: Math.random() * canvas.offsetWidth, y: Math.random() * canvas.offsetHeight, r: Math.random() * 2 + 1, dx: (Math.random() - 0.5) * 0.4, dy: (Math.random() - 0.5) * 0.4, alpha: Math.random() * 0.3 + 0.1 });
+    function draw() {
+      ctx.clearRect(0, 0, canvas.offsetWidth, canvas.offsetHeight);
+      particles.forEach(function(p) { p.x += p.dx; p.y += p.dy; if (p.x < 0 || p.x > canvas.offsetWidth) p.dx *= -1; if (p.y < 0 || p.y > canvas.offsetHeight) p.dy *= -1; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fillStyle = 'rgba(255,255,255,' + p.alpha + ')'; ctx.fill(); });
+      for (var i = 0; i < particles.length; i++) for (var j = i + 1; j < particles.length; j++) { var dx = particles[i].x - particles[j].x, dy = particles[i].y - particles[j].y, dist = Math.sqrt(dx * dx + dy * dy); if (dist < 100) { ctx.beginPath(); ctx.moveTo(particles[i].x, particles[i].y); ctx.lineTo(particles[j].x, particles[j].y); ctx.strokeStyle = 'rgba(255,255,255,' + (0.12 * (1 - dist / 100)) + ')'; ctx.lineWidth = 0.5; ctx.stroke(); } }
+      requestAnimationFrame(draw);
+    }
+    draw();
+  })();
+
+  // Widget: Rubric Tester
+  (function() {
+    var pairs = [
+      {
+        vague: { text: '"Is this response good?\nRate 1-5."', agreement: '47%', variance: '±1.8 points' },
+        specific: { text: '"Does the response contain only claims supported by the source document?\n1 = multiple unsupported claims\n3 = mostly supported, 1-2 unsupported\n5 = every claim traceable to source"', agreement: '89%', variance: '±0.4 points' },
+        insight: 'The vague rubric lets the judge define "good" differently on every call — sometimes it weighs accuracy, sometimes tone, sometimes length. The specific rubric constrains it to one verifiable dimension with concrete anchors. Agreement jumps from 47% to 89%.'
+      },
+      {
+        vague: { text: '"Rate the tone of this customer support reply.\n1 = bad, 5 = good."', agreement: '52%', variance: '±1.5 points' },
+        specific: { text: '"Rate professional warmth on this scale:\n1 = cold/robotic (no acknowledgment of customer frustration)\n3 = neutral (acknowledges issue but formulaic)\n5 = warm and specific (names the customer\'s exact issue, expresses genuine empathy)"', agreement: '84%', variance: '±0.6 points' },
+        insight: '"Bad" and "good" tone mean different things to every judge call. When you define the scale with observable behaviors (acknowledges frustration, names the issue), the judge has concrete anchors instead of vibes. Tone is subjective — but specific rubrics make subjective scoring consistent.'
+      },
+      {
+        vague: { text: '"Is this summary complete?\nYes or No."', agreement: '61%', variance: 'N/A (binary)' },
+        specific: { text: '"List the key facts in the source document. For each fact, mark whether it appears in the summary.\nCompleteness score = (facts in summary / facts in source) × 100%"', agreement: '93%', variance: '±3%' },
+        insight: 'Binary "complete?" forces a judgment call on a spectrum. The checklist approach turns completeness into a countable metric — the judge lists source facts and checks each one. This is verification, not judgment, and LLMs excel at it. Agreement jumps from 61% to 93%.'
+      }
+    ];
+
+    var container = document.getElementById('rt-pairs');
+    var resultEl = document.getElementById('rt-result');
+    if (!container) return;
+
+    pairs.forEach(function(pair, idx) {
+      var div = document.createElement('div');
+      div.className = 'rubric-tester__pairs';
+      div.style.marginBottom = 'var(--space-4)';
+      div.innerHTML =
+        '<div class="rubric-tester__card" data-idx="' + idx + '" data-type="vague"><div class="rubric-tester__card-label rubric-tester__card-label--vague">Vague</div><div class="rubric-tester__card-text">' + pair.vague.text.replace(/\n/g, '<br>') + '</div></div>' +
+        '<div class="rubric-tester__card" data-idx="' + idx + '" data-type="specific"><div class="rubric-tester__card-label rubric-tester__card-label--specific">Specific</div><div class="rubric-tester__card-text">' + pair.specific.text.replace(/\n/g, '<br>') + '</div></div>';
+      div.querySelectorAll('.rubric-tester__card').forEach(function(card) {
+        card.addEventListener('click', function() {
+          container.querySelectorAll('.rubric-tester__card').forEach(function(c) { c.classList.remove('rubric-tester__card--active'); });
+          div.querySelectorAll('.rubric-tester__card').forEach(function(c) { c.classList.add('rubric-tester__card--active'); });
+          resultEl.innerHTML =
+            '<div class="rubric-tester__scores">' +
+            '<div class="rubric-tester__score-item"><div class="rubric-tester__score-val" style="color: #DC2626;">' + pair.vague.agreement + '</div><div class="rubric-tester__score-label">Vague agreement</div></div>' +
+            '<div class="rubric-tester__score-item"><div class="rubric-tester__score-val" style="color: #059669;">' + pair.specific.agreement + '</div><div class="rubric-tester__score-label">Specific agreement</div></div>' +
+            '</div>' +
+            '<p>' + pair.insight + '</p>';
+          resultEl.classList.add('rubric-tester__result--visible');
+        });
+      });
+      container.appendChild(div);
+    });
+  })();
+
+  // Capstone Quiz
+  (function() {
+    var questions = [
+      {
+        question: 'Your team uses an LLM judge with the prompt "Rate this response 1-5 on quality." Scores are inconsistent across runs. What\'s the most likely fix?',
+        options: [
+          { label: 'Use a more powerful model as the judge', key: 'a' },
+          { label: 'Replace the vague "quality" prompt with a specific rubric that defines what each score level means with observable criteria', key: 'b' },
+          { label: 'Run more judge calls and average the scores', key: 'c' },
+          { label: 'Switch to human evaluation instead', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'A vague rubric is the #1 cause of inconsistent judge scores. "Quality" means different things on every call — sometimes the judge weights accuracy, sometimes tone, sometimes length. A specific rubric with concrete anchors ("1 = contains fabricated claims, 5 = every claim is verifiable") constrains the judge to evaluate one thing consistently. More calls (option C) average out noise but don\'t fix the root cause. A stronger model (option A) is still vague without a rubric.'
+      },
+      {
+        question: 'You\'re judging accuracy, completeness, and tone in a single judge call. A factually wrong but beautifully written response scores 4/5 on accuracy. What went wrong?',
+        options: [
+          { label: 'The model is too weak to judge accuracy — use a stronger model', key: 'a' },
+          { label: 'Dimensions bled into each other — the judge was influenced by good writing when scoring accuracy. Score each dimension in a separate call.', key: 'b' },
+          { label: 'The response was actually accurate and the human baseline is wrong', key: 'c' },
+          { label: 'The rubric for accuracy was too strict', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'When you ask a judge to score multiple dimensions in one call, scores bleed across dimensions. Good tone inflates accuracy scores; bad formatting depresses completeness scores. The fix is one dimension per call — it costs 3x more but produces dramatically cleaner data. This is one of the most common and costly mistakes in LLM-as-judge setups.'
+      },
+      {
+        question: 'A colleague says "using an LLM to judge an LLM is circular — it can\'t catch errors it would make itself." When is this objection valid?',
+        options: [
+          { label: 'Always — LLM-as-judge is fundamentally unreliable', key: 'a' },
+          { label: 'Never — LLMs are always good at evaluating other LLMs', key: 'b' },
+          { label: 'When the same model judges its own output without a rubric, or judges dimensions it\'s known to be bad at (like detecting hallucinations with a hallucination-prone model)', key: 'c' },
+          { label: 'Only when using the same model family (e.g., Claude judging Claude)', key: 'd' }
+        ],
+        answer: 'c',
+        explanation: 'The circular objection is valid in specific cases: same-model self-evaluation without a rubric, and judging on dimensions where the model shares the generator\'s blindspots. It\'s NOT valid when: different models cross-check each other, rubrics constrain evaluation to verification tasks, or human calibration establishes a ground truth. Verification is fundamentally easier than generation — checking if a claim is in the source document is simpler than generating the response.'
+      },
+      {
+        question: 'Your human raters agree with each other 72% of the time. Your LLM judge agrees with humans 68% of the time. Is this a good judge?',
+        options: [
+          { label: 'No — 68% agreement is too low to be useful', key: 'a' },
+          { label: 'Yes — the judge is close to the human ceiling (72%) and any gap likely reflects the inherent subjectivity of the task, not judge failure', key: 'b' },
+          { label: 'Need more data to tell — 50-100 examples isn\'t enough', key: 'c' },
+          { label: 'No — the judge should achieve 90%+ agreement to be reliable', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'Human inter-rater agreement is the ceiling. If humans only agree 72% of the time on this task, the remaining 28% represents genuine ambiguity — cases where reasonable people disagree. A judge at 68% is within 4 points of that ceiling, which is excellent. Demanding 90% (option D) on a task where humans only hit 72% is asking the judge to be more consistent than humans — which would mean it\'s measuring something different from what humans mean.'
+      },
+      {
+        question: 'You\'re scaling LLM-as-judge to 10,000 outputs per week. What\'s the most critical practice to maintain?',
+        options: [
+          { label: 'Increase the judge model size every quarter to keep up with model improvements', key: 'a' },
+          { label: 'Weekly human spot-checks on 20-30 judge-scored outputs to catch calibration drift before it silently degrades your eval system', key: 'b' },
+          { label: 'Run every output through two different judge models and take the average', key: 'c' },
+          { label: 'Store all judge outputs indefinitely for future auditing', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'Calibration drifts. Model updates change judge behavior. Product changes make old rubrics less relevant. Weekly human spot-checks (20-30 outputs, ~1 hour of work) catch drift before it silently corrupts your entire eval pipeline. This is cheap insurance — skipping it means you could run months of evals that produce meaningless scores without knowing. Dual-model judging (option C) adds cost without addressing drift. Storage (option D) helps auditing but doesn\'t catch problems in real-time.'
+      }
+    ];
+
+    var currentQ = 0, score = 0;
+    var qEl = document.getElementById('cq-question'), pEl = document.getElementById('cq-progress');
+    var oEl = document.getElementById('cq-options'), eEl = document.getElementById('cq-explanation');
+    var nEl = document.getElementById('cq-next'), sEl = document.getElementById('cq-score');
+    if (!qEl) return;
+
+    function render() {
+      if (currentQ >= questions.length) {
+        qEl.style.display = 'none'; pEl.style.display = 'none'; oEl.style.display = 'none';
+        eEl.style.display = 'none'; nEl.style.display = 'none'; sEl.style.display = 'block';
+        var pct = Math.round((score / questions.length) * 100);
+        var msgs = ['Review the article — LLM-as-judge has subtleties worth revisiting.', 'Decent foundation — you get the concept but the calibration details need work.', 'Solid understanding — you know where judges work and where they break.', 'Strong grasp — you\'re ready to build a reliable LLM-as-judge pipeline.'];
+        var mi = score <= 1 ? 0 : score <= 2 ? 1 : score <= 3 ? 2 : 3;
+        sEl.innerHTML = '<div class="capstone-quiz__score-number">' + score + '/' + questions.length + '</div><div class="capstone-quiz__score-label">' + pct + '% correct</div><div class="capstone-quiz__score-message">' + msgs[mi] + '</div>';
+        return;
+      }
+      var q = questions[currentQ];
+      pEl.textContent = 'Question ' + (currentQ + 1) + ' of ' + questions.length;
+      qEl.textContent = q.question; oEl.innerHTML = '';
+      eEl.classList.remove('capstone-quiz__explanation--visible'); eEl.style.display = 'none';
+      nEl.classList.remove('capstone-quiz__next--visible'); nEl.style.display = 'none';
+      q.options.forEach(function(opt) {
+        var btn = document.createElement('button');
+        btn.className = 'capstone-quiz__option'; btn.textContent = opt.label;
+        btn.addEventListener('click', function() {
+          oEl.querySelectorAll('.capstone-quiz__option').forEach(function(b) { b.style.pointerEvents = 'none'; });
+          if (opt.key === q.answer) { btn.classList.add('capstone-quiz__option--correct'); score++; }
+          else { btn.classList.add('capstone-quiz__option--wrong'); oEl.querySelectorAll('.capstone-quiz__option').forEach(function(b) { if (b.textContent === q.options.find(function(o) { return o.key === q.answer; }).label) b.classList.add('capstone-quiz__option--correct'); }); }
+          eEl.textContent = q.explanation; eEl.style.display = 'block'; eEl.classList.add('capstone-quiz__explanation--visible');
+          nEl.style.display = 'inline-block'; nEl.classList.add('capstone-quiz__next--visible');
+        });
+        oEl.appendChild(btn);
+      });
+    }
+    nEl.addEventListener('click', function() { currentQ++; render(); });
+    render();
+  })();
+  </script>
+</body>
+</html>
