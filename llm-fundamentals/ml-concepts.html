@@ -11,7 +11,7 @@
     gtag('js', new Date());
     gtag('config', 'G-E8RQLQXRWH');
   </script>
-  <title>The ML Concepts Behind LLMs — AI for PMs</title>
+  <title>The ML Concepts Behind LLMs — AI for Builders</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
@@ -239,11 +239,11 @@
     <div class="article-hero__overlay"></div>
     <div class="article-hero__content">
       <nav class="breadcrumb breadcrumb--hero">
-        <a href="../index.html">AI for PMs</a> &nbsp;/&nbsp; <a href="index.html">How LLMs Actually Work</a> &nbsp;/&nbsp; <span>Part 1</span>
+        <a href="../index.html">AI for Builders</a> &nbsp;/&nbsp; <a href="index.html">How LLMs Actually Work</a> &nbsp;/&nbsp; <span>Part 1</span>
       </nav>
       <div class="article-header__meta" style="color: rgba(255,255,255,0.9);">Part 1 of 2 &middot; ~8 min read</div>
       <h1 style="color: #fff;">The ML Concepts Behind LLMs</h1>
-      <p class="lead" style="color: rgba(255,255,255,0.85);">The vocabulary and mental models from machine learning that every PM needs — no math required.</p>
+      <p class="lead" style="color: rgba(255,255,255,0.85);">The vocabulary and mental models from machine learning that every builder needs — no math required.</p>
     </div>
   </header>
 
@@ -278,9 +278,9 @@
          ================================================================ -->
     <h2 id="why-this-matters"><span class="section-number">I</span> Why This Matters</h2>
 
-    <p>You've sat in a meeting where someone said "we'll just fine-tune it" like they were ordering lunch. Or watched a vendor demo a 98% accuracy number that crumbled the moment it touched real data. These moments happen when PMs don't speak ML — and they happen constantly.</p>
+    <p>You've sat in a meeting where someone said "we'll just fine-tune it" like they were ordering lunch. Or watched a vendor demo a 98% accuracy number that crumbled the moment it touched real data. These moments happen when builders don't speak ML — and they happen constantly.</p>
 
-    <p>You don't need to train models. You do need to call bluffs. The five concepts in this article — supervised learning, overfitting, train/test splits, fine-tuning, embeddings — are the vocabulary that separates PMs who evaluate AI products from PMs who just applaud demos.</p>
+    <p>You don't need to train models. You do need to call bluffs. The five concepts in this article — supervised learning, overfitting, train/test splits, fine-tuning, embeddings — are the vocabulary that separates builders who evaluate AI products from builders who just applaud demos.</p>
 
     <!-- ================================================================
          Section II: Supervised vs. Unsupervised Learning
@@ -308,7 +308,7 @@
     <p><strong>Generalization</strong> is what you're actually paying for: a model that learned the pattern well enough to handle data it's never seen. A spam filter that catches novel spam. A sentiment model that works on <em>your</em> customers' messy writing, not just the pristine training set.</p>
 
     <div class="callout callout--pm-tip">
-      <div class="callout__label">PM Tip</div>
+      <div class="callout__label">Builder Tip</div>
       <div class="callout__body"><strong>If a vendor shows accuracy only on their test set, ask for results on YOUR data.</strong> A model that's 98% accurate on curated benchmarks might be 70% accurate on your messy, real-world inputs. That 28-point gap between demo and production is where AI projects go to die.</div>
     </div>
 
@@ -1120,7 +1120,7 @@
   (function() {
     var questions = [
       {
-        question: 'A vendor tells your team: "Our model is self-supervised \u2014 it learned from 2 trillion tokens without any human labeling." A junior PM asks how that\'s possible without labeled data. What\'s the best explanation?',
+        question: 'A vendor tells your team: "Our model is self-supervised \u2014 it learned from 2 trillion tokens without any human labeling." A junior teammate asks how that\'s possible without labeled data. What\'s the best explanation?',
         options: [
           { label: 'The model uses unsupervised clustering to group similar tokens, then assigns its own labels automatically.', key: 'a' },
           { label: 'The text itself provides the labels \u2014 the model learns by predicting the next token, so every word in the corpus is both input and target.', key: 'b' },
@@ -1164,7 +1164,7 @@
         explanation: 'You\'ve followed the right sequence: start with prompting, measure the gap. After two weeks of prompt iteration, 30% inconsistency on tone is exactly the kind of ceiling that fine-tuning solves \u2014 you\'re teaching the model how to BE, not just what to do. Option B may help marginally but doesn\'t address the fundamental limit of instructing tone. Option C risks crowding out the actual conversation and hitting context limits. Option D throws away progress rather than building on it.'
       },
       {
-        question: 'A PM is designing a support ticket routing system that should send tickets to the right team based on what the customer is describing \u2014 not the specific words they use. A customer writes "I can\'t get into my account" and another writes "Login page shows an error." Which approach best ensures both route to the same team?',
+        question: 'You're designing a support ticket routing system that should send tickets to the right team based on what the customer is describing \u2014 not the specific words they use. A customer writes "I can\'t get into my account" and another writes "Login page shows an error." Which approach best ensures both route to the same team?',
         options: [
           { label: 'Build a keyword-matching system that maps words like "account," "login," and "error" to the Access team.', key: 'a' },
           { label: 'Use embeddings to represent each ticket as a meaning vector, then route based on which team cluster the vector is closest to.', key: 'b' },

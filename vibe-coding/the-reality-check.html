@@ -11,7 +11,7 @@
     gtag('js', new Date());
     gtag('config', 'G-E8RQLQXRWH');
   </script>
-  <title>The Reality Check — AI for PMs</title>
+  <title>The Reality Check — AI for Builders</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
@@ -459,11 +459,11 @@
     <div class="article-hero__overlay"></div>
     <div class="article-hero__content">
       <nav class="breadcrumb breadcrumb--hero">
-        <a href="../index.html">AI for PMs</a> &nbsp;/&nbsp; <a href="index.html">Vibe Coding</a> &nbsp;/&nbsp; <span>Part 3</span>
+        <a href="../index.html">AI for Builders</a> &nbsp;/&nbsp; <a href="index.html">Vibe Coding</a> &nbsp;/&nbsp; <span>Part 3</span>
       </nav>
       <div class="article-header__meta" style="color: rgba(255,255,255,0.9);">Part 3 of 3 &middot; ~10 min read</div>
       <h1 style="color: #fff;">The Reality Check</h1>
-      <p class="lead" style="color: rgba(255,255,255,0.85);">Honest boundaries of vibe coding, when to hand off to engineering, and how to think about quality, maintenance, and technical debt.</p>
+      <p class="lead" style="color: rgba(255,255,255,0.85);">Honest boundaries of vibe coding, when to bring in specialists, and how to think about quality, maintenance, and technical debt.</p>
     </div>
   </header>
 
@@ -567,7 +567,7 @@
          ================================================================ -->
     <h2 id="when-to-hand-off"><span class="section-number">III</span> When to Hand Off</h2>
 
-    <p>There are inflection points &mdash; moments when the thing you built crosses a line and the appropriate owner changes. Recognizing these moments is the skill that separates PMs who use vibe coding productively from PMs who create problems.</p>
+    <p>There are inflection points &mdash; moments when the thing you built crosses a line and the appropriate owner changes. Recognizing these moments is the skill that separates builders who use vibe coding productively from builders who create problems.</p>
 
     <p><strong>When the prototype becomes the product.</strong> Someone says "this is great, let's just ship it." That's the moment to pause. A prototype is optimized for demonstrating intent. A product is optimized for reliability, security, and maintenance. These are different optimization targets and they require different code.</p>
 
@@ -591,25 +591,25 @@
     <!-- ================================================================
          Section IV: Working with Engineers
          ================================================================ -->
-    <h2 id="working-with-engineers"><span class="section-number">IV</span> Working with Engineers</h2>
+    <h2 id="collaborating-on-production-code"><span class="section-number">IV</span> Collaborating on Production Code</h2>
 
-    <p>Here's where it gets socially complicated. You've built a working prototype with AI. It does the thing. It looks right. And now you need to bring it to an engineer. If you handle this wrong, you've just walked into a minefield.</p>
+    <p>Here's where it gets socially complicated. You've built a working prototype with AI. It does the thing. It looks right. And now someone else needs to take it to production &mdash; or at least review it before it ships. If you handle this wrong, you've just walked into a minefield.</p>
 
-    <p>The wrong framing: "I built the feature, can you review it?" This implies the work is done and the engineer's job is quality control. It minimizes their expertise and puts them in a reactive position. Even if they don't say it, what they hear is: "Your job is so easy that a PM with an AI tool can do it."</p>
+    <p>The wrong framing: "I built the feature, can you review it?" This implies the work is done and everyone else's job is quality control. It minimizes their expertise and puts them in a reactive position. Even if they don't say it, what they hear is: "This is finished, just bless it."</p>
 
-    <p>The right framing: <strong>"I built this to show intent, not to ship."</strong> This positions the prototype as communication, not code. It says "I wanted to show you exactly what I mean, interactively, instead of writing a spec and hoping the words translate." It respects the engineer's role by acknowledging that the path from prototype to production is where their expertise matters.</p>
+    <p>The right framing: <strong>"I built this to show intent, not to ship."</strong> This positions the prototype as communication, not code. It says "I wanted to show you exactly what I mean, interactively, instead of writing it up and hoping the words translate." It respects production expertise by acknowledging that the path from prototype to production is where that expertise matters.</p>
 
-    <div class="callout callout--pm-tip">
-      <div class="callout__label">PM Tip</div>
-      <div class="callout__body"><strong>"I built this to show intent, not to ship."</strong> That one sentence changes the entire dynamic. The engineer stops seeing a PM who's trying to do their job and starts seeing a PM who went the extra mile to communicate clearly. The prototype becomes a spec that runs &mdash; far more useful than a Google Doc with screenshots and arrows. Ask: "What would need to change to make this production-ready?" You'll learn more from that conversation than from any code review.</div>
+    <div class="callout callout--insight">
+      <div class="callout__label">Key Insight</div>
+      <div class="callout__body"><strong>"I built this to show intent, not to ship."</strong> That one sentence changes the entire dynamic. The person reviewing stops seeing someone who's trying to skip the hard parts and starts seeing someone who went the extra mile to communicate clearly. The prototype becomes a spec that runs &mdash; far more useful than a document with screenshots and arrows. Ask: "What would need to change to make this production-ready?" You'll learn more from that conversation than from any written review.</div>
     </div>
 
-    <p>What engineers actually want when they receive a vibe-coded prototype:</p>
+    <p>What collaborators actually want when they receive a vibe-coded prototype:</p>
 
     <ul>
       <li><strong>Honesty about what it is.</strong> "I used Claude Code to build this. I didn't write the code myself and I can't vouch for the implementation details."</li>
       <li><strong>Clear intent.</strong> "Here's what it should do, here's how it should feel, here's the user flow I care about."</li>
-      <li><strong>Freedom to rewrite.</strong> "Feel free to throw away the code and keep the behavior." Don't fight for the AI's implementation choices &mdash; you care about the outcome, not the approach. If the engineer wants to rebuild it from scratch, that's the system working.</li>
+      <li><strong>Freedom to rewrite.</strong> "Feel free to throw away the code and keep the behavior." Don't fight for the AI's implementation choices &mdash; you care about the outcome, not the approach. If someone wants to rebuild it from scratch, that's the system working.</li>
     </ul>
 
     <!-- ================================================================
@@ -621,7 +621,7 @@
 
     <p>Here's the test: come back to your vibe-coded project in one month. Can you explain what each file does? Can you find the function that handles the main business logic? Can you trace what happens when a user submits the form? If the answer to any of these is "no," you've got a maintenance problem waiting to happen.</p>
 
-    <p>This isn't hypothetical. It's the most common failure mode of vibe coding. The PM builds something great. It works for three weeks. Then something changes &mdash; an API updates, a dependency breaks, a browser update shifts the layout &mdash; and the PM stares at code they didn't write, generated by an AI they no longer have the context for, and they're stuck.</p>
+    <p>This isn't hypothetical. It's the most common failure mode of vibe coding. You build something great. It works for three weeks. Then something changes &mdash; an API updates, a dependency breaks, a browser update shifts the layout &mdash; and you stare at code you didn't write, generated by an AI they no longer have the context for, and they're stuck.</p>
 
     <p><strong>Code you didn't write and can't explain is a house with no blueprints &mdash; livable until the plumbing breaks.</strong> Three strategies keep the trap at bay:</p>
 
@@ -729,15 +729,15 @@
          ================================================================ -->
     <h2 id="road-ahead"><span class="section-number">VI</span> The Road Ahead</h2>
 
-    <p>Here's where this is all going. The tools are getting better every month. The gap between "AI-generated code" and "production code" is narrowing. The things that require a senior engineer today will require a junior engineer tomorrow, and a PM with good prompting instincts the day after.</p>
+    <p>Here's where this is all going. The tools are getting better every month. The gap between "AI-generated code" and "production code" is narrowing. The things that require a senior engineer today will require a junior engineer tomorrow, and a builder with good prompting instincts the day after.</p>
 
-    <p>But that doesn't mean engineers go away. It means the leverage changes. <strong>PMs who can build will have a superpower</strong> &mdash; not because they replace engineers, but because they communicate in working software. The spec that runs. The prototype that demonstrates exactly what "I think it should feel like this" means. The internal tool that solves the problem instead of describing it.</p>
+    <p>But that doesn't mean engineers go away. It means the leverage changes. <strong>Builders who understand their users will have a superpower</strong> &mdash; not because they replace engineers, but because they communicate in working software. The spec that runs. The prototype that demonstrates exactly what "I think it should feel like this" means. The internal tool that solves the problem instead of describing it.</p>
 
     <p>The goal was never fewer people. The goal is better products. Faster iteration. Shorter feedback loops. Less time spent translating intent between humans and more time spent refining that intent against reality.</p>
 
     <p>Vibe coding is a tool. Like all tools, it's best when you understand both what it can do and what it can't. Build with it confidently. Ship with it carefully. Hand it off when the stakes demand it. And keep building.</p>
 
-    <p>The craft isn't just knowing how to talk to AI. It's knowing when to talk to AI, when to listen to engineers, and when to trust your own judgment about what the user actually needs. That's always been the PM's job. The tools just got a lot more interesting.</p>
+    <p>The craft isn't just knowing how to talk to AI. It's knowing when to talk to AI, when to listen to engineers, and when to trust your own judgment about what the user actually needs. That's always been the builder's job. The tools just got a lot more interesting.</p>
 
   </article>
 
@@ -1231,18 +1231,18 @@
   (function() {
     var questions = [
       {
-        question: 'Your PM colleague vibe-coded a customer onboarding flow and it passes all their manual tests. They\'re ready to ship it to production. An engineer glances at it and says "this works but it\'s not correct." What does the engineer most likely mean?',
+        question: 'Your colleague vibe-coded a customer onboarding flow and it passes all their manual tests. They\'re ready to ship it to production. An engineer glances at it and says "this works but it\'s not correct." What does the engineer most likely mean?',
         options: [
           { label: 'The code has syntax errors that will cause crashes', key: 'a' },
           { label: 'The code runs and produces expected output for tested cases, but likely has unhandled edge cases, missing business rules, or security gaps that will surface in production', key: 'b' },
-          { label: 'The engineer is gatekeeping and doesn\'t want PMs writing code', key: 'c' },
+          { label: 'The engineer is gatekeeping and is just being territorial', key: 'c' },
           { label: 'The code needs to be rewritten in a different programming language', key: 'd' }
         ],
         answer: 'b',
         explanation: 'The distinction between "works" and "correct" is central to understanding AI-generated code. "Works" means it runs without errors for the cases you tested. "Correct" means it handles every edge case, respects business rules, fails gracefully, and doesn\'t create security holes. AI code typically passes the glance test \u2014 clean names, reasonable structure \u2014 but the gap between works and correct is where production incidents live. The engineer isn\'t gatekeeping; they\'re identifying real risk.'
       },
       {
-        question: 'A PM notices that their AI-generated checkout page has clean variable names, good comments, and reasonable structure. But the code catches every possible exception and silently returns success. Why is this a problem?',
+        question: 'You notice that your AI-generated checkout page has clean variable names, good comments, and reasonable structure. But the code catches every possible exception and silently returns success. Why is this a problem?',
         options: [
           { label: 'Silent error swallowing means failures look like successes \u2014 a payment could fail but the customer sees "order confirmed," and nobody knows until revenue is missing', key: 'a' },
           { label: 'The code should throw errors loudly in production to alert users immediately', key: 'b' },
@@ -1253,7 +1253,7 @@
         explanation: 'The AI\'s instinct is to make errors disappear rather than surface them \u2014 it optimizes for "the code doesn\'t crash" rather than "the code handles failure correctly." Silent error swallowing is particularly dangerous in checkout flows where a failed payment silently returning success means the customer thinks they paid, inventory gets decremented, but no money actually changed hands. The fix isn\'t throwing raw errors at users (option B) but properly handling each failure case with appropriate user messaging and system alerting.'
       },
       {
-        question: 'A stakeholder sees a PM\'s vibe-coded prototype and says, "This is great, let\'s just ship it as-is." According to the hand-off framework, what should the PM consider first?',
+        question: 'A stakeholder sees your vibe-coded prototype and says, "This is great, let\'s just ship it as-is." According to the hand-off framework, what should you consider first?',
         options: [
           { label: 'Ship it immediately \u2014 stakeholder approval is the green light', key: 'a' },
           { label: 'Refuse to ship anything built with AI tools on principle', key: 'b' },
@@ -1264,7 +1264,7 @@
         explanation: 'The "let\'s just ship it" moment is the most dangerous inflection point in vibe coding. A prototype is optimized for demonstrating intent; a product is optimized for reliability, security, and maintenance. These are different optimization targets requiring different code. The decision framework asks: does it handle auth? Touch personal data? Process payments? Need uptime? If yes to any, it needs engineering review or handoff. If it\'s a simple internal tool with no sensitive data, shipping the prototype may be perfectly fine.'
       },
       {
-        question: 'A PM built a working prototype and brings it to an engineer saying, "I built the feature, can you review it?" The engineer seems defensive. What framing would have worked better?',
+        question: 'You built a working prototype and bring it to an engineer saying, "I built the feature, can you review it?" The engineer seems defensive. What framing would have worked better?',
         options: [
           { label: '"I know this isn\'t perfect, but it\'s good enough to ship if you just fix the bugs."', key: 'a' },
           { label: '"Here\'s the finished code. I just need you to deploy it."', key: 'b' },
@@ -1275,7 +1275,7 @@
         explanation: 'The framing "I built the feature" implies the work is done and the engineer\'s job is quality control, minimizing their expertise. "I built this to show intent, not to ship" positions the prototype as communication \u2014 a spec that runs \u2014 and explicitly acknowledges that the path from prototype to production is where engineering expertise matters. Options B and D are worse versions of the same problem. Option C implies AI code doesn\'t need serious review, which is exactly the wrong assumption.'
       },
       {
-        question: 'A PM built an internal tool with AI three months ago. An API it depends on changed, and now the tool is broken. They can\'t find the relevant function or understand the data flow. What maintenance principle did they violate?',
+        question: 'You built an internal tool with AI three months ago. An API it depends on changed, and now the tool is broken. You can\'t find the relevant function or understand the data flow. What maintenance principle did they violate?',
         options: [
           { label: 'They should have used a more stable API provider', key: 'a' },
           { label: 'They should have built it without AI so they\'d understand the code', key: 'b' },
@@ -1283,7 +1283,7 @@
           { label: 'AI-generated code always breaks after three months and needs to be regenerated', key: 'd' }
         ],
         answer: 'c',
-        explanation: 'The one-month test is the maintenance litmus test: can you come back in a month and still work on it? This PM can\'t explain what each file does or trace the data flow, which means they built a prototype without realizing it. The three strategies for avoiding this trap \u2014 keeping it simple, writing tests, and using version control \u2014 would have helped. Building without AI (option B) misses the point; the issue isn\'t the tool but the lack of understanding and documentation. APIs changing is normal; being unable to respond to the change is the real failure.'
+        explanation: 'The one-month test is the maintenance litmus test: can you come back in a month and still work on it? This builder can\'t explain what each file does or trace the data flow, which means they built a prototype without realizing it. The three strategies for avoiding this trap \u2014 keeping it simple, writing tests, and using version control \u2014 would have helped. Building without AI (option B) misses the point; the issue isn\'t the tool but the lack of understanding and documentation. APIs changing is normal; being unable to respond to the change is the real failure.'
       }
     ];
 

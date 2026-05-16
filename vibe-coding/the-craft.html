@@ -11,7 +11,7 @@
     gtag('js', new Date());
     gtag('config', 'G-E8RQLQXRWH');
   </script>
-  <title>The Craft — AI for PMs</title>
+  <title>The Craft — AI for Builders</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
@@ -440,7 +440,7 @@
     <div class="article-hero__overlay"></div>
     <div class="article-hero__content">
       <nav class="breadcrumb breadcrumb--hero">
-        <a href="../index.html">AI for PMs</a> &nbsp;/&nbsp; <a href="index.html">Vibe Coding</a> &nbsp;/&nbsp; <span>Part 2</span>
+        <a href="../index.html">AI for Builders</a> &nbsp;/&nbsp; <a href="index.html">Vibe Coding</a> &nbsp;/&nbsp; <span>Part 2</span>
       </nav>
       <div class="article-header__meta" style="color: rgba(255,255,255,0.9);">Part 2 of 3 &middot; ~10 min read</div>
       <h1 style="color: #fff;">The Craft</h1>
@@ -589,7 +589,7 @@
     <p><strong>Project files are your secret weapon.</strong> Tools like Claude Code read a <code>CLAUDE.md</code> file at the root of your project every time a session starts &mdash; your standing instruction set that survives across conversations. Two essentials anchor it: <strong>what your stack is</strong> ("React 18, TypeScript, Tailwind, Supabase") and <strong>what to avoid</strong> ("Never use inline styles. Don't modify auth middleware."). Conventions, architecture decisions, and deploy steps round it out, but those two anchors prevent the most common AI missteps.</p>
 
     <div class="callout callout--pm-tip">
-      <div class="callout__label">PM Tip</div>
+      <div class="callout__label">Builder Tip</div>
       <div class="callout__body"><strong>Writing a good project file is a 30-minute investment that pays back every session.</strong> Beyond <code>CLAUDE.md</code>, some tools also support memory files &mdash; like Claude Code's <code>MEMORY.md</code> &mdash; where the AI accumulates learnings across conversations: patterns it discovered, debugging insights, your preferences, what worked and what didn't. You get project files that become smarter over time. Spend 30 minutes writing your CLAUDE.md today. List your stack, your naming conventions, your deploy process, and your "never do X" rules. Every future session starts better because of it.</div>
     </div>
 
@@ -1197,7 +1197,7 @@
   (function() {
     var questions = [
       {
-        question: 'A PM complains that their AI coding tool keeps producing login pages that "look wrong" even though they work. Their prompt was: "Build me a login page." What\'s the root cause?',
+        question: 'A builder complains that their AI coding tool keeps producing login pages that "look wrong" even though they work. Their prompt was: "Build me a login page." What\'s the root cause?',
         options: [
           { label: 'The AI tool they\'re using is low-quality and should be replaced', key: 'a' },
           { label: 'They\'re treating prompting as commanding instead of collaborating \u2014 the AI is filling in every unspecified detail with its own guesses about style, layout, and behavior', key: 'b' },
@@ -1205,21 +1205,21 @@
           { label: 'They should write the CSS themselves and only use AI for the JavaScript logic', key: 'd' }
         ],
         answer: 'b',
-        explanation: 'The problem isn\'t the tool or the task complexity. The prompt "build me a login page" leaves style, layout, error handling, and behavior entirely to the AI\'s guesswork. The PM is treating the tool like a command line that executes instructions literally, when it\'s actually interpreting intent and making dozens of decisions about everything unspecified. Adding context (which app, which style system) and constraints (match existing pages) would fix this without switching tools.'
+        explanation: 'The problem isn\'t the tool or the task complexity. The prompt "build me a login page" leaves style, layout, error handling, and behavior entirely to the AI\'s guesswork. The builder is treating the tool like a command line that executes instructions literally, when it\'s actually interpreting intent and making dozens of decisions about everything unspecified. Adding context (which app, which style system) and constraints (match existing pages) would fix this without switching tools.'
       },
       {
-        question: 'An engineer reviews a PM\'s prompt and says it\'s too vague: "Add a way for users to filter products." The PM rewrites it to: "Create a FilterDropdown component that takes a categories array prop, maps over it to render option elements, and calls an onFilterChange callback with the selected value." What went wrong with the rewrite?',
+        question: 'A teammate reviews your prompt and says it\'s too vague: "Add a way for users to filter products." You rewrite it to: "Create a FilterDropdown component that takes a categories array prop, maps over it to render option elements, and calls an onFilterChange callback with the selected value." What went wrong with the rewrite?',
         options: [
           { label: 'The rewrite is perfect \u2014 more specific is always better', key: 'a' },
           { label: 'The rewrite should have included CSS styling instructions too', key: 'b' },
           { label: 'The rewrite dictates implementation instead of intent \u2014 it should describe the outcome ("Users should filter products by category to find items faster") and let the AI choose the best approach', key: 'c' },
-          { label: 'The rewrite has too many technical terms for a PM to use', key: 'd' }
+          { label: 'The rewrite has too many technical terms for a non-engineer to use', key: 'd' }
         ],
         answer: 'c',
-        explanation: 'The PM swung from one extreme (too vague) to the other (dictating implementation). Specifying component names, prop shapes, and callback patterns locks the AI into one approach that may not be the best. The middle ground is describing the outcome with context and constraints: "Users should filter products by category. Match the existing dropdown style on the settings page. Use our /api/products endpoint." The PM knows the outcome better; the AI knows the implementation better. Play to both strengths.'
+        explanation: 'You swung from one extreme (too vague) to the other (dictating implementation). Specifying component names, prop shapes, and callback patterns locks the AI into one approach that may not be the best. The middle ground is describing the outcome with context and constraints: "Users should filter products by category. Match the existing dropdown style on the settings page. Use our /api/products endpoint." You know the outcome better; the AI knows the implementation better. Play to both strengths.'
       },
       {
-        question: 'A PM built a task management app in one mega-prompt: "Build a task app with lists, drag-and-drop reordering, due dates, priority levels, tagging, search, filters, recurring tasks, and email notifications." The result has subtle bugs in three different features. What should they have done differently?',
+        question: 'A builder built a task management app in one mega-prompt: "Build a task app with lists, drag-and-drop reordering, due dates, priority levels, tagging, search, filters, recurring tasks, and email notifications." The result has subtle bugs in three different features. What should they have done differently?',
         options: [
           { label: 'Written an even more detailed mega-prompt covering all the edge cases', key: 'a' },
           { label: 'Used the scaffold-refine-polish loop: start with basic task list, then iterate on each feature in focused follow-up prompts', key: 'b' },
@@ -1230,7 +1230,7 @@
         explanation: 'The mega-prompt is a classic anti-pattern. Piling every feature into one prompt means the AI juggles too many requirements simultaneously, and subtle bugs emerge in the interactions between features. The iterative approach \u2014 scaffold the basic list, then add drag-and-drop, then due dates \u2014 lets you catch and fix problems while changes are small. Three focused prompts take less total time than one mega-prompt followed by a frustrating debugging cycle. More detail in the mega-prompt would make it worse, not better.'
       },
       {
-        question: 'After 25 turns of refining a feature, a PM notices the AI is repeating mistakes it already fixed and ignoring constraints they set earlier. They restart the session and the problems disappear. What explains this?',
+        question: 'After 25 turns of refining a feature, a builder notices the AI is repeating mistakes it already fixed and ignoring constraints they set earlier. They restart the session and the problems disappear. What explains this?',
         options: [
           { label: 'The AI tool had a temporary server-side bug that was fixed when they reconnected', key: 'a' },
           { label: 'Restarting the session cleared a corrupted cache in the AI\'s memory', key: 'b' },
@@ -1241,11 +1241,11 @@
         explanation: 'AI tools have a finite context window \u2014 the amount of information they can hold in working memory. After 25 turns, the early architectural decisions and constraints had been pushed out to make room for recent code. The AI wasn\'t ignoring constraints intentionally or experiencing bugs; it literally couldn\'t see them anymore. This is why persistent project files (like CLAUDE.md) matter \u2014 they\'re re-read every session, so critical context survives even when conversation history fades.'
       },
       {
-        question: 'A PM wants their AI coding tool to consistently follow the team\'s naming conventions, avoid modifying the auth middleware, and use Tailwind instead of inline styles. They keep repeating these instructions every session. What\'s the better approach?',
+        question: 'A builder wants their AI coding tool to consistently follow the team\'s naming conventions, avoid modifying the auth middleware, and use Tailwind instead of inline styles. They keep repeating these instructions every session. What\'s the better approach?',
         options: [
           { label: 'Create a project file like CLAUDE.md with these standing instructions so they\'re automatically loaded at the start of every session', key: 'a' },
           { label: 'Copy and paste the instructions as the first message of every new conversation', key: 'b' },
-          { label: 'These rules can\'t be enforced with AI tools \u2014 the PM needs to manually check every change', key: 'c' },
+          { label: 'These rules can\'t be enforced with AI tools \u2014 the builder needs to manually check every change', key: 'c' },
           { label: 'Train a custom AI model on the team\'s codebase to learn these patterns automatically', key: 'd' }
         ],
         answer: 'a',

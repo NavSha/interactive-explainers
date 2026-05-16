@@ -11,7 +11,7 @@
     gtag('js', new Date());
     gtag('config', 'G-E8RQLQXRWH');
   </script>
-  <title>Tools &amp; Function Calling — AI for PMs</title>
+  <title>Tools &amp; Function Calling — AI for Builders</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
@@ -25,7 +25,7 @@
     <div class="article-hero__overlay"></div>
     <div class="article-hero__content">
       <nav class="breadcrumb breadcrumb--hero">
-        <a href="../index.html">AI for PMs</a> &nbsp;/&nbsp; <a href="index.html">Agents &amp; Tool Use</a> &nbsp;/&nbsp; <span>Part 2</span>
+        <a href="../index.html">AI for Builders</a> &nbsp;/&nbsp; <a href="index.html">Agents &amp; Tool Use</a> &nbsp;/&nbsp; <span>Part 2</span>
       </nav>
       <div class="article-header__meta" style="color: rgba(255,255,255,0.9);">Part 2 of 3 &middot; ~7 min read</div>
       <h1 style="color: #fff;">Tools &amp; Function Calling</h1>
@@ -196,7 +196,7 @@
     <p><strong>Principle 3: Constrain inputs.</strong> Use enums instead of free text when possible. Instead of <code>cabin_class: string</code>, use <code>cabin_class: enum["economy", "business", "first"]</code>. This prevents the LLM from inventing invalid values like "premium" or "standard." Required vs. optional parameters also guide the model on what it <em>must</em> collect before calling the tool.</p>
 
     <div class="callout callout--pm-tip">
-      <div class="callout__label">PM Tip</div>
+      <div class="callout__label">Builder Tip</div>
       <div class="callout__body">Review your tool descriptions the way you'd review landing page copy. Every word shapes behavior. A/B test descriptions against real queries — you'll be surprised how much a single sentence change affects call accuracy.</div>
     </div>
 
@@ -878,7 +878,7 @@
         'Worth a re-read \u2014 the concepts will click with another pass!',
         'You\'ve got the basics. Tool design and the protocol are worth revisiting.',
         'Solid understanding of the fundamentals!',
-        'Strong grasp \u2014 you\'re thinking like a PM who designs tool-first.',
+        'Strong grasp \u2014 you\'re thinking like a builder who designs tool-first.',
         'Perfect score. You\'ve nailed the core concepts.'
       ];
       summaryTextEl.textContent = messages[score];

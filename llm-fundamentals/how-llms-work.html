@@ -11,7 +11,7 @@
     gtag('js', new Date());
     gtag('config', 'G-E8RQLQXRWH');
   </script>
-  <title>How LLMs Actually Work — AI for PMs</title>
+  <title>How LLMs Actually Work — AI for Builders</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
@@ -385,11 +385,11 @@
     <div class="article-hero__overlay"></div>
     <div class="article-hero__content">
       <nav class="breadcrumb breadcrumb--hero">
-        <a href="../index.html">AI for PMs</a> &nbsp;/&nbsp; <a href="index.html">How LLMs Actually Work</a> &nbsp;/&nbsp; <span>Part 2</span>
+        <a href="../index.html">AI for Builders</a> &nbsp;/&nbsp; <a href="index.html">How LLMs Actually Work</a> &nbsp;/&nbsp; <span>Part 2</span>
       </nav>
       <div class="article-header__meta" style="color: rgba(255,255,255,0.9);">Part 2 of 2 &middot; ~8 min read</div>
       <h1 style="color: #fff;">How LLMs Actually Work</h1>
-      <p class="lead" style="color: rgba(255,255,255,0.85);">From training data to token prediction, model tiers to hard limits — the mental model every PM needs before building with AI.</p>
+      <p class="lead" style="color: rgba(255,255,255,0.85);">From training data to token prediction, model tiers to hard limits — the mental model every builder needs before building with AI.</p>
     </div>
   </header>
 
@@ -442,7 +442,7 @@
       <div class="callout__body">Training is the <strong>oven</strong> — you spend hours baking the cake once. Inference is the <strong>kitchen counter</strong> — you slice and serve instantly. You can't change the recipe once it's baked.</div>
     </div>
 
-    <p>For PMs: you can't alter what the model knows (baked in during training). But you control <em>how</em> it responds — through prompts, fine-tuning, and context at inference time. Every product decision lives in the inference layer.</p>
+    <p>You can't alter what the model knows (baked in during training). But you control <em>how</em> it responds — through prompts, fine-tuning, and context at inference time. Every product decision lives in the inference layer.</p>
 
     <!-- ================================================================
          Section III: Next-Token Prediction
@@ -505,7 +505,7 @@
     <p><strong>Fine-tuning and alignment</strong> turn a raw model into something you'd actually ship. RLHF (reinforcement learning from human feedback) is what turned GPT from "interesting research paper" into "product that answers your question instead of rambling like a Wikipedia article."</p>
 
     <div class="callout callout--pm-tip">
-      <div class="callout__label">PM Tip</div>
+      <div class="callout__label">Builder Tip</div>
       <div class="callout__body"><strong>Pick models by task, not parameter count.</strong> A smaller model fine-tuned for your specific use case will often outperform a frontier model used generically. If your product classifies support tickets, a fine-tuned 8B model may beat GPT-4 at a fraction of the cost. Save frontier models for tasks that genuinely need broad reasoning.</div>
     </div>
 
@@ -558,7 +558,7 @@
 
     <div class="callout callout--summary">
       <div class="callout__label">Takeaway</div>
-      <div class="callout__body"><strong>Design for limitations, not just capabilities.</strong> Every AI feature should have a plan for hallucinations (verification), knowledge gaps (RAG or search), and reasoning failures (guardrails and fallbacks). The PM who ships an AI product without these plans isn't being bold — they're being reckless.</div>
+      <div class="callout__body"><strong>Design for limitations, not just capabilities.</strong> Every AI feature should have a plan for hallucinations (verification), knowledge gaps (RAG or search), and reasoning failures (guardrails and fallbacks). The builder who ships an AI product without these plans isn't being bold — they're being reckless.</div>
     </div>
 
     <p>See how training and inference costs compare at scale:</p>
@@ -1281,7 +1281,7 @@
         explanation: 'Hallucination isn\'t a bug \u2014 it\'s structural. The model predicts plausible token sequences, not verified facts. It doesn\'t "know" what\'s true; it knows what sounds right. Option A is wrong because standard LLMs don\'t browse the web during inference. Option B invents a "reasoning module" that doesn\'t exist. Option D gets the knowledge cutoff right but "random guess" mischaracterizes the mechanism \u2014 the output is statistically plausible, not random.'
       },
       {
-        question: 'An engineer argues your team should always use the largest, most expensive frontier model for every feature because "bigger is always better." How should a PM push back?',
+        question: 'An engineer argues your team should always use the largest, most expensive frontier model for every feature because "bigger is always better." How should you push back?',
         options: [
           { label: 'Agree \u2014 frontier models are strictly superior on every task, and the cost difference is negligible at scale.', key: 'a' },
           { label: 'Disagree \u2014 open-source models are always better because you own the data and the cost is zero.', key: 'b' },
@@ -1303,7 +1303,7 @@
         explanation: 'For sensitive data, the data residency tradeoff is critical. Proprietary APIs mean your data leaves your infrastructure. Open-source models keep data in-house but require ML ops capability and may lag on complex tasks. Option B conflates documentation with integration difficulty. Option C is too absolute \u2014 open-source models are closing the gap and can be fine-tuned for domain tasks. Option D ignores the data privacy dimension entirely and oversimplifies \u2014 open-source has real infrastructure costs.'
       },
       {
-        question: 'A PM on your team is designing an AI-powered legal document review feature. They plan to ship it without any verification layer because "the model is 95% accurate in testing." What\'s wrong with this approach?',
+        question: 'Someone on your team is designing an AI-powered legal document review feature. They plan to ship it without any verification layer because "the model is 95% accurate in testing." What\'s wrong with this approach?',
         options: [
           { label: 'Nothing \u2014 95% accuracy means the model is ready for production and a verification layer would slow things down.', key: 'a' },
           { label: '95% accuracy means 1 in 20 documents gets a wrong answer. For legal work, hallucinated citations or missed clauses could have serious consequences. Every AI feature needs plans for hallucinations, knowledge gaps, and reasoning failures.', key: 'b' },

@@ -11,7 +11,7 @@
     gtag('js', new Date());
     gtag('config', 'G-E8RQLQXRWH');
   </script>
-  <title>Hallucinations, Safety &amp; Trust — AI for PMs</title>
+  <title>Hallucinations, Safety &amp; Trust — AI for Builders</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
@@ -449,7 +449,7 @@
     <div class="article-hero__overlay"></div>
     <div class="article-hero__content">
       <nav class="breadcrumb breadcrumb--hero">
-        <a href="../index.html">AI for PMs</a> &nbsp;/&nbsp; <a href="index.html">Grounding &amp; Guardrails</a> &nbsp;/&nbsp; <span>Part 3</span>
+        <a href="../index.html">AI for Builders</a> &nbsp;/&nbsp; <a href="index.html">Grounding &amp; Guardrails</a> &nbsp;/&nbsp; <span>Part 3</span>
       </nav>
       <div class="article-header__meta" style="color: rgba(255,255,255,0.9);">Part 3 of 3 &middot; ~8 min read</div>
       <h1 style="color: #fff;">Hallucinations, Safety &amp; Trust</h1>
@@ -498,7 +498,7 @@
       <div class="callout__body">Hallucination isn't a bug &mdash; it's the default. Factual accuracy is the thing we have to engineer in. Every correct answer from an LLM is a small miracle of alignment between training data and inference. Every hallucination is the system working as designed, just without the facts to back it up.</div>
     </div>
 
-    <p>This reframing matters for PMs because it changes the question from "how do we fix hallucinations?" to "how do we build systems where accuracy is reliably achieved?" The answer involves grounding (Parts 1 and 2 of this series), detection, filtering, and layered verification &mdash; which is what the rest of this article covers.</p>
+    <p>This reframing matters because it changes the question from "how do we fix hallucinations?" to "how do we build systems where accuracy is reliably achieved?" The answer involves grounding (Parts 1 and 2 of this series), detection, filtering, and layered verification &mdash; which is what the rest of this article covers.</p>
 
     <!-- ================================================================
          Section II: Detection Strategies
@@ -516,7 +516,7 @@
     <p><strong>Semantic entailment checks.</strong> Use a secondary model (or the same model in a separate call) to evaluate whether the generated answer is logically entailed by the source material. "Does this conclusion follow from these premises?" This catches subtle distortions where the model gets individual facts right but combines them into a claim the sources don't support.</p>
 
     <div class="callout callout--pm-tip">
-      <div class="callout__label">PM Tip</div>
+      <div class="callout__label">Builder Tip</div>
       <div class="callout__body">Build hallucination detection into the pipeline, not the UI. If you're relying on users to spot errors, you've already lost. Users trust AI-generated text at face value &mdash; especially when it's fluent and confident. Detection must happen <em>before</em> the response is served, not after the user reads it and acts on it.</div>
     </div>
 
@@ -607,8 +607,8 @@
     <p><strong>Bias probing.</strong> Testing whether the model produces systematically different outputs for different demographic groups. Does the resume screener score identical resumes differently based on names? Does the chatbot respond more helpfully to certain accents or dialects? Bias is a safety issue that standard testing rarely catches because it requires adversarial intent to surface.</p>
 
     <div class="callout callout--pm-tip">
-      <div class="callout__label">PM Tip</div>
-      <div class="callout__body">Schedule red-teaming sessions the way you schedule sprint planning &mdash; regularly, with diverse participants, and with clear documentation of findings. The best red teams include people who think differently from your engineering team: customer support agents, domain experts, and users who interact with the product in ways you never anticipated.</div>
+      <div class="callout__label">Builder Tip</div>
+      <div class="callout__body">Schedule red-teaming sessions as a regular practice &mdash; with diverse participants and clear documentation of findings. The best red teams include people who think differently from your core team: customer support agents, domain experts, and users who interact with the product in ways you never anticipated.</div>
     </div>
 
     <!-- ================================================================
@@ -713,7 +713,7 @@
 
     <div class="callout callout--summary">
       <div class="callout__label">Summary</div>
-      <div class="callout__body">Hallucinations are not a bug to fix but a default to guard against. The teams that ship trustworthy AI products don't rely on any single defense &mdash; they build layered architectures where model-level safety, retrieval grounding, output verification, and human review work together. Safety vs. utility is a spectrum, not a binary, and finding your product's threshold is as much a PM decision as a technical one. Set your tolerances before you see the numbers, iterate in production, and remember: the goal isn't a perfect system. It's a system whose failure modes you understand and control.</div>
+      <div class="callout__body">Hallucinations are not a bug to fix but a default to guard against. The teams that ship trustworthy AI products don't rely on any single defense &mdash; they build layered architectures where model-level safety, retrieval grounding, output verification, and human review work together. Safety vs. utility is a spectrum, not a binary, and finding your product's threshold is as much a product decision as a technical one. Set your tolerances before you see the numbers, iterate in production, and remember: the goal isn't a perfect system. It's a system whose failure modes you understand and control.</div>
     </div>
 
   </article>
@@ -1312,7 +1312,7 @@
   (function() {
     var questions = [
       {
-        question: 'A stakeholder asks your team to "fix the hallucination bug" in your AI product. An engineer explains that hallucination isn\u2019t actually a bug. What\u2019s the most accurate way to reframe the problem?',
+        question: 'Someone asks your team to "fix the hallucination bug" in your AI product. A teammate explains that hallucination isn\u2019t actually a bug. What\u2019s the most accurate way to reframe the problem?',
         options: [
           { label: 'Hallucination is a rare edge case that happens when the model encounters queries outside its training data', key: 'a' },
           { label: 'Hallucination is caused by insufficient training data and can be eliminated by training on more documents', key: 'b' },
@@ -1345,7 +1345,7 @@
         explanation: 'This illustrates why layered defense matters. Input filters catch most problems, but creative rephrasing can evade them. Output filters catch harmful content that slips through inputs. Neither layer alone is sufficient \u2014 they catch different failure modes. Like airport security, ID checks at the entrance don\u2019t make metal detectors redundant. The more sensitive the use case, the more layers you need.'
       },
       {
-        question: 'A PM schedules a one-time red-teaming session before launch to check for safety issues. The security lead pushes back, arguing this isn\u2019t enough. Which red-teaming reality supports the security lead\u2019s position?',
+        question: 'Your team schedules a one-time red-teaming session before launch to check for safety issues. The security lead pushes back, arguing this isn\u2019t enough. Which red-teaming reality supports the security lead\u2019s position?',
         options: [
           { label: 'Red-teaming only works with external consultants who have specialized AI security expertise', key: 'a' },
           { label: 'Jailbreaking techniques evolve constantly, so red-teaming must be an ongoing practice with diverse participants, not a pre-launch checkbox', key: 'b' },
@@ -1353,7 +1353,7 @@
           { label: 'One session is sufficient if it covers all four attack categories: jailbreaking, prompt injection, data extraction, and bias probing', key: 'd' }
         ],
         answer: 'b',
-        explanation: 'Effective jailbreaks evolve constantly \u2014 what works today may not tomorrow, and new attack patterns emerge regularly. Red-teaming should be scheduled like sprint planning: regularly, with diverse participants (including people who think differently from your engineering team), and with documented findings. A one-time session catches today\u2019s vulnerabilities but misses tomorrow\u2019s. It\u2019s an ongoing practice, not a checkbox.'
+        explanation: 'Effective jailbreaks evolve constantly \u2014 what works today may not tomorrow, and new attack patterns emerge regularly. Red-teaming should be a regular practice, with diverse participants (including people who think differently from your core team), and with documented findings. A one-time session catches today\u2019s vulnerabilities but misses tomorrow\u2019s. It\u2019s an ongoing practice, not a checkbox.'
       },
       {
         question: 'Your team is designing safety architecture for a medical AI that answers patient questions about drug interactions. An engineer proposes relying on the model provider\u2019s built-in safety training (RLHF) plus RAG grounding, arguing that two layers should be enough. What\u2019s the gap in this architecture?',

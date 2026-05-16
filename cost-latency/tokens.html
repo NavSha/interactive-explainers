@@ -11,7 +11,7 @@
     gtag('js', new Date());
     gtag('config', 'G-E8RQLQXRWH');
   </script>
-  <title>Tokens, Models &amp; the Cost Curve — AI for PMs</title>
+  <title>Tokens, Models &amp; the Cost Curve — AI for Builders</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
@@ -86,7 +86,7 @@
     <div class="article-hero__overlay"></div>
     <div class="article-hero__content">
       <nav class="breadcrumb breadcrumb--hero">
-        <a href="../index.html">AI for PMs</a> &nbsp;/&nbsp; <a href="index.html">Cost &amp; Latency</a> &nbsp;/&nbsp; <span>Part 1</span>
+        <a href="../index.html">AI for Builders</a> &nbsp;/&nbsp; <a href="index.html">Cost &amp; Latency</a> &nbsp;/&nbsp; <span>Part 1</span>
       </nav>
       <div class="article-header__meta" style="color: rgba(255,255,255,0.9);">Part 1 of 2 &middot; ~7 min read</div>
       <h1 style="color: #fff;">Tokens, Models &amp; the Cost Curve</h1>
@@ -218,7 +218,7 @@
       </tbody>
     </table>
 
-    <p>That's a <strong>60x price difference</strong> between cheapest and most expensive. Choosing the right model tier is one of the highest-leverage decisions a PM can influence.</p>
+    <p>That's a <strong>60x price difference</strong> between cheapest and most expensive. Choosing the right model tier is one of the highest-leverage decisions you can make.</p>
 
     <h2 id="model-tiers"><span class="section-number">III</span> Model Tiers</h2>
 
@@ -231,7 +231,7 @@
     </ul>
 
     <div class="callout callout--pm-tip">
-      <div class="callout__label">PM Tip</div>
+      <div class="callout__label">Builder Tip</div>
       <div class="callout__body"><strong>You don't need one model for your whole product.</strong> A small model classifies requests, a medium model handles conversations, a large model tackles the hard stuff. This is called <strong>model routing</strong>, and it cuts costs 70-80% compared to defaulting to the biggest model — which is like hiring a surgeon to apply bandaids.</div>
     </div>
 
@@ -311,7 +311,7 @@
       <li><strong>Price per token</strong> depends on model choice — a 60x range.</li>
     </ul>
 
-    <p>Two PMs building similar features can end up with costs that differ by <strong>100x or more</strong>, based solely on design decisions:</p>
+    <p>Two builders building similar features can end up with costs that differ by <strong>100x or more</strong>, based solely on design decisions:</p>
   </article>
 
   <!-- ================================================================
@@ -712,7 +712,7 @@
         explanation: 'JSON is significantly more token-dense than prose. Every quotation mark, colon, comma, brace, and key name counts as one or more tokens. A line like "user_id": "abc123" alone is 7-8 tokens. The engineer\'s estimate treats tokens like lines, but structured data eats through your token budget much faster than natural language. Language of values matters too, but the structure itself is the primary culprit here.'
       },
       {
-        question: 'A PM is comparing two feature designs: Feature A sends a 2,000-token document to an LLM and gets back a one-word classification label. Feature B sends a 100-token instruction and gets back a 1,500-token article. Which costs more, and why?',
+        question: 'You're comparing two feature designs: Feature A sends a 2,000-token document to an LLM and gets back a one-word classification label. Feature B sends a 100-token instruction and gets back a 1,500-token article. Which costs more, and why?',
         options: [
           { label: 'Feature A \u2014 it has more total tokens (2,001 vs. 1,600)', key: 'a' },
           { label: 'They cost roughly the same since total tokens are similar', key: 'b' },

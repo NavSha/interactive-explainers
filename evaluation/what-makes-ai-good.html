@@ -11,7 +11,7 @@
     gtag('js', new Date());
     gtag('config', 'G-E8RQLQXRWH');
   </script>
-  <title>What Makes AI "Good"? — AI for PMs</title>
+  <title>What Makes AI "Good"? — AI for Builders</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
@@ -86,7 +86,7 @@
     <div class="article-hero__overlay"></div>
     <div class="article-hero__content">
       <nav class="breadcrumb breadcrumb--hero">
-        <a href="../index.html">AI for PMs</a> &nbsp;/&nbsp; <a href="index.html">Evaluation &amp; Testing</a> &nbsp;/&nbsp; <span>Part 1</span>
+        <a href="../index.html">AI for Builders</a> &nbsp;/&nbsp; <a href="index.html">Evaluation &amp; Testing</a> &nbsp;/&nbsp; <span>Part 1</span>
       </nav>
       <div class="article-header__meta" style="color: rgba(255,255,255,0.9);">Part 1 of 2 &middot; ~7 min read</div>
       <h1 style="color: #fff;">What Makes AI &ldquo;Good&rdquo;?</h1>
@@ -111,7 +111,7 @@
     <p class="epigraph__verse">
       Can't unit test a vibe, can't assert on taste,<br>
       Half the answers right, half a different kind of waste.<br>
-      Good enough for who? That's the PM's call —<br>
+      Good enough for who? That's the builder's call —<br>
       Measure what matters or don't measure at all.
     </p>
   </div>
@@ -136,7 +136,7 @@
 
     <p><strong>Non-determinism.</strong> Same prompt, different output every time &mdash; sometimes structurally, tonally, and factually different. You can&rsquo;t test once and move on. You need to reason about distributions, not individual results.</p>
 
-    <p><strong>Subjectivity.</strong> &ldquo;Good&rdquo; depends on who&rsquo;s judging. A &ldquo;friendly&rdquo; email reads &ldquo;too casual&rdquo; to one reviewer. A &ldquo;concise&rdquo; summary feels &ldquo;incomplete&rdquo; to another. Inter-rater agreement on open-ended quality hovers around 60&ndash;75% &mdash; a number that should give any PM pause.</p>
+    <p><strong>Subjectivity.</strong> &ldquo;Good&rdquo; depends on who&rsquo;s judging. A &ldquo;friendly&rdquo; email reads &ldquo;too casual&rdquo; to one reviewer. A &ldquo;concise&rdquo; summary feels &ldquo;incomplete&rdquo; to another. Inter-rater agreement on open-ended quality hovers around 60&ndash;75% &mdash; a number that should give any builder pause.</p>
 
     <p><strong>Multi-dimensionality.</strong> AI outputs can be accurate but unhelpful, helpful but unsafe, safe but boring, creative but wrong. Quality isn&rsquo;t a number &mdash; it&rsquo;s a vector. A medical chatbot and a creative writing tool have almost opposite quality criteria.</p>
 
@@ -150,7 +150,7 @@
          ================================================================ -->
     <h2 id="types-of-wrong"><span class="section-number">II</span> Types of &ldquo;Wrong&rdquo;</h2>
 
-    <p>Not all AI failures are created equal. Before you evaluate anything, you need a taxonomy of how outputs go wrong. Six failure modes every PM should know:</p>
+    <p>Not all AI failures are created equal. Before you evaluate anything, you need a taxonomy of how outputs go wrong. Six failure modes every builder should know:</p>
 
     <p><strong>1. Hallucination</strong> &mdash; the model states fabricated information with total confidence. It invents statistics, cites papers that don&rsquo;t exist, describes features your company has never built. The danger: hallucinated content <em>reads</em> exactly like factual content. No hedging, no uncertainty flags &mdash; just fiction wearing a lab coat.</p>
 
@@ -165,7 +165,7 @@
     <p><strong>6. Partial answers</strong> &mdash; correct but incomplete. Answers two of three questions. Summarizes the first half and trails off. Gives the diagnosis but not the treatment. Technically right in the way that showing up to half your shift is technically showing up.</p>
 
     <div class="callout callout--pm-tip">
-      <div class="callout__label">PM Tip</div>
+      <div class="callout__label">Builder Tip</div>
       <div class="callout__body">Each failure type has different severity depending on your use case. A hallucination in a medical app is catastrophic; in a brainstorming tool, it might spark an idea. Your first job: define which types of wrong are deal-breakers, which are tolerable, and which barely matter &mdash; <em>before</em> you start evaluating.</div>
     </div>
 
@@ -197,7 +197,7 @@
          ================================================================ -->
     <h2 id="eval-methods"><span class="section-number">III</span> Evaluation Methods</h2>
 
-    <p>Four approaches to evaluating AI outputs, each with distinct tradeoffs. Knowing when to use which is one of the most valuable skills a PM can develop.</p>
+    <p>Four approaches to evaluating AI outputs, each with distinct tradeoffs. Knowing when to use which is one of the most valuable skills a builder can develop.</p>
 
     <p><strong>1. Human evaluation</strong> &mdash; the gold standard. Raters read outputs and score them against criteria. Humans catch what machines can&rsquo;t: a joke that falls flat, a recommendation that&rsquo;s culturally tone-deaf, a summary that misses the emotional core. The problem: $5&ndash;50 per judgment, inter-rater agreement around 60&ndash;75%, and a pace that makes your release cycle weep.</p>
 
@@ -1039,7 +1039,7 @@
   (function() {
     var questions = [
       {
-        question: 'A PM on your team proposes evaluating a new AI summarization feature by running 10 prompts, reading the outputs, and deciding whether they "feel good." She argues this is sufficient because the team is still in early development. What\'s the most accurate assessment of this approach?',
+        question: 'Someone on your team proposes evaluating a new AI summarization feature by running 10 prompts, reading the outputs, and deciding whether they "feel good." She argues this is sufficient because the team is still in early development. What\'s the most accurate assessment of this approach?',
         options: [
           { label: 'This is fine \u2014 vibes-based evaluation is the gold standard for early-stage features', key: 'a' },
           { label: 'This works for a prototype but will fail the moment you need to compare model versions or track quality over time', key: 'b' },
@@ -1050,7 +1050,7 @@
         explanation: 'Vibes-based evaluation is acceptable for hackathons and early exploration, but it\'s unstructured, unreproducible, and unscalable. The problem isn\'t sample size (option D) \u2014 it\'s that ad-hoc judgment can\'t tell you whether this week\'s model is better than last week\'s. You don\'t need automated metrics on day one (option C), but you do need to plan the transition before shipping to real users.'
       },
       {
-        question: 'Your team\'s customer support chatbot occasionally declines to answer questions about medication interactions, responding with "I can\'t provide medical advice." A stakeholder flags this as a critical bug. An engineer argues it\'s actually a safety feature working as intended. Who\'s right?',
+        question: 'Your team\'s customer support chatbot occasionally declines to answer questions about medication interactions, responding with "I can\'t provide medical advice." A user reports this as a critical bug. Your teammate argues it\'s actually a safety feature working as intended. Who\'s right?',
         options: [
           { label: 'The stakeholder \u2014 any declined request is a failure that hurts user experience', key: 'a' },
           { label: 'The engineer \u2014 safety guardrails should never be loosened, even if users are frustrated', key: 'b' },
