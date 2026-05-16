@@ -5,7 +5,7 @@ what's missing, and what concepts cut across topics.
 
 Last updated: 2026-05-16
 
-Conventions in [`SCHEMA.md`](SCHEMA.md).
+Conventions in [`SCHEMA.md`](SCHEMA.md). Audience in [`AUDIENCE.md`](AUDIENCE.md).
 
 ## Topic registry
 
