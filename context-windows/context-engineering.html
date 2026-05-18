@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-E8RQLQXRWH"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-E8RQLQXRWH');
+  </script>
+  <title>Context Engineering — AI for Builders</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/shared.css?v=9">
+  <style>
+    .reading-progress { position: fixed; top: 0; left: 0; width: 100%; height: 3px; z-index: 1000; pointer-events: none; background: transparent; }
+    .reading-progress__bar { height: 100%; width: 0%; background: #7C3AED; transition: width 0.15s ease-out; }
+    .toc__item--active > a { color: var(--accent-context, #7C3AED); opacity: 1; }
+    .toc__item--active > .toc__numeral { color: var(--accent-context, #7C3AED); opacity: 1; }
+    @media (min-width: 1280px) {
+      .toc { position: fixed; top: 50%; transform: translateY(-50%); width: 180px; left: calc((100vw - 760px) / 2 - 220px); padding: 0; margin: 0; z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+      .toc--visible { opacity: 1; pointer-events: auto; }
+      .toc__inner { padding: 0.75rem 1rem; background: rgba(255, 255, 255, 0.95); border-radius: 8px; border: 1px solid rgba(0, 0, 0, 0.08); backdrop-filter: blur(8px); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04); }
+      .toc__title { font-size: 0.65rem; margin-bottom: 0.5rem; }
+      .toc__list li { padding: 0.2rem 0; }
+      .toc__list a, .toc__numeral { font-size: 0.8rem; }
+    }
+
+    /* Widget: Context Assembler */
+    .ctx-assembler { max-width: 720px; margin: var(--space-8) auto; padding: var(--space-6); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 12px; }
+    .ctx-assembler__title { font-family: var(--font-sans); font-size: var(--text-sm); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent-context); margin-bottom: var(--space-4); }
+    .ctx-assembler__slots { display: flex; flex-direction: column; gap: var(--space-3); margin-bottom: var(--space-4); }
+    .ctx-assembler__slot { display: grid; grid-template-columns: 140px 1fr 80px; gap: var(--space-3); align-items: center; padding: var(--space-3); border: 1px solid var(--color-border); border-radius: 8px; font-family: var(--font-sans); font-size: var(--text-sm); }
+    @media (max-width: 600px) { .ctx-assembler__slot { grid-template-columns: 1fr; } }
+    .ctx-assembler__slot-name { font-weight: 600; color: var(--color-text); }
+    .ctx-assembler__slot-desc { color: var(--color-text-secondary); font-size: var(--text-xs); }
+    .ctx-assembler__slot-tokens { font-family: var(--font-mono); color: var(--accent-context); font-weight: 600; text-align: right; }
+    .ctx-assembler__bar { height: 24px; border-radius: 6px; background: var(--color-border); margin-bottom: var(--space-3); overflow: hidden; display: flex; position: relative; }
+    .ctx-assembler__bar-segment { height: 100%; transition: width 0.3s; display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 10px; color: #fff; overflow: hidden; white-space: nowrap; }
+    .ctx-assembler__bar-free { background: var(--color-border); flex: 1; }
+    .ctx-assembler__summary { font-family: var(--font-sans); font-size: var(--text-sm); color: var(--color-text-secondary); line-height: 1.6; }
+    .ctx-assembler__summary strong { color: var(--color-text); }
+    .ctx-assembler__warning { margin-top: var(--space-3); padding: var(--space-3); background: #FEF2F2; border-radius: 6px; color: #DC2626; font-family: var(--font-sans); font-size: var(--text-sm); display: none; }
+    .ctx-assembler__warning--visible { display: block; }
+
+    /* Widget: Before/After */
+    .ctx-compare { max-width: 720px; margin: var(--space-8) auto; padding: var(--space-6); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 12px; }
+    .ctx-compare__title { font-family: var(--font-sans); font-size: var(--text-sm); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent-context); margin-bottom: var(--space-4); }
+    .ctx-compare__tabs { display: flex; gap: var(--space-2); margin-bottom: var(--space-4); }
+    .ctx-compare__tab { padding: 0.5rem 1rem; border: 2px solid var(--color-border); border-radius: 6px; background: var(--color-bg); cursor: pointer; font-family: var(--font-sans); font-size: var(--text-sm); font-weight: 500; transition: border-color 0.2s, background 0.2s; }
+    .ctx-compare__tab:hover { border-color: var(--accent-context); }
+    .ctx-compare__tab--active { border-color: var(--accent-context); background: #F5F3FF; color: var(--accent-context); }
+    .ctx-compare__panel { padding: var(--space-4); background: #1a1a2e; border-radius: 8px; font-family: var(--font-mono); font-size: var(--text-sm); color: #e0e0e0; line-height: 1.7; white-space: pre-wrap; max-height: 400px; overflow-y: auto; }
+    .ctx-compare__panel .ctx-label { color: #7C3AED; font-weight: 600; }
+    .ctx-compare__panel .ctx-good { color: #34D399; }
+    .ctx-compare__panel .ctx-bad { color: #F87171; }
+    .ctx-compare__panel .ctx-comment { color: #6B7280; font-style: italic; }
+    .ctx-compare__verdict { margin-top: var(--space-4); padding: var(--space-4); border-radius: 8px; border-left: 4px solid var(--accent-context); font-family: var(--font-sans); font-size: var(--text-sm); line-height: 1.6; background: #F5F3FF; }
+
+    /* Capstone quiz */
+    .capstone-quiz { max-width: 720px; margin: var(--space-12) auto; padding: var(--space-8); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 12px; }
+    .capstone-quiz__title { font-family: var(--font-sans); font-size: var(--text-sm); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent-context); margin-bottom: var(--space-2); }
+    .capstone-quiz__progress { font-family: var(--font-sans); font-size: var(--text-sm); color: var(--color-text-secondary); margin-bottom: var(--space-6); }
+    .capstone-quiz__question { font-family: var(--font-serif); font-size: var(--text-lg); line-height: 1.5; margin-bottom: var(--space-6); }
+    .capstone-quiz__options { display: flex; flex-direction: column; gap: var(--space-3); margin-bottom: var(--space-4); }
+    .capstone-quiz__option { padding: var(--space-4); border: 2px solid var(--color-border); border-radius: 8px; cursor: pointer; transition: border-color 0.2s, background 0.2s; font-family: var(--font-sans); font-size: var(--text-sm); line-height: 1.5; text-align: left; background: var(--color-bg); }
+    .capstone-quiz__option:hover { border-color: var(--accent-context); }
+    .capstone-quiz__option--correct { border-color: #059669; background: #ECFDF5; }
+    .capstone-quiz__option--wrong { border-color: #DC2626; background: #FEF2F2; }
+    .capstone-quiz__explanation { display: none; padding: var(--space-4); background: #F5F3FF; border-radius: 8px; border-left: 4px solid var(--accent-context); font-family: var(--font-sans); font-size: var(--text-sm); line-height: 1.6; margin-bottom: var(--space-4); }
+    .capstone-quiz__explanation--visible { display: block; }
+    .capstone-quiz__next { display: none; padding: 0.6rem 1.5rem; background: var(--accent-context); color: #fff; border: none; border-radius: 6px; font-family: var(--font-sans); font-size: var(--text-sm); font-weight: 500; cursor: pointer; }
+    .capstone-quiz__next:hover { filter: brightness(1.1); }
+    .capstone-quiz__next--visible { display: inline-block; }
+    .capstone-quiz__score { text-align: center; padding: var(--space-8); font-family: var(--font-sans); }
+    .capstone-quiz__score-number { font-size: var(--text-3xl); font-weight: 600; color: var(--accent-context); }
+    .capstone-quiz__score-label { font-size: var(--text-sm); color: var(--color-text-secondary); margin-top: var(--space-2); }
+    .capstone-quiz__score-message { font-size: var(--text-base); margin-top: var(--space-4); line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <div class="reading-progress"><div class="reading-progress__bar" id="reading-progress-bar"></div></div>
+
+  <header class="article-hero" id="article-hero" style="background: linear-gradient(135deg, #7C3AED 0%, #EC4899 100%);">
+    <canvas class="article-hero__canvas" id="hero-canvas"></canvas>
+    <div class="article-hero__overlay"></div>
+    <div class="article-hero__content">
+      <nav class="breadcrumb breadcrumb--hero">
+        <a href="../index.html">AI for Builders</a> &nbsp;/&nbsp; <a href="index.html">Context Windows &amp; Memory</a> &nbsp;/&nbsp; <span>Part 3</span>
+      </nav>
+      <div class="article-header__meta" style="color: rgba(255,255,255,0.9);">Part 3 of 3 &middot; ~10 min read</div>
+      <h1 style="color: #fff;">Context Engineering</h1>
+      <p class="lead" style="color: rgba(255,255,255,0.85);">Two products, same model, same task. One feels magical, the other feels like a cheap demo. The difference? Context.</p>
+    </div>
+  </header>
+
+  <nav class="toc" aria-label="Table of contents">
+    <div class="toc__inner">
+      <div class="toc__title">Contents</div>
+      <ol class="toc__list">
+        <li class="toc__item"><span class="toc__numeral">I.</span><a href="#beyond-prompting">Beyond Prompting</a></li>
+        <li class="toc__item"><span class="toc__numeral">II.</span><a href="#system-prompt-design">System Prompt Design</a></li>
+        <li class="toc__item"><span class="toc__numeral">III.</span><a href="#few-shot-examples">Few-Shot Examples</a></li>
+        <li class="toc__item"><span class="toc__numeral">IV.</span><a href="#retrieval-quality">Retrieval Quality Control</a></li>
+        <li class="toc__item"><span class="toc__numeral">V.</span><a href="#token-compression">Token Compression</a></li>
+        <li class="toc__item"><span class="toc__numeral">VI.</span><a href="#debugging-context">Debugging Context</a></li>
+      </ol>
+    </div>
+  </nav>
+
+  <div class="epigraph">
+    <p class="epigraph__verse">
+      Same weights, same wires, same silicon brain &mdash;<br>
+      Feed it trash context, get trash back again.<br>
+      The model&rsquo;s not broken, the window&rsquo;s not small &mdash;<br>
+      You built the wrong desk. Now rebuild it all.
+    </p>
+  </div>
+
+  <article class="prose">
+
+    <h2 id="beyond-prompting"><span class="section-number">I</span> Beyond Prompting</h2>
+
+    <p>Parts 1 and 2 taught you the constraints: context windows are finite, position matters, and memory is an illusion you build. This article is about the <em>craft</em> of building that illusion well.</p>
+
+    <p>The shift is bigger than it sounds. <strong>Context engineering is the new prompt engineering.</strong> Prompt engineering is crafting a single string of instructions. Context engineering is designing the entire system that assembles what the model sees &mdash; instructions, history, retrieved documents, tool definitions, user data, output constraints &mdash; dynamically, per request, at runtime.</p>
+
+    <p>Tobi L&uuml;tke, CEO of Shopify, defines it precisely: <em>&ldquo;Context Engineering is the art of providing all the context for the task to be plausibly solvable by the LLM.&rdquo;</em> Not just a good prompt. All the context. Assembled correctly. At the right time.</p>
+
+    <p>This matters because most agent failures are not model failures anymore &mdash; they&rsquo;re context failures. Two products using the same model on the same task can produce dramatically different results. One feels magical; the other feels like a cheap demo. The model is identical. The context isn&rsquo;t.</p>
+
+    <div class="callout callout--insight">
+      <div class="callout__label">Key Insight</div>
+      <div class="callout__body">Garry Tan frames the architecture: <strong>&ldquo;Push intelligence up into skills, push execution down into deterministic code. The model decides what to do; the code decides how.&rdquo;</strong> A skill file is structured context &mdash; it tells the model what to read, what to consider, what format to output, what constraints apply. Testing a model without this structure is like &ldquo;testing an engine on a bench and concluding that cars are unsafe.&rdquo;</div>
+    </div>
+
+    <h2 id="system-prompt-design"><span class="section-number">II</span> System Prompt Design</h2>
+
+    <p>The system prompt is the most expensive real estate in your context window. It&rsquo;s sent on every request, sits at the position of highest attention (the top), and defines every behavior the model exhibits. And most teams write it once and never think about it again.</p>
+
+    <p>A well-designed system prompt has four layers, in order:</p>
+
+    <p><strong>1. Identity and role.</strong> Who is the model? Not &ldquo;You are a helpful assistant&rdquo; &mdash; that&rsquo;s the default. &ldquo;You are a senior tax advisor specializing in US corporate tax for companies with $10M-100M revenue. You are cautious about edge cases and always cite specific IRS code sections.&rdquo; Specificity constrains the trajectory. A model told it&rsquo;s a tax advisor will refuse to write poetry; a model told it&rsquo;s &ldquo;helpful&rdquo; will try anything and do most of it badly.</p>
+
+    <p><strong>2. Capabilities and constraints.</strong> What can this model do and what can&rsquo;t it? &ldquo;You have access to the company&rsquo;s financial database via the <code>query_financials</code> tool. You do NOT have access to employee personal data. If asked about personnel matters, say so and redirect to HR.&rdquo; Explicit boundaries prevent the model from hallucinating capabilities it doesn&rsquo;t have.</p>
+
+    <p><strong>3. Output format and style.</strong> How should responses look? &ldquo;Respond in JSON with keys: answer, confidence, sources. Keep answers under 200 words. Use a professional but approachable tone.&rdquo; Format constraints are the cheapest way to improve consistency &mdash; they cost a few tokens and save hours of post-processing.</p>
+
+    <p><strong>4. Error handling and edge cases.</strong> What should the model do when it doesn&rsquo;t know? &ldquo;If you are uncertain about a tax ruling, say &lsquo;I&rsquo;m not confident about this &mdash; please verify with a CPA&rsquo; rather than guessing. Never fabricate an IRS code section.&rdquo; This is where most system prompts fail. They define the happy path but not the failure path.</p>
+
+    <div class="callout callout--pm-tip">
+      <div class="callout__label">Builder Tip</div>
+      <div class="callout__body"><strong>Measure your system prompt in tokens, not words.</strong> A 500-token system prompt on an 8K model consumes 6% of your budget on every request. On a 4K model, it&rsquo;s 12%. Track this number. When the system prompt grows past 1,000 tokens, audit it &mdash; every sentence should earn its place. Move examples into few-shot slots (Section III) and detailed instructions into skill files that load conditionally.</div>
+    </div>
+
+    <h2 id="few-shot-examples"><span class="section-number">III</span> Few-Shot Examples</h2>
+
+    <p>Parts 1 and 2 never mentioned few-shot examples. They&rsquo;re one of the most powerful context engineering tools you have, and they&rsquo;re chronically underused.</p>
+
+    <p>A few-shot example shows the model a completed input-output pair: &ldquo;Given this input, here&rsquo;s what a perfect response looks like.&rdquo; The model pattern-matches against the examples and produces output that follows the same structure, tone, and level of detail. It&rsquo;s teaching by demonstration rather than instruction.</p>
+
+    <p><strong>How many?</strong> 2&ndash;3 examples hit the sweet spot. One example is often misread as a rigid template. Four or more consume too many tokens for diminishing returns. Exception: classification tasks, where 5&ndash;10 examples covering each category dramatically improve accuracy.</p>
+
+    <p><strong>Which ones?</strong> Select examples that cover your most common case, your hardest edge case, and the output format you want. Don&rsquo;t pick three examples that all look the same &mdash; pick three that show the <em>range</em> of acceptable responses. If your model writes customer support replies, include: a straightforward answer, a response that politely declines, and a response that escalates to a human.</p>
+
+    <p><strong>Where to place them?</strong> After the system prompt, before the conversation history. Examples in the system message get high positional attention and consistent treatment across turns. Placing them in the user message works for single-turn tasks but gets pushed further from the top as conversation grows.</p>
+
+    <p><strong>Format matters.</strong> Use a clear delimiter between examples and the actual task. A simple pattern works:</p>
+
+    <pre style="background: #1a1a2e; color: #e0e0e0; padding: var(--space-4); border-radius: 8px; font-size: var(--text-sm); overflow-x: auto; line-height: 1.6;">
+<span style="color: #7C3AED;">## Example 1</span>
+<span style="color: #6B7280;">User:</span> What's the return policy for damaged items?
+<span style="color: #6B7280;">Response:</span> {"answer": "Damaged items can be returned within 30 days with photos of the damage. We'll cover return shipping.", "confidence": "high", "sources": ["returns-policy-v3.md"]}
+
+<span style="color: #7C3AED;">## Example 2</span>
+<span style="color: #6B7280;">User:</span> Can I get a refund in Bitcoin?
+<span style="color: #6B7280;">Response:</span> {"answer": "We only process refunds to the original payment method. We don't support cryptocurrency refunds.", "confidence": "high", "sources": ["payment-methods.md"]}
+
+<span style="color: #7C3AED;">## Now handle this:</span></pre>
+
+    <div class="callout callout--analogy">
+      <div class="callout__label">Analogy</div>
+      <div class="callout__body">Few-shot examples are like the &ldquo;for reference&rdquo; section in a creative brief. You can describe the desired output in words, or you can show three examples and say &ldquo;like this.&rdquo; Showing beats telling &mdash; especially for tone, format, and level of detail, which are notoriously hard to specify in instructions.</div>
+    </div>
+
+    <h2 id="retrieval-quality"><span class="section-number">IV</span> Retrieval Quality Control</h2>
+
+    <p>Part 1 covered where to put retrieved documents in the context window (edges, not middle). This section covers what to retrieve and when to retrieve nothing.</p>
+
+    <p><strong>Relevance thresholds.</strong> Every retrieval system returns a similarity score. Most teams use the top-K results regardless of score. This is wrong. A query about &ldquo;parental leave policy&rdquo; might return &ldquo;parking policy&rdquo; as the third-best match if your corpus is small. Set a minimum similarity threshold and return fewer results when nothing is truly relevant. Three good chunks beat five chunks where two are noise.</p>
+
+    <p><strong>Chunk size selection.</strong> Too small (100 tokens) and you lose surrounding context &mdash; a sentence about a return policy without the conditions that apply. Too large (1,000 tokens) and you waste budget on irrelevant content surrounding the relevant sentence. 200&ndash;500 tokens per chunk is the pragmatic range for most use cases. Overlap chunks by 10&ndash;20% so you don&rsquo;t accidentally split a key sentence at the boundary.</p>
+
+    <p><strong>Retrieval isn&rsquo;t just search.</strong> A basic RAG pipeline embeds the user&rsquo;s query and finds similar chunks. Better pipelines add: query expansion (rephrase the question to catch different formulations), reranking (a second model scores the top-20 results and returns the top-5), and metadata filtering (only retrieve chunks from the relevant department, date range, or document type).</p>
+
+    <p><strong>When to suppress retrieval.</strong> If no chunk exceeds your relevance threshold, don&rsquo;t inject anything. An empty retrieval result is better than a misleading one. The model is more likely to say &ldquo;I don&rsquo;t know&rdquo; with no retrieved context than with bad retrieved context &mdash; because bad context gives it something plausible to confabulate from.</p>
+
+    <div class="callout callout--insight">
+      <div class="callout__label">Key Insight</div>
+      <div class="callout__body"><strong>Context failures are retrieval failures in disguise.</strong> When your AI product gives a confidently wrong answer, the first thing to check isn&rsquo;t the model or the prompt &mdash; it&rsquo;s what got retrieved. Enterprise data is contradictory and versioned. An agent acting on a stale 2022 policy isn&rsquo;t hallucinating &mdash; it&rsquo;s making a retrieval mistake with real consequences.</div>
+    </div>
+
+  </article>
+
+  <!-- Widget 1: Context Assembler -->
+  <div class="wide-container">
+    <div class="ctx-assembler" id="ctx-assembler">
+      <div class="ctx-assembler__title">Interactive &middot; Context Budget Planner</div>
+      <p style="font-family: var(--font-sans); font-size: var(--text-sm); color: var(--color-text-secondary); margin-bottom: var(--space-4);">Adjust each component to see how your context budget fills up. Model: 8K tokens.</p>
+      <div class="ctx-assembler__slots" id="ca-slots"></div>
+      <div class="ctx-assembler__bar" id="ca-bar"></div>
+      <div class="ctx-assembler__summary" id="ca-summary"></div>
+      <div class="ctx-assembler__warning" id="ca-warning"></div>
+    </div>
+  </div>
+
+  <article class="prose">
+
+    <h2 id="token-compression"><span class="section-number">V</span> Token Compression</h2>
+
+    <p>Every token costs money, latency, and attention. When your context window is tight, compression is the difference between a working product and an API error.</p>
+
+    <p><strong>Structured data beats prose.</strong> A table of user preferences as JSON costs ~60% fewer tokens than the same information in natural language sentences. &ldquo;The user prefers formal tone, works in finance, timezone EST, language English&rdquo; is 15 tokens. The same as four bullet points is ~25 tokens. The same as a paragraph is ~40 tokens. Use the most compact format the model can still parse.</p>
+
+    <p><strong>Summaries beat transcripts.</strong> Don&rsquo;t inject a 3,000-token meeting transcript when a 300-token summary captures the key decisions. But remember Part 2&rsquo;s warning: summaries lose nuance. Preserve named entities (names, numbers, dates, commitments) explicitly &mdash; they&rsquo;re the first casualties of compression and the hardest to recover.</p>
+
+    <p><strong>What to cut first.</strong> When budget is tight, cut in this order: (1) Old conversation history beyond the recent 5 turns. (2) Low-relevance retrieved chunks. (3) Verbose few-shot examples &mdash; shorten them, don&rsquo;t remove them. (4) System prompt redundancies. Never cut: output token reservation, the current user message, or high-relevance retrieved context.</p>
+
+    <p><strong>Graceful degradation.</strong> Build your context assembly to degrade gracefully under pressure. If the window is 90% full after system prompt + history + retrieval, your assembler should automatically switch from full history to summarized history, drop the weakest retrieved chunk, and warn in logs that context is running hot. Don&rsquo;t wait for an API error to discover you&rsquo;re over budget.</p>
+
+    <div class="callout callout--pm-tip">
+      <div class="callout__label">Builder Tip</div>
+      <div class="callout__body"><strong>Log your context utilization.</strong> Track what percentage of the window you&rsquo;re using on each request. If the median is above 70%, you&rsquo;re one long user message away from degradation. If the p99 is above 90%, you&rsquo;re already truncating for some users and may not know it. This is a metric your observability dashboard (from <a href="../evaluation/harness-engineering.html">Harness Engineering</a>) should track.</div>
+    </div>
+
+    <h2 id="debugging-context"><span class="section-number">VI</span> Debugging Context</h2>
+
+    <p>When your AI product produces a bad output, the instinct is to blame the model. The first thing to actually check: <strong>what did the model see?</strong></p>
+
+    <p><strong>Log the full assembled context.</strong> Not just the user message &mdash; the entire payload: system prompt, few-shot examples, conversation history, retrieved chunks, tool definitions. When you can see exactly what the model saw, most &ldquo;model failures&rdquo; reveal themselves as context failures. The wrong document was retrieved. The summary lost a critical number. The system prompt contradicted itself.</p>
+
+    <p><strong>Detect silent truncation.</strong> When your context exceeds the window, some APIs silently truncate from the beginning. Your system prompt &mdash; the most important part &mdash; vanishes first. The model suddenly &ldquo;forgets&rdquo; its role, its constraints, its format requirements. It&rsquo;s not a model regression. It&rsquo;s truncation. Count tokens before sending and warn if you&rsquo;re within 10% of the limit.</p>
+
+    <p><strong>Test with the context, not the prompt.</strong> When debugging, don&rsquo;t paste your prompt into a playground and check if the model &ldquo;can&rdquo; produce a good answer. Paste the <em>full assembled context</em> &mdash; system prompt, history, retrieval results, everything. The model might produce a perfect answer from a clean prompt and a terrible answer from the same prompt buried under 6,000 tokens of conversation history and irrelevant retrieved documents.</p>
+
+    <p><strong>Common patterns that break at scale:</strong></p>
+    <ul>
+      <li><strong>History bloat.</strong> Conversations that started crisp at turn 3 degrade at turn 30 because the history consumes the entire budget.</li>
+      <li><strong>Retrieval poisoning.</strong> One bad document in your vector store that scores high on similarity but contains outdated or contradictory information. Every query that matches it gets wrong answers.</li>
+      <li><strong>Instruction drift.</strong> System prompt says &ldquo;be concise.&rdquo; Few-shot examples are 200 words each. The model learns from the examples, not the instruction.</li>
+      <li><strong>Position-dependent failures.</strong> The answer to the user&rsquo;s question is in the retrieved context, but it landed in the &ldquo;lost in the middle&rdquo; zone and the model missed it.</li>
+    </ul>
+
+    <div class="callout callout--summary">
+      <div class="callout__label">Takeaway</div>
+      <div class="callout__body">Context engineering is a system, not a string. It&rsquo;s the pipeline that assembles what the model sees &mdash; dynamically, per request, optimized for the task at hand. The system prompt defines behavior. Few-shot examples teach by demonstration. Retrieval quality determines whether the model has the right information. Token compression makes it all fit. And logging the full context is how you debug the 90% of &ldquo;model failures&rdquo; that are actually context failures. <strong>The model is already smart enough. Your job is to give it the right desk.</strong></div>
+    </div>
+
+  </article>
+
+  <!-- Widget 2: Before/After Context Comparison -->
+  <div class="wide-container">
+    <div class="ctx-compare" id="ctx-compare">
+      <div class="ctx-compare__title">Interactive &middot; Bad Context vs. Good Context</div>
+      <p style="font-family: var(--font-sans); font-size: var(--text-sm); color: var(--color-text-secondary); margin-bottom: var(--space-4);">Same model, same question. See how context assembly changes the output.</p>
+      <div class="ctx-compare__tabs">
+        <button class="ctx-compare__tab ctx-compare__tab--active" data-view="bad">Bad Context</button>
+        <button class="ctx-compare__tab" data-view="good">Good Context</button>
+      </div>
+      <div class="ctx-compare__panel" id="cc-panel"></div>
+      <div class="ctx-compare__verdict" id="cc-verdict"></div>
+    </div>
+  </div>
+
+  <nav class="article-nav">
+    <a href="designing-for-memory.html">&larr; Part 2: Designing for Memory</a>
+    <a href="index.html">Back to series overview &rarr;</a>
+  </nav>
+
+  <!-- Capstone Quiz -->
+  <div class="capstone-quiz" id="capstone-quiz">
+    <div class="capstone-quiz__title">Capstone Quiz</div>
+    <div class="capstone-quiz__progress" id="cq-progress"></div>
+    <div class="capstone-quiz__question" id="cq-question"></div>
+    <div class="capstone-quiz__options" id="cq-options"></div>
+    <div class="capstone-quiz__explanation" id="cq-explanation"></div>
+    <button class="capstone-quiz__next" id="cq-next">Next question &rarr;</button>
+    <div class="capstone-quiz__score" id="cq-score" style="display:none;"></div>
+  </div>
+
+  <script>
+  // Standard boilerplate: progress bar, TOC, hero canvas
+  (function(){var b=document.getElementById('reading-progress-bar');if(!b)return;window.addEventListener('scroll',function(){var h=document.documentElement;b.style.width=Math.min((h.scrollTop/(h.scrollHeight-h.clientHeight))*100,100)+'%';});})();
+  (function(){var t=document.querySelector('.toc'),h=document.getElementById('article-hero');if(!t||!h)return;new IntersectionObserver(function(e){t.classList.toggle('toc--visible',!e[0].isIntersecting);},{threshold:0}).observe(h);})();
+  (function(){var hs=document.querySelectorAll('h2[id]'),ti=document.querySelectorAll('.toc__item');if(!hs.length)return;hs.forEach(function(h){new IntersectionObserver(function(e){if(e[0].isIntersecting){ti.forEach(function(i){i.classList.remove('toc__item--active');});var l=document.querySelector('.toc__item a[href="#'+e[0].target.id+'"]');if(l)l.parentElement.classList.add('toc__item--active');}},{rootMargin:'-20% 0px -80% 0px'}).observe(h);});})();
+  (function(){var c=document.getElementById('hero-canvas');if(!c)return;var ctx=c.getContext('2d'),p=[];function r(){c.width=c.offsetWidth*(window.devicePixelRatio||1);c.height=c.offsetHeight*(window.devicePixelRatio||1);ctx.scale(window.devicePixelRatio||1,window.devicePixelRatio||1);}r();window.addEventListener('resize',r);for(var i=0;i<35;i++)p.push({x:Math.random()*c.offsetWidth,y:Math.random()*c.offsetHeight,r:Math.random()*2+1,dx:(Math.random()-0.5)*0.4,dy:(Math.random()-0.5)*0.4,a:Math.random()*0.3+0.1});function d(){ctx.clearRect(0,0,c.offsetWidth,c.offsetHeight);p.forEach(function(pt){pt.x+=pt.dx;pt.y+=pt.dy;if(pt.x<0||pt.x>c.offsetWidth)pt.dx*=-1;if(pt.y<0||pt.y>c.offsetHeight)pt.dy*=-1;ctx.beginPath();ctx.arc(pt.x,pt.y,pt.r,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,'+pt.a+')';ctx.fill();});for(var i=0;i<p.length;i++)for(var j=i+1;j<p.length;j++){var dx=p[i].x-p[j].x,dy=p[i].y-p[j].y,dist=Math.sqrt(dx*dx+dy*dy);if(dist<100){ctx.beginPath();ctx.moveTo(p[i].x,p[i].y);ctx.lineTo(p[j].x,p[j].y);ctx.strokeStyle='rgba(255,255,255,'+(0.12*(1-dist/100))+')';ctx.lineWidth=0.5;ctx.stroke();}}requestAnimationFrame(d);}d();})();
+
+  // Widget 1: Context Budget Planner
+  (function() {
+    var WINDOW = 8192;
+    var slots = [
+      { name: 'System prompt', key: 'sys', min: 100, max: 2000, val: 500, color: '#7C3AED' },
+      { name: 'Few-shot examples', key: 'few', min: 0, max: 1500, val: 300, color: '#A78BFA' },
+      { name: 'Conversation history', key: 'hist', min: 0, max: 4000, val: 1500, color: '#C4B5FD' },
+      { name: 'Retrieved context', key: 'rag', min: 0, max: 3000, val: 1000, color: '#EC4899' },
+      { name: 'Tool definitions', key: 'tools', min: 0, max: 1000, val: 200, color: '#F9A8D4' },
+      { name: 'Output reservation', key: 'out', min: 100, max: 2000, val: 1000, color: '#6B7280' }
+    ];
+    var container = document.getElementById('ca-slots');
+    var barEl = document.getElementById('ca-bar');
+    var summaryEl = document.getElementById('ca-summary');
+    var warnEl = document.getElementById('ca-warning');
+    if (!container) return;
+
+    function render() {
+      var total = 0;
+      slots.forEach(function(s) { total += s.val; });
+      var pct = (total / WINDOW) * 100;
+      var free = WINDOW - total;
+
+      barEl.innerHTML = '';
+      slots.forEach(function(s) {
+        var seg = document.createElement('div');
+        seg.className = 'ctx-assembler__bar-segment';
+        seg.style.width = ((s.val / WINDOW) * 100) + '%';
+        seg.style.background = s.color;
+        if (s.val / WINDOW > 0.08) seg.textContent = s.key;
+        barEl.appendChild(seg);
+      });
+      if (free > 0) {
+        var f = document.createElement('div');
+        f.className = 'ctx-assembler__bar-free';
+        f.style.flex = 'none';
+        f.style.width = ((free / WINDOW) * 100) + '%';
+        barEl.appendChild(f);
+      }
+
+      summaryEl.innerHTML = '<strong>' + total.toLocaleString() + ' / ' + WINDOW.toLocaleString() + ' tokens used</strong> (' + Math.round(pct) + '%). Free: ' + Math.max(0, free).toLocaleString() + ' tokens.';
+
+      if (total > WINDOW) {
+        warnEl.textContent = '\u26A0 Over budget by ' + (total - WINDOW).toLocaleString() + ' tokens. The API will truncate or error. Cut conversation history or retrieved context first.';
+        warnEl.classList.add('ctx-assembler__warning--visible');
+      } else if (pct > 85) {
+        warnEl.textContent = '\u26A0 Running hot (' + Math.round(pct) + '%). One long user message will push you over. Consider summarizing history or reducing retrieval chunks.';
+        warnEl.classList.add('ctx-assembler__warning--visible');
+      } else {
+        warnEl.classList.remove('ctx-assembler__warning--visible');
+      }
+    }
+
+    slots.forEach(function(s) {
+      var div = document.createElement('div');
+      div.className = 'ctx-assembler__slot';
+      div.innerHTML = '<div><div class="ctx-assembler__slot-name">' + s.name + '</div></div><div><input type="range" min="' + s.min + '" max="' + s.max + '" value="' + s.val + '" step="50" style="width:100%;" data-key="' + s.key + '"></div><div class="ctx-assembler__slot-tokens" id="ca-val-' + s.key + '">' + s.val + '</div>';
+      div.querySelector('input').addEventListener('input', function(e) {
+        s.val = parseInt(e.target.value);
+        document.getElementById('ca-val-' + s.key).textContent = s.val;
+        render();
+      });
+      container.appendChild(div);
+    });
+    render();
+  })();
+
+  // Widget 2: Before/After Context Comparison
+  (function() {
+    var bad = {
+      text: '<span class="ctx-label">[SYSTEM PROMPT — 47 tokens]</span>\n<span class="ctx-bad">You are a helpful assistant.</span>\n\n<span class="ctx-label">[USER MESSAGE]</span>\nWhat\'s the return policy for damaged items?\n\n<span class="ctx-label">[RETRIEVED CONTEXT — 3 chunks, no relevance filtering]</span>\n<span class="ctx-bad">Chunk 1 (score: 0.82): "Our return policy allows returns within 30 days..."</span>\n<span class="ctx-bad">Chunk 2 (score: 0.61): "Parking is available in Lot B for employees..."</span>\n<span class="ctx-bad">Chunk 3 (score: 0.54): "The company was founded in 2015 by..."</span>\n\n<span class="ctx-comment">// No few-shot examples\n// No output format specified\n// No error handling instructions\n// 2 of 3 retrieved chunks are irrelevant noise</span>',
+      verdict: '<strong>Result:</strong> The model tries to answer from the one relevant chunk but pads the response with generic language. It might hallucinate details not in the chunk. No structured output means the response is unparseable by downstream systems. The parking policy chunk wastes tokens and could confuse the model about what "policy" means in this context.'
+    };
+    var good = {
+      text: '<span class="ctx-label">[SYSTEM PROMPT — 180 tokens]</span>\n<span class="ctx-good">You are a customer support agent for Acme Corp.</span>\n<span class="ctx-good">Answer ONLY from the retrieved documents below.</span>\n<span class="ctx-good">If no document answers the question, say "I don\'t have</span>\n<span class="ctx-good">information about that — let me connect you with a team</span>\n<span class="ctx-good">member who can help."</span>\n<span class="ctx-good">Respond in JSON: {"answer": "...", "confidence": "high|</span>\n<span class="ctx-good">medium|low", "sources": ["doc-id"]}</span>\n\n<span class="ctx-label">[FEW-SHOT EXAMPLE — 120 tokens]</span>\n<span class="ctx-good">User: Can I return a gift without a receipt?</span>\n<span class="ctx-good">Response: {"answer": "Gift returns without a receipt are</span>\n<span class="ctx-good">accepted within 60 days for store credit.", "confidence":</span>\n<span class="ctx-good">"high", "sources": ["returns-policy-v3.md"]}</span>\n\n<span class="ctx-label">[USER MESSAGE]</span>\nWhat\'s the return policy for damaged items?\n\n<span class="ctx-label">[RETRIEVED CONTEXT — 1 chunk, threshold: 0.75]</span>\n<span class="ctx-good">Chunk 1 (score: 0.82): "Our return policy allows returns</span>\n<span class="ctx-good">within 30 days. Damaged items: return within 30 days with</span>\n<span class="ctx-good">photos. We cover return shipping for damage claims."</span>\n\n<span class="ctx-comment">// Relevance threshold filtered out the 0.61 and 0.54 chunks\n// Few-shot example teaches format + tone + citation pattern\n// System prompt defines behavior for unknown questions\n// Total: ~400 tokens vs ~250 for bad context, but every token works</span>',
+      verdict: '<strong>Result:</strong> The model produces a clean JSON response citing the specific document. It doesn\'t hallucinate because it was told to only use retrieved context. The few-shot example taught it the exact output format. The irrelevant chunks never entered the window. 400 tokens, zero waste.'
+    };
+
+    var tabs = document.querySelectorAll('.ctx-compare__tab');
+    var panel = document.getElementById('cc-panel');
+    var verdict = document.getElementById('cc-verdict');
+    if (!panel) return;
+
+    function show(view) {
+      tabs.forEach(function(t) { t.classList.toggle('ctx-compare__tab--active', t.dataset.view === view); });
+      var data = view === 'bad' ? bad : good;
+      panel.innerHTML = data.text;
+      verdict.innerHTML = data.verdict;
+    }
+    tabs.forEach(function(t) { t.addEventListener('click', function() { show(t.dataset.view); }); });
+    show('bad');
+  })();
+
+  // Capstone Quiz
+  (function() {
+    var questions = [
+      { question: 'Your AI product uses a system prompt that says "You are a helpful assistant." A teammate argues this is fine because "the model knows what to do." What\'s wrong with this approach?',
+        options: [
+          { label: 'Nothing — modern models don\'t need detailed system prompts', key: 'a' },
+          { label: 'A generic system prompt doesn\'t constrain the model\'s behavior — it will try anything, hallucinate capabilities, and produce inconsistent output format. Specific identity, constraints, format, and error handling dramatically improve reliability.', key: 'b' },
+          { label: 'The system prompt should be longer to fill more of the context window', key: 'c' },
+          { label: 'System prompts only matter for chat applications, not other use cases', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'A system prompt is the most expensive real estate in your context window — it\'s sent on every request and defines all behavior. "Helpful assistant" is the default; it adds nothing. A well-designed prompt has four layers: identity/role (constrains domain), capabilities/constraints (prevents hallucinated capabilities), output format (ensures consistency), and error handling (defines the failure path). Each layer directly reduces failure modes.' },
+      { question: 'You have 3 few-shot examples for a customer support agent. All three show a polite, helpful response to a straightforward question. What\'s the problem?',
+        options: [
+          { label: 'Three examples is too many — use one to save tokens', key: 'a' },
+          { label: 'The examples should be in the user message, not the system message', key: 'b' },
+          { label: 'All three examples show the same pattern — they should cover the range: a straightforward answer, a polite decline, and an escalation to a human', key: 'c' },
+          { label: 'Few-shot examples don\'t work for customer support use cases', key: 'd' }
+        ],
+        answer: 'c',
+        explanation: 'Few-shot examples teach by demonstration. Three identical examples teach one pattern. Three diverse examples teach the range of acceptable behavior — including how to decline and when to escalate. The model will pattern-match against examples more strongly than instructions. If you only show happy-path examples, the model will force-fit every query into a happy-path response, even when it should decline or escalate.' },
+      { question: 'Your RAG pipeline returns 5 chunks for every query. The top chunk has a 0.85 similarity score, but chunks 3-5 score 0.52, 0.48, and 0.41. What should you do?',
+        options: [
+          { label: 'Return all 5 — more context is always better', key: 'a' },
+          { label: 'Set a relevance threshold (e.g., 0.70) and only return chunks above it — low-scoring chunks are noise that wastes tokens and can mislead the model', key: 'b' },
+          { label: 'Return all 5 but put the lowest-scoring ones first', key: 'c' },
+          { label: 'Only return the top 1 chunk to save tokens', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'Three good chunks beat five chunks where three are noise. Low-scoring chunks aren\'t just wasted tokens — they actively harm output quality by giving the model irrelevant content to confabulate from. A relevance threshold ensures you only inject context that actually helps. If nothing clears the threshold, inject nothing — the model is more likely to say "I don\'t know" with no context than with bad context.' },
+      { question: 'Your context window is at 88% utilization. The product works fine for most users but occasionally produces garbled output. What\'s likely happening?',
+        options: [
+          { label: 'The model is degrading because it\'s been running too long', key: 'a' },
+          { label: 'Users with longer conversations or messages push the context over budget, causing silent truncation — the system prompt vanishes first, and the model "forgets" its role and constraints', key: 'b' },
+          { label: 'The model is hallucinating because the system prompt is too long', key: 'c' },
+          { label: 'The retrieval pipeline is returning wrong documents', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'At 88% median utilization, you\'re one long user message away from overflow. When context exceeds the window, some APIs silently truncate from the beginning — removing the system prompt first. The model suddenly loses its identity, constraints, and format instructions. This is intermittent because it only happens with longer-than-average conversations. The fix: monitor context utilization, implement graceful degradation (switch to summarized history when budget is tight), and warn in logs when utilization exceeds 85%.' },
+      { question: 'Tobi Lütke defines context engineering as "the art of providing all the context for the task to be plausibly solvable by the LLM." How does this differ from prompt engineering?',
+        options: [
+          { label: 'They\'re the same thing — context engineering is just a rebranding', key: 'a' },
+          { label: 'Prompt engineering is crafting a static string of instructions. Context engineering is designing the dynamic system that assembles everything the model sees — instructions, history, retrieval, tools, user data — per request, at runtime.', key: 'b' },
+          { label: 'Context engineering is about making prompts longer', key: 'c' },
+          { label: 'Prompt engineering is for chatbots, context engineering is for agents', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'The shift from prompt engineering to context engineering reflects how AI products have matured. A prompt is a string you write once. Context is a system that runs before every LLM call — assembling the right information, in the right format, at the right time, dynamically tailored to the current request. It includes retrieval pipelines, history management, token budgeting, few-shot selection, and graceful degradation. The prompt is one input to this system, not the system itself.' }
+    ];
+    var currentQ=0,score=0;var qEl=document.getElementById('cq-question'),pEl=document.getElementById('cq-progress'),oEl=document.getElementById('cq-options'),eEl=document.getElementById('cq-explanation'),nEl=document.getElementById('cq-next'),sEl=document.getElementById('cq-score');if(!qEl)return;
+    function render(){if(currentQ>=questions.length){qEl.style.display='none';pEl.style.display='none';oEl.style.display='none';eEl.style.display='none';nEl.style.display='none';sEl.style.display='block';var pct=Math.round((score/questions.length)*100);var msgs=['Review the article — context engineering has patterns worth studying.','Decent foundation — you understand the constraints but the craft needs work.','Solid understanding — you know how to assemble context that works.','Strong grasp — you\'re thinking about context as a system, not a string.'];var mi=score<=1?0:score<=2?1:score<=3?2:3;sEl.innerHTML='<div class="capstone-quiz__score-number">'+score+'/'+questions.length+'</div><div class="capstone-quiz__score-label">'+pct+'% correct</div><div class="capstone-quiz__score-message">'+msgs[mi]+'</div>';return;}var q=questions[currentQ];pEl.textContent='Question '+(currentQ+1)+' of '+questions.length;qEl.textContent=q.question;oEl.innerHTML='';eEl.classList.remove('capstone-quiz__explanation--visible');eEl.style.display='none';nEl.classList.remove('capstone-quiz__next--visible');nEl.style.display='none';q.options.forEach(function(opt){var btn=document.createElement('button');btn.className='capstone-quiz__option';btn.textContent=opt.label;btn.addEventListener('click',function(){oEl.querySelectorAll('.capstone-quiz__option').forEach(function(b){b.style.pointerEvents='none';});if(opt.key===q.answer){btn.classList.add('capstone-quiz__option--correct');score++;}else{btn.classList.add('capstone-quiz__option--wrong');oEl.querySelectorAll('.capstone-quiz__option').forEach(function(b){if(b.textContent===q.options.find(function(o){return o.key===q.answer;}).label)b.classList.add('capstone-quiz__option--correct');});}eEl.textContent=q.explanation;eEl.style.display='block';eEl.classList.add('capstone-quiz__explanation--visible');nEl.style.display='inline-block';nEl.classList.add('capstone-quiz__next--visible');});oEl.appendChild(btn);});}
+    nEl.addEventListener('click',function(){currentQ++;render();});render();
+  })();
+  </script>
+</body>
+</html>
