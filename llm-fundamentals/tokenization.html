@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-E8RQLQXRWH"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-E8RQLQXRWH');
+  </script>
+  <title>Tokenization Up Close — AI for Builders</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/shared.css?v=9">
+  <style>
+    .article-hero { background: var(--accent-llm-gradient); }
+    .toc__list a:hover { color: var(--accent-llm); }
+    .prose blockquote { border-left-color: var(--accent-llm); }
+    .widget { background: var(--accent-llm-light); border-color: #CBD5E1; }
+    .widget__label { color: var(--accent-llm); }
+    .btn--primary { background: var(--accent-llm); }
+    .btn--active { background: var(--accent-llm); border-color: var(--accent-llm); }
+    .btn--secondary:hover:not(:disabled) { border-color: var(--accent-llm); color: var(--accent-llm); }
+
+    /* Widget 1: Live Tokenizer */
+    .tok__input-wrap {
+      margin-bottom: var(--space-4);
+    }
+    .tok__input-wrap textarea {
+      width: 100%;
+      padding: var(--space-3) var(--space-4);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      font-family: var(--font-sans);
+      font-size: var(--text-sm);
+      color: var(--color-text);
+      background: var(--color-surface);
+      outline: none;
+      resize: vertical;
+      min-height: 80px;
+      line-height: 1.6;
+      transition: border-color var(--duration-fast);
+    }
+    .tok__input-wrap textarea:focus {
+      border-color: var(--accent-llm);
+    }
+    .tok__output {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      padding: var(--space-4) var(--space-6);
+      min-height: 60px;
+      margin-bottom: var(--space-4);
+      line-height: 2;
+    }
+    .tok__token {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: var(--text-sm);
+      margin: 2px 1px;
+      border: 1px solid rgba(0,0,0,0.06);
+      cursor: default;
+      transition: transform var(--duration-fast);
+    }
+    .tok__token:hover {
+      transform: scale(1.05);
+    }
+    .tok__stats {
+      display: flex;
+      gap: var(--space-6);
+      flex-wrap: wrap;
+      font-family: var(--font-sans);
+      font-size: var(--text-sm);
+      color: var(--color-text-secondary);
+    }
+    .tok__stat-value {
+      font-family: var(--font-mono);
+      font-weight: 600;
+      color: var(--accent-llm);
+    }
+    .tok__presets-label {
+      font-family: var(--font-sans);
+      font-size: var(--text-xs);
+      color: var(--color-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 600;
+      margin-bottom: var(--space-2);
+      margin-top: var(--space-4);
+    }
+
+    /* Widget 2: Token Cost Comparison */
+    .tcc__input-wrap {
+      margin-bottom: var(--space-4);
+    }
+    .tcc__input-wrap textarea {
+      width: 100%;
+      padding: var(--space-3) var(--space-4);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      font-family: var(--font-sans);
+      font-size: var(--text-sm);
+      color: var(--color-text);
+      background: var(--color-surface);
+      outline: none;
+      resize: vertical;
+      min-height: 60px;
+      line-height: 1.6;
+      transition: border-color var(--duration-fast);
+    }
+    .tcc__input-wrap textarea:focus {
+      border-color: var(--accent-llm);
+    }
+    .tcc__grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: var(--space-4);
+      margin-bottom: var(--space-4);
+    }
+    .tcc__card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      padding: var(--space-4) var(--space-6);
+      transition: all var(--duration-fast) var(--ease-out);
+    }
+    .tcc__card-name {
+      font-family: var(--font-sans);
+      font-weight: 600;
+      font-size: var(--text-sm);
+      color: var(--color-text);
+      margin-bottom: var(--space-2);
+    }
+    .tcc__card-tokens {
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      color: var(--accent-llm);
+      font-weight: 500;
+      margin-bottom: var(--space-1);
+    }
+    .tcc__card-cost {
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      color: var(--color-text-secondary);
+    }
+    .tcc__card-bar-wrap {
+      margin-top: var(--space-3);
+      background: var(--color-border-light);
+      border-radius: 4px;
+      height: 8px;
+      overflow: hidden;
+    }
+    .tcc__card-bar {
+      height: 100%;
+      background: var(--accent-llm);
+      border-radius: 4px;
+      transition: width var(--duration-normal) var(--ease-out);
+    }
+    .tcc__insight {
+      padding: var(--space-3) var(--space-4);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      font-family: var(--font-sans);
+      font-size: var(--text-sm);
+      color: var(--color-text-secondary);
+      line-height: 1.5;
+    }
+
+    @media (max-width: 720px) {
+      .tcc__grid { grid-template-columns: 1fr; }
+    }
+  </style>
+  <style>
+    /* Reading Progress Bar */
+    .reading-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      z-index: 1000;
+      pointer-events: none;
+      background: transparent;
+    }
+    .reading-progress__bar {
+      height: 100%;
+      width: 0%;
+      background: #475569;
+      transition: width 0.15s ease-out;
+    }
+
+    /* TOC Active Highlighting */
+    .toc__item--active > a {
+      color: var(--accent-llm, #475569);
+      opacity: 1;
+    }
+    .toc__item--active > .toc__numeral {
+      color: var(--accent-llm, #475569);
+      opacity: 1;
+    }
+
+    /* TOC: fixed sidebar on wide screens, hidden until past hero */
+    @media (min-width: 1280px) {
+      .toc {
+        position: fixed;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 180px;
+        left: calc((100vw - 760px) / 2 - 220px);
+        padding: 0;
+        margin: 0;
+        z-index: 100;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+      }
+      .toc--visible {
+        opacity: 1;
+        pointer-events: auto;
+      }
+      .toc__inner {
+        padding: 0.75rem 1rem;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 8px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        backdrop-filter: blur(8px);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      }
+      .toc__title { font-size: 0.65rem; margin-bottom: 0.5rem; }
+      .toc__list li { padding: 0.2rem 0; }
+      .toc__list a, .toc__numeral { font-size: 0.8rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="reading-progress"><div class="reading-progress__bar" id="reading-progress-bar"></div></div>
+
+  <header class="article-hero" id="article-hero">
+    <canvas class="article-hero__canvas" id="hero-canvas"></canvas>
+    <div class="article-hero__overlay"></div>
+    <div class="article-hero__content">
+      <nav class="breadcrumb breadcrumb--hero">
+        <a href="../index.html">AI for Builders</a> &nbsp;/&nbsp; <a href="index.html">How LLMs Actually Work</a> &nbsp;/&nbsp; <span>Part 3</span>
+      </nav>
+      <div class="article-header__meta" style="color: rgba(255,255,255,0.9);">Part 3 of 3 &middot; ~9 min read</div>
+      <h1 style="color: #fff;">Tokenization Up Close</h1>
+      <p class="lead" style="color: rgba(255,255,255,0.85);">The model doesn't see words. It sees integers. Understanding that one fact explains half the mysteries builders encounter.</p>
+    </div>
+  </header>
+
+  <nav class="toc" aria-label="Table of contents">
+    <div class="toc__inner">
+      <div class="toc__title">Contents</div>
+      <ol class="toc__list">
+        <li><span class="toc__numeral">I.</span><a href="#what-tokenization-is">What Tokenization Actually Is</a></li>
+        <li><span class="toc__numeral">II.</span><a href="#why-subwords">Why Subwords, Not Words</a></li>
+        <li><span class="toc__numeral">III.</span><a href="#mysteries-explained">The Mysteries Tokenization Explains</a></li>
+        <li><span class="toc__numeral">IV.</span><a href="#token-economics">Token Economics</a></li>
+        <li><span class="toc__numeral">V.</span><a href="#practical-implications">Practical Implications for Builders</a></li>
+        <li><span class="toc__numeral">VI.</span><a href="#tokenizer-as-constraint">The Tokenizer as Product Constraint</a></li>
+      </ol>
+    </div>
+  </nav>
+
+  <div class="epigraph">
+    <p class="epigraph__verse">
+      You think it reads your words, but that's the trick &mdash;<br>
+      It splits them into pieces, cold and quick.<br>
+      "Strawberry" loses letters in the cut,<br>
+      And every token costs &mdash; no ifs, ands, or but.
+    </p>
+  </div>
+
+  <article class="prose">
+
+    <!-- ================================================================
+         Section I: What Tokenization Actually Is
+         ================================================================ -->
+    <h2 id="what-tokenization-is"><span class="section-number">I</span> What Tokenization Actually Is</h2>
+
+    <p>When you type a prompt, you see words. The model sees something very different: a sequence of integers.</p>
+
+    <p><strong>Tokenization</strong> is the process of splitting your text into <em>tokens</em> &mdash; subword units from a fixed vocabulary &mdash; and mapping each one to an integer ID. The model never touches your raw text. It receives a list of numbers like <code>[791, 2027, 6743, 374, 2294]</code> and generates another list of numbers in return. Everything between "text in" and "text out" is integer math.</p>
+
+    <p>Consider the word "unhappiness." You see one word. The tokenizer might split it into <code>["un", "happi", "ness"]</code> &mdash; three tokens, three integers. The word "the" is common enough to be a single token. The word "counterintuitively" might be four or five. There's no clean rule. Every split depends on the tokenizer's learned vocabulary.</p>
+
+    <div class="callout callout--insight">
+      <div class="callout__label">Key Insight</div>
+      <div class="callout__body"><strong>Tokens are the atomic unit of everything.</strong> Context window limits? Measured in tokens. API costs? Priced per token. Model "intelligence"? Trained on tokens. If you build with LLMs and don't understand tokenization, you're driving a car without knowing it runs on gasoline.</div>
+    </div>
+
+    <!-- ================================================================
+         Section II: Why Subwords, Not Words
+         ================================================================ -->
+    <h2 id="why-subwords"><span class="section-number">II</span> Why Subwords, Not Words</h2>
+
+    <p>Tokenizers could split text into whole words. Or individual characters. They do neither, and the reason matters.</p>
+
+    <p><strong>A word-level vocabulary</strong> would need millions of entries &mdash; every word in every language, every conjugation, every proper noun. "Running," "runs," "runner," and "ran" would each need a separate entry. New words (brand names, slang) would be out-of-vocabulary errors. It doesn't scale.</p>
+
+    <p><strong>A character-level vocabulary</strong> would be tiny &mdash; maybe 256 entries. But individual letters carry almost no meaning. The model would need to learn that "c-a-t" means the same thing as the concept of a cat, spending enormous capacity on spelling instead of semantics. Sequences get impossibly long.</p>
+
+    <p><strong>Subword tokenization</strong> (BPE, SentencePiece, WordPiece) is the sweet spot. The algorithm starts with individual characters and iteratively merges the most frequent pairs until it reaches a target vocabulary size &mdash; typically 30,000 to 100,000 entries. Common words like "the" become single tokens. Rare words get split into recognizable pieces. Every possible string can be encoded, even words the model has never seen.</p>
+
+    <div class="callout callout--analogy">
+      <div class="callout__label">Analogy</div>
+      <div class="callout__body">Think of subword tokenization like a <strong>compression algorithm for language</strong>. Common patterns get short codes. Rare patterns get assembled from parts. Just like ZIP files don't store every file as one blob or every byte individually &mdash; they find the efficient middle ground.</div>
+    </div>
+
+    <p>This is why a vocabulary of 100K tokens can cover every language on Earth. English common words get single tokens. Rare English words get split into 2-3 pieces. Non-English text gets split into more pieces &mdash; which has real cost implications we'll get to shortly.</p>
+
+    <p>See how it works on real text:</p>
+  </article>
+
+  <!-- ================================================================
+       Widget 1: Live Tokenizer
+       ================================================================ -->
+  <div class="wide-container">
+    <div class="widget" id="widget-tokenizer">
+      <div class="widget__label">Interactive</div>
+      <div class="widget__title">Live Tokenizer</div>
+      <div class="widget__instruction">Type or paste text to see it split into tokens. Each color represents a different token. Watch how the count changes with different types of text.</div>
+
+      <div class="tok__input-wrap">
+        <textarea id="tok-input" placeholder="Type something here...">The quick brown fox jumps over the lazy dog.</textarea>
+      </div>
+
+      <div class="tok__output" id="tok-output"></div>
+
+      <div class="tok__stats">
+        <span>Characters: <span class="tok__stat-value" id="tok-chars">0</span></span>
+        <span>Tokens: <span class="tok__stat-value" id="tok-tokens">0</span></span>
+        <span>Ratio: <span class="tok__stat-value" id="tok-ratio">0</span> chars/token</span>
+        <span>Words: <span class="tok__stat-value" id="tok-words">0</span></span>
+      </div>
+
+      <div class="tok__presets-label">Try different text types</div>
+      <div class="widget__controls" id="tok-presets">
+        <button class="btn btn--secondary btn--active" data-preset="0">English prose</button>
+        <button class="btn btn--secondary" data-preset="1">Python code</button>
+        <button class="btn btn--secondary" data-preset="2">JSON</button>
+        <button class="btn btn--secondary" data-preset="3">Spanish</button>
+        <button class="btn btn--secondary" data-preset="4">Numbers</button>
+      </div>
+    </div>
+  </div>
+
+  <article class="prose">
+    <!-- ================================================================
+         Section III: The Mysteries Tokenization Explains
+         ================================================================ -->
+    <h2 id="mysteries-explained"><span class="section-number">III</span> The Mysteries Tokenization Explains</h2>
+
+    <p>Once you understand tokenization, a whole category of "weird AI behavior" suddenly makes sense.</p>
+
+    <p><strong>Why can't the model count the letters in "strawberry"?</strong> Because it never sees letters. "Strawberry" might be tokenized as <code>["str", "aw", "berry"]</code> or <code>["straw", "berry"]</code>. The model receives two or three token IDs. It has no direct representation of the individual characters s-t-r-a-w-b-e-r-r-y. Asking it to count "r"s is like asking someone to count the bricks in a photo of a house &mdash; the information was lost in the representation.</p>
+
+    <p><strong>Why is code more expensive to process than English?</strong> Code uses lots of special characters, indentation, and uncommon symbol combinations. <code>response.data.map((item) =></code> gets split into far more tokens than "the cat sat on the mat" despite being roughly the same length. More tokens means more cost and more context window consumed.</p>
+
+    <p><strong>Why do non-English languages cost more?</strong> English dominated the training data that built most tokenizer vocabularies. English words got more merges, more dedicated tokens. A Chinese sentence or Hindi paragraph expressing the same idea may require 2-3x as many tokens. Same meaning, higher bill.</p>
+
+    <p><strong>Why does "3+7" sometimes produce wrong answers?</strong> Numbers are tokenized unpredictably. "127" might be one token, or it might be split into "12" and "7" or "1", "27". The model has no concept of place value &mdash; it's doing pattern matching on token sequences, not arithmetic. Depending on how the numbers split, the patterns it learned during training may or may not apply.</p>
+
+    <div class="callout callout--pm-tip">
+      <div class="callout__label">Builder Tip</div>
+      <div class="callout__body"><strong>When users report "the AI can't do X," check whether it's a tokenization problem first.</strong> Character counting, spelling tasks, arithmetic on large numbers, and acronym expansion all break because the model's representation doesn't preserve the information needed. The fix is often to restructure the task &mdash; spell out the characters in the prompt, use a code interpreter for math &mdash; rather than assume the model is "dumb."</div>
+    </div>
+
+    <!-- ================================================================
+         Section IV: Token Economics
+         ================================================================ -->
+    <h2 id="token-economics"><span class="section-number">IV</span> Token Economics</h2>
+
+    <p>Every API call has two token counts that determine your bill: <strong>input tokens</strong> (your prompt, system message, and any context) and <strong>output tokens</strong> (the model's response). Output tokens typically cost 2-5x more than input tokens because they require more computation to generate.</p>
+
+    <p>The widely cited ratio &mdash; <strong>1 word is approximately 0.75 tokens</strong> (or 1 token is roughly 4 characters) &mdash; is a useful estimate for English prose. But it's wildly wrong in specific cases:</p>
+
+    <ul>
+      <li><strong>Code:</strong> 1.5-2.5x more tokens per "word" than English prose. Curly braces, operators, and indentation all consume tokens.</li>
+      <li><strong>JSON:</strong> The most token-hungry format. The structural overhead (keys, colons, braces, quotes) can double or triple the token count versus the same data in plain text.</li>
+      <li><strong>Non-English:</strong> Chinese, Japanese, Korean, Hindi, Arabic &mdash; all require more tokens per concept than English. A Japanese product serving Japanese users pays a token tax on every request.</li>
+      <li><strong>System prompts:</strong> Your system prompt is sent with every single request. A 500-token system prompt at 10,000 requests/day is 5 million tokens/day just in system prompt overhead. That adds up fast.</li>
+    </ul>
+
+    <p>And here's a fact that surprises most builders: <strong>the same text produces different token counts across different models.</strong> Claude, GPT-4, Gemini, and Llama all use different tokenizers with different vocabularies. A prompt optimized for one model's tokenizer may cost more on another. See it for yourself:</p>
+  </article>
+
+  <!-- ================================================================
+       Widget 2: Token Cost Comparison
+       ================================================================ -->
+  <div class="wide-container">
+    <div class="widget" id="widget-tcc">
+      <div class="widget__label">Compare</div>
+      <div class="widget__title">Token Cost Comparison</div>
+      <div class="widget__instruction">Enter text to see estimated token counts and costs across different model tiers. Token counts vary because each model uses a different tokenizer.</div>
+
+      <div class="tcc__input-wrap">
+        <textarea id="tcc-input" placeholder="Enter text to compare costs...">You are a helpful customer support assistant for Acme Corp. Answer questions about our products accurately and concisely. If you don't know the answer, say so.</textarea>
+      </div>
+
+      <div class="tcc__grid" id="tcc-grid"></div>
+
+      <div class="tcc__insight" id="tcc-insight">
+        Enter text above to see how tokenization affects cost across models.
+      </div>
+    </div>
+  </div>
+
+  <article class="prose">
+    <!-- ================================================================
+         Section V: Practical Implications for Builders
+         ================================================================ -->
+    <h2 id="practical-implications"><span class="section-number">V</span> Practical Implications for Builders</h2>
+
+    <p><strong>Always count tokens, never estimate.</strong> Every major provider offers a tokenizer library: OpenAI has <code>tiktoken</code>, Anthropic publishes token counts in API responses, and open-source models ship their tokenizers. Use them. An estimate of "about 1,000 tokens" might be 800 or 1,400 in practice, and that gap compounds across millions of requests.</p>
+
+    <p><strong>Prompt compression is a real optimization lever.</strong> Restructuring text to use fewer tokens without losing meaning is free money. Consider the difference:</p>
+
+    <blockquote>
+      <p><em>Before:</em> "Please carefully analyze the following text and provide a comprehensive, detailed summary that captures all of the key points and important details."</p>
+      <p><em>After:</em> "Summarize this text, capturing all key points."</p>
+    </blockquote>
+
+    <p>The second version says the same thing in roughly half the tokens. Multiply that savings across every request and it's a meaningful cost reduction.</p>
+
+    <p><strong>Token-aware truncation matters.</strong> When you need to fit text into a context window, naive character truncation (cutting at 10,000 characters) can split a token in half, creating garbage input. Always truncate on token boundaries. Better yet, truncate on semantic boundaries &mdash; sentence or paragraph breaks &mdash; while counting tokens to stay within limits.</p>
+
+    <div class="callout callout--insight">
+      <div class="callout__label">Key Insight</div>
+      <div class="callout__body"><strong>Your system prompt is your most expensive piece of text.</strong> It ships with every request. A 200-token reduction in your system prompt saves more money at scale than optimizing any individual user message. Audit it regularly. Every word should earn its place.</div>
+    </div>
+
+    <!-- ================================================================
+         Section VI: The Tokenizer as Product Constraint
+         ================================================================ -->
+    <h2 id="tokenizer-as-constraint"><span class="section-number">VI</span> The Tokenizer as Product Constraint</h2>
+
+    <p>Here's the part most builders miss: <strong>the tokenizer is baked into the model at training time.</strong> You can't change it. You can't swap in a different one. The entire model &mdash; all its learned patterns, all its billions of parameters &mdash; is wired to one specific tokenizer vocabulary.</p>
+
+    <p>This has several implications that matter for product decisions:</p>
+
+    <p><strong>Different models tokenize differently.</strong> The same text might be 100 tokens on Claude and 120 tokens on GPT-4. That 20% difference flows directly to cost and context window utilization. When comparing model costs, comparing price-per-token is only half the story &mdash; you need price-per-equivalent-output.</p>
+
+    <p><strong>Tokenizer quality varies by language.</strong> If your product serves a multilingual audience, tokenizer efficiency in non-English languages becomes a real variable. A model with a tokenizer trained on more diverse data will be cheaper to run for non-English users. This is a hidden factor in vendor selection that rarely shows up in benchmark comparisons.</p>
+
+    <p><strong>Tokenizer evolution is slow.</strong> Unlike model weights, which get updated with each new version, tokenizers change rarely. When they do change (as happened when GPT-4 moved from GPT-3's tokenizer), it can break token-counting code, invalidate cached token counts, and shift cost estimates. Plan for it.</p>
+
+    <div class="callout callout--summary">
+      <div class="callout__label">Takeaway</div>
+      <div class="callout__body">
+        <strong>Tokenization is the invisible infrastructure beneath every LLM interaction.</strong> It determines what the model can see, what it can't, why some tasks fail mysteriously, and how much everything costs. You don't need to build a tokenizer. You do need to know that every prompt you write, every system message you design, and every context window you fill is being sliced into subword pieces &mdash; and those pieces are the real unit of exchange between you and the model.
+      </div>
+    </div>
+  </article>
+
+  <!-- ================================================================
+       Capstone Quiz: Article Recap
+       ================================================================ -->
+  <div class="wide-container">
+    <div class="widget" id="widget-capstone-quiz">
+      <div class="widget__label">Test your understanding</div>
+      <div class="widget__title">Article Recap</div>
+      <div class="widget__instruction">5 questions covering the key concepts from this article.</div>
+
+      <div class="quiz__progress">
+        <div class="quiz__progress-bar" id="quiz-progress-bar"></div>
+      </div>
+      <div class="quiz__progress-text" id="quiz-progress-text">1 of 5</div>
+
+      <div class="quiz__card" id="quiz-card">
+        <p class="quiz__scenario" id="quiz-scenario"></p>
+        <div class="widget__controls" id="quiz-options"></div>
+        <div class="quiz__explanation" id="quiz-explanation" style="display: none;"></div>
+      </div>
+
+      <div class="widget__controls widget__controls--mt">
+        <button class="btn btn--primary" id="quiz-next" style="display: none;">Next Question &rarr;</button>
+      </div>
+
+      <div class="quiz__summary" id="quiz-summary" style="display: none;">
+        <div class="quiz__score" id="quiz-score"></div>
+        <p class="quiz__summary-text" id="quiz-summary-text"></p>
+        <button class="btn btn--secondary" id="quiz-retry" style="margin-top: var(--space-4);">Try Again</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================================================
+       Article Navigation
+       ================================================================ -->
+  <nav class="article-nav">
+    <a href="how-llms-work.html">&larr; Part 2: How LLMs Actually Work</a>
+    <a href="index.html">Back to series &rarr;</a>
+  </nav>
+
+  <!-- ================================================================
+       Scripts
+       ================================================================ -->
+  <script>
+  // ====================================================================
+  // Hero: Animated network/node background
+  // ====================================================================
+  (function() {
+    var canvas = document.getElementById('hero-canvas');
+    var ctx = canvas.getContext('2d');
+    var hero = document.getElementById('article-hero');
+    var nodes = [];
+    var numNodes = 40;
+    var connectionDist = 140;
+    var dpr = window.devicePixelRatio || 1;
+    var w, h;
+
+    function resize() {
+      var rect = hero.getBoundingClientRect();
+      w = rect.width;
+      h = rect.height;
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    function initNodes() {
+      nodes = [];
+      for (var i = 0; i < numNodes; i++) {
+        nodes.push({
+          x: Math.random() * w,
+          y: Math.random() * h,
+          vx: (Math.random() - 0.5) * 0.35,
+          vy: (Math.random() - 0.5) * 0.35,
+          r: 2 + Math.random() * 3,
+          pulse: Math.random() * Math.PI * 2
+        });
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, w, h);
+      for (var i = 0; i < nodes.length; i++) {
+        var n = nodes[i];
+        n.x += n.vx; n.y += n.vy; n.pulse += 0.015;
+        if (n.x < -20) n.x = w + 20; if (n.x > w + 20) n.x = -20;
+        if (n.y < -20) n.y = h + 20; if (n.y > h + 20) n.y = -20;
+      }
+      ctx.lineWidth = 1;
+      for (var i = 0; i < nodes.length; i++) {
+        for (var j = i + 1; j < nodes.length; j++) {
+          var dx = nodes[i].x - nodes[j].x, dy = nodes[i].y - nodes[j].y;
+          var dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < connectionDist) {
+            ctx.strokeStyle = 'rgba(255,255,255,' + ((1 - dist / connectionDist) * 0.3) + ')';
+            ctx.beginPath(); ctx.moveTo(nodes[i].x, nodes[i].y); ctx.lineTo(nodes[j].x, nodes[j].y); ctx.stroke();
+          }
+        }
+      }
+      for (var i = 0; i < nodes.length; i++) {
+        var n = nodes[i], glow = 0.5 + 0.5 * Math.sin(n.pulse);
+        ctx.fillStyle = 'rgba(255,255,255,' + (0.4 + 0.4 * glow) + ')';
+        ctx.beginPath(); ctx.arc(n.x, n.y, n.r * (0.8 + 0.4 * glow), 0, Math.PI * 2); ctx.fill();
+      }
+      requestAnimationFrame(draw);
+    }
+
+    resize(); initNodes(); requestAnimationFrame(draw);
+    window.addEventListener('resize', function() { resize(); initNodes(); });
+  })();
+
+  // ====================================================================
+  // Widget 1: Live Tokenizer
+  // ====================================================================
+  (function() {
+    var inputEl = document.getElementById('tok-input');
+    var outputEl = document.getElementById('tok-output');
+    var charsEl = document.getElementById('tok-chars');
+    var tokensEl = document.getElementById('tok-tokens');
+    var ratioEl = document.getElementById('tok-ratio');
+    var wordsEl = document.getElementById('tok-words');
+    var presetsEl = document.getElementById('tok-presets');
+
+    var presets = [
+      'The quick brown fox jumps over the lazy dog.',
+      'def fibonacci(n):\n    if n <= 1:\n        return n\n    return fibonacci(n-1) + fibonacci(n-2)',
+      '{"name": "Alice", "age": 30, "email": "alice@example.com", "active": true}',
+      'El veloz zorro marron salta sobre el perro perezoso. La inteligencia artificial esta cambiando el mundo.',
+      '3 + 7 = 10, 127 * 48 = 6096, 3.14159265358979'
+    ];
+
+    // Token colors for visual distinction
+    var tokenColors = [
+      '#DBEAFE', '#FDE68A', '#D1FAE5', '#FDE2E2', '#E8DAEF',
+      '#FCE4EC', '#E0F2F1', '#FFF3E0', '#E3F2FD', '#F3E5F5',
+      '#E8F5E9', '#FFF8E1', '#F1F8E9', '#FFE0B2', '#D1C4E9',
+      '#B2EBF2', '#FFECB3', '#C8E6C9', '#FFCDD2', '#BBDEFB'
+    ];
+
+    // Simulated BPE-like tokenizer
+    // This approximates real BPE behavior with common English subword patterns
+    var commonTokens = [
+      'the', 'ing', 'tion', 'and', 'ment', 'for', 'are', 'but', 'not', 'you',
+      'all', 'can', 'had', 'her', 'was', 'one', 'our', 'out', 'with', 'have',
+      'this', 'will', 'your', 'from', 'they', 'been', 'that', 'when', 'who',
+      'each', 'make', 'like', 'long', 'look', 'many', 'some', 'than', 'them',
+      'would', 'about', 'over', 'such', 'after', 'also', 'back', 'could',
+      'def', 'return', 'import', 'class', 'self', 'print', 'true', 'false',
+      'null', 'function', 'var', 'const', 'let',
+      'quick', 'brown', 'fox', 'jump', 'lazy', 'dog',
+      'name', 'age', 'email', 'active', 'value', 'data',
+      'un', 're', 'pre', 'dis', 'mis', 'non',
+      'able', 'ible', 'ness', 'ment', 'ful', 'less', 'ous', 'ive', 'ity',
+      'er', 'ed', 'es', 'ly', 'al', 'en', 'ize', 'ist',
+      'str', 'aw', 'berry', 'straw',
+      'happi', 'counter', 'intuit',
+      'fib', 'onacci',
+      'vel', 'oz', 'zor', 'ro', 'mar', 'ron',
+      'salt', 'per', 'ro', 'pere', 'zoso',
+      'intel', 'igen', 'cia', 'arti', 'fici',
+      'cam', 'bian', 'do', 'mun',
+    ];
+
+    function tokenize(text) {
+      if (!text) return [];
+      var tokens = [];
+      var i = 0;
+
+      while (i < text.length) {
+        // Skip and capture whitespace as part of next token or standalone
+        if (i < text.length && /\s/.test(text[i])) {
+          var ws = '';
+          while (i < text.length && /\s/.test(text[i])) {
+            ws += text[i];
+            i++;
+          }
+          // Newlines become their own token
+          if (ws.indexOf('\n') !== -1) {
+            var parts = ws.split(/(\n)/);
+            for (var p = 0; p < parts.length; p++) {
+              if (parts[p]) tokens.push(parts[p]);
+            }
+          } else {
+            // Attach space to next token or emit standalone
+            if (i < text.length && /[a-zA-Z]/.test(text[i])) {
+              // Will be captured with next word token
+              // Push space back
+              i -= ws.length;
+              // Just emit space
+              tokens.push(ws);
+              i += ws.length;
+            } else {
+              tokens.push(ws);
+            }
+          }
+          continue;
+        }
+
+        // Special characters and punctuation: single token each
+        if (/[^a-zA-Z0-9]/.test(text[i])) {
+          tokens.push(text[i]);
+          i++;
+          continue;
+        }
+
+        // Numbers: group digits (simulate unpredictable number tokenization)
+        if (/[0-9]/.test(text[i])) {
+          var num = '';
+          while (i < text.length && /[0-9]/.test(text[i])) {
+            num += text[i];
+            i++;
+          }
+          // Split numbers into chunks of 1-3 digits (simulating BPE behavior)
+          if (num.length <= 3) {
+            tokens.push(num);
+          } else {
+            var j = 0;
+            while (j < num.length) {
+              var chunkSize = Math.min(num.length - j <= 4 ? 2 : 3, num.length - j);
+              if (num.length - j === 1) chunkSize = 1;
+              tokens.push(num.substring(j, j + chunkSize));
+              j += chunkSize;
+            }
+          }
+          continue;
+        }
+
+        // Word characters: try to match known subword tokens
+        var word = '';
+        while (i < text.length && /[a-zA-Z]/.test(text[i])) {
+          word += text[i];
+          i++;
+        }
+
+        // Try to split word into subword tokens
+        var wordTokens = splitWord(word.toLowerCase(), word);
+        tokens = tokens.concat(wordTokens);
+      }
+
+      return tokens;
+    }
+
+    function splitWord(lower, original) {
+      if (lower.length <= 2) return [original];
+
+      // Check if whole word is a common token
+      for (var t = 0; t < commonTokens.length; t++) {
+        if (lower === commonTokens[t]) return [original];
+      }
+
+      // Try to find best split using common subword patterns
+      var best = null;
+      var bestScore = 0;
+
+      // Try prefix matches
+      for (var len = Math.min(lower.length - 1, 8); len >= 2; len--) {
+        var prefix = lower.substring(0, len);
+        var isCommon = false;
+        for (var t = 0; t < commonTokens.length; t++) {
+          if (prefix === commonTokens[t]) { isCommon = true; break; }
+        }
+        if (isCommon) {
+          var rest = lower.substring(len);
+          var restOrig = original.substring(len);
+          var restTokens = splitWord(rest, restOrig);
+          var score = len + (restTokens.length === 1 ? 2 : 0);
+          if (score > bestScore) {
+            bestScore = score;
+            best = [original.substring(0, len)].concat(restTokens);
+          }
+        }
+      }
+
+      if (best) return best;
+
+      // Fallback: split into chunks of 3-4 characters
+      var result = [];
+      var pos = 0;
+      while (pos < original.length) {
+        var chunk = Math.min(pos + 3 + (pos === 0 ? 1 : 0), original.length);
+        result.push(original.substring(pos, chunk));
+        pos = chunk;
+      }
+      return result;
+    }
+
+    function render() {
+      var text = inputEl.value;
+      var tokens = tokenize(text);
+
+      outputEl.innerHTML = '';
+      for (var i = 0; i < tokens.length; i++) {
+        var span = document.createElement('span');
+        span.className = 'tok__token';
+        span.style.backgroundColor = tokenColors[i % tokenColors.length];
+        span.textContent = tokens[i];
+        span.title = 'Token ' + (i + 1) + ': "' + tokens[i] + '"';
+        outputEl.appendChild(span);
+      }
+
+      var charCount = text.length;
+      var tokenCount = tokens.length;
+      var wordCount = text.trim() ? text.trim().split(/\s+/).length : 0;
+
+      charsEl.textContent = charCount;
+      tokensEl.textContent = tokenCount;
+      ratioEl.textContent = tokenCount > 0 ? (charCount / tokenCount).toFixed(1) : '0';
+      wordsEl.textContent = wordCount;
+    }
+
+    inputEl.addEventListener('input', render);
+
+    presetsEl.addEventListener('click', function(e) {
+      var btn = e.target.closest('[data-preset]');
+      if (!btn) return;
+      presetsEl.querySelectorAll('.btn').forEach(function(b) { b.classList.remove('btn--active'); });
+      btn.classList.add('btn--active');
+      inputEl.value = presets[parseInt(btn.dataset.preset)];
+      render();
+    });
+
+    render();
+  })();
+
+  // ====================================================================
+  // Widget 2: Token Cost Comparison
+  // ====================================================================
+  (function() {
+    var inputEl = document.getElementById('tcc-input');
+    var gridEl = document.getElementById('tcc-grid');
+    var insightEl = document.getElementById('tcc-insight');
+
+    var models = [
+      { name: 'GPT-4o', inputCost: 2.50, outputCost: 10.00, tokenMultiplier: 1.0 },
+      { name: 'Claude Sonnet', inputCost: 3.00, outputCost: 15.00, tokenMultiplier: 0.95 },
+      { name: 'Gemini 1.5 Pro', inputCost: 1.25, outputCost: 5.00, tokenMultiplier: 1.05 },
+      { name: 'GPT-4o mini', inputCost: 0.15, outputCost: 0.60, tokenMultiplier: 1.0 },
+      { name: 'Claude Haiku', inputCost: 0.25, outputCost: 1.25, tokenMultiplier: 0.95 },
+      { name: 'Llama 3 70B', inputCost: 0.59, outputCost: 0.79, tokenMultiplier: 1.08 }
+    ];
+
+    function estimateTokens(text, multiplier) {
+      // Approximate: ~4 chars per token for English, adjusted by multiplier
+      if (!text) return 0;
+      var baseTokens = Math.ceil(text.length / 4);
+      return Math.ceil(baseTokens * multiplier);
+    }
+
+    function render() {
+      var text = inputEl.value;
+      gridEl.innerHTML = '';
+
+      var maxTokens = 0;
+      var results = [];
+      for (var i = 0; i < models.length; i++) {
+        var tokens = estimateTokens(text, models[i].tokenMultiplier);
+        if (tokens > maxTokens) maxTokens = tokens;
+        var cost = (tokens / 1000000) * models[i].inputCost;
+        results.push({ model: models[i], tokens: tokens, cost: cost });
+      }
+
+      for (var i = 0; i < results.length; i++) {
+        var r = results[i];
+        var card = document.createElement('div');
+        card.className = 'tcc__card';
+        card.innerHTML =
+          '<div class="tcc__card-name">' + r.model.name + '</div>' +
+          '<div class="tcc__card-tokens">' + r.tokens + ' tokens</div>' +
+          '<div class="tcc__card-cost">Input cost: $' + r.cost.toFixed(6) + '</div>' +
+          '<div class="tcc__card-bar-wrap"><div class="tcc__card-bar" style="width: ' +
+          (maxTokens > 0 ? (r.tokens / maxTokens * 100) : 0) + '%;"></div></div>';
+        gridEl.appendChild(card);
+      }
+
+      if (text.trim()) {
+        var minCost = Infinity, maxCost = 0, minModel = '', maxModel = '';
+        for (var i = 0; i < results.length; i++) {
+          if (results[i].cost < minCost) { minCost = results[i].cost; minModel = results[i].model.name; }
+          if (results[i].cost > maxCost) { maxCost = results[i].cost; maxModel = results[i].model.name; }
+        }
+        var ratio = minCost > 0 ? (maxCost / minCost).toFixed(0) : 'N/A';
+        var dailyCostMin = (minCost * 10000).toFixed(2);
+        var dailyCostMax = (maxCost * 10000).toFixed(2);
+        insightEl.textContent = 'For this text, ' + maxModel + ' costs ' + ratio + 'x more than ' + minModel + ' per request. At 10,000 requests/day, that\'s $' + dailyCostMin + '/day vs $' + dailyCostMax + '/day just for this input.';
+      } else {
+        insightEl.textContent = 'Enter text above to see how tokenization affects cost across models.';
+      }
+    }
+
+    inputEl.addEventListener('input', render);
+    render();
+  })();
+
+  // ====================================================================
+  // Capstone Quiz: Article Recap
+  // ====================================================================
+  (function() {
+    var questions = [
+      {
+        question: 'A user reports that your AI product consistently fails to count characters in words correctly. For example, it says "strawberry" has two r\'s instead of three. Your engineering team asks what\'s going on. What\'s the real explanation?',
+        options: [
+          { label: 'The model has a bug in its character-counting logic that should be patched in the next version.', key: 'a' },
+          { label: 'The model never sees individual characters. It receives token IDs for subword units like "straw" and "berry," so the character-level information is lost in the representation.', key: 'b' },
+          { label: 'The model can count characters but gets confused by double letters. Single-letter counting works fine.', key: 'c' },
+          { label: 'Character counting requires too much compute, so the model approximates to save resources.', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'The model receives token IDs, not characters. "Strawberry" becomes two or three tokens like ["straw", "berry"]. The individual letters are never represented in the input the model processes. This is a fundamental limitation of tokenization, not a bug. The workaround is to spell out characters explicitly or use a code interpreter.'
+      },
+      {
+        question: 'Your finance team notices that your AI chatbot costs 40% more to run for your Japanese customers than for English-speaking customers, even though conversations are roughly the same length. Why?',
+        options: [
+          { label: 'Japanese users send longer messages on average, which your team hasn\'t measured correctly.', key: 'a' },
+          { label: 'The model uses a different, more expensive API endpoint for Japanese text.', key: 'b' },
+          { label: 'Japanese text requires more tokens per concept because the tokenizer vocabulary was built primarily from English data, so Japanese characters get fewer merged subword tokens.', key: 'c' },
+          { label: 'The model needs to translate from Japanese to English internally before processing, doubling the token count.', key: 'd' }
+        ],
+        answer: 'c',
+        explanation: 'Most tokenizer vocabularies are built from English-heavy training data. English words get more merge operations, producing more efficient (fewer, longer) tokens. Japanese, Chinese, and other non-English languages get split into more, shorter tokens for the same content. Same meaning, more tokens, higher cost.'
+      },
+      {
+        question: 'You\'re optimizing costs for an AI product that handles 50,000 API requests per day. Each request includes a 600-token system prompt. A colleague suggests cutting the system prompt to 350 tokens. How much does this save annually at $3/million input tokens?',
+        options: [
+          { label: 'About $13.70/year \u2014 barely worth the effort.', key: 'a' },
+          { label: 'About $136.88/year \u2014 meaningful at scale.', key: 'b' },
+          { label: 'About $1,368.75/year \u2014 a no-brainer optimization.', key: 'c' },
+          { label: 'About $13,687.50/year \u2014 this should have been done on day one.', key: 'd' }
+        ],
+        answer: 'a',
+        explanation: 'The math: 250 fewer tokens x 50,000 requests/day = 12.5M tokens/day saved. At $3/million tokens, that\'s $37.50/day or $13,687.50/year. Wait \u2014 that\'s option D. Let\'s recalculate: 250 x 50,000 = 12,500,000 tokens/day. 12.5M / 1M = 12.5. 12.5 x $3 = $37.50/day. $37.50 x 365 = $13,687.50/year. The correct answer is actually D. System prompt optimization at scale is a no-brainer.'
+      },
+      {
+        question: 'Your team is comparing costs between two LLM providers. Provider A charges $3/million tokens and Provider B charges $4/million tokens. A colleague says "Provider A is obviously cheaper." What\'s missing from this analysis?',
+        options: [
+          { label: 'Nothing \u2014 lower price per token always means lower total cost.', key: 'a' },
+          { label: 'They haven\'t factored in output token costs, which are typically higher than input costs.', key: 'b' },
+          { label: 'Different models use different tokenizers, so the same text may produce different token counts. Provider B might tokenize the same prompt into fewer tokens, making it cheaper per request despite the higher per-token price.', key: 'c' },
+          { label: 'Provider B probably has better quality, so you\'d need fewer retries, making it cheaper overall.', key: 'd' }
+        ],
+        answer: 'c',
+        explanation: 'Different tokenizers produce different token counts for the same text. If Provider A\'s tokenizer produces 1,000 tokens for your typical prompt but Provider B\'s produces only 750, then Provider B costs $3.00 per request vs Provider A\'s $3.00 \u2014 they\'re equal despite the different per-token prices. Always compare cost per equivalent output, not cost per token.'
+      },
+      {
+        question: 'An engineer wants to truncate user-uploaded documents to fit within the model\'s context window. They propose cutting at exactly 100,000 characters. What\'s wrong with this approach?',
+        options: [
+          { label: 'Character count and token count don\'t have a fixed relationship. 100,000 characters could be 20,000 tokens for English prose but 35,000 tokens for code. Plus, cutting mid-token creates malformed input. Always truncate using the actual tokenizer and cut on token or semantic boundaries.', key: 'a' },
+          { label: 'Nothing \u2014 100,000 characters is a safe estimate for any context window.', key: 'b' },
+          { label: 'The issue is that 100,000 characters is too many. They should cut at 50,000 to leave room for the response.', key: 'c' },
+          { label: 'Character truncation works fine, but they should add a warning message at the end telling the model the text was cut.', key: 'd' }
+        ],
+        answer: 'a',
+        explanation: 'The characters-to-tokens ratio varies dramatically by content type. English prose averages ~4 chars/token, but code, JSON, and non-English text can be 2-3 chars/token. Naive character truncation can also split a multi-byte character or token in half. Always use the model\'s actual tokenizer to count tokens, and truncate on semantic boundaries (sentence or paragraph breaks) for better results.'
+      }
+    ];
+
+    // Fix quiz question 3 - the answer should be 'd' based on the math
+    questions[2].answer = 'd';
+    questions[2].explanation = 'The math: 250 fewer tokens x 50,000 requests/day = 12.5 million tokens/day saved. At $3/million tokens, that\'s $37.50/day, or $13,687.50/year. System prompt optimization is one of the highest-leverage cost moves at scale \u2014 every token you remove saves money on every single request.';
+
+    var currentQ = 0;
+    var score = 0;
+    var answered = false;
+
+    var scenarioEl = document.getElementById('quiz-scenario');
+    var optionsEl = document.getElementById('quiz-options');
+    var explanationEl = document.getElementById('quiz-explanation');
+    var progressBar = document.getElementById('quiz-progress-bar');
+    var progressText = document.getElementById('quiz-progress-text');
+    var nextBtn = document.getElementById('quiz-next');
+    var summaryEl = document.getElementById('quiz-summary');
+    var scoreEl = document.getElementById('quiz-score');
+    var summaryTextEl = document.getElementById('quiz-summary-text');
+    var cardEl = document.getElementById('quiz-card');
+    var retryBtn = document.getElementById('quiz-retry');
+
+    function loadQuestion() {
+      answered = false;
+      var q = questions[currentQ];
+      scenarioEl.textContent = q.question;
+      explanationEl.style.display = 'none';
+      nextBtn.style.display = 'none';
+
+      optionsEl.innerHTML = '';
+      q.options.forEach(function(opt) {
+        var btn = document.createElement('button');
+        btn.className = 'btn btn--secondary';
+        btn.dataset.answer = opt.key;
+        btn.textContent = opt.label;
+        optionsEl.appendChild(btn);
+      });
+
+      progressBar.style.width = ((currentQ) / questions.length * 100) + '%';
+      progressText.textContent = (currentQ + 1) + ' of ' + questions.length;
+    }
+
+    function handleAnswer(selected) {
+      if (answered) return;
+      answered = true;
+      var q = questions[currentQ];
+      var isCorrect = selected === q.answer;
+      if (isCorrect) score++;
+
+      optionsEl.querySelectorAll('.btn').forEach(function(btn) {
+        btn.disabled = true;
+        var ans = btn.dataset.answer;
+        if (ans === q.answer) {
+          btn.className = 'btn btn--correct';
+        } else if (ans === selected && !isCorrect) {
+          btn.className = 'btn btn--incorrect';
+        }
+      });
+
+      explanationEl.textContent = (isCorrect ? 'Correct! ' : 'Not quite. ') + q.explanation;
+      explanationEl.className = 'quiz__explanation ' + (isCorrect ? 'quiz__explanation--correct' : 'quiz__explanation--incorrect');
+      explanationEl.style.display = 'block';
+
+      progressBar.style.width = ((currentQ + 1) / questions.length * 100) + '%';
+
+      if (currentQ < questions.length - 1) {
+        nextBtn.style.display = 'inline-flex';
+      } else {
+        setTimeout(showSummary, 800);
+      }
+    }
+
+    function showSummary() {
+      cardEl.style.display = 'none';
+      progressBar.parentElement.style.display = 'none';
+      progressText.style.display = 'none';
+      nextBtn.style.display = 'none';
+      summaryEl.style.display = 'block';
+      scoreEl.textContent = score + ' out of ' + questions.length;
+
+      var messages = [
+        'Worth a re-read \u2014 tokenization is a hidden layer that affects everything.',
+        'Worth a re-read \u2014 tokenization is a hidden layer that affects everything.',
+        'You\'ve got the basics. The cost implications and cross-model differences are worth revisiting.',
+        'Solid understanding of tokenization and its product implications!',
+        'Strong grasp \u2014 you see the infrastructure beneath the API.',
+        'Perfect score. You understand the invisible layer that drives LLM behavior and cost.'
+      ];
+      summaryTextEl.textContent = messages[score];
+    }
+
+    function reset() {
+      currentQ = 0;
+      score = 0;
+      cardEl.style.display = 'block';
+      progressBar.parentElement.style.display = 'block';
+      progressText.style.display = 'block';
+      summaryEl.style.display = 'none';
+      loadQuestion();
+    }
+
+    optionsEl.addEventListener('click', function(e) {
+      var btn = e.target.closest('[data-answer]');
+      if (!btn) return;
+      handleAnswer(btn.dataset.answer);
+    });
+
+    nextBtn.addEventListener('click', function() {
+      currentQ++;
+      loadQuestion();
+    });
+
+    retryBtn.addEventListener('click', reset);
+
+    loadQuestion();
+  })();
+
+  // ====================================================================
+  // Reading Progress Bar
+  // ====================================================================
+  (function() {
+    var bar = document.getElementById('reading-progress-bar');
+    var ticking = false;
+
+    function updateProgress() {
+      var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      var progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+      bar.style.width = Math.min(100, Math.max(0, progress)) + '%';
+      ticking = false;
+    }
+
+    window.addEventListener('scroll', function() {
+      if (!ticking) {
+        requestAnimationFrame(updateProgress);
+        ticking = true;
+      }
+    }, { passive: true });
+
+    updateProgress();
+  })();
+
+  // ====================================================================
+  // TOC Sidebar Visibility (show after scrolling past hero)
+  // ====================================================================
+  (function() {
+    var toc = document.querySelector('.toc');
+    var hero = document.getElementById('article-hero');
+
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        toc.classList.toggle('toc--visible', !entry.isIntersecting);
+      });
+    }, { threshold: 0 });
+
+    observer.observe(hero);
+  })();
+
+  // ====================================================================
+  // TOC Section Highlighting
+  // ====================================================================
+  (function() {
+    var headings = document.querySelectorAll('h2[id]');
+    var tocItems = document.querySelectorAll('.toc__list li');
+    var tocLinks = {};
+
+    tocItems.forEach(function(item) {
+      var link = item.querySelector('a');
+      if (link) {
+        var href = link.getAttribute('href');
+        if (href && href.startsWith('#')) {
+          tocLinks[href.substring(1)] = item;
+        }
+      }
+    });
+
+    function activate(item) {
+      tocItems.forEach(function(li) { li.classList.remove('toc__item--active'); });
+      item.classList.add('toc__item--active');
+    }
+
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (!entry.isIntersecting) return;
+        var id = entry.target.getAttribute('id');
+        var item = tocLinks[id];
+        if (item) activate(item);
+      });
+    }, { rootMargin: '0px 0px -70% 0px' });
+
+    headings.forEach(function(h) { observer.observe(h); });
+
+    // Activate last section when scrolled to bottom
+    window.addEventListener('scroll', function() {
+      if ((window.innerHeight + window.scrollY) >= document.documentElement.scrollHeight - 50) {
+        activate(tocItems[tocItems.length - 1]);
+      }
+    }, { passive: true });
+  })();
+  </script>
+
+</body>
+</html>
