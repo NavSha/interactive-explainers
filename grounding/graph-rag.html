@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-E8RQLQXRWH"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-E8RQLQXRWH');
+  </script>
+  <title>Graph RAG &amp; Structured Retrieval &mdash; AI for Builders</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/shared.css?v=9">
+  <style>
+    .article-hero { background: var(--accent-grounding-gradient); }
+    .toc__list a:hover { color: var(--accent-grounding); }
+    .prose blockquote { border-left-color: var(--accent-grounding); }
+    .widget { background: var(--accent-grounding-light); border-color: #FECDD3; }
+    .widget__label { color: var(--accent-grounding); }
+    .btn--primary { background: var(--accent-grounding); }
+    .btn--active { background: var(--accent-grounding); border-color: var(--accent-grounding); }
+    .btn--secondary:hover:not(:disabled) { border-color: var(--accent-grounding); color: var(--accent-grounding); }
+    .step-indicator__dot--active { background: var(--accent-grounding); }
+    .step-indicator__dot--completed { background: var(--accent-grounding); }
+
+    /* --- Widget 1: Retrieval Strategy Picker --- */
+    .picker__scenarios {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+      margin-bottom: var(--space-6);
+    }
+    .picker__scenario {
+      background: var(--color-surface);
+      border: 2px solid var(--color-border);
+      border-radius: 8px;
+      padding: var(--space-4);
+      cursor: pointer;
+      transition: all var(--duration-fast) var(--ease-out);
+    }
+    .picker__scenario:hover {
+      border-color: var(--accent-grounding);
+      transform: translateY(-1px);
+    }
+    .picker__scenario--selected {
+      border-color: var(--accent-grounding);
+      background: #FFF1F2;
+    }
+    .picker__scenario-label {
+      font-family: var(--font-sans);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-2);
+    }
+    .picker__scenario-query {
+      font-family: var(--font-serif);
+      font-size: var(--text-base);
+      line-height: 1.6;
+      color: var(--color-text);
+    }
+    .picker__result {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      padding: var(--space-5);
+      animation: messageSlideIn var(--duration-normal) var(--ease-out);
+    }
+    .picker__result-header {
+      font-family: var(--font-sans);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--accent-grounding);
+      margin-bottom: var(--space-3);
+    }
+    .picker__strategy {
+      font-family: var(--font-sans);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-text);
+      margin-bottom: var(--space-2);
+    }
+    .picker__explanation {
+      font-family: var(--font-sans);
+      font-size: var(--text-sm);
+      line-height: 1.6;
+      color: var(--color-text);
+    }
+    .picker__strategy-tag {
+      display: inline-block;
+      font-family: var(--font-sans);
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-right: var(--space-2);
+      margin-bottom: var(--space-2);
+    }
+    .picker__strategy-tag--vector { background: #DDD6FE; color: #5B21B6; }
+    .picker__strategy-tag--graph { background: #FECDD3; color: #9F1239; }
+    .picker__strategy-tag--sql { background: #BFDBFE; color: #1E40AF; }
+    .picker__strategy-tag--metadata { background: #FDE68A; color: #92400E; }
+    .picker__strategy-tag--hybrid { background: #BBF7D0; color: #065F46; }
+
+    /* --- Widget 2: Vector vs Graph Comparison --- */
+    .compare__query-box {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      padding: var(--space-4);
+      margin-bottom: var(--space-4);
+      font-family: var(--font-serif);
+      font-size: var(--text-base);
+      line-height: 1.6;
+      color: var(--color-text);
+      text-align: center;
+    }
+    .compare__query-box strong {
+      color: var(--accent-grounding);
+    }
+    .compare__columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-4);
+    }
+    .compare__column {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      padding: var(--space-4);
+    }
+    .compare__column-title {
+      font-family: var(--font-sans);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: var(--space-3);
+      padding-bottom: var(--space-2);
+      border-bottom: 2px solid var(--color-border-light);
+    }
+    .compare__column-title--vector { color: #7C3AED; border-bottom-color: #DDD6FE; }
+    .compare__column-title--graph { color: var(--accent-grounding); border-bottom-color: #FECDD3; }
+    .compare__step {
+      padding: var(--space-3);
+      border-radius: 6px;
+      margin-bottom: var(--space-2);
+      font-family: var(--font-sans);
+      font-size: var(--text-xs);
+      line-height: 1.55;
+      background: var(--color-bg);
+      border: 1px solid var(--color-border-light);
+      animation: messageSlideIn var(--duration-normal) var(--ease-out);
+    }
+    .compare__step-label {
+      font-weight: 600;
+      color: var(--color-text-secondary);
+      display: block;
+      margin-bottom: var(--space-1);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .compare__verdict {
+      margin-top: var(--space-3);
+      padding: var(--space-3);
+      border-radius: 6px;
+      font-family: var(--font-sans);
+      font-size: var(--text-xs);
+      line-height: 1.5;
+      font-weight: 600;
+    }
+    .compare__verdict--good {
+      background: #F0FDF4;
+      border: 1px solid #A7F3D0;
+      color: #065F46;
+    }
+    .compare__verdict--partial {
+      background: #FFFBEB;
+      border: 1px solid #FDE68A;
+      color: #92400E;
+    }
+    .compare__verdict--poor {
+      background: #FEF2F2;
+      border: 1px solid #FECACA;
+      color: #991B1B;
+    }
+    .compare__graph-viz {
+      padding: var(--space-3);
+      margin-bottom: var(--space-2);
+      background: #FFF1F2;
+      border: 1px solid #FECDD3;
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      line-height: 1.8;
+      color: var(--color-text);
+      white-space: pre;
+      overflow-x: auto;
+    }
+
+    @media (max-width: 720px) {
+      .compare__columns { grid-template-columns: 1fr; }
+    }
+  </style>
+  <style>
+    /* Reading Progress Bar */
+    .reading-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      z-index: 1000;
+      pointer-events: none;
+      background: transparent;
+    }
+    .reading-progress__bar {
+      height: 100%;
+      width: 0%;
+      background: #E11D48;
+      transition: width 0.15s ease-out;
+    }
+
+    /* TOC Active Highlighting */
+    .toc__item--active > a {
+      color: var(--accent-grounding, #E11D48);
+      opacity: 1;
+    }
+    .toc__item--active > .toc__numeral {
+      color: var(--accent-grounding, #E11D48);
+      opacity: 1;
+    }
+
+    /* TOC: fixed sidebar on wide screens, hidden until past hero */
+    @media (min-width: 1280px) {
+      .toc {
+        position: fixed;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 180px;
+        left: calc((100vw - 760px) / 2 - 220px);
+        padding: 0;
+        margin: 0;
+        z-index: 100;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+      }
+      .toc--visible {
+        opacity: 1;
+        pointer-events: auto;
+      }
+      .toc__inner {
+        padding: 0.75rem 1rem;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 8px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        backdrop-filter: blur(8px);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      }
+      .toc__title { font-size: 0.65rem; margin-bottom: 0.5rem; }
+      .toc__list li { padding: 0.2rem 0; }
+      .toc__list a, .toc__numeral { font-size: 0.8rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="reading-progress"><div class="reading-progress__bar" id="reading-progress-bar"></div></div>
+
+  <header class="article-hero" id="article-hero">
+    <canvas class="article-hero__canvas" id="hero-canvas"></canvas>
+    <div class="article-hero__overlay"></div>
+    <div class="article-hero__content">
+      <nav class="breadcrumb breadcrumb--hero">
+        <a href="../index.html">AI for Builders</a> &nbsp;/&nbsp; <a href="index.html">Grounding &amp; Guardrails</a> &nbsp;/&nbsp; <span>Part 4</span>
+      </nav>
+      <div class="article-header__meta" style="color: rgba(255,255,255,0.9);">Part 4 of 4 &middot; ~10 min read</div>
+      <h1 style="color: #fff;">Graph RAG &amp; Structured Retrieval</h1>
+      <p class="lead" style="color: rgba(255,255,255,0.85);">Vector search finds similar documents. But when the answer lives in the <em>connections</em> between documents, you need retrieval that can follow the thread.</p>
+    </div>
+  </header>
+
+  <nav class="toc" aria-label="Table of contents">
+    <div class="toc__inner">
+      <div class="toc__title">Contents</div>
+      <ol class="toc__list">
+        <li><span class="toc__numeral">I.</span><a href="#where-vector-breaks">Where Vector RAG Breaks</a></li>
+        <li><span class="toc__numeral">II.</span><a href="#what-is-graph-rag">What Graph RAG Is</a></li>
+        <li><span class="toc__numeral">III.</span><a href="#when-to-use-it">When to Use It</a></li>
+        <li><span class="toc__numeral">IV.</span><a href="#structured-retrieval">Structured Retrieval Beyond Graphs</a></li>
+        <li><span class="toc__numeral">V.</span><a href="#build-vs-buy">The Build vs Buy Decision</a></li>
+        <li><span class="toc__numeral">VI.</span><a href="#hybrid-architectures">Hybrid Architectures</a></li>
+      </ol>
+    </div>
+  </nav>
+
+  <div class="epigraph">
+    <p class="epigraph__verse">
+      Vectors find the vibe but can't connect the dots,<br>
+      Nodes and edges trace what similarity forgot.<br>
+      Graphs walk the chain from cause to consequence &mdash;<br>
+      Structured retrieval turns a search into intelligence.
+    </p>
+  </div>
+
+  <article class="prose">
+
+    <!-- ================================================================
+         Section I: Where Vector RAG Breaks
+         ================================================================ -->
+    <h2 id="where-vector-breaks"><span class="section-number">I</span> Where Vector RAG Breaks</h2>
+
+    <p>You have built a RAG pipeline. Embeddings, vector search, reranking &mdash; the full stack from Parts 1 and 2. For straightforward questions, it works. "What is our return policy?" retrieves the right paragraph and the model nails the answer. But then someone asks a different kind of question:</p>
+
+    <p><em>"Which team lead approved the budget for the project that caused last quarter's compliance incident?"</em></p>
+
+    <p>This is a multi-hop question. The answer requires connecting three separate facts: the compliance incident, the project it came from, and the person who approved that project's budget. Each fact might live in a different document. Vector search finds documents that are <strong>semantically similar</strong> to the query &mdash; but semantic similarity and informational relevance are not the same thing. The budget approval memo doesn't mention compliance. The compliance report doesn't mention budget approvals. The embedding space puts them far apart, even though they are causally linked through a shared project.</p>
+
+    <p>This is the fundamental limitation of vector RAG: <strong>it retrieves by similarity, not by relationship.</strong> Cosine similarity measures how much two texts "sound like" they're about the same thing. It cannot follow a chain of relationships across documents. It cannot answer "who reports to the person who manages the team that built this feature?" because that answer requires traversing a graph of connections, not finding a similar paragraph.</p>
+
+    <div class="callout callout--insight">
+      <div class="callout__label">Key Insight</div>
+      <div class="callout__body">Vector search answers "what documents talk about similar things?" Graph traversal answers "what entities are connected, and how?" These are fundamentally different questions. When users ask about relationships, causation, or chains of responsibility, vector search returns plausible-sounding but disconnected results. The information is in the connections, not the content.</div>
+    </div>
+
+    <p>Three failure patterns show up repeatedly:</p>
+
+    <ol>
+      <li><strong>Multi-hop reasoning.</strong> The answer spans 2&ndash;5 documents connected by shared entities. Vector search retrieves each document independently but can't stitch the chain together.</li>
+      <li><strong>Structural queries.</strong> "Who reports to whom?" "What depends on what?" These questions are about the topology of your data, not its content. Embeddings don't encode organizational structure.</li>
+      <li><strong>Aggregation across relationships.</strong> "How many projects does this team lead manage that are over budget?" requires traversing from person to projects to budgets, then counting. Vector search has no concept of traversal or aggregation.</li>
+    </ol>
+
+    <p>If your users only ask "what does document X say about topic Y?" &mdash; vector search is all you need. The moment they start asking about connections between things, you've outgrown it.</p>
+
+    <!-- ================================================================
+         Section II: What Graph RAG Is
+         ================================================================ -->
+    <h2 id="what-is-graph-rag"><span class="section-number">II</span> What Graph RAG Is</h2>
+
+    <p>Graph RAG adds a knowledge graph to the retrieval pipeline. Instead of just embedding document chunks, you also extract <strong>entities</strong> (people, projects, policies, departments) and <strong>relationships</strong> (manages, approved, caused, depends-on) from your data. These get stored as nodes and edges in a graph database. At query time, you traverse the graph to find connected information, then feed the results to the LLM alongside any vector-retrieved context.</p>
+
+    <p>The extraction step is where the LLM earns its keep before the user even asks a question. You run your documents through a model with a prompt like: <em>"Extract all entities and their relationships from this text. Output as (entity1, relationship, entity2) triples."</em> A budget memo becomes <code>(Sarah Chen, approved, Project Atlas)</code>, <code>(Project Atlas, budget, $2.4M)</code>, <code>(Project Atlas, team, Platform Engineering)</code>. An incident report becomes <code>(Compliance Incident CI-2024-17, caused_by, Project Atlas)</code>, <code>(CI-2024-17, reported_by, Legal)</code>.</p>
+
+    <p>Now the multi-hop question from Section I becomes trivial. "Which team lead approved the budget for the project that caused last quarter's compliance incident?" turns into a graph traversal: start at the incident node, follow the <code>caused_by</code> edge to the project, follow the <code>approved</code> edge to the person. Three hops, one answer. No embedding similarity required.</p>
+
+    <div class="callout callout--analogy">
+      <div class="callout__label">Analogy</div>
+      <div class="callout__body">Vector search is like searching a library by finding books that <em>sound like</em> what you need. Graph RAG is like having a librarian who also knows that book A references book B, which was written by the same author as book C, which contradicts the claim in book D. The library catalog finds books. The librarian follows connections.</div>
+    </div>
+
+    <p>The pipeline has two phases:</p>
+
+    <ol>
+      <li><strong>Indexing (offline).</strong> Extract entities and relationships from documents using an LLM. Store them in a graph database (Neo4j, Amazon Neptune, or even a simpler structure). Optionally, also embed the document chunks in a vector store for hybrid retrieval.</li>
+      <li><strong>Querying (online).</strong> Parse the user's question to identify entities and the type of relationship being asked about. Traverse the graph to gather connected context. Optionally, also run a vector search for additional semantic context. Combine everything and generate the answer.</li>
+    </ol>
+
+    <p>Microsoft Research's GraphRAG paper (2024) formalized this approach and showed that graph-based retrieval significantly outperforms vector-only retrieval on questions requiring synthesis across multiple documents &mdash; precisely the failure mode we identified in Section I. Their key innovation was using <strong>community summaries</strong>: clustering related nodes in the graph and pre-computing summaries of each cluster, so the system can answer broad questions ("What are the main themes in this dataset?") without retrieving every individual document.</p>
+
+    <p>Try it yourself &mdash; see how the same question gets answered differently by each retrieval approach:</p>
+  </article>
+
+  <!-- ================================================================
+       Widget 1: Vector vs Graph Comparison
+       ================================================================ -->
+  <div class="wide-container">
+    <div class="widget" id="widget-compare">
+      <div class="widget__label">Compare</div>
+      <div class="widget__title">Vector vs Graph Retrieval</div>
+      <div class="widget__instruction">Select a query to see how vector search and graph traversal each approach the same question.</div>
+
+      <div class="widget__controls" id="compare-controls">
+        <button class="btn btn--secondary" data-cquery="0">Multi-hop (budget approval)</button>
+        <button class="btn btn--secondary" data-cquery="1">Org structure</button>
+        <button class="btn btn--secondary" data-cquery="2">Dependency chain</button>
+      </div>
+
+      <div id="compare-area" style="display: none;">
+        <div class="compare__query-box" id="compare-query"></div>
+        <div class="compare__columns">
+          <div class="compare__column">
+            <div class="compare__column-title compare__column-title--vector">Vector Search</div>
+            <div id="compare-vector"></div>
+          </div>
+          <div class="compare__column">
+            <div class="compare__column-title compare__column-title--graph">Graph Traversal</div>
+            <div id="compare-graph"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <article class="prose">
+
+    <!-- ================================================================
+         Section III: When to Use It
+         ================================================================ -->
+    <h2 id="when-to-use-it"><span class="section-number">III</span> When to Use It</h2>
+
+    <p>Graph RAG is not a universal upgrade. It is a specialized tool for a specific class of problems, and applying it to the wrong problem will cost you months of engineering for marginal improvement. The decision framework is straightforward: <strong>does your use case require reasoning about relationships between entities?</strong></p>
+
+    <p><strong>Good fit for graph RAG:</strong></p>
+
+    <ul>
+      <li><strong>Multi-hop questions.</strong> "Who reports to the person who approved this budget?" requires traversing from budget to approver to their manager. Every layer of indirection adds another hop that vector search cannot follow.</li>
+      <li><strong>Compliance and audit trails.</strong> Regulated industries need to trace decisions back through chains of approvals, modifications, and authorizations. "Show me every change to this policy and who authorized each one" is a graph problem.</li>
+      <li><strong>Interconnected data.</strong> Org charts, supply chains, codebases, product dependency trees, customer relationship maps. Any domain where the <em>structure</em> of the data carries as much information as the content.</li>
+      <li><strong>Broad synthesis queries.</strong> "What are the main risks across all our active projects?" requires aggregating information from many documents. Microsoft's community summary approach handles this by pre-clustering the graph.</li>
+    </ul>
+
+    <p><strong>Poor fit for graph RAG:</strong></p>
+
+    <ul>
+      <li><strong>Simple factual Q&A.</strong> "What is our return policy?" lives in one paragraph. Vector search retrieves it perfectly. Adding a graph adds complexity for zero improvement.</li>
+      <li><strong>Low-relationship data.</strong> If your documents are independent articles, blog posts, or FAQs with few cross-references, there isn't enough connective tissue to build a useful graph.</li>
+      <li><strong>Rapidly changing data with no entity stability.</strong> Graphs require stable entity identifiers. If your entities change names or merge frequently, graph maintenance becomes a full-time job.</li>
+    </ul>
+
+    <div class="callout callout--pm-tip">
+      <div class="callout__label">Builder Tip</div>
+      <div class="callout__body">Before investing in graph RAG, run a simple test: take your 20 hardest user queries and classify them. If most require connecting information across documents or following chains of relationships, graph RAG will pay off. If most are single-document lookups, optimize your vector pipeline instead. The classification takes an afternoon. The wrong infrastructure choice takes six months to unwind.</div>
+    </div>
+
+    <!-- ================================================================
+         Section IV: Structured Retrieval Beyond Graphs
+         ================================================================ -->
+    <h2 id="structured-retrieval"><span class="section-number">IV</span> Structured Retrieval Beyond Graphs</h2>
+
+    <p>Graphs are the highest-profile structured retrieval method, but they are far from the only one. Many retrieval problems don't need a knowledge graph &mdash; they need a database query. The broader category is <strong>structured retrieval</strong>: any technique that uses the structure of your data to find answers, rather than relying solely on semantic similarity.</p>
+
+    <p><strong>Text-to-SQL.</strong> The user asks a question in natural language. The LLM translates it into a SQL query. The query runs against your database. The results come back as structured data. "What were our top 5 customers by revenue last quarter?" becomes <code>SELECT customer_name, SUM(revenue) FROM orders WHERE quarter = 'Q1-2025' GROUP BY customer_name ORDER BY SUM(revenue) DESC LIMIT 5</code>. No embeddings. No vector search. Just a database query that returns exactly the right answer. Text-to-SQL is the most underappreciated retrieval pattern in production &mdash; if your data is already in a relational database, it's often the fastest path to accurate answers.</p>
+
+    <p><strong>Metadata filtering.</strong> Before running vector search, narrow the search space using structured metadata: document type, department, date range, access level. "What did the engineering team publish about authentication in Q4?" filters by team and date before running semantic search on the remaining documents. This is not a replacement for vector search &mdash; it's a force multiplier. Metadata filtering is cheap, fast, and dramatically improves precision by eliminating irrelevant results before they compete for top-K positions.</p>
+
+    <p><strong>Table extraction.</strong> Many enterprise documents contain tables: financial reports, spec sheets, comparison matrices. Embedding a table row by row loses the column headers. Embedding the entire table makes the embedding too vague. Table-aware extraction preserves the structure, allowing the system to answer "What was the Q3 margin for the Enterprise segment?" by finding the right cell, not the most similar paragraph.</p>
+
+    <p><strong>Faceted search.</strong> Combine multiple filter dimensions &mdash; category, author, date, status &mdash; with keyword or semantic search. This is the retrieval pattern behind every e-commerce search bar: the user narrows by price, brand, and rating before browsing results. The same pattern works for document retrieval when users know <em>what kind</em> of thing they're looking for but not the exact content.</p>
+
+    <div class="callout callout--insight">
+      <div class="callout__label">Key Insight</div>
+      <div class="callout__body">Not every retrieval problem is a vector search problem. If your data has structure &mdash; tables, databases, org hierarchies, metadata tags &mdash; use that structure. Text-to-SQL for analytical questions. Metadata filtering for scoped searches. Table extraction for tabular data. Graph traversal for relational queries. Vector search is the general-purpose fallback, not the universal answer.</div>
+    </div>
+
+    <p>Describe your query type below and see which retrieval strategy fits:</p>
+  </article>
+
+  <!-- ================================================================
+       Widget 2: Retrieval Strategy Picker
+       ================================================================ -->
+  <div class="wide-container">
+    <div class="widget" id="widget-picker">
+      <div class="widget__label">Interactive</div>
+      <div class="widget__title">Retrieval Strategy Picker</div>
+      <div class="widget__instruction">Click a query type to see the recommended retrieval strategy and why it fits.</div>
+
+      <div class="picker__scenarios" id="picker-scenarios"></div>
+      <div id="picker-result"></div>
+    </div>
+  </div>
+
+  <article class="prose">
+
+    <!-- ================================================================
+         Section V: The Build vs Buy Decision
+         ================================================================ -->
+    <h2 id="build-vs-buy"><span class="section-number">V</span> The Build vs Buy Decision</h2>
+
+    <p>You've decided your use case warrants graph RAG. Now comes the infrastructure question, and this is where teams spend either $50K or $500K depending on how honestly they assess the decision.</p>
+
+    <p><strong>Option 1: Full graph database.</strong> Neo4j, Amazon Neptune, or ArangoDB. You get a dedicated graph engine with Cypher or Gremlin query languages, ACID transactions, and mature tooling. This is the right choice if your knowledge graph is a core product asset &mdash; something you will maintain, evolve, and depend on for years. The cost is operational: graph databases need a team that understands graph modeling, query optimization, and schema evolution. Most teams underestimate this.</p>
+
+    <p><strong>Option 2: Graph layer on existing stores.</strong> Store triples in PostgreSQL with a lightweight graph query library, or use a property graph overlay on your vector database (Weaviate and some others support this). Lower operational overhead, less powerful graph queries. Good for teams that need basic relationship traversal without a dedicated graph database. The tradeoff: you won't get the query performance or modeling flexibility of a real graph database, and complex multi-hop queries may be slow.</p>
+
+    <p><strong>Option 3: Managed graph RAG services.</strong> Microsoft's GraphRAG library, LlamaIndex's knowledge graph module, LangChain's graph integrations. These abstract the graph construction and querying into higher-level APIs. The fastest path from zero to working prototype. The tradeoff: you're locked into their extraction and querying patterns, which may not match your specific data model.</p>
+
+    <p>The honest assessment: <strong>graph RAG is operationally expensive.</strong> Entity extraction is noisy &mdash; LLMs will produce inconsistent entity names ("Sarah Chen" vs "S. Chen" vs "the VP of Engineering"), and you'll need entity resolution to merge them. Relationship extraction is even noisier. The graph needs ongoing maintenance as your source documents change. And graph query patterns require a different mental model than SQL or vector search.</p>
+
+    <div class="callout callout--pm-tip">
+      <div class="callout__label">Builder Tip</div>
+      <div class="callout__body">Exhaust vector RAG optimization before adding graphs. Reranking, hybrid search, query rewriting, and better chunking (Parts 1&ndash;2) solve most retrieval problems at a fraction of the operational cost. Graph RAG is a power tool, not a first resort. If your advanced vector pipeline still fails on multi-hop queries after optimization, <em>then</em> the investment in graph infrastructure is justified.</div>
+    </div>
+
+    <!-- ================================================================
+         Section VI: Hybrid Architectures
+         ================================================================ -->
+    <h2 id="hybrid-architectures"><span class="section-number">VI</span> Hybrid Architectures</h2>
+
+    <p>The best production systems don't choose between vector search and graph traversal. They combine them. The pattern is called a <strong>retrieval router</strong>: classify the query type, then route it to the retrieval strategy most likely to produce a good answer.</p>
+
+    <p>A retrieval router works in three steps:</p>
+
+    <ol>
+      <li><strong>Classify the query.</strong> Use a lightweight classifier (or the LLM itself) to determine the query type. Is it a factual lookup? A relational question? An analytical query? A broad synthesis request? The classification doesn't need to be perfect &mdash; it needs to be good enough to route to the right retrieval strategy most of the time.</li>
+      <li><strong>Route to the right strategy.</strong> Factual lookups go to vector search. Relational questions go to graph traversal. Analytical questions go to text-to-SQL. Broad synthesis queries hit graph community summaries. Some queries may trigger multiple strategies in parallel.</li>
+      <li><strong>Merge and generate.</strong> Combine the retrieved context from all strategies, deduplicate, and feed it to the LLM. The model doesn't need to know which retrieval method found each piece of context &mdash; it just synthesizes the answer from everything it's given.</li>
+    </ol>
+
+    <p>The power of this architecture is that each retrieval method covers the others' weaknesses. Vector search provides broad semantic coverage &mdash; it catches relevant documents that don't share entities with the query. Graph traversal provides relational precision &mdash; it follows connection chains that vector search can't see. Metadata filters provide scoping &mdash; they eliminate irrelevant results before the expensive retrieval methods run. Together, they handle the full spectrum of user queries.</p>
+
+    <p>A practical example: a customer support AI for a SaaS product. "What does the Enterprise plan include?" routes to vector search (single-document factual lookup). "Which customers on the Enterprise plan have open support tickets about the billing API?" routes to graph traversal (connecting customers, plans, tickets, and features). "How many Enterprise customers renewed last quarter?" routes to text-to-SQL (analytical query against the CRM). One product, three retrieval strategies, one unified experience for the user.</p>
+
+    <div class="callout callout--summary">
+      <div class="callout__label">Summary</div>
+      <div class="callout__body">Vector search finds similar content. Graph traversal follows connections. Text-to-SQL answers analytical questions. Metadata filtering narrows the search space. No single retrieval method handles every query type, and the best production systems combine them through a retrieval router that classifies the query and routes it to the right strategy. Start with vector RAG &mdash; it handles the majority of queries. Add graph traversal when multi-hop questions become a pattern. Add text-to-SQL when users ask analytical questions. The architecture should match the complexity of the questions your users actually ask, not the complexity you imagine they might ask someday.</div>
+    </div>
+
+  </article>
+
+  <!-- ================================================================
+       Capstone Quiz: Article Recap
+       ================================================================ -->
+  <div class="wide-container">
+    <div class="widget" id="widget-capstone-quiz">
+      <div class="widget__label">Test your understanding</div>
+      <div class="widget__title">Article Recap</div>
+      <div class="widget__instruction">5 questions covering the key concepts from this article.</div>
+
+      <div class="quiz__progress">
+        <div class="quiz__progress-bar" id="quiz-progress-bar"></div>
+      </div>
+      <div class="quiz__progress-text" id="quiz-progress-text">1 of 5</div>
+
+      <div class="quiz__card" id="quiz-card">
+        <p class="quiz__scenario" id="quiz-scenario"></p>
+        <div class="widget__controls" id="quiz-options"></div>
+        <div class="quiz__explanation" id="quiz-explanation" style="display: none;"></div>
+      </div>
+
+      <div class="widget__controls widget__controls--mt">
+        <button class="btn btn--primary" id="quiz-next" style="display: none;">Next Question &rarr;</button>
+      </div>
+
+      <div class="quiz__summary" id="quiz-summary" style="display: none;">
+        <div class="quiz__score" id="quiz-score"></div>
+        <p class="quiz__summary-text" id="quiz-summary-text"></p>
+        <button class="btn btn--secondary" id="quiz-retry" style="margin-top: var(--space-4);">Try Again</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================================================
+       Article Navigation
+       ================================================================ -->
+  <nav class="article-nav">
+    <a href="hallucinations-safety.html">&larr; Part 3: Hallucinations, Safety &amp; Trust</a>
+    <a href="index.html">Back to series &rarr;</a>
+  </nav>
+
+  <!-- ================================================================
+       Scripts
+       ================================================================ -->
+  <script>
+  // ====================================================================
+  // Hero: Animated floating particles
+  // ====================================================================
+  (function() {
+    var canvas = document.getElementById('hero-canvas');
+    var ctx = canvas.getContext('2d');
+    var hero = document.getElementById('article-hero');
+    var particles = [];
+    var numParticles = 45;
+    var connectionDist = 130;
+    var dpr = window.devicePixelRatio || 1;
+    var w, h;
+    var running = true;
+
+    function resize() {
+      var rect = hero.getBoundingClientRect();
+      w = rect.width;
+      h = rect.height;
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    function initParticles() {
+      particles = [];
+      for (var i = 0; i < numParticles; i++) {
+        particles.push({
+          x: Math.random() * w,
+          y: Math.random() * h,
+          vx: (Math.random() - 0.5) * 0.5,
+          vy: (Math.random() - 0.5) * 0.5,
+          r: 2 + Math.random() * 3,
+          pulse: Math.random() * Math.PI * 2
+        });
+      }
+    }
+
+    function draw() {
+      if (!running) return;
+      ctx.clearRect(0, 0, w, h);
+      for (var i = 0; i < particles.length; i++) {
+        var p = particles[i];
+        p.x += p.vx; p.y += p.vy; p.pulse += 0.015;
+        if (p.x < -20) p.x = w + 20; if (p.x > w + 20) p.x = -20;
+        if (p.y < -20) p.y = h + 20; if (p.y > h + 20) p.y = -20;
+      }
+      ctx.lineWidth = 1;
+      for (var i = 0; i < particles.length; i++) {
+        for (var j = i + 1; j < particles.length; j++) {
+          var dx = particles[i].x - particles[j].x, dy = particles[i].y - particles[j].y;
+          var dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < connectionDist) {
+            ctx.strokeStyle = 'rgba(255,255,255,' + ((1 - dist / connectionDist) * 0.3) + ')';
+            ctx.beginPath(); ctx.moveTo(particles[i].x, particles[i].y); ctx.lineTo(particles[j].x, particles[j].y); ctx.stroke();
+          }
+        }
+      }
+      for (var i = 0; i < particles.length; i++) {
+        var p = particles[i], glow = 0.5 + 0.5 * Math.sin(p.pulse);
+        ctx.fillStyle = 'rgba(255,255,255,' + (0.4 + 0.4 * glow) + ')';
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r * (0.8 + 0.4 * glow), 0, Math.PI * 2); ctx.fill();
+      }
+      requestAnimationFrame(draw);
+    }
+
+    resize(); initParticles(); requestAnimationFrame(draw);
+    window.addEventListener('resize', function() { resize(); initParticles(); });
+
+    if ('IntersectionObserver' in window) {
+      var observer = new IntersectionObserver(function(entries) {
+        running = entries[0].isIntersecting;
+        if (running) requestAnimationFrame(draw);
+      }, { threshold: 0 });
+      observer.observe(hero);
+    }
+  })();
+
+  // ====================================================================
+  // Widget 1: Vector vs Graph Comparison
+  // ====================================================================
+  (function() {
+    var queries = [
+      {
+        text: 'Who approved the budget for the project that caused the compliance incident?',
+        vector: {
+          steps: [
+            { label: 'Embed query', text: 'Embedding captures: "budget", "project", "compliance incident", "approved"' },
+            { label: 'Top 3 results', text: '1. Compliance Incident Report CI-2024-17 (score: 0.87)\n2. Q3 Budget Approval Process Overview (score: 0.82)\n3. Project Management Best Practices (score: 0.76)' },
+            { label: 'Problem', text: 'The incident report mentions "Project Atlas" but not who approved its budget. The budget overview discusses process, not specific approvals. No single document connects all three facts.' }
+          ],
+          verdict: 'poor',
+          verdictText: 'Fails. Vector search finds topically relevant documents but cannot connect the incident to the project to the budget approver. The answer requires 3 hops across separate documents.'
+        },
+        graph: {
+          viz: '(CI-2024-17) --caused_by--> (Project Atlas)\n(Project Atlas) --approved_by--> (Sarah Chen)\n(Sarah Chen) --role--> VP Engineering',
+          steps: [
+            { label: 'Parse entities', text: 'Identified: "compliance incident" + "budget" + "approved"' },
+            { label: 'Graph traversal', text: 'Start: CI-2024-17 (latest compliance incident)\nHop 1: CI-2024-17 --caused_by--> Project Atlas\nHop 2: Project Atlas --budget_approved_by--> Sarah Chen' },
+            { label: 'Answer', text: 'Sarah Chen (VP Engineering) approved the $2.4M budget for Project Atlas, which caused compliance incident CI-2024-17.' }
+          ],
+          verdict: 'good',
+          verdictText: 'Succeeds. Two graph hops connect the incident to the project to the approver. The answer is precise and traceable.'
+        }
+      },
+      {
+        text: 'Who does the manager of the authentication team report to?',
+        vector: {
+          steps: [
+            { label: 'Embed query', text: 'Embedding captures: "manager", "authentication team", "reports to"' },
+            { label: 'Top 3 results', text: '1. Authentication Team Charter (score: 0.84)\n2. Engineering Org Structure Overview (score: 0.79)\n3. Team Lead Responsibilities Guide (score: 0.72)' },
+            { label: 'Problem', text: 'The team charter names the manager (Priya Patel) but doesn\'t mention her manager. The org overview is a general document that may not be current. The reporting chain requires precise, up-to-date structural data.' }
+          ],
+          verdict: 'partial',
+          verdictText: 'Partial. May find the team manager\'s name but struggles to follow the reporting chain upward. Org documents are often outdated or don\'t contain explicit reporting relationships.'
+        },
+        graph: {
+          viz: '(Auth Team) --managed_by--> (Priya Patel)\n(Priya Patel) --reports_to--> (James Liu)\n(James Liu) --role--> Director of Engineering',
+          steps: [
+            { label: 'Parse entities', text: 'Identified: "authentication team" + "manager" + "reports to"' },
+            { label: 'Graph traversal', text: 'Start: Authentication Team (entity)\nHop 1: Auth Team --managed_by--> Priya Patel\nHop 2: Priya Patel --reports_to--> James Liu' },
+            { label: 'Answer', text: 'Priya Patel manages the Authentication Team and reports to James Liu (Director of Engineering).' }
+          ],
+          verdict: 'good',
+          verdictText: 'Succeeds. The org graph encodes reporting relationships directly. Two hops return the exact answer.'
+        }
+      },
+      {
+        text: 'Which services will be affected if we deprecate the Payments API v2?',
+        vector: {
+          steps: [
+            { label: 'Embed query', text: 'Embedding captures: "services", "affected", "deprecate", "Payments API v2"' },
+            { label: 'Top 3 results', text: '1. Payments API v2 Documentation (score: 0.91)\n2. API Deprecation Policy (score: 0.83)\n3. Service Migration Guide (score: 0.77)' },
+            { label: 'Problem', text: 'The API docs describe the Payments API but don\'t list all consumers. The deprecation policy is generic. No document contains a complete dependency map of which services call which APIs.' }
+          ],
+          verdict: 'poor',
+          verdictText: 'Fails. The dependency information is spread across service configs, import statements, and architecture docs. Vector search cannot trace the dependency chain.'
+        },
+        graph: {
+          viz: '(Payments API v2) <--depends_on-- (Checkout Service)\n(Payments API v2) <--depends_on-- (Subscription Billing)\n(Payments API v2) <--depends_on-- (Refund Service)\n(Checkout Service) <--depends_on-- (Mobile App)',
+          steps: [
+            { label: 'Parse entities', text: 'Identified: "Payments API v2" + "depends_on" (reverse traversal)' },
+            { label: 'Graph traversal', text: 'Start: Payments API v2 (entity)\nReverse hop: Find all --depends_on--> Payments API v2\nResults: Checkout Service, Subscription Billing, Refund Service\nSecond hop: Checkout Service <--depends_on-- Mobile App' },
+            { label: 'Answer', text: 'Deprecating Payments API v2 directly affects 3 services: Checkout Service, Subscription Billing, and Refund Service. The Mobile App is indirectly affected through its dependency on Checkout Service.' }
+          ],
+          verdict: 'good',
+          verdictText: 'Succeeds. The dependency graph maps all consumers. Reverse traversal finds direct dependents; a second hop finds transitive dependencies.'
+        }
+      }
+    ];
+
+    var controlsEl = document.getElementById('compare-controls');
+    var areaEl = document.getElementById('compare-area');
+    var queryEl = document.getElementById('compare-query');
+    var vectorEl = document.getElementById('compare-vector');
+    var graphEl = document.getElementById('compare-graph');
+
+    controlsEl.addEventListener('click', function(e) {
+      var btn = e.target.closest('[data-cquery]');
+      if (!btn) return;
+      var idx = parseInt(btn.dataset.cquery);
+      var q = queries[idx];
+
+      controlsEl.querySelectorAll('.btn').forEach(function(b) {
+        b.classList.toggle('btn--active', b.dataset.cquery === String(idx));
+      });
+
+      areaEl.style.display = 'block';
+      queryEl.innerHTML = '<strong>"' + q.text + '"</strong>';
+
+      // Vector column
+      var vhtml = '';
+      q.vector.steps.forEach(function(step) {
+        vhtml += '<div class="compare__step"><span class="compare__step-label">' + step.label + '</span>' + step.text.replace(/\n/g, '<br>') + '</div>';
+      });
+      var vClass = q.vector.verdict === 'good' ? 'good' : (q.vector.verdict === 'partial' ? 'partial' : 'poor');
+      vhtml += '<div class="compare__verdict compare__verdict--' + vClass + '">' + q.vector.verdictText + '</div>';
+      vectorEl.innerHTML = vhtml;
+
+      // Graph column
+      var ghtml = '<div class="compare__graph-viz">' + q.graph.viz + '</div>';
+      q.graph.steps.forEach(function(step) {
+        ghtml += '<div class="compare__step"><span class="compare__step-label">' + step.label + '</span>' + step.text.replace(/\n/g, '<br>') + '</div>';
+      });
+      var gClass = q.graph.verdict === 'good' ? 'good' : (q.graph.verdict === 'partial' ? 'partial' : 'poor');
+      ghtml += '<div class="compare__verdict compare__verdict--' + gClass + '">' + q.graph.verdictText + '</div>';
+      graphEl.innerHTML = ghtml;
+    });
+  })();
+
+  // ====================================================================
+  // Widget 2: Retrieval Strategy Picker
+  // ====================================================================
+  (function() {
+    var scenarios = [
+      {
+        label: 'Factual lookup',
+        query: '"What is the SLA for our Enterprise support tier?"',
+        strategies: ['vector'],
+        strategyName: 'Vector Search',
+        explanation: 'This is a single-document factual lookup. The answer lives in one paragraph of your support documentation. Vector search finds semantically similar content efficiently. No relationships to traverse, no calculations to run.'
+      },
+      {
+        label: 'Multi-hop relational',
+        query: '"Which customers are managed by the sales rep who closed the largest deal last quarter?"',
+        strategies: ['graph', 'sql'],
+        strategyName: 'Graph Traversal + Text-to-SQL',
+        explanation: 'This requires two hops: find the largest deal (analytical query on your CRM), identify the sales rep, then traverse to all their managed customers. Text-to-SQL finds the deal; graph traversal follows the relationship to other customers. Vector search would return documents about sales processes, not the specific data chain.'
+      },
+      {
+        label: 'Scoped search',
+        query: '"What did the engineering team publish about authentication in Q4?"',
+        strategies: ['metadata', 'vector'],
+        strategyName: 'Metadata Filtering + Vector Search',
+        explanation: 'Filter by team (engineering) and date range (Q4) first, then run vector search on the remaining documents for "authentication." Metadata filtering eliminates irrelevant results before the expensive semantic search runs, dramatically improving precision.'
+      },
+      {
+        label: 'Analytical',
+        query: '"How many active Enterprise customers renewed their contracts last quarter?"',
+        strategies: ['sql'],
+        strategyName: 'Text-to-SQL',
+        explanation: 'This is a counting and filtering query against structured data. The answer is a number, not a paragraph. Text-to-SQL translates this into a database query that returns an exact result. Vector search would find documents about renewals but couldn\'t count them.'
+      },
+      {
+        label: 'Dependency analysis',
+        query: '"What services would be affected if we take down the user authentication microservice for maintenance?"',
+        strategies: ['graph'],
+        strategyName: 'Graph Traversal',
+        explanation: 'This requires traversing a service dependency graph to find all direct and transitive dependents. The information lives in the relationships between services, not in any single document. Vector search might find the auth service docs but can\'t map the downstream impact.'
+      },
+      {
+        label: 'Broad synthesis',
+        query: '"What are the main themes across our customer feedback from the last month?"',
+        strategies: ['hybrid'],
+        strategyName: 'Hybrid: Vector + Graph Communities',
+        explanation: 'Broad synthesis across many documents. Vector search retrieves representative samples. If you have a knowledge graph with community summaries (the Microsoft GraphRAG approach), those pre-computed cluster summaries capture themes across large document sets more efficiently than retrieving every individual feedback entry.'
+      }
+    ];
+
+    var scenariosEl = document.getElementById('picker-scenarios');
+    var resultEl = document.getElementById('picker-result');
+
+    scenarios.forEach(function(s, idx) {
+      var div = document.createElement('div');
+      div.className = 'picker__scenario';
+      div.dataset.scenario = idx;
+      div.innerHTML =
+        '<div class="picker__scenario-label">' + s.label + '</div>' +
+        '<div class="picker__scenario-query">' + s.query + '</div>';
+      scenariosEl.appendChild(div);
+    });
+
+    scenariosEl.addEventListener('click', function(e) {
+      var card = e.target.closest('[data-scenario]');
+      if (!card) return;
+      var idx = parseInt(card.dataset.scenario);
+      var s = scenarios[idx];
+
+      scenariosEl.querySelectorAll('.picker__scenario').forEach(function(el) {
+        el.classList.toggle('picker__scenario--selected', el.dataset.scenario === String(idx));
+      });
+
+      var tagMap = {
+        'vector': { cls: 'picker__strategy-tag--vector', label: 'Vector Search' },
+        'graph': { cls: 'picker__strategy-tag--graph', label: 'Graph Traversal' },
+        'sql': { cls: 'picker__strategy-tag--sql', label: 'Text-to-SQL' },
+        'metadata': { cls: 'picker__strategy-tag--metadata', label: 'Metadata Filter' },
+        'hybrid': { cls: 'picker__strategy-tag--hybrid', label: 'Hybrid' }
+      };
+
+      var tagsHtml = '';
+      s.strategies.forEach(function(strat) {
+        var t = tagMap[strat];
+        tagsHtml += '<span class="picker__strategy-tag ' + t.cls + '">' + t.label + '</span>';
+      });
+
+      resultEl.innerHTML =
+        '<div class="picker__result">' +
+          '<div class="picker__result-header">Recommended Strategy</div>' +
+          '<div style="margin-bottom: var(--space-3);">' + tagsHtml + '</div>' +
+          '<div class="picker__strategy">' + s.strategyName + '</div>' +
+          '<div class="picker__explanation">' + s.explanation + '</div>' +
+        '</div>';
+    });
+  })();
+
+  // ====================================================================
+  // Capstone Quiz: Article Recap
+  // ====================================================================
+  (function() {
+    var questions = [
+      {
+        question: 'A user asks your RAG system: "Which team lead approved the budget for the project that caused the Q3 compliance incident?" Your vector search returns the compliance report, a budget overview document, and a project management guide \u2014 but the answer is wrong. What is the root cause?',
+        options: [
+          { label: 'The embedding model is too small to capture the nuance of compliance-related queries', key: 'a' },
+          { label: 'The answer requires traversing relationships across multiple documents (incident \u2192 project \u2192 approver), which vector search cannot do \u2014 it retrieves by similarity, not by connection', key: 'b' },
+          { label: 'The documents need better chunking so the relevant facts aren\'t split across chunks', key: 'c' },
+          { label: 'A reranker would fix this by promoting the most relevant document to the top position', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'This is a multi-hop question. The answer lives in the connections between documents, not in any single document. Vector search finds semantically similar content but cannot follow a chain of relationships. The compliance report mentions the project but not the budget approver. The budget docs mention approvals but not the incident. Graph traversal connects them: incident \u2192 project \u2192 approver.'
+      },
+      {
+        question: 'Your team is evaluating whether to invest in graph RAG. An engineer argues that since your users mostly ask straightforward factual questions ("What is our refund policy?"), graph RAG would be transformative because it adds relational context to every answer. What\'s wrong with this reasoning?',
+        options: [
+          { label: 'Graph RAG would help but the implementation cost is too high for the team\'s current capacity', key: 'a' },
+          { label: 'Graph RAG is designed for multi-hop relational queries; for single-document factual lookups, vector search already works well and graph RAG adds operational complexity for zero improvement', key: 'b' },
+          { label: 'Graph RAG would help but only after the team builds a complete knowledge graph of all company data', key: 'c' },
+          { label: 'The team should implement graph RAG anyway because user queries will naturally become more complex over time', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'Graph RAG shines on multi-hop questions, structural queries, and relationship-based reasoning. For simple factual Q&A where the answer lives in one paragraph, vector search retrieves it perfectly. Adding a knowledge graph to a system that handles single-document lookups adds significant operational cost \u2014 entity extraction, graph maintenance, entity resolution \u2014 with no improvement in answer quality. Match the architecture to the actual query patterns.'
+      },
+      {
+        question: 'A product analyst asks your AI assistant: "How many Enterprise customers renewed their contracts last quarter?" Your system uses vector search and returns paragraphs about contract renewals and Enterprise tier features, but the answer is vague and approximate. What retrieval strategy would produce an exact answer?',
+        options: [
+          { label: 'Graph traversal to connect customers, contracts, and renewal events in a knowledge graph', key: 'a' },
+          { label: 'Better vector search with reranking to find the specific document containing renewal statistics', key: 'b' },
+          { label: 'Text-to-SQL to translate the natural language question into a database query against your CRM, returning an exact count', key: 'c' },
+          { label: 'Metadata filtering to narrow results to Enterprise-tier documents before running vector search', key: 'd' }
+        ],
+        answer: 'c',
+        explanation: 'This is an analytical query \u2014 the answer is a number, not a paragraph. The data lives in a structured database (the CRM), not in document text. Text-to-SQL translates the question into something like SELECT COUNT(*) FROM contracts WHERE tier = \'Enterprise\' AND renewed = true AND quarter = \'Q1-2025\'. Vector search finds documents about renewals but cannot count rows in a database. Not every retrieval problem is a vector search problem.'
+      },
+      {
+        question: 'Your team decides to build graph RAG. During entity extraction, the LLM produces inconsistent entity names: "Sarah Chen", "S. Chen", "the VP of Engineering", and "Chen, Sarah" all refer to the same person. An engineer says this is fine because the graph database will handle it. What\'s the actual risk?',
+        options: [
+          { label: 'The graph database will create four separate nodes for the same person, breaking relationship traversals that depend on entity identity', key: 'b' },
+          { label: 'The inconsistent names will slow down graph queries due to extra string comparison operations', key: 'a' },
+          { label: 'The graph will be too large because of duplicate nodes, exceeding storage limits', key: 'c' },
+          { label: 'The LLM will be confused by inconsistent names when generating answers from graph-retrieved context', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'Entity resolution is one of the hardest operational challenges in graph RAG. Without merging these four references into a single node, the graph fragments. A traversal looking for "who does Sarah Chen manage?" might find two of her reports on one node and three on another. The graph loses its power when the same real-world entity is split across multiple nodes. Entity resolution \u2014 detecting and merging duplicates \u2014 is essential and often underestimated.'
+      },
+      {
+        question: 'Your system receives diverse query types: factual lookups, relational questions, analytical queries, and broad synthesis requests. An architect proposes a retrieval router that classifies queries and routes them to different retrieval strategies. A skeptic argues you should just use graph RAG for everything since it\'s the most powerful. What\'s the best response?',
+        options: [
+          { label: 'The skeptic is right \u2014 graph RAG subsumes all other retrieval strategies and can handle any query type', key: 'a' },
+          { label: 'A retrieval router is unnecessary complexity; just run all strategies in parallel for every query and let the LLM sort it out', key: 'b' },
+          { label: 'Each retrieval strategy has different strengths: vector search for semantic similarity, graph traversal for relationships, text-to-SQL for analytics. A router matches queries to the strategy most likely to succeed, avoiding the overhead of running expensive strategies on simple queries', key: 'c' },
+          { label: 'The router approach is sound but should default to vector search and only use other strategies as explicit fallbacks when vector search fails', key: 'd' }
+        ],
+        answer: 'c',
+        explanation: 'No single retrieval method handles every query type well. Graph RAG is powerful for relational queries but overkill for "what is our return policy?" Text-to-SQL is precise for analytics but useless for open-ended questions. A retrieval router classifies the query and routes it to the best strategy, combining precision with efficiency. Running all strategies on every query wastes resources; using only one strategy misses query types it can\'t handle.'
+      }
+    ];
+
+    var currentQ = 0;
+    var score = 0;
+    var answered = false;
+
+    var scenarioEl = document.getElementById('quiz-scenario');
+    var optionsEl = document.getElementById('quiz-options');
+    var explanationEl = document.getElementById('quiz-explanation');
+    var progressBar = document.getElementById('quiz-progress-bar');
+    var progressText = document.getElementById('quiz-progress-text');
+    var nextBtn = document.getElementById('quiz-next');
+    var summaryEl = document.getElementById('quiz-summary');
+    var scoreEl = document.getElementById('quiz-score');
+    var summaryTextEl = document.getElementById('quiz-summary-text');
+    var cardEl = document.getElementById('quiz-card');
+    var retryBtn = document.getElementById('quiz-retry');
+
+    function loadQuestion() {
+      answered = false;
+      var q = questions[currentQ];
+      scenarioEl.textContent = q.question;
+      explanationEl.style.display = 'none';
+      nextBtn.style.display = 'none';
+
+      optionsEl.innerHTML = '';
+      q.options.forEach(function(opt) {
+        var btn = document.createElement('button');
+        btn.className = 'btn btn--secondary';
+        btn.dataset.answer = opt.key;
+        btn.textContent = opt.label;
+        optionsEl.appendChild(btn);
+      });
+
+      progressBar.style.width = ((currentQ) / questions.length * 100) + '%';
+      progressText.textContent = (currentQ + 1) + ' of ' + questions.length;
+    }
+
+    function handleAnswer(selected) {
+      if (answered) return;
+      answered = true;
+      var q = questions[currentQ];
+      var isCorrect = selected === q.answer;
+      if (isCorrect) score++;
+
+      optionsEl.querySelectorAll('.btn').forEach(function(btn) {
+        btn.disabled = true;
+        var ans = btn.dataset.answer;
+        if (ans === q.answer) {
+          btn.className = 'btn btn--correct';
+        } else if (ans === selected && !isCorrect) {
+          btn.className = 'btn btn--incorrect';
+        }
+      });
+
+      explanationEl.textContent = (isCorrect ? 'Correct! ' : 'Not quite. ') + q.explanation;
+      explanationEl.className = 'quiz__explanation ' + (isCorrect ? 'quiz__explanation--correct' : 'quiz__explanation--incorrect');
+      explanationEl.style.display = 'block';
+
+      progressBar.style.width = ((currentQ + 1) / questions.length * 100) + '%';
+
+      if (currentQ < questions.length - 1) {
+        nextBtn.style.display = 'inline-flex';
+      } else {
+        setTimeout(showSummary, 800);
+      }
+    }
+
+    function showSummary() {
+      cardEl.style.display = 'none';
+      progressBar.parentElement.style.display = 'none';
+      progressText.style.display = 'none';
+      nextBtn.style.display = 'none';
+      summaryEl.style.display = 'block';
+      scoreEl.textContent = score + ' out of ' + questions.length;
+
+      var messages = [
+        'Worth a re-read \u2014 the concepts will click with another pass!',
+        'Worth a re-read \u2014 the concepts will click with another pass!',
+        'You\'ve got the basics. Revisit when to use graph RAG vs other structured retrieval methods.',
+        'Solid understanding of the fundamentals!',
+        'Strong grasp \u2014 you know when to reach for graphs and when not to.',
+        'Perfect score. You\'ve nailed the structured retrieval landscape.'
+      ];
+      summaryTextEl.textContent = messages[score];
+    }
+
+    function reset() {
+      currentQ = 0;
+      score = 0;
+      cardEl.style.display = 'block';
+      progressBar.parentElement.style.display = 'block';
+      progressText.style.display = 'block';
+      summaryEl.style.display = 'none';
+      loadQuestion();
+    }
+
+    optionsEl.addEventListener('click', function(e) {
+      var btn = e.target.closest('[data-answer]');
+      if (!btn) return;
+      handleAnswer(btn.dataset.answer);
+    });
+
+    nextBtn.addEventListener('click', function() {
+      currentQ++;
+      loadQuestion();
+    });
+
+    retryBtn.addEventListener('click', reset);
+
+    loadQuestion();
+  })();
+
+  // ====================================================================
+  // Reading Progress Bar
+  // ====================================================================
+  (function() {
+    var bar = document.getElementById('reading-progress-bar');
+    var ticking = false;
+
+    function updateProgress() {
+      var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      var progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+      bar.style.width = Math.min(100, Math.max(0, progress)) + '%';
+      ticking = false;
+    }
+
+    window.addEventListener('scroll', function() {
+      if (!ticking) {
+        requestAnimationFrame(updateProgress);
+        ticking = true;
+      }
+    }, { passive: true });
+
+    updateProgress();
+  })();
+
+  // ====================================================================
+  // TOC Sidebar Visibility (show after scrolling past hero)
+  // ====================================================================
+  (function() {
+    var toc = document.querySelector('.toc');
+    var hero = document.getElementById('article-hero');
+
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        toc.classList.toggle('toc--visible', !entry.isIntersecting);
+      });
+    }, { threshold: 0 });
+
+    observer.observe(hero);
+  })();
+
+  // ====================================================================
+  // TOC Section Highlighting
+  // ====================================================================
+  (function() {
+    var headings = document.querySelectorAll('h2[id]');
+    var tocItems = document.querySelectorAll('.toc__list li');
+    var tocLinks = {};
+
+    tocItems.forEach(function(item) {
+      var link = item.querySelector('a');
+      if (link) {
+        var href = link.getAttribute('href');
+        if (href && href.startsWith('#')) {
+          tocLinks[href.substring(1)] = item;
+        }
+      }
+    });
+
+    function activate(item) {
+      tocItems.forEach(function(li) { li.classList.remove('toc__item--active'); });
+      item.classList.add('toc__item--active');
+    }
+
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (!entry.isIntersecting) return;
+        var id = entry.target.getAttribute('id');
+        var item = tocLinks[id];
+        if (item) activate(item);
+      });
+    }, { rootMargin: '0px 0px -70% 0px' });
+
+    headings.forEach(function(h) { observer.observe(h); });
+
+    window.addEventListener('scroll', function() {
+      if ((window.innerHeight + window.scrollY) >= document.documentElement.scrollHeight - 50) {
+        activate(tocItems[tocItems.length - 1]);
+      }
+    }, { passive: true });
+  })();
+  </script>
+
+</body>
+</html>
