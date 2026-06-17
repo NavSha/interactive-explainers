@@ -20,7 +20,7 @@ python3 -m http.server 8000
 - Push to master = auto-deploy (takes ~1 min)
 
 ## Critical: CSS Cache Busting
-All 14 HTML files link to `shared.css?v=N`. **When editing shared.css, bump the `?v=N` in every HTML file** or changes won't appear on the live site. Current version: v=5.
+All site HTML files (33 as of June 2026) link to `shared.css?v=N`. **When editing shared.css, bump the `?v=N` in every HTML file** or changes won't appear on the live site. Current version: v=10.
 
 ## Structure
 ```
@@ -40,3 +40,18 @@ styles/shared.css                   # Shared design system
 - Each article page has an epigraph (original 4-bar verse) between the TOC and the article prose
 - Color accents per topic: Agents (blue→purple), Cost (orange→red), Eval (teal→cyan), Context (purple→pink)
 - Interactive widgets use the `.widget` class system and sit between `<article class="prose">` sections
+
+
+## Design Context
+
+- **PRODUCT.md** (project root): strategic design context — register (`brand`), audience (builders shipping AI products), brand personality, anti-references, and the 5 design principles. Read before any design work.
+- **DESIGN.md** (project root): the visual system — tokens, typography hierarchy ("The Three Voices Rule"), color doctrine, component specs, do's and don'ts. North Star: **"The Builder's Field Guide."**
+- Accessibility floor: WCAG AA — body text ≥4.5:1, reduced-motion alternatives for all widget animations, keyboard-operable widgets.
+
+## gstack
+
+Use the `/browse` skill from gstack for all web browsing. Never use `mcp__claude-in-chrome__*` tools.
+
+### Available skills
+
+`/office-hours`, `/plan-ceo-review`, `/plan-eng-review`, `/plan-design-review`, `/design-consultation`, `/review`, `/ship`, `/browse`, `/qa`, `/qa-only`, `/design-review`, `/setup-browser-cookies`, `/retro`, `/investigate`, `/document-release`, `/codex`, `/careful`, `/freeze`, `/guard`, `/unfreeze`, `/gstack-upgrade`

@@ -15,7 +15,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles/shared.css?v=9">
+  <link rel="stylesheet" href="styles/shared.css?v=10">
 </head>
 <body>
 
@@ -28,152 +28,191 @@
   </header>
 
   <main class="page-container">
-    <section class="topic-grid">
 
-      <a href="llm-fundamentals/index.html" class="topic-card">
-        <div class="topic-card__banner" style="background: var(--accent-llm-gradient);">
-          <div class="topic-card__series-label">Start Here</div>
-          <div class="topic-card__title">How LLMs Actually Work</div>
-          <div class="topic-card__parts">2 parts</div>
-        </div>
-        <div class="topic-card__body">
-          <p class="topic-card__description">
-            Before agents, cost tradeoffs, or evals make sense, you need a mental model of what LLMs actually do — how they're trained, how they generate text, and where they break down.
-          </p>
-          <div class="topic-card__tags">
-            <span class="topic-card__tag" style="background: var(--accent-llm-light); color: var(--accent-llm);">Training</span>
-            <span class="topic-card__tag" style="background: var(--accent-llm-light); color: var(--accent-llm);">Inference</span>
-            <span class="topic-card__tag" style="background: var(--accent-llm-light); color: var(--accent-llm);">Models</span>
+    <section class="latest" aria-labelledby="latest-label">
+      <h2 class="latest__label" id="latest-label">Latest</h2>
+      <ol class="latest__list">
+        <li class="latest__item" style="--row-accent: var(--accent-context); --row-deep: var(--accent-context-deep);">
+          <a class="latest__link" href="context-windows/context-engineering.html">Context Engineering</a>
+          <span class="latest__meta"><span class="latest__series">Context Windows &amp; Memory</span> &middot; <time datetime="2026-05-18">May 18</time></span>
+        </li>
+        <li class="latest__item" style="--row-accent: var(--accent-ux); --row-deep: var(--accent-ux-deep);">
+          <a class="latest__link" href="ai-ux/streaming-ux.html">Streaming UX Patterns</a>
+          <span class="latest__meta"><span class="latest__series">AI UX &amp; Human-in-the-Loop</span> &middot; <time datetime="2026-05-17">May 17</time></span>
+        </li>
+        <li class="latest__item" style="--row-accent: var(--accent-eval); --row-deep: var(--accent-eval-deep);">
+          <a class="latest__link" href="evaluation/llm-as-judge.html">LLM-as-Judge Done Right</a>
+          <span class="latest__meta"><span class="latest__series">Evaluation &amp; Testing</span> &middot; <time datetime="2026-05-17">May 17</time></span>
+        </li>
+      </ol>
+    </section>
+
+    <section class="topic-band" aria-labelledby="band-foundations">
+      <div class="topic-band__header">
+        <h2 class="topic-band__title" id="band-foundations">Foundations</h2>
+        <p class="topic-band__lede">New here? Begin with these three. Every other series builds on them.</p>
+      </div>
+      <div class="topic-grid">
+
+        <article class="topic-card" style="--card-accent: var(--accent-llm); --card-deep: var(--accent-llm-deep); --card-wash: var(--accent-llm-light); --card-keyline: var(--accent-llm-gradient);">
+          <div class="topic-card__banner">
+            <div class="topic-card__series-label">Start Here</div>
+            <h3 class="topic-card__title"><a class="topic-card__link" href="llm-fundamentals/index.html">How LLMs Actually Work</a></h3>
+            <div class="topic-card__parts">2 parts</div>
           </div>
-        </div>
-      </a>
-
-      <a href="context-windows/index.html" class="topic-card">
-        <div class="topic-card__banner" style="background: var(--accent-context-gradient);">
-          <div class="topic-card__series-label">Series</div>
-          <div class="topic-card__title">Context Windows &amp; Memory</div>
-          <div class="topic-card__parts">3 parts</div>
-        </div>
-        <div class="topic-card__body">
-          <p class="topic-card__description">
-            Why do models "forget"? Understand context windows, token limits, and the conversation design patterns that give AI applications persistent memory.
-          </p>
-          <div class="topic-card__tags">
-            <span class="topic-card__tag" style="background: var(--accent-context-light); color: var(--accent-context);">Context</span>
-            <span class="topic-card__tag" style="background: var(--accent-context-light); color: var(--accent-context);">Memory</span>
-            <span class="topic-card__tag" style="background: var(--accent-context-light); color: var(--accent-context);">Retrieval</span>
+          <div class="topic-card__body">
+            <p class="topic-card__description">
+              Before agents, cost tradeoffs, or evals make sense, you need a mental model of what LLMs actually do — how they're trained, how they generate text, and where they break down.
+            </p>
+            <div class="topic-card__tags">
+              <span class="topic-card__tag">Training</span>
+              <span class="topic-card__tag">Inference</span>
+              <span class="topic-card__tag">Models</span>
+            </div>
           </div>
-        </div>
-      </a>
+        </article>
 
-      <a href="cost-latency/index.html" class="topic-card">
-        <div class="topic-card__banner" style="background: var(--accent-cost-gradient);">
-          <div class="topic-card__series-label">Series</div>
-          <div class="topic-card__title">Cost &amp; Latency Tradeoffs</div>
-          <div class="topic-card__parts">2 parts</div>
-        </div>
-        <div class="topic-card__body">
-          <p class="topic-card__description">
-            Tokens aren't free. Understand how LLM pricing works, why bigger models aren't always better, and the optimization levers that turn an expensive prototype into a viable product.
-          </p>
-          <div class="topic-card__tags">
-            <span class="topic-card__tag" style="background: var(--accent-cost-light); color: var(--accent-cost);">Tokens</span>
-            <span class="topic-card__tag" style="background: var(--accent-cost-light); color: var(--accent-cost);">Pricing</span>
-            <span class="topic-card__tag" style="background: var(--accent-cost-light); color: var(--accent-cost);">Optimization</span>
+        <article class="topic-card" style="--card-accent: var(--accent-context); --card-deep: var(--accent-context-deep); --card-wash: var(--accent-context-light); --card-keyline: var(--accent-context-gradient);">
+          <div class="topic-card__banner">
+            <h3 class="topic-card__title"><a class="topic-card__link" href="context-windows/index.html">Context Windows &amp; Memory</a></h3>
+            <div class="topic-card__parts">3 parts</div>
           </div>
-        </div>
-      </a>
-
-      <a href="grounding/index.html" class="topic-card">
-        <div class="topic-card__banner" style="background: var(--accent-grounding-gradient);">
-          <div class="topic-card__series-label">Series</div>
-          <div class="topic-card__title">Grounding &amp; Guardrails</div>
-          <div class="topic-card__parts">3 parts</div>
-        </div>
-        <div class="topic-card__body">
-          <p class="topic-card__description">
-            LLMs are confident about everything — including things they made up. Learn how RAG grounds outputs in real data, how to optimize retrieval quality, and how to build the safety guardrails your product needs.
-          </p>
-          <div class="topic-card__tags">
-            <span class="topic-card__tag" style="background: var(--accent-grounding-light); color: var(--accent-grounding);">RAG</span>
-            <span class="topic-card__tag" style="background: var(--accent-grounding-light); color: var(--accent-grounding);">Safety</span>
-            <span class="topic-card__tag" style="background: var(--accent-grounding-light); color: var(--accent-grounding);">Hallucinations</span>
+          <div class="topic-card__body">
+            <p class="topic-card__description">
+              Why do models "forget"? Understand context windows, token limits, and the conversation design patterns that give AI applications persistent memory.
+            </p>
+            <div class="topic-card__tags">
+              <span class="topic-card__tag">Context</span>
+              <span class="topic-card__tag">Memory</span>
+              <span class="topic-card__tag">Retrieval</span>
+            </div>
           </div>
-        </div>
-      </a>
+        </article>
 
-      <a href="evaluation/index.html" class="topic-card">
-        <div class="topic-card__banner" style="background: var(--accent-eval-gradient);">
-          <div class="topic-card__series-label">Series</div>
-          <div class="topic-card__title">Evaluation &amp; Testing</div>
-          <div class="topic-card__parts">4 parts</div>
-        </div>
-        <div class="topic-card__body">
-          <p class="topic-card__description">
-            How do you know if your AI feature is actually good? Learn the evaluation mindset, testing methods, and the practical playbook for shipping AI you can trust.
-          </p>
-          <div class="topic-card__tags">
-            <span class="topic-card__tag" style="background: var(--accent-eval-light); color: var(--accent-eval);">Evals</span>
-            <span class="topic-card__tag" style="background: var(--accent-eval-light); color: var(--accent-eval);">Metrics</span>
-            <span class="topic-card__tag" style="background: var(--accent-eval-light); color: var(--accent-eval);">Testing</span>
+        <article class="topic-card" style="--card-accent: var(--accent-cost); --card-deep: var(--accent-cost-deep); --card-wash: var(--accent-cost-light); --card-keyline: var(--accent-cost-gradient);">
+          <div class="topic-card__banner">
+            <h3 class="topic-card__title"><a class="topic-card__link" href="cost-latency/index.html">Cost &amp; Latency Tradeoffs</a></h3>
+            <div class="topic-card__parts">2 parts</div>
           </div>
-        </div>
-      </a>
-
-      <a href="agents/index.html" class="topic-card">
-        <div class="topic-card__banner" style="background: var(--accent-agents-gradient);">
-          <div class="topic-card__series-label">Series</div>
-          <div class="topic-card__title">Agents &amp; Tool Use</div>
-          <div class="topic-card__parts">4 parts</div>
-        </div>
-        <div class="topic-card__body">
-          <p class="topic-card__description">
-            What makes an AI agent different from a chatbot? Learn how the think-act-observe loop, tool use, and orchestration patterns turn LLMs into systems that can take action in the real world.
-          </p>
-          <div class="topic-card__tags">
-            <span class="topic-card__tag" style="background: var(--accent-agents-light); color: var(--accent-agents);">Agent Loop</span>
-            <span class="topic-card__tag" style="background: var(--accent-agents-light); color: var(--accent-agents);">Tool Use</span>
-            <span class="topic-card__tag" style="background: var(--accent-agents-light); color: var(--accent-agents);">Orchestration</span>
+          <div class="topic-card__body">
+            <p class="topic-card__description">
+              Tokens aren't free. Understand how LLM pricing works, why bigger models aren't always better, and the optimization levers that turn an expensive prototype into a viable product.
+            </p>
+            <div class="topic-card__tags">
+              <span class="topic-card__tag">Tokens</span>
+              <span class="topic-card__tag">Pricing</span>
+              <span class="topic-card__tag">Optimization</span>
+            </div>
           </div>
-        </div>
-      </a>
+        </article>
 
-      <a href="ai-ux/index.html" class="topic-card">
-        <div class="topic-card__banner" style="background: var(--accent-ux-gradient);">
-          <div class="topic-card__series-label">Series</div>
-          <div class="topic-card__title">AI UX Patterns &amp; Human-in-the-Loop</div>
-          <div class="topic-card__parts">3 parts</div>
-        </div>
-        <div class="topic-card__body">
-          <p class="topic-card__description">
-            AI that's 95% accurate still fails 1 in 20 times. Learn the UX patterns that make uncertainty transparent and the human oversight architectures that catch what the model misses.
-          </p>
-          <div class="topic-card__tags">
-            <span class="topic-card__tag" style="background: var(--accent-ux-light); color: var(--accent-ux);">Uncertainty UX</span>
-            <span class="topic-card__tag" style="background: var(--accent-ux-light); color: var(--accent-ux);">HITL</span>
-            <span class="topic-card__tag" style="background: var(--accent-ux-light); color: var(--accent-ux);">Review Queues</span>
+      </div>
+    </section>
+
+    <section class="topic-band" aria-labelledby="band-building">
+      <div class="topic-band__header">
+        <h2 class="topic-band__title" id="band-building">Building</h2>
+        <p class="topic-band__lede">Turning a model into a product: agents, grounding, and writing code with AI.</p>
+      </div>
+      <div class="topic-grid">
+
+        <article class="topic-card" style="--card-accent: var(--accent-agents); --card-deep: var(--accent-agents-deep); --card-wash: var(--accent-agents-light); --card-keyline: var(--accent-agents-gradient);">
+          <div class="topic-card__banner">
+            <h3 class="topic-card__title"><a class="topic-card__link" href="agents/index.html">Agents &amp; Tool Use</a></h3>
+            <div class="topic-card__parts">4 parts</div>
           </div>
-        </div>
-      </a>
-
-      <a href="vibe-coding/index.html" class="topic-card">
-        <div class="topic-card__banner" style="background: var(--accent-vibe-gradient);">
-          <div class="topic-card__series-label">New</div>
-          <div class="topic-card__title">The Builder's Guide to Vibe Coding</div>
-          <div class="topic-card__parts">3 parts</div>
-        </div>
-        <div class="topic-card__body">
-          <p class="topic-card__description">
-            You don't need to become an engineer to build with AI. Learn the tools, the craft, and the reality of what's possible when a builder starts writing code with AI.
-          </p>
-          <div class="topic-card__tags">
-            <span class="topic-card__tag" style="background: var(--accent-vibe-light); color: var(--accent-vibe);">Replit</span>
-            <span class="topic-card__tag" style="background: var(--accent-vibe-light); color: var(--accent-vibe);">Claude Code</span>
-            <span class="topic-card__tag" style="background: var(--accent-vibe-light); color: var(--accent-vibe);">Prompting</span>
+          <div class="topic-card__body">
+            <p class="topic-card__description">
+              What makes an AI agent different from a chatbot? Learn how the think-act-observe loop, tool use, and orchestration patterns turn LLMs into systems that can take action in the real world.
+            </p>
+            <div class="topic-card__tags">
+              <span class="topic-card__tag">Agent Loop</span>
+              <span class="topic-card__tag">Tool Use</span>
+              <span class="topic-card__tag">Orchestration</span>
+            </div>
           </div>
-        </div>
-      </a>
+        </article>
 
+        <article class="topic-card" style="--card-accent: var(--accent-grounding); --card-deep: var(--accent-grounding-deep); --card-wash: var(--accent-grounding-light); --card-keyline: var(--accent-grounding-gradient);">
+          <div class="topic-card__banner">
+            <h3 class="topic-card__title"><a class="topic-card__link" href="grounding/index.html">Grounding &amp; Guardrails</a></h3>
+            <div class="topic-card__parts">3 parts</div>
+          </div>
+          <div class="topic-card__body">
+            <p class="topic-card__description">
+              LLMs are confident about everything — including things they made up. Learn how RAG grounds outputs in real data, how to optimize retrieval quality, and how to build the safety guardrails your product needs.
+            </p>
+            <div class="topic-card__tags">
+              <span class="topic-card__tag">RAG</span>
+              <span class="topic-card__tag">Safety</span>
+              <span class="topic-card__tag">Hallucinations</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="topic-card" style="--card-accent: var(--accent-vibe); --card-deep: var(--accent-vibe-deep); --card-wash: var(--accent-vibe-light); --card-keyline: var(--accent-vibe-gradient);">
+          <div class="topic-card__banner">
+            <div class="topic-card__series-label">New</div>
+            <h3 class="topic-card__title"><a class="topic-card__link" href="vibe-coding/index.html">The Builder's Guide to Vibe Coding</a></h3>
+            <div class="topic-card__parts">3 parts</div>
+          </div>
+          <div class="topic-card__body">
+            <p class="topic-card__description">
+              You don't need to become an engineer to build with AI. Learn the tools, the craft, and the reality of what's possible when a builder starts writing code with AI.
+            </p>
+            <div class="topic-card__tags">
+              <span class="topic-card__tag">Replit</span>
+              <span class="topic-card__tag">Claude Code</span>
+              <span class="topic-card__tag">Prompting</span>
+            </div>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <section class="topic-band" aria-labelledby="band-shipping">
+      <div class="topic-band__header">
+        <h2 class="topic-band__title" id="band-shipping">Shipping</h2>
+        <p class="topic-band__lede">Knowing when it's good enough, and designing for the times it isn't.</p>
+      </div>
+      <div class="topic-grid">
+
+        <article class="topic-card" style="--card-accent: var(--accent-eval); --card-deep: var(--accent-eval-deep); --card-wash: var(--accent-eval-light); --card-keyline: var(--accent-eval-gradient);">
+          <div class="topic-card__banner">
+            <h3 class="topic-card__title"><a class="topic-card__link" href="evaluation/index.html">Evaluation &amp; Testing</a></h3>
+            <div class="topic-card__parts">4 parts</div>
+          </div>
+          <div class="topic-card__body">
+            <p class="topic-card__description">
+              How do you know if your AI feature is actually good? Learn the evaluation mindset, testing methods, and the practical playbook for shipping AI you can trust.
+            </p>
+            <div class="topic-card__tags">
+              <span class="topic-card__tag">Evals</span>
+              <span class="topic-card__tag">Metrics</span>
+              <span class="topic-card__tag">Testing</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="topic-card" style="--card-accent: var(--accent-ux); --card-deep: var(--accent-ux-deep); --card-wash: var(--accent-ux-light); --card-keyline: var(--accent-ux-gradient);">
+          <div class="topic-card__banner">
+            <h3 class="topic-card__title"><a class="topic-card__link" href="ai-ux/index.html">AI UX Patterns &amp; Human-in-the-Loop</a></h3>
+            <div class="topic-card__parts">3 parts</div>
+          </div>
+          <div class="topic-card__body">
+            <p class="topic-card__description">
+              AI that's 95% accurate still fails 1 in 20 times. Learn the UX patterns that make uncertainty transparent and the human oversight architectures that catch what the model misses.
+            </p>
+            <div class="topic-card__tags">
+              <span class="topic-card__tag">Uncertainty UX</span>
+              <span class="topic-card__tag">HITL</span>
+              <span class="topic-card__tag">Review Queues</span>
+            </div>
+          </div>
+        </article>
+
+      </div>
     </section>
 
     <div class="follow-banner">
