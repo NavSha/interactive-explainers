@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-E8RQLQXRWH"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-E8RQLQXRWH');
+  </script>
+  <title>Prompt Caching &amp; Batching — AI for Builders</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/shared.css?v=10">
+  <style>
+    /* Reading Progress Bar */
+    .reading-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      z-index: 1000;
+      pointer-events: none;
+      background: transparent;
+    }
+    .reading-progress__bar {
+      height: 100%;
+      width: 0%;
+      background: #D97706;
+      transition: width 0.15s ease-out;
+    }
+
+    /* TOC Active Highlighting */
+    .toc__item--active > a {
+      color: var(--accent-cost, #D97706);
+      opacity: 1;
+    }
+    .toc__item--active > .toc__numeral {
+      color: var(--accent-cost, #D97706);
+      opacity: 1;
+    }
+
+    /* TOC: fixed sidebar on wide screens, hidden until past hero */
+    @media (min-width: 1280px) {
+      .toc {
+        position: fixed;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 180px;
+        left: calc((100vw - 760px) / 2 - 220px);
+        padding: 0;
+        margin: 0;
+        z-index: 100;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+      }
+      .toc--visible {
+        opacity: 1;
+        pointer-events: auto;
+      }
+      .toc__inner {
+        padding: 0.75rem 1rem;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 8px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        backdrop-filter: blur(8px);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      }
+      .toc__title { font-size: 0.65rem; margin-bottom: 0.5rem; }
+      .toc__list li { padding: 0.2rem 0; }
+      .toc__list a, .toc__numeral { font-size: 0.8rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="reading-progress"><div class="reading-progress__bar" id="reading-progress-bar"></div></div>
+
+  <header class="article-hero" id="article-hero" style="background: linear-gradient(135deg, #B45309 0%, #9F1239 100%);">
+    <canvas class="article-hero__canvas" id="hero-canvas"></canvas>
+    <div class="article-hero__overlay"></div>
+    <div class="article-hero__content">
+      <nav class="breadcrumb breadcrumb--hero">
+        <a href="../index.html">AI for Builders</a> &nbsp;/&nbsp; <a href="index.html">Cost &amp; Latency</a> &nbsp;/&nbsp; <span>Part 3</span>
+      </nav>
+      <div class="article-header__meta" style="color: rgba(255,255,255,0.9);">Part 3 of 3 &middot; ~9 min read</div>
+      <h1 style="color: #fff;">Prompt Caching &amp; Batching</h1>
+      <p class="lead" style="color: rgba(255,255,255,0.85);">The two techniques that turn a $500/day API bill into $75. One saves money on every request. The other saves money by not rushing.</p>
+    </div>
+  </header>
+
+  <nav class="toc" aria-label="Table of contents">
+    <div class="toc__inner">
+      <div class="toc__title">Contents</div>
+      <ol class="toc__list">
+        <li><span class="toc__numeral">I.</span><a href="#what-is-prompt-caching">What Is Prompt Caching?</a></li>
+        <li><span class="toc__numeral">II.</span><a href="#how-it-works">How It Actually Works</a></li>
+        <li><span class="toc__numeral">III.</span><a href="#when-to-cache">When to Cache (and When Not To)</a></li>
+        <li><span class="toc__numeral">IV.</span><a href="#batching">Batching: The Other Lever</a></li>
+        <li><span class="toc__numeral">V.</span><a href="#cost-math">The Cost Math</a></li>
+        <li><span class="toc__numeral">VI.</span><a href="#implementation">Implementation Patterns</a></li>
+      </ol>
+    </div>
+  </nav>
+
+  <div class="epigraph">
+    <p class="epigraph__verse">
+      Same system prompt, a thousand times a day,<br>
+      Cache the prefix once, don't make the model repay.<br>
+      Batch the offline jobs, let the queue run deep &mdash;<br>
+      Half the price, same results. That's margin you keep.
+    </p>
+  </div>
+
+  <article class="prose">
+
+    <h2 id="what-is-prompt-caching"><span class="section-number">I</span> What Is Prompt Caching?</h2>
+
+    <p>Part 2 introduced prompt caching as one of five optimization levers. Time to open the hood.</p>
+
+    <p>Here's the problem: every API request includes a system prompt. Your product's personality, instructions, few-shot examples, retrieval context &mdash; all of it gets sent on every single call. And every single time, the model processes it from scratch. That's like reciting the company handbook before every conversation.</p>
+
+    <p><strong>Prompt caching stores the model's processed representation of your static context</strong> so it doesn't have to recompute it. The technical term is "KV-cache" &mdash; the key-value pairs the model generates internally when it reads your input. On the first request, the model processes your system prompt and saves the result. On subsequent requests with the same prefix, it skips straight to the new part.</p>
+
+    <div class="callout callout--insight">
+      <div class="callout__label">Key Insight</div>
+      <div class="callout__body"><strong>This is not output caching.</strong> You're not storing the model's answers. You're storing the model's understanding of your instructions. Every response is still freshly generated &mdash; it just starts from a warmer position. The analogy: a teacher who's already read the textbook doesn't need to re-read it before answering each student's question.</div>
+    </div>
+
+    <p>The payoff is immediate and measurable: <strong>40-90% savings on input token costs</strong> and dramatically reduced Time to First Token (TTFT). For a product sending thousands of requests with a 2,000-token system prompt, this is the single highest-ROI optimization you can make.</p>
+
+    <h2 id="how-it-works"><span class="section-number">II</span> How It Actually Works</h2>
+
+    <p>The mechanics are straightforward, which is part of what makes this so powerful &mdash; there's almost no reason <em>not</em> to use it if your prompts have a stable prefix.</p>
+
+    <p><strong>Step 1: First request.</strong> You send your full prompt &mdash; system instructions, few-shot examples, retrieval context, then the user's message. The model processes everything, generating an internal representation (the KV-cache) as it reads. The provider stores this representation, keyed to your exact prefix.</p>
+
+    <p><strong>Step 2: Subsequent requests.</strong> You send the same prefix plus a new user message. The provider recognizes the prefix, loads the cached KV-cache, and the model only has to process the new tokens. The static portion is essentially free.</p>
+
+    <p><strong>Step 3: Billing.</strong> Cached input tokens are billed at a steep discount &mdash; typically 75-90% off. So a 2,000-token system prompt that normally costs $6/million tokens might cost $0.60-$1.50/million when cached. The non-cached portion (the user's actual message) is billed at the normal rate.</p>
+
+    <div class="callout callout--analogy">
+      <div class="callout__label">Analogy</div>
+      <div class="callout__body">Think of it like a restaurant kitchen. Without caching, every order starts from raw ingredients &mdash; even if 80% of the dish is the same base sauce you've made a hundred times today. With caching, the base sauce is prepped once and kept warm. Each new order only requires the unique finishing touches. Same dish, fraction of the prep time.</div>
+    </div>
+
+    <p>There are constraints. The cache has a <strong>TTL (time to live)</strong> &mdash; typically 5-10 minutes of inactivity before it's evicted. The prefix must match <em>exactly</em>, byte for byte. Change a single character in your system prompt and you get a cache miss. And there's usually a minimum token threshold (e.g., 1,024 tokens) before caching kicks in.</p>
+
+    <h2 id="when-to-cache"><span class="section-number">III</span> When to Cache (and When Not To)</h2>
+
+    <p>Prompt caching isn't a universal win. It's a powerful one, but like every optimization, it has a sweet spot.</p>
+
+    <p><strong>Cache when:</strong></p>
+
+    <ul>
+      <li><strong>Your system prompt is large and stable.</strong> A 2,000-token instruction set that changes once a month? Cache it. The bigger the static portion relative to the dynamic portion, the bigger the savings.</li>
+      <li><strong>You use few-shot examples.</strong> Those five carefully crafted input-output pairs you send with every request are perfect cache candidates. They're substantial, they're identical across calls, and they're expensive to reprocess.</li>
+      <li><strong>RAG context is shared across a session.</strong> If a user is asking multiple questions about the same retrieved document, the document stays in cache between turns. The second question about the same context is dramatically cheaper than the first.</li>
+      <li><strong>You have high request volume.</strong> Caching has the most impact when many requests share the same prefix. A product handling 10,000 requests/hour with the same system prompt sees enormous savings. A product handling 10 requests/hour with unique prompts sees almost none.</li>
+    </ul>
+
+    <p><strong>Don't cache when:</strong></p>
+
+    <ul>
+      <li><strong>Every request is unique.</strong> If the entire prompt changes with each call &mdash; no shared system prompt, no repeated examples &mdash; there's nothing to cache.</li>
+      <li><strong>Context changes frequently.</strong> If your system prompt updates every few minutes (real-time data feeds, frequently rotated instructions), the cache will miss more than it hits and you'll pay the write cost without the read benefit.</li>
+      <li><strong>Prompts are short.</strong> A 200-token system prompt saves so little when cached that it's not worth thinking about. Focus your optimization energy elsewhere.</li>
+    </ul>
+
+    <div class="callout callout--pm-tip">
+      <div class="callout__label">Builder Tip</div>
+      <div class="callout__body"><strong>Structure your prompts for cacheability.</strong> Put static content first (system instructions, few-shot examples, shared context) and dynamic content last (user message, session-specific data). This maximizes the cacheable prefix. A prompt structured as [system + examples + user message] caches beautifully. A prompt structured as [user context + system instructions + user message] caches poorly because the prefix changes every time.</div>
+    </div>
+
+    <h2 id="batching"><span class="section-number">IV</span> Batching: The Other Lever</h2>
+
+    <p>Caching optimizes the <em>per-request</em> cost. Batching optimizes the <em>throughput</em> cost &mdash; and it works on a completely different principle.</p>
+
+    <p><strong>Batch APIs let you send hundreds or thousands of requests in a single API call</strong> and get results back asynchronously &mdash; usually within 24 hours. In exchange for giving up real-time responses, you get a massive discount: <strong>typically 50% off</strong> the standard per-token price.</p>
+
+    <p>Why the discount? Because the provider can schedule your batch during off-peak hours, fill GPU capacity gaps, and optimize throughput without latency constraints. You're trading urgency for efficiency &mdash; and the provider passes the savings through.</p>
+
+    <p><strong>Best for:</strong></p>
+
+    <ul>
+      <li><strong>Eval harnesses.</strong> Running 500 test cases against your prompt? That's a perfect batch job. You don't need results in milliseconds &mdash; you need them by morning.</li>
+      <li><strong>Bulk processing.</strong> Classifying 10,000 support tickets, summarizing a quarter's worth of call transcripts, generating product descriptions for a catalog. High volume, low urgency.</li>
+      <li><strong>Offline analysis.</strong> Weekly reports, content moderation backlogs, data enrichment pipelines. Anything where the consumer of the output is a system or a human who'll look at it later.</li>
+      <li><strong>Dataset generation.</strong> Creating synthetic training data, generating test fixtures, building evaluation sets. Volume matters, speed doesn't.</li>
+    </ul>
+
+    <p><strong>Bad for:</strong></p>
+
+    <ul>
+      <li><strong>Anything user-facing and real-time.</strong> If a human is waiting for the response, batch is not the answer. A 24-hour SLA on a chatbot response is called "email."</li>
+      <li><strong>Interactive workflows.</strong> If the next step depends on the model's output, you can't batch because you need the result to continue.</li>
+    </ul>
+
+    <div class="callout callout--insight">
+      <div class="callout__label">Key Insight</div>
+      <div class="callout__body"><strong>Caching and batching are complementary, not competing.</strong> Caching reduces per-request cost for real-time traffic. Batching reduces cost for offline workloads. A well-architected product uses both &mdash; caching for the user-facing API calls and batching for the nightly eval runs, weekly reports, and bulk processing jobs. The 2025 coding tools ecosystem generated over <strong>$1 billion in revenue</strong> (per a16z). At that scale, shaving 50% off batch processing costs is the difference between healthy margins and lighting money on fire.</div>
+    </div>
+
+    <p>See which approach fits your use case:</p>
+  </article>
+
+  <!-- ================================================================
+       Widget 1: Batch vs Real-time Decision Tool
+       ================================================================ -->
+  <div class="wide-container">
+    <div class="widget" id="widget-decision" style="--widget-bg: var(--accent-cost-light); --widget-border: #FDE68A;">
+      <div class="widget__label" style="color: var(--accent-cost);">Decision tool</div>
+      <div class="widget__title">Batch vs. Real-Time</div>
+      <div class="widget__instruction">Select your use case to see whether batching, caching, or standard API calls are the right fit.</div>
+
+      <div class="widget__controls" id="decision-cases">
+        <button class="btn btn--secondary" data-case="chatbot">Customer chatbot</button>
+        <button class="btn btn--secondary" data-case="evals">Eval harness</button>
+        <button class="btn btn--secondary" data-case="bulk">Bulk classification</button>
+        <button class="btn btn--secondary" data-case="copilot">Code copilot</button>
+        <button class="btn btn--secondary" data-case="reports">Weekly reports</button>
+        <button class="btn btn--secondary" data-case="rag">RAG Q&amp;A</button>
+      </div>
+
+      <div class="decision__result" id="decision-result">
+        <div class="decision__rec-title" id="decision-title">Select a use case above</div>
+        <div class="decision__meters">
+          <div class="decision__meter">
+            <span class="decision__meter-label">Latency sensitivity</span>
+            <div class="decision__meter-bar-wrap"><div class="decision__meter-bar" id="dec-latency" style="background: #DC2626;"></div></div>
+          </div>
+          <div class="decision__meter">
+            <span class="decision__meter-label">Volume</span>
+            <div class="decision__meter-bar-wrap"><div class="decision__meter-bar" id="dec-volume" style="background: #D97706;"></div></div>
+          </div>
+          <div class="decision__meter">
+            <span class="decision__meter-label">Prefix stability</span>
+            <div class="decision__meter-bar-wrap"><div class="decision__meter-bar" id="dec-prefix" style="background: #059669;"></div></div>
+          </div>
+        </div>
+        <div class="decision__recommendation" id="decision-rec"></div>
+        <div class="decision__tags" id="decision-tags"></div>
+      </div>
+    </div>
+  </div>
+
+  <article class="prose">
+
+    <h2 id="cost-math"><span class="section-number">V</span> The Cost Math</h2>
+
+    <p>Theory is nice. Let's do the arithmetic.</p>
+
+    <p><strong>Scenario:</strong> You're running a customer support product. 50,000 requests per day. Each request includes a 2,000-token system prompt (instructions + few-shot examples) and a 300-token user message. Average output: 200 tokens. You're using a Sonnet-class model ($3/M input, $15/M output).</p>
+
+    <p><strong>Without caching:</strong></p>
+    <ul>
+      <li>Input cost: 50,000 requests x 2,300 tokens x $3/M = <strong>$345/day</strong></li>
+      <li>Output cost: 50,000 x 200 tokens x $15/M = <strong>$150/day</strong></li>
+      <li>Total: <strong>$495/day</strong> ($14,850/month)</li>
+    </ul>
+
+    <p><strong>With prompt caching</strong> (2,000 tokens cached at 90% discount):</p>
+    <ul>
+      <li>Cached input: 50,000 x 2,000 tokens x $0.30/M = <strong>$30/day</strong></li>
+      <li>Non-cached input: 50,000 x 300 tokens x $3/M = <strong>$45/day</strong></li>
+      <li>Output cost: unchanged at <strong>$150/day</strong></li>
+      <li>Total: <strong>$225/day</strong> ($6,750/month)</li>
+    </ul>
+
+    <p>That's a <strong>55% reduction</strong> on the input side and <strong>$8,100/month saved</strong> &mdash; from a configuration change that takes an afternoon to implement.</p>
+
+    <p>Now layer on batching for your offline workloads. Say 30% of your traffic is non-urgent (ticket classification, weekly summaries, eval runs). Move those to batch at 50% off:</p>
+
+    <ul>
+      <li>Real-time (70%): $225/day x 0.7 = <strong>$157.50/day</strong></li>
+      <li>Batch (30%): $225/day x 0.3 x 0.5 = <strong>$33.75/day</strong></li>
+      <li>Combined: <strong>$191.25/day</strong> ($5,738/month)</li>
+    </ul>
+
+    <p>From $495/day to $191/day. A <strong>61% total reduction.</strong> And you haven't changed a single word of your prompts or switched models.</p>
+
+    <p>Play with your own numbers:</p>
+  </article>
+
+  <!-- ================================================================
+       Widget 2: Cache Savings Calculator
+       ================================================================ -->
+  <div class="wide-container">
+    <div class="widget" id="widget-calculator" style="--widget-bg: var(--accent-cost-light); --widget-border: #FDE68A;">
+      <div class="widget__label" style="color: var(--accent-cost);">Calculator</div>
+      <div class="widget__title">Cache Savings Calculator</div>
+      <div class="widget__instruction">Input your request volume and prompt structure to see how much caching and batching can save.</div>
+
+      <div class="calc__controls">
+        <div class="calc__control">
+          <label>Daily requests</label>
+          <div class="cost__slider-row">
+            <input type="range" id="calc-requests" min="1000" max="500000" value="50000" step="1000" class="dilemma__slider">
+            <span class="dilemma__slider-value" id="calc-requests-val">50,000</span>
+          </div>
+        </div>
+        <div class="calc__control">
+          <label>System prompt tokens (cacheable)</label>
+          <div class="cost__slider-row">
+            <input type="range" id="calc-system" min="100" max="8000" value="2000" step="100" class="dilemma__slider">
+            <span class="dilemma__slider-value" id="calc-system-val">2,000</span>
+          </div>
+        </div>
+        <div class="calc__control">
+          <label>User message tokens (not cacheable)</label>
+          <div class="cost__slider-row">
+            <input type="range" id="calc-user" min="50" max="2000" value="300" step="50" class="dilemma__slider">
+            <span class="dilemma__slider-value" id="calc-user-val">300</span>
+          </div>
+        </div>
+        <div class="calc__control">
+          <label>Output tokens</label>
+          <div class="cost__slider-row">
+            <input type="range" id="calc-output" min="50" max="2000" value="200" step="50" class="dilemma__slider">
+            <span class="dilemma__slider-value" id="calc-output-val">200</span>
+          </div>
+        </div>
+        <div class="calc__control">
+          <label>% of traffic that can be batched</label>
+          <div class="cost__slider-row">
+            <input type="range" id="calc-batch" min="0" max="80" value="0" step="5" class="dilemma__slider">
+            <span class="dilemma__slider-value" id="calc-batch-val">0%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="calc__results">
+        <div class="calc__result-row">
+          <div class="calc__result">
+            <div class="calc__result-label">Without caching</div>
+            <div class="calc__result-value calc__result-value--muted" id="calc-before">$0/day</div>
+          </div>
+          <div class="calc__result-arrow">&rarr;</div>
+          <div class="calc__result">
+            <div class="calc__result-label">With caching + batching</div>
+            <div class="calc__result-value calc__result-value--savings" id="calc-after">$0/day</div>
+          </div>
+        </div>
+        <div class="calc__savings-bar-wrap">
+          <div class="calc__savings-bar" id="calc-savings-bar"></div>
+        </div>
+        <div class="calc__summary" id="calc-summary"></div>
+      </div>
+    </div>
+  </div>
+
+  <article class="prose">
+
+    <h2 id="implementation"><span class="section-number">VI</span> Implementation Patterns</h2>
+
+    <p>Understanding the theory is step one. Shipping it well requires attention to a few practical patterns.</p>
+
+    <p><strong>1. Structure prompts for cache-friendliness.</strong> The golden rule: static content first, dynamic content last. Your prompt should be layered like this:</p>
+
+    <ol>
+      <li><strong>System instructions</strong> &mdash; personality, rules, output format. Changes rarely.</li>
+      <li><strong>Few-shot examples</strong> &mdash; input-output pairs. Changes occasionally.</li>
+      <li><strong>Shared context</strong> &mdash; retrieved documents, session context. Changes per session.</li>
+      <li><strong>User message</strong> &mdash; the actual request. Changes every call.</li>
+    </ol>
+
+    <p>Everything above the user message is your cacheable prefix. The longer and more stable that prefix is, the more you save.</p>
+
+    <p><strong>2. Cache warming.</strong> The first request always pays full price (no cache exists yet). For high-volume products, send a "warming" request at startup or after deploys to prime the cache before real traffic hits. This is especially important if your system prompt is large &mdash; you don't want your first 100 users paying the full processing cost when a single warm-up call would have covered everyone.</p>
+
+    <p><strong>3. TTL management.</strong> Cache entries expire after a period of inactivity (typically 5-10 minutes). If your traffic is bursty &mdash; heavy during business hours, dead overnight &mdash; the cache will go cold every night. Consider a lightweight keep-alive request during low-traffic periods if the cache warming cost is significant. But do the math first: if your nightly traffic is 10 requests, warming the cache costs more than just paying the full price.</p>
+
+    <p><strong>4. Monitor cache hit rates.</strong> You can't optimize what you don't measure. Track:</p>
+
+    <ul>
+      <li><strong>Cache hit rate</strong> &mdash; what percentage of requests use the cache? Below 80% means something is wrong with your prefix stability.</li>
+      <li><strong>Cost per request (cached vs. uncached)</strong> &mdash; to quantify actual savings.</li>
+      <li><strong>TTFT reduction</strong> &mdash; cache hits should reduce time to first token by 30-80%. If they don't, verify the cache is working.</li>
+    </ul>
+
+    <p><strong>5. Version your prompts carefully.</strong> A single character change in your system prompt invalidates the cache. Use a deployment process that changes prompts deliberately, not accidentally. A stray newline in a config file shouldn't double your API costs overnight.</p>
+
+    <div class="callout callout--pm-tip">
+      <div class="callout__label">Builder Tip</div>
+      <div class="callout__body">The best implementation strategy is boring: enable prompt caching on day one (it's usually a flag or a small API parameter change), structure your prompts with static prefixes, monitor your hit rate, and move offline workloads to batch. There's no trick. Anthropic's data shows roughly <strong>50% of all agentic tool calls</strong> are software engineering tasks &mdash; a single concentrated use case generating enormous request volume. For products like that, these two optimizations alone can be worth six figures annually.</div>
+    </div>
+
+    <div class="callout callout--summary">
+      <div class="callout__label">Takeaway</div>
+      <div class="callout__body">Prompt caching and batching are the unglamorous optimizations that separate a prototype from a product. Caching stores the model's processed understanding of your static context, saving 40-90% on input costs with almost no implementation effort. Batching trades real-time responses for 50% cost savings on offline workloads. Combined, they can cut your API bill by 50-70% &mdash; without changing a single word of your prompts, switching models, or sacrificing output quality. If you remember one thing: <strong>static prefix first, dynamic suffix last, batch what can wait.</strong></div>
+    </div>
+  </article>
+
+  <!-- ================================================================
+       Capstone Quiz: Article Recap
+       ================================================================ -->
+  <div class="wide-container">
+    <div class="widget" id="widget-capstone-quiz">
+      <div class="widget__label">Test your understanding</div>
+      <div class="widget__title">Article Recap</div>
+      <div class="widget__instruction">5 questions covering the key concepts from this article.</div>
+
+      <div class="quiz__progress">
+        <div class="quiz__progress-bar" id="quiz-progress-bar"></div>
+      </div>
+      <div class="quiz__progress-text" id="quiz-progress-text">1 of 5</div>
+
+      <div class="quiz__card" id="quiz-card">
+        <p class="quiz__scenario" id="quiz-scenario"></p>
+        <div class="widget__controls" id="quiz-options"></div>
+        <div class="quiz__explanation" id="quiz-explanation" style="display: none;"></div>
+      </div>
+
+      <div class="widget__controls widget__controls--mt">
+        <button class="btn btn--primary" id="quiz-next" style="display: none;">Next Question &rarr;</button>
+      </div>
+
+      <div class="quiz__summary" id="quiz-summary" style="display: none;">
+        <div class="quiz__score" id="quiz-score"></div>
+        <p class="quiz__summary-text" id="quiz-summary-text"></p>
+        <button class="btn btn--secondary" id="quiz-retry" style="margin-top: var(--space-4);">Try Again</button>
+      </div>
+    </div>
+  </div>
+
+  <nav class="article-nav">
+    <a href="latency.html">&larr; Part 2: Latency, Streaming &amp; Optimization</a>
+    <a href="index.html">Back to series overview &rarr;</a>
+  </nav>
+
+  <script>
+  // ====================================================================
+  // Hero animation
+  // ====================================================================
+  (function() {
+    var canvas = document.getElementById('hero-canvas');
+    var ctx = canvas.getContext('2d');
+    var hero = document.getElementById('article-hero');
+    var nodes = [], numNodes = 40, connectionDist = 140;
+    var dpr = window.devicePixelRatio || 1, w, h;
+    function resize() { var r = hero.getBoundingClientRect(); w=r.width;h=r.height; canvas.width=w*dpr;canvas.height=h*dpr;ctx.setTransform(dpr,0,0,dpr,0,0); }
+    function init() { nodes=[]; for(var i=0;i<numNodes;i++) nodes.push({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-0.5)*0.35,vy:(Math.random()-0.5)*0.35,r:2+Math.random()*3,pulse:Math.random()*Math.PI*2}); }
+    function draw() {
+      ctx.clearRect(0,0,w,h);
+      for(var i=0;i<nodes.length;i++){var n=nodes[i];n.x+=n.vx;n.y+=n.vy;n.pulse+=0.015;if(n.x<-20)n.x=w+20;if(n.x>w+20)n.x=-20;if(n.y<-20)n.y=h+20;if(n.y>h+20)n.y=-20;}
+      ctx.lineWidth=1;for(var i=0;i<nodes.length;i++)for(var j=i+1;j<nodes.length;j++){var dx=nodes[i].x-nodes[j].x,dy=nodes[i].y-nodes[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<connectionDist){ctx.strokeStyle='rgba(255,255,255,'+((1-d/connectionDist)*0.3)+')';ctx.beginPath();ctx.moveTo(nodes[i].x,nodes[i].y);ctx.lineTo(nodes[j].x,nodes[j].y);ctx.stroke();}}
+      for(var i=0;i<nodes.length;i++){var n=nodes[i],g=0.5+0.5*Math.sin(n.pulse);ctx.fillStyle='rgba(255,255,255,'+(0.4+0.4*g)+')';ctx.beginPath();ctx.arc(n.x,n.y,n.r*(0.8+0.4*g),0,Math.PI*2);ctx.fill();}
+      requestAnimationFrame(draw);
+    }
+    resize();init();requestAnimationFrame(draw);window.addEventListener('resize',function(){resize();init();});
+  })();
+
+  // ====================================================================
+  // Widget 1: Batch vs Real-time Decision Tool
+  // ====================================================================
+  (function() {
+    var cases = {
+      chatbot: {
+        title: 'Customer Chatbot',
+        latency: 95, volume: 80, prefix: 90,
+        rec: 'Real-time with prompt caching. Users are waiting, so batching is out. But your system prompt and few-shot examples are identical across all conversations \u2014 a textbook caching use case. Enable prompt caching, structure your prompt with static instructions first, and watch your TTFT drop alongside your input costs.',
+        tags: ['Prompt caching', 'Streaming', 'Real-time']
+      },
+      evals: {
+        title: 'Eval Harness',
+        latency: 5, volume: 90, prefix: 70,
+        rec: 'Batch API all the way. You\'re running hundreds of test cases and don\'t need results for hours. Batch gives you 50% off the entire job. If your eval prompts share a common system prompt, prompt caching stacks on top for even more savings. Run evals overnight, review results in the morning.',
+        tags: ['Batch API', 'Prompt caching', 'Offline']
+      },
+      bulk: {
+        title: 'Bulk Classification',
+        latency: 10, volume: 95, prefix: 85,
+        rec: 'Batch + prompt caching. You\'re classifying thousands of items with the same instructions and few-shot examples \u2014 perfect prefix stability for caching. And since no human is waiting, batch pricing cuts the bill in half. This combination can reduce costs by 70-80% compared to na\u00efve real-time calls.',
+        tags: ['Batch API', 'Prompt caching', 'High volume']
+      },
+      copilot: {
+        title: 'Code Copilot',
+        latency: 90, volume: 70, prefix: 60,
+        rec: 'Real-time with prompt caching, but the prefix is less stable than a chatbot since context changes with each file and cursor position. Cache the system instructions and coding guidelines (stable), but expect lower hit rates on the file context portion. Focus on keeping the static prefix as large and stable as possible.',
+        tags: ['Prompt caching', 'Real-time', 'Variable prefix']
+      },
+      reports: {
+        title: 'Weekly Reports',
+        latency: 0, volume: 40, prefix: 80,
+        rec: 'Pure batch. Weekly cadence means zero latency pressure. Submit the entire report generation as a batch job on Friday afternoon, deliver results Monday morning. At 50% off and no time pressure, this is free money. Prompt caching adds modest value if the report templates are consistent.',
+        tags: ['Batch API', 'Offline', 'Low urgency']
+      },
+      rag: {
+        title: 'RAG Q&A',
+        latency: 80, volume: 60, prefix: 75,
+        rec: 'Real-time with prompt caching. The system instructions are stable (high cache value), and retrieved documents often repeat within a session \u2014 a user asking follow-up questions about the same document gets cheaper with each turn. The dynamic retrieval context limits prefix stability, but multi-turn sessions benefit significantly.',
+        tags: ['Prompt caching', 'Real-time', 'Session caching']
+      }
+    };
+
+    document.getElementById('decision-cases').addEventListener('click', function(e) {
+      var btn = e.target.closest('[data-case]');
+      if (!btn) return;
+      var c = cases[btn.dataset.case];
+      if (!c) return;
+
+      document.querySelectorAll('#decision-cases .btn').forEach(function(b) { b.classList.remove('btn--active'); });
+      btn.classList.add('btn--active');
+
+      document.getElementById('decision-title').textContent = c.title;
+      document.getElementById('dec-latency').style.width = c.latency + '%';
+      document.getElementById('dec-volume').style.width = c.volume + '%';
+      document.getElementById('dec-prefix').style.width = c.prefix + '%';
+      document.getElementById('decision-rec').textContent = c.rec;
+
+      var tagsEl = document.getElementById('decision-tags');
+      tagsEl.innerHTML = '';
+      c.tags.forEach(function(tag) {
+        var span = document.createElement('span');
+        span.className = 'decision__tag';
+        span.textContent = tag;
+        tagsEl.appendChild(span);
+      });
+    });
+  })();
+
+  // ====================================================================
+  // Widget 2: Cache Savings Calculator
+  // ====================================================================
+  (function() {
+    var PRICE_IN = 3.0;   // $/M input tokens (Sonnet-class)
+    var PRICE_OUT = 15.0;  // $/M output tokens
+    var CACHE_DISCOUNT = 0.10; // cached tokens cost 10% of normal
+
+    var reqSlider = document.getElementById('calc-requests');
+    var sysSlider = document.getElementById('calc-system');
+    var usrSlider = document.getElementById('calc-user');
+    var outSlider = document.getElementById('calc-output');
+    var batchSlider = document.getElementById('calc-batch');
+
+    function update() {
+      var reqs = parseInt(reqSlider.value);
+      var sysTok = parseInt(sysSlider.value);
+      var usrTok = parseInt(usrSlider.value);
+      var outTok = parseInt(outSlider.value);
+      var batchPct = parseInt(batchSlider.value) / 100;
+
+      document.getElementById('calc-requests-val').textContent = reqs.toLocaleString();
+      document.getElementById('calc-system-val').textContent = sysTok.toLocaleString();
+      document.getElementById('calc-user-val').textContent = usrTok.toLocaleString();
+      document.getElementById('calc-output-val').textContent = outTok.toLocaleString();
+      document.getElementById('calc-batch-val').textContent = Math.round(batchPct * 100) + '%';
+
+      // Without caching: all input tokens at full price
+      var totalInput = sysTok + usrTok;
+      var beforeDaily = reqs * ((totalInput / 1e6 * PRICE_IN) + (outTok / 1e6 * PRICE_OUT));
+
+      // With caching: system tokens at cache discount, user tokens at full price
+      var cachedInputCost = sysTok / 1e6 * PRICE_IN * CACHE_DISCOUNT;
+      var uncachedInputCost = usrTok / 1e6 * PRICE_IN;
+      var outputCost = outTok / 1e6 * PRICE_OUT;
+      var perReqCached = cachedInputCost + uncachedInputCost + outputCost;
+
+      // With batching: batch portion at 50% off
+      var rtFraction = 1 - batchPct;
+      var afterDaily = reqs * (rtFraction * perReqCached + batchPct * perReqCached * 0.5);
+
+      var savings = beforeDaily - afterDaily;
+      var savingsPct = beforeDaily > 0 ? (savings / beforeDaily * 100) : 0;
+
+      document.getElementById('calc-before').textContent = '$' + beforeDaily.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0}) + '/day';
+      document.getElementById('calc-after').textContent = '$' + afterDaily.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0}) + '/day';
+
+      document.getElementById('calc-savings-bar').style.width = Math.max(2, 100 - savingsPct) + '%';
+
+      var monthlySavings = savings * 30;
+      document.getElementById('calc-summary').textContent =
+        'You save $' + savings.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0}) +
+        '/day (' + Math.round(savingsPct) + '% reduction). That\u2019s $' +
+        monthlySavings.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0}) +
+        '/month \u2014 from configuration changes alone.';
+    }
+
+    [reqSlider, sysSlider, usrSlider, outSlider, batchSlider].forEach(function(s) {
+      s.addEventListener('input', update);
+    });
+
+    update();
+  })();
+
+  // ====================================================================
+  // Capstone Quiz: Article Recap
+  // ====================================================================
+  (function() {
+    var questions = [
+      {
+        question: 'Your product sends a 2,500-token system prompt with every request. An engineer asks: "Should we enable prompt caching?" What\'s the right framing for the decision?',
+        options: [
+          { label: 'Always enable it \u2014 there\u2019s no downside to prompt caching', key: 'a' },
+          { label: 'Only if you\u2019re sending more than 1 million requests per day', key: 'b' },
+          { label: 'Yes, if the system prompt is stable across requests \u2014 a 2,500-token prefix that doesn\u2019t change is a textbook caching use case, saving 75-90% on those tokens', key: 'c' },
+          { label: 'No \u2014 caching only helps with output tokens, and system prompts are input', key: 'd' }
+        ],
+        answer: 'c',
+        explanation: 'Prompt caching saves 75-90% on cached input tokens and reduces TTFT. A 2,500-token system prompt that\'s stable across requests is ideal \u2014 it\'s large enough to exceed minimum thresholds and consistent enough to achieve high hit rates. Option A is close but misses the stability requirement (caching a prompt that changes every request wastes money). Option B sets an arbitrary threshold. Option D confuses prompt caching with output caching \u2014 prompt caching specifically targets input tokens.'
+      },
+      {
+        question: 'A teammate structures their prompt as: [user\'s selected document] + [system instructions] + [few-shot examples] + [user question]. They\u2019re getting low cache hit rates despite enabling caching. What\u2019s wrong?',
+        options: [
+          { label: 'The prompt is too long for caching to work effectively', key: 'a' },
+          { label: 'The dynamic content (user\u2019s document) is at the beginning, so the prefix changes with every request and the cache misses every time', key: 'b' },
+          { label: 'Few-shot examples can\u2019t be cached \u2014 only system instructions qualify', key: 'c' },
+          { label: 'Cache hit rates are always low for the first 24 hours while the cache warms up', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'Prompt caching matches the prefix of your prompt byte-for-byte. If the first element changes with every request (the user\u2019s selected document), the entire prefix is different and the cache misses every time. The fix is to restructure: [system instructions] + [few-shot examples] + [user\u2019s document] + [user question]. Now the stable parts form the prefix and cache beautifully. Option C is wrong \u2014 any static content can be cached. Option D confuses cache warming (one request) with sustained low hit rates.'
+      },
+      {
+        question: 'Your team runs an eval harness nightly: 800 test cases against your prompt, each with the same system instructions. An engineer is running them as individual real-time API calls. What\u2019s the optimization opportunity?',
+        options: [
+          { label: 'Switch to the Batch API \u2014 50% discount because results aren\u2019t needed in real time, plus prompt caching for the shared system prompt', key: 'a' },
+          { label: 'Only prompt caching matters here \u2014 batching doesn\u2019t help with eval harnesses', key: 'b' },
+          { label: 'Reduce the number of test cases to 100 \u2014 that\u2019s the main cost driver', key: 'c' },
+          { label: 'Switch to a smaller model \u2014 evals don\u2019t need a large model', key: 'd' }
+        ],
+        answer: 'a',
+        explanation: 'This is a textbook case for both optimizations working together. The Batch API gives 50% off because eval results don\u2019t need to be real-time. Prompt caching saves an additional 75-90% on the shared system prompt tokens. Option B misses the batch opportunity. Option C reduces coverage (bad for evals). Option D might sacrifice the accuracy of the eval itself \u2014 you want to evaluate the model you\u2019re actually shipping.'
+      },
+      {
+        question: 'After enabling prompt caching, you notice your cache hit rate is only 45%. Your system prompt hasn\u2019t changed. What are the most likely culprits?',
+        options: [
+          { label: 'The model provider is throttling your cache access', key: 'a' },
+          { label: 'Your traffic volume is too low \u2014 caching needs at least 10,000 requests/hour', key: 'b' },
+          { label: 'Bursty traffic patterns causing the cache to expire during idle periods, or subtle prompt variations (trailing whitespace, dynamic timestamps) breaking prefix matching', key: 'c' },
+          { label: 'You need to manually pre-load the cache at the start of each day', key: 'd' }
+        ],
+        answer: 'c',
+        explanation: 'The two most common causes of low cache hit rates are TTL expiration (cache entries typically expire after 5-10 minutes of inactivity, so bursty traffic causes frequent cold starts) and accidental prefix changes (a dynamic timestamp, trailing whitespace, or config variation makes the prefix different byte-for-byte). Option A isn\u2019t a real thing. Option B sets an arbitrary threshold. Option D describes cache warming, which helps but doesn\u2019t explain a sustained 45% rate during active traffic.'
+      },
+      {
+        question: 'Your product has three workloads: (1) real-time chat with a stable system prompt, (2) nightly bulk classification of 10,000 items, (3) a weekly analytics report. A VP asks you to "just turn on caching for everything." What\u2019s the nuanced answer?',
+        options: [
+          { label: 'The VP is right \u2014 enable caching globally and you\u2019re done', key: 'a' },
+          { label: 'Caching helps all three equally since they all use the same model', key: 'b' },
+          { label: 'Enable prompt caching for all three (the system prompts are stable), but also move workloads 2 and 3 to the Batch API since they\u2019re not latency-sensitive \u2014 caching and batching are complementary optimizations that stack', key: 'c' },
+          { label: 'Only cache workload 1 \u2014 batch workloads don\u2019t benefit from caching', key: 'd' }
+        ],
+        answer: 'c',
+        explanation: 'The key insight is that caching and batching are complementary, not competing. All three workloads benefit from prompt caching (stable system prompts). But workloads 2 and 3 also benefit from batch pricing (50% off, no latency requirement). The VP\u2019s instinct to cache everything is right but incomplete \u2014 adding batching for offline workloads captures a second layer of savings. Option D is wrong because batch requests can also use cached prompts.'
+      }
+    ];
+
+    var currentQ = 0;
+    var score = 0;
+    var answered = false;
+
+    var scenarioEl = document.getElementById('quiz-scenario');
+    var optionsEl = document.getElementById('quiz-options');
+    var explanationEl = document.getElementById('quiz-explanation');
+    var progressBar = document.getElementById('quiz-progress-bar');
+    var progressText = document.getElementById('quiz-progress-text');
+    var nextBtn = document.getElementById('quiz-next');
+    var summaryEl = document.getElementById('quiz-summary');
+    var scoreEl = document.getElementById('quiz-score');
+    var summaryTextEl = document.getElementById('quiz-summary-text');
+    var cardEl = document.getElementById('quiz-card');
+    var retryBtn = document.getElementById('quiz-retry');
+
+    function loadQuestion() {
+      answered = false;
+      var q = questions[currentQ];
+      scenarioEl.textContent = q.question;
+      explanationEl.style.display = 'none';
+      nextBtn.style.display = 'none';
+
+      optionsEl.innerHTML = '';
+      q.options.forEach(function(opt) {
+        var btn = document.createElement('button');
+        btn.className = 'btn btn--secondary';
+        btn.dataset.answer = opt.key;
+        btn.textContent = opt.label;
+        optionsEl.appendChild(btn);
+      });
+
+      progressBar.style.width = ((currentQ) / questions.length * 100) + '%';
+      progressText.textContent = (currentQ + 1) + ' of ' + questions.length;
+    }
+
+    function handleAnswer(selected) {
+      if (answered) return;
+      answered = true;
+      var q = questions[currentQ];
+      var isCorrect = selected === q.answer;
+      if (isCorrect) score++;
+
+      optionsEl.querySelectorAll('.btn').forEach(function(btn) {
+        btn.disabled = true;
+        var ans = btn.dataset.answer;
+        if (ans === q.answer) {
+          btn.className = 'btn btn--correct';
+        } else if (ans === selected && !isCorrect) {
+          btn.className = 'btn btn--incorrect';
+        }
+      });
+
+      explanationEl.textContent = (isCorrect ? 'Correct! ' : 'Not quite. ') + q.explanation;
+      explanationEl.className = 'quiz__explanation ' + (isCorrect ? 'quiz__explanation--correct' : 'quiz__explanation--incorrect');
+      explanationEl.style.display = 'block';
+
+      progressBar.style.width = ((currentQ + 1) / questions.length * 100) + '%';
+
+      if (currentQ < questions.length - 1) {
+        nextBtn.style.display = 'inline-flex';
+      } else {
+        setTimeout(showSummary, 800);
+      }
+    }
+
+    function showSummary() {
+      cardEl.style.display = 'none';
+      progressBar.parentElement.style.display = 'none';
+      progressText.style.display = 'none';
+      nextBtn.style.display = 'none';
+      summaryEl.style.display = 'block';
+      scoreEl.textContent = score + ' out of ' + questions.length;
+
+      var messages = [
+        'Worth a re-read \u2014 the concepts will click with another pass!',
+        'Worth a re-read \u2014 the concepts will click with another pass!',
+        'You\'ve got the basics. Caching structure and batch use cases are worth revisiting.',
+        'Solid understanding of the fundamentals!',
+        'Strong grasp \u2014 you\'re thinking like someone who ships cost-efficient AI.',
+        'Perfect score. You own these concepts.'
+      ];
+      summaryTextEl.textContent = messages[score];
+    }
+
+    function reset() {
+      currentQ = 0;
+      score = 0;
+      cardEl.style.display = 'block';
+      progressBar.parentElement.style.display = 'block';
+      progressText.style.display = 'block';
+      summaryEl.style.display = 'none';
+      loadQuestion();
+    }
+
+    optionsEl.addEventListener('click', function(e) {
+      var btn = e.target.closest('[data-answer]');
+      if (!btn) return;
+      handleAnswer(btn.dataset.answer);
+    });
+
+    nextBtn.addEventListener('click', function() {
+      currentQ++;
+      loadQuestion();
+    });
+
+    retryBtn.addEventListener('click', reset);
+
+    loadQuestion();
+  })();
+
+  // ====================================================================
+  // Reading Progress Bar
+  // ====================================================================
+  (function() {
+    var bar = document.getElementById('reading-progress-bar');
+    var ticking = false;
+
+    function updateProgress() {
+      var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      var progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+      bar.style.width = Math.min(100, Math.max(0, progress)) + '%';
+      ticking = false;
+    }
+
+    window.addEventListener('scroll', function() {
+      if (!ticking) {
+        requestAnimationFrame(updateProgress);
+        ticking = true;
+      }
+    }, { passive: true });
+
+    updateProgress();
+  })();
+
+  // ====================================================================
+  // TOC Sidebar Visibility (show after scrolling past hero)
+  // ====================================================================
+  (function() {
+    var toc = document.querySelector('.toc');
+    var hero = document.getElementById('article-hero');
+
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        toc.classList.toggle('toc--visible', !entry.isIntersecting);
+      });
+    }, { threshold: 0 });
+
+    observer.observe(hero);
+  })();
+
+  // ====================================================================
+  // TOC Section Highlighting
+  // ====================================================================
+  (function() {
+    var headings = document.querySelectorAll('h2[id]');
+    var tocItems = document.querySelectorAll('.toc__list li');
+    var tocLinks = {};
+
+    tocItems.forEach(function(item) {
+      var link = item.querySelector('a');
+      if (link) {
+        var href = link.getAttribute('href');
+        if (href && href.startsWith('#')) {
+          tocLinks[href.substring(1)] = item;
+        }
+      }
+    });
+
+    function activate(item) {
+      tocItems.forEach(function(li) { li.classList.remove('toc__item--active'); });
+      item.classList.add('toc__item--active');
+    }
+
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (!entry.isIntersecting) return;
+        var id = entry.target.getAttribute('id');
+        var item = tocLinks[id];
+        if (item) activate(item);
+      });
+    }, { rootMargin: '0px 0px -70% 0px' });
+
+    headings.forEach(function(h) { observer.observe(h); });
+
+    window.addEventListener('scroll', function() {
+      if ((window.innerHeight + window.scrollY) >= document.documentElement.scrollHeight - 50) {
+        activate(tocItems[tocItems.length - 1]);
+      }
+    }, { passive: true });
+  })();
+  </script>
+
+  <style>
+    /* Decision Tool */
+    .decision__result {
+      margin-top: var(--space-6); padding: var(--space-6);
+      background: var(--color-surface); border: 1px solid var(--color-border);
+      border-radius: 8px;
+    }
+    .decision__rec-title {
+      font-family: var(--font-serif); font-size: var(--text-lg); font-weight: 600;
+      color: var(--accent-cost); margin-bottom: var(--space-4);
+    }
+    .decision__meters { display: flex; flex-direction: column; gap: var(--space-3); margin-bottom: var(--space-4); }
+    .decision__meter { display: flex; align-items: center; gap: var(--space-3); }
+    .decision__meter-label {
+      font-family: var(--font-sans); font-size: var(--text-xs);
+      color: var(--color-text-secondary); min-width: 120px;
+    }
+    .decision__meter-bar-wrap {
+      flex: 1; background: var(--color-border-light); border-radius: 4px;
+      height: 10px; overflow: hidden;
+    }
+    .decision__meter-bar {
+      height: 100%; border-radius: 4px; width: 0%;
+      transition: width var(--duration-normal) var(--ease-out);
+    }
+    .decision__recommendation {
+      font-family: var(--font-sans); font-size: var(--text-sm);
+      color: var(--color-text-secondary); line-height: 1.65;
+      margin-bottom: var(--space-4);
+    }
+    .decision__tags { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+    .decision__tag {
+      font-family: var(--font-sans); font-size: var(--text-xs); font-weight: 500;
+      padding: 4px 10px; border-radius: 100px;
+      background: #FEF3C7; color: var(--accent-cost);
+    }
+
+    /* Calculator */
+    .calc__controls { display: flex; flex-direction: column; gap: var(--space-4); margin-bottom: var(--space-6); }
+    .calc__control label {
+      font-family: var(--font-sans); font-size: var(--text-sm);
+      color: var(--color-text-secondary); display: block; margin-bottom: var(--space-2);
+    }
+    .calc__results {
+      padding: var(--space-6); background: var(--color-surface);
+      border: 1px solid var(--color-border); border-radius: 8px;
+    }
+    .calc__result-row {
+      display: flex; align-items: center; justify-content: center;
+      gap: var(--space-4); margin-bottom: var(--space-4); flex-wrap: wrap;
+    }
+    .calc__result { text-align: center; }
+    .calc__result-label {
+      font-family: var(--font-sans); font-size: var(--text-xs);
+      color: var(--color-text-secondary); margin-bottom: var(--space-1);
+    }
+    .calc__result-value {
+      font-family: var(--font-mono); font-size: var(--text-xl); font-weight: 600;
+    }
+    .calc__result-value--muted { color: var(--color-text-secondary); }
+    .calc__result-value--savings { color: #059669; }
+    .calc__result-arrow {
+      font-size: var(--text-xl); color: var(--color-text-secondary);
+    }
+    .calc__savings-bar-wrap {
+      width: 100%; background: #E5E7EB; border-radius: 4px;
+      height: 24px; overflow: hidden; margin-bottom: var(--space-4);
+    }
+    .calc__savings-bar {
+      height: 100%; background: var(--accent-cost); border-radius: 4px;
+      transition: width var(--duration-normal) var(--ease-out);
+    }
+    .calc__summary {
+      font-family: var(--font-sans); font-size: var(--text-sm);
+      color: var(--color-text-secondary); line-height: 1.55;
+    }
+
+    @media (max-width: 720px) {
+      .decision__meter { flex-direction: column; align-items: flex-start; gap: var(--space-1); }
+      .decision__meter-label { min-width: auto; }
+      .decision__meter-bar-wrap { width: 100%; }
+      .calc__result-row { flex-direction: column; gap: var(--space-2); }
+      .calc__result-arrow { transform: rotate(90deg); }
+    }
+  </style>
+
+</body>
+</html>

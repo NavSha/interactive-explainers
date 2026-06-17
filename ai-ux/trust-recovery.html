@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-E8RQLQXRWH"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-E8RQLQXRWH');
+  </script>
+  <title>Trust Recovery After Failure — AI for Builders</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/shared.css?v=10">
+  <style>
+    .reading-progress { position: fixed; top: 0; left: 0; width: 100%; height: 3px; z-index: 1000; pointer-events: none; background: transparent; }
+    .reading-progress__bar { height: 100%; width: 0%; background: #4F46E5; transition: width 0.15s ease-out; }
+    .toc__item--active > a { color: var(--accent-ux, #4F46E5); opacity: 1; }
+    .toc__item--active > .toc__numeral { color: var(--accent-ux, #4F46E5); opacity: 1; }
+    @media (min-width: 1280px) {
+      .toc { position: fixed; top: 50%; transform: translateY(-50%); width: 180px; left: calc((100vw - 760px) / 2 - 220px); padding: 0; margin: 0; z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+      .toc--visible { opacity: 1; pointer-events: auto; }
+      .toc__inner { padding: 0.75rem 1rem; background: rgba(255, 255, 255, 0.95); border-radius: 8px; border: 1px solid rgba(0, 0, 0, 0.08); backdrop-filter: blur(8px); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04); }
+      .toc__title { font-size: 0.65rem; margin-bottom: 0.5rem; }
+      .toc__list li { padding: 0.2rem 0; }
+      .toc__list a, .toc__numeral { font-size: 0.8rem; }
+    }
+
+    /* Widget: Trust Impact Calculator */
+    .trust-calc { max-width: 720px; margin: var(--space-8) auto; padding: var(--space-6); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 12px; }
+    .trust-calc__title { font-family: var(--font-sans); font-size: var(--text-sm); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent-ux); margin-bottom: var(--space-4); }
+    .trust-calc__grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); margin-bottom: var(--space-4); }
+    @media (max-width: 600px) { .trust-calc__grid { grid-template-columns: 1fr; } }
+    .trust-calc__group label { display: block; font-family: var(--font-sans); font-size: var(--text-xs); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-text-secondary); margin-bottom: var(--space-2); }
+    .trust-calc__select { width: 100%; padding: 0.6rem 0.75rem; border: 2px solid var(--color-border); border-radius: 6px; font-family: var(--font-sans); font-size: var(--text-sm); background: var(--color-bg); color: var(--color-text); cursor: pointer; transition: border-color 0.2s; }
+    .trust-calc__select:focus { outline: none; border-color: var(--accent-ux); }
+    .trust-calc__result { padding: var(--space-5); background: #EEF2FF; border-radius: 8px; border-left: 4px solid var(--accent-ux); display: none; }
+    .trust-calc__result--visible { display: block; }
+    .trust-calc__meter { margin-bottom: var(--space-4); }
+    .trust-calc__meter-label { display: flex; justify-content: space-between; font-family: var(--font-sans); font-size: var(--text-xs); color: var(--color-text-secondary); margin-bottom: var(--space-1); }
+    .trust-calc__meter-bar { height: 8px; background: var(--color-border); border-radius: 4px; overflow: hidden; }
+    .trust-calc__meter-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease-out, background 0.3s; }
+    .trust-calc__stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--space-3); margin-bottom: var(--space-4); }
+    @media (max-width: 600px) { .trust-calc__stats { grid-template-columns: 1fr; } }
+    .trust-calc__stat { text-align: center; padding: var(--space-3); background: rgba(255,255,255,0.7); border-radius: 6px; }
+    .trust-calc__stat-value { font-family: var(--font-mono); font-size: var(--text-lg); font-weight: 600; color: var(--accent-ux); display: block; }
+    .trust-calc__stat-label { font-family: var(--font-sans); font-size: 11px; color: var(--color-text-secondary); display: block; margin-top: 2px; }
+    .trust-calc__explanation { font-family: var(--font-sans); font-size: var(--text-sm); line-height: 1.6; color: var(--color-text); }
+
+    /* Widget: Recovery Playbook */
+    .playbook { max-width: 720px; margin: var(--space-8) auto; padding: var(--space-6); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 12px; }
+    .playbook__title { font-family: var(--font-sans); font-size: var(--text-sm); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent-ux); margin-bottom: var(--space-4); }
+    .playbook__scenarios { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); margin-bottom: var(--space-4); }
+    @media (max-width: 600px) { .playbook__scenarios { grid-template-columns: 1fr; } }
+    .playbook__scenario { padding: var(--space-4); border: 2px solid var(--color-border); border-radius: 8px; cursor: pointer; transition: border-color 0.2s, background 0.2s; font-family: var(--font-sans); font-size: var(--text-sm); text-align: left; }
+    .playbook__scenario:hover { border-color: var(--accent-ux); }
+    .playbook__scenario--active { border-color: var(--accent-ux); background: #EEF2FF; }
+    .playbook__scenario strong { display: block; margin-bottom: 0.25rem; font-size: var(--text-sm); }
+    .playbook__scenario span { font-size: var(--text-xs); color: var(--color-text-secondary); }
+    .playbook__plan { display: none; padding: var(--space-5); background: #EEF2FF; border-radius: 8px; border-left: 4px solid var(--accent-ux); }
+    .playbook__plan--visible { display: block; }
+    .playbook__plan h4 { font-family: var(--font-sans); font-size: var(--text-sm); font-weight: 600; color: var(--accent-ux); margin: 0 0 var(--space-3) 0; }
+    .playbook__step { display: flex; gap: var(--space-3); margin-bottom: var(--space-3); align-items: flex-start; }
+    .playbook__step-num { flex-shrink: 0; width: 24px; height: 24px; background: var(--accent-ux); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 11px; font-weight: 600; }
+    .playbook__step-text { font-family: var(--font-sans); font-size: var(--text-sm); line-height: 1.55; color: var(--color-text); }
+    .playbook__step-text strong { color: var(--color-text); }
+    .playbook__timing { margin-top: var(--space-3); padding: var(--space-3); background: rgba(255,255,255,0.7); border-radius: 6px; font-family: var(--font-sans); font-size: var(--text-xs); color: var(--color-text-secondary); line-height: 1.5; }
+
+    /* Capstone quiz */
+    .capstone-quiz { max-width: 720px; margin: var(--space-12) auto; padding: var(--space-8); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 12px; }
+    .capstone-quiz__title { font-family: var(--font-sans); font-size: var(--text-sm); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent-ux); margin-bottom: var(--space-2); }
+    .capstone-quiz__progress { font-family: var(--font-sans); font-size: var(--text-sm); color: var(--color-text-secondary); margin-bottom: var(--space-6); }
+    .capstone-quiz__question { font-family: var(--font-serif); font-size: var(--text-lg); line-height: 1.5; margin-bottom: var(--space-6); }
+    .capstone-quiz__options { display: flex; flex-direction: column; gap: var(--space-3); margin-bottom: var(--space-4); }
+    .capstone-quiz__option { padding: var(--space-4); border: 2px solid var(--color-border); border-radius: 8px; cursor: pointer; transition: border-color 0.2s, background 0.2s; font-family: var(--font-sans); font-size: var(--text-sm); line-height: 1.5; text-align: left; background: var(--color-bg); }
+    .capstone-quiz__option:hover { border-color: var(--accent-ux); }
+    .capstone-quiz__option--correct { border-color: #059669; background: #ECFDF5; }
+    .capstone-quiz__option--wrong { border-color: #DC2626; background: #FEF2F2; }
+    .capstone-quiz__explanation { display: none; padding: var(--space-4); background: #EEF2FF; border-radius: 8px; border-left: 4px solid var(--accent-ux); font-family: var(--font-sans); font-size: var(--text-sm); line-height: 1.6; margin-bottom: var(--space-4); }
+    .capstone-quiz__explanation--visible { display: block; }
+    .capstone-quiz__next { display: none; padding: 0.6rem 1.5rem; background: var(--accent-ux); color: #fff; border: none; border-radius: 6px; font-family: var(--font-sans); font-size: var(--text-sm); font-weight: 500; cursor: pointer; }
+    .capstone-quiz__next:hover { filter: brightness(1.1); }
+    .capstone-quiz__next--visible { display: inline-block; }
+    .capstone-quiz__score { text-align: center; padding: var(--space-8); font-family: var(--font-sans); }
+    .capstone-quiz__score-number { font-size: var(--text-3xl); font-weight: 600; color: var(--accent-ux); }
+    .capstone-quiz__score-label { font-size: var(--text-sm); color: var(--color-text-secondary); margin-top: var(--space-2); }
+    .capstone-quiz__score-message { font-size: var(--text-base); margin-top: var(--space-4); line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <div class="reading-progress"><div class="reading-progress__bar" id="reading-progress-bar"></div></div>
+
+  <header class="article-hero" id="article-hero" style="background: linear-gradient(135deg, #4338CA 0%, #818CF8 100%);">
+    <canvas class="article-hero__canvas" id="hero-canvas"></canvas>
+    <div class="article-hero__overlay"></div>
+    <div class="article-hero__content">
+      <nav class="breadcrumb breadcrumb--hero">
+        <a href="../index.html">AI for Builders</a> &nbsp;/&nbsp; <a href="index.html">AI UX &amp; Human-in-the-Loop</a> &nbsp;/&nbsp; <span>Part 4</span>
+      </nav>
+      <div class="article-header__meta" style="color: rgba(255,255,255,0.9);">Part 4 of 4 &middot; ~9 min read</div>
+      <h1 style="color: #fff;">Trust Recovery After Failure</h1>
+      <p class="lead" style="color: rgba(255,255,255,0.85);">Trust takes hundreds of good interactions to build and one bad one to break. Here&rsquo;s the playbook for earning it back.</p>
+    </div>
+  </header>
+
+  <nav class="toc" aria-label="Table of contents">
+    <div class="toc__inner">
+      <div class="toc__title">Contents</div>
+      <ol class="toc__list">
+        <li class="toc__item"><span class="toc__numeral">I.</span><a href="#trust-asymmetry">The Trust Asymmetry</a></li>
+        <li class="toc__item"><span class="toc__numeral">II.</span><a href="#failure-taxonomy">The Failure Taxonomy</a></li>
+        <li class="toc__item"><span class="toc__numeral">III.</span><a href="#immediate-response">Immediate Response Patterns</a></li>
+        <li class="toc__item"><span class="toc__numeral">IV.</span><a href="#systemic-recovery">Systemic Recovery</a></li>
+        <li class="toc__item"><span class="toc__numeral">V.</span><a href="#designing-for-failure">Designing for Inevitable Failure</a></li>
+        <li class="toc__item"><span class="toc__numeral">VI.</span><a href="#trust-budget">The Trust Budget</a></li>
+      </ol>
+    </div>
+  </nav>
+
+  <div class="epigraph">
+    <p class="epigraph__verse">
+      A hundred rights won&rsquo;t buy a wrong back whole,<br>
+      One hallucination takes its toll.<br>
+      Build the undo, own the miss, show the fix &mdash;<br>
+      Trust ain&rsquo;t earned in bulk, it&rsquo;s earned in bricks.
+    </p>
+  </div>
+
+  <article class="prose">
+
+    <h2 id="trust-asymmetry"><span class="section-number">I</span> The Trust Asymmetry</h2>
+
+    <p>There&rsquo;s a brutal math to trust in AI products. It builds slowly &mdash; drip by drip, correct answer by correct answer, over hundreds of interactions. And it breaks instantly. One confidently wrong answer about a medication dosage. One hallucinated legal citation. One fabricated financial figure that makes it into a board deck. The asymmetry is the whole problem.</p>
+
+    <p>This isn&rsquo;t a new insight for anyone who&rsquo;s studied trust in human relationships or institutions. But AI makes it worse for two reasons. First, <strong>AI failures are often invisible until they&rsquo;re catastrophic.</strong> A human advisor who&rsquo;s unsure will hedge, pause, or say &ldquo;let me check.&rdquo; An LLM will deliver a fabrication with the same confident tone it uses for facts. The user has no way to distinguish a trustworthy response from a dangerous one without independent verification &mdash; which defeats the purpose of using AI in the first place.</p>
+
+    <p>Second, <strong>the trust gap between builders and users is enormous.</strong> Stanford HAI&rsquo;s 2026 AI Index found that 73% of AI experts expect positive impact from the technology, but only 23% of the general public agrees. That&rsquo;s a 50-point gap between the people shipping AI products and the people using them. You&rsquo;re not starting from a neutral baseline. You&rsquo;re starting from skepticism, and every failure confirms it.</p>
+
+    <p>Anthropic&rsquo;s own usage data shows the trust curve in action: new users auto-approve only about 20% of agent actions, while experienced users with 750+ sessions approve over 40%. Trust grows with exposure &mdash; but even power users still override the majority of the time. That means the ceiling is lower than you think, and a single bad failure can reset months of accumulated trust to zero.</p>
+
+    <div class="callout callout--insight">
+      <div class="callout__label">Key Insight</div>
+      <div class="callout__body">Trust is not symmetrical. You cannot &ldquo;earn back&rdquo; trust the same way you earned it. The path from broken trust to restored trust is fundamentally different from the path of building trust from scratch &mdash; it requires acknowledgment, transparency, and visible change that the original trust-building did not. <strong>Recovery is a different discipline than building.</strong></div>
+    </div>
+
+    <h2 id="failure-taxonomy"><span class="section-number">II</span> The Failure Taxonomy for Trust</h2>
+
+    <p>Not all failures are created equal. A formatting glitch in an AI-generated email draft is forgettable. A confidently wrong medical recommendation is career-ending for the product team that shipped it. Understanding which failures damage trust &mdash; and how much &mdash; is the first step in designing recovery.</p>
+
+    <p>Three dimensions determine trust impact:</p>
+
+    <p><strong>1. Domain severity.</strong> Errors in high-stakes domains (medical, legal, financial) are trust-destroying. The same category of error in a low-stakes domain (playlist recommendations, email subject lines) is barely noticed. After the Moffatt v. Air Canada ruling &mdash; where a tribunal held the airline liable for its chatbot&rsquo;s fabricated bereavement fare policy &mdash; every builder learned that &ldquo;the AI said it&rdquo; is not a defense. Your product owns its outputs.</p>
+
+    <p><strong>2. Confidence calibration.</strong> A model that says &ldquo;I&rsquo;m not sure, but...&rdquo; and gets it wrong causes minor trust damage. A model that says &ldquo;The answer is definitively X&rdquo; and gets it wrong is devastating. <strong>Confidently wrong is the most trust-destroying failure mode in AI.</strong> It&rsquo;s worse than being uncertain and wrong, worse than refusing to answer, worse than being slow. Because it means the user cannot use the model&rsquo;s confidence as a signal for trustworthiness &mdash; and without that signal, every future response is suspect.</p>
+
+    <p><strong>3. Discoverability.</strong> Errors the user catches immediately (a clearly wrong number, a nonsensical sentence) are less trust-damaging than errors discovered later. The user who finds out next week that the &ldquo;case citation&rdquo; in their legal brief was hallucinated doesn&rsquo;t just lose trust in that response &mdash; they retroactively distrust every previous response and every future one. Late-discovered errors have a blast radius that extends backward and forward in time.</p>
+
+    <table class="tier-table">
+      <thead>
+        <tr>
+          <th>Failure Type</th>
+          <th>Trust Impact</th>
+          <th>Recovery Difficulty</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Formatting or style errors</td>
+          <td>Minimal</td>
+          <td>Low &mdash; fix and move on</td>
+        </tr>
+        <tr>
+          <td>Factual error, low-stakes domain</td>
+          <td>Moderate</td>
+          <td>Medium &mdash; acknowledge and correct</td>
+        </tr>
+        <tr>
+          <td>Factual error, high-stakes domain</td>
+          <td>Severe</td>
+          <td>High &mdash; requires systemic response</td>
+        </tr>
+        <tr>
+          <td>Confidently wrong on critical topic</td>
+          <td>Catastrophic</td>
+          <td>Very high &mdash; may require feature rollback</td>
+        </tr>
+        <tr>
+          <td>Late-discovered hallucination</td>
+          <td>Catastrophic + retroactive</td>
+          <td>Highest &mdash; damages all past interactions</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout--pm-tip">
+      <div class="callout__label">Builder Tip</div>
+      <div class="callout__body">Map your product&rsquo;s failure modes before launch, not after. For each AI-powered feature, ask: what&rsquo;s the worst thing the model could confidently get wrong? How would the user discover it? What&rsquo;s the blast radius? If the answers make you uncomfortable, you need guardrails, confidence thresholds, or human review <em>before</em> that failure happens. The 362 documented AI incidents in 2025 &mdash; up 55% year-over-year &mdash; suggest most teams are learning this the hard way.</div>
+    </div>
+
+  </article>
+
+  <!-- Widget 1: Trust Impact Calculator -->
+  <div class="wide-container">
+    <div class="trust-calc" id="trust-calc">
+      <div class="trust-calc__title">Interactive &middot; Trust Impact Calculator</div>
+      <p style="font-family: var(--font-sans); font-size: var(--text-sm); color: var(--color-text-secondary); margin-bottom: var(--space-4);">Select a failure type and severity to see the estimated trust recovery cost.</p>
+      <div class="trust-calc__grid">
+        <div class="trust-calc__group">
+          <label for="tc-failure">Failure Type</label>
+          <select class="trust-calc__select" id="tc-failure">
+            <option value="">Choose a failure type...</option>
+            <option value="format">Formatting or style error</option>
+            <option value="fact-low">Factual error (low-stakes)</option>
+            <option value="fact-high">Factual error (high-stakes)</option>
+            <option value="confident-wrong">Confidently wrong on critical topic</option>
+            <option value="hallucination">Late-discovered hallucination</option>
+          </select>
+        </div>
+        <div class="trust-calc__group">
+          <label for="tc-severity">AI Confidence Level</label>
+          <select class="trust-calc__select" id="tc-severity">
+            <option value="">Choose confidence level...</option>
+            <option value="hedged">Hedged ("I think...", "possibly...")</option>
+            <option value="neutral">Neutral (stated without qualification)</option>
+            <option value="confident">Confident ("Definitely", "The answer is...")</option>
+          </select>
+        </div>
+      </div>
+      <div class="trust-calc__result" id="tc-result">
+        <div class="trust-calc__meter">
+          <div class="trust-calc__meter-label"><span>Trust damage</span><span id="tc-damage-label">Moderate</span></div>
+          <div class="trust-calc__meter-bar"><div class="trust-calc__meter-fill" id="tc-damage-fill" style="width:0%;background:#4F46E5;"></div></div>
+        </div>
+        <div class="trust-calc__stats">
+          <div class="trust-calc__stat">
+            <span class="trust-calc__stat-value" id="tc-recovery-ratio">--</span>
+            <span class="trust-calc__stat-label">Good interactions to recover</span>
+          </div>
+          <div class="trust-calc__stat">
+            <span class="trust-calc__stat-value" id="tc-recovery-time">--</span>
+            <span class="trust-calc__stat-label">Estimated recovery time</span>
+          </div>
+          <div class="trust-calc__stat">
+            <span class="trust-calc__stat-value" id="tc-churn-risk">--</span>
+            <span class="trust-calc__stat-label">User churn risk</span>
+          </div>
+        </div>
+        <div class="trust-calc__explanation" id="tc-explanation"></div>
+      </div>
+    </div>
+  </div>
+
+  <article class="prose">
+
+    <h2 id="immediate-response"><span class="section-number">III</span> Immediate Response Patterns</h2>
+
+    <p>The moment of failure is the moment of maximum leverage. What you do in the first seconds after a user encounters an AI error determines whether they give you a chance to recover or mentally file your product under &ldquo;never again.&rdquo;</p>
+
+    <p>Four principles govern immediate response:</p>
+
+    <p><strong>1. Acknowledge specifically, not generically.</strong> &ldquo;Something went wrong&rdquo; is the worst possible response to an AI failure. It tells the user nothing &mdash; not what failed, not why, not whether it will happen again. Compare: &ldquo;The AI cited a legal case that doesn&rsquo;t exist. We&rsquo;ve removed the citation and flagged the response for review.&rdquo; Specificity signals competence. Vagueness signals that you either don&rsquo;t know what happened or don&rsquo;t want to tell the user. Neither builds trust.</p>
+
+    <p><strong>2. Show what went wrong.</strong> If the AI produced incorrect information, show the user exactly what was wrong &mdash; highlight it, strike it through, mark it with a visual indicator. Don&rsquo;t just delete the bad output and pretend it never happened. The user saw it. They may have already acted on it. Pretending it didn&rsquo;t exist is gaslighting, not error handling.</p>
+
+    <p><strong>3. Provide the correct information or say you don&rsquo;t know.</strong> If you can provide the right answer, do it immediately alongside the correction. If you can&rsquo;t, say so explicitly: &ldquo;We can&rsquo;t verify this information. Please check [authoritative source].&rdquo; An honest &ldquo;I don&rsquo;t know&rdquo; after a failure builds more trust than a second attempt that might also be wrong.</p>
+
+    <p><strong>4. Give the user control.</strong> Undo, edit, report, regenerate, escalate to a human. The more agency you give the user in the moment of failure, the less powerless they feel, and powerlessness is what turns a single bad experience into permanent distrust. Every AI error state should have at least two user-initiated next steps.</p>
+
+    <div class="callout callout--analogy">
+      <div class="callout__label">Analogy</div>
+      <div class="callout__body">Think of AI failure response like a restaurant handling a food order mistake. The worst response: silently replacing the dish and hoping the customer doesn&rsquo;t notice. Better: acknowledging the error, explaining what happened, replacing the dish, and offering something for the trouble. Best: all of the above, plus the manager stops by the table. <strong>In AI products, the &ldquo;manager stopping by&rdquo; is giving the user visible control over what happens next.</strong></div>
+    </div>
+
+    <h2 id="systemic-recovery"><span class="section-number">IV</span> Systemic Recovery</h2>
+
+    <p>Immediate response handles the moment. Systemic recovery handles the aftermath. This is where most teams fail &mdash; they fix the incident and move on, missing the larger trust repair that users need to see.</p>
+
+    <p><strong>Transparent post-mortems.</strong> When a significant AI failure occurs, tell affected users what happened and what changed. Not a corporate non-apology (&ldquo;We apologize for any inconvenience&rdquo;) but a specific account: what the AI got wrong, why it happened, and what you did to prevent recurrence. Stripe, Linear, and Cloudflare have normalized the public incident report for infrastructure outages. AI failures deserve the same treatment.</p>
+
+    <p><strong>Visible improvements.</strong> Users need to <em>see</em> that something changed, not just hear about it. If you added a fact-checking layer after a hallucination incident, surface it in the UI: &ldquo;Verified against 3 sources.&rdquo; If you added a confidence threshold, show the confidence badge. Invisible improvements don&rsquo;t rebuild trust because trust is rebuilt through observation, not announcements.</p>
+
+    <p><strong>Graduated re-earning of autonomy.</strong> If your AI product operates on an autonomy ladder &mdash; from suggestions to drafts to autonomous actions &mdash; a serious trust breach should drop you back down a rung. Temporarily. An AI that was auto-sending emails should revert to drafts-for-review. An AI that was auto-approving low-risk transactions should start flagging them for human confirmation. Then climb back slowly, letting usage data and user behavior tell you when to re-escalate. Cars24 understood this intuitively: they went from 15 people managing AI agents down to 4 overseeing 250 &mdash; but that ratio was earned through graduated trust, not assumed from day one.</p>
+
+    <p><strong>Proactive outreach.</strong> Don&rsquo;t wait for affected users to discover the problem. If you know a set of users received incorrect information, reach out to them directly. &ldquo;Last Tuesday, our AI provided incorrect information about X. Here is the corrected information. We&rsquo;ve implemented [specific change] to prevent this.&rdquo; Proactive outreach converts a trust-destroying moment into a trust-building one &mdash; because the user sees that you caught the problem, took responsibility, and fixed it before they even had to complain.</p>
+
+    <div class="callout callout--insight">
+      <div class="callout__label">Key Insight</div>
+      <div class="callout__body"><strong>The speed of your systemic response is itself a trust signal.</strong> A post-mortem published within 48 hours says &ldquo;we take this seriously.&rdquo; A post-mortem published three weeks later says &ldquo;we hoped you&rsquo;d forget.&rdquo; The fastest path to trust recovery is the visible proof that you moved fast to fix things &mdash; not the fix itself.</div>
+    </div>
+
+  </article>
+
+  <!-- Widget 2: Recovery Playbook -->
+  <div class="wide-container">
+    <div class="playbook" id="playbook">
+      <div class="playbook__title">Interactive &middot; Recovery Playbook</div>
+      <p style="font-family: var(--font-sans); font-size: var(--text-sm); color: var(--color-text-secondary); margin-bottom: var(--space-4);">Select your failure scenario to get a step-by-step recovery plan.</p>
+      <div class="playbook__scenarios" id="pb-scenarios"></div>
+      <div class="playbook__plan" id="pb-plan"></div>
+    </div>
+  </div>
+
+  <article class="prose">
+
+    <h2 id="designing-for-failure"><span class="section-number">V</span> Designing for Inevitable Failure</h2>
+
+    <p>The best trust recovery strategy is one you never have to use. That means architecting your product for the certainty &mdash; not the possibility &mdash; of AI failure. Every AI system will produce incorrect output. The question is whether your product is designed so that incorrect output causes minimal damage.</p>
+
+    <p><strong>Set expectations early.</strong> The most trust-protective thing you can do is frame AI output correctly before the user ever sees it. &ldquo;AI-assisted, human-verified&rdquo; sets a fundamentally different expectation than &ldquo;AI-powered.&rdquo; &ldquo;Draft generated by AI &mdash; review before sending&rdquo; gives the user a cognitive framework where errors are expected, not shocking. Expectation-setting is cheap and its ROI on trust preservation is enormous.</p>
+
+    <p><strong>Build undo into everything.</strong> Every AI action should be reversible. Every AI-generated output should be editable. Every AI decision should be overridable. If your AI auto-filed an expense report incorrectly, the user should be able to undo it with one click, not a support ticket. Undo is the universal trust insurance policy &mdash; it says &ldquo;we know this might be wrong, and we made it easy to fix.&rdquo;</p>
+
+    <p><strong>Make the feedback loop visible.</strong> When a user reports an error or corrects an AI output, show them that their feedback mattered. &ldquo;Thanks to user feedback, this response type is now 14% more accurate.&rdquo; Even a simple &ldquo;Your correction helped improve the model&rdquo; converts a frustrating error into a moment of agency. The user goes from &ldquo;this AI is broken&rdquo; to &ldquo;I&rsquo;m helping fix it.&rdquo;</p>
+
+    <p><strong>Feature-flag high-risk capabilities.</strong> Don&rsquo;t launch autonomous AI actions to all users simultaneously. Gate them behind progressive rollouts: internal team first, then power users, then general availability. Each phase is a trust-building exercise where you catch failures at lower blast radius. If something goes wrong in the beta cohort, you fix it before it reaches your entire user base.</p>
+
+    <div class="callout callout--pm-tip">
+      <div class="callout__label">Builder Tip</div>
+      <div class="callout__body">Audit your product for &ldquo;trust debt&rdquo; &mdash; places where AI failure has no recovery path. Look for: AI actions that can&rsquo;t be undone, AI outputs with no edit affordance, AI decisions with no human override, AI features with no error reporting mechanism. Each of these is a trust debt that compounds with every failure. <strong>Fix them before the failure happens, not after.</strong></div>
+    </div>
+
+    <h2 id="trust-budget"><span class="section-number">VI</span> The Trust Budget</h2>
+
+    <p>Every AI product has a finite trust budget. Think of it like a bank account. Correct, helpful interactions make small deposits. Failures make large withdrawals. And like a real bank account, overdrafts have consequences &mdash; the user leaves.</p>
+
+    <p>The math is asymmetric by design. Research across trust studies in human-AI interaction consistently finds that <strong>recovering from a single trust-breaking failure requires 5 to 15 positive interactions</strong>, depending on severity. A formatting error might need 5 good responses to erase from the user&rsquo;s memory. A confidently wrong answer on a high-stakes question might need 15 or more &mdash; if the user gives you that many chances at all.</p>
+
+    <p>This means your trust budget is always smaller than you think. A product that&rsquo;s right 95% of the time sounds great until you model the trust math. At one failure per 20 interactions, and a recovery cost of 10 good interactions per failure, the user is spending half their positive experiences just recovering from the negative ones. They never build the deep trust that turns them into a power user or advocate. They stay in the skeptical middle &mdash; using the product but never truly relying on it.</p>
+
+    <p><strong>The trust budget framework changes how you prioritize.</strong> Most teams optimize for average accuracy. The trust budget says you should optimize for worst-case impact. A model that&rsquo;s 93% accurate but never confidently wrong on critical topics has a healthier trust budget than a model that&rsquo;s 97% accurate but occasionally delivers catastrophic false confidence. The 4% accuracy difference matters less than the difference in failure severity.</p>
+
+    <p>At organizational scale, the trust budget compounds across every user and every interaction. Those 362 documented AI incidents in 2025 &mdash; up 55% year-over-year &mdash; aren&rsquo;t just individual failures. Each one is a withdrawal from the industry&rsquo;s collective trust budget. When one company&rsquo;s chatbot hallucinates a refund policy and it makes the news, it makes every user of every chatbot a little more skeptical. You&rsquo;re not just managing your own trust budget. You&rsquo;re contributing to &mdash; or drawing down &mdash; the trust budget for AI products as a category.</p>
+
+    <div class="callout callout--summary">
+      <div class="callout__label">Takeaway</div>
+      <div class="callout__body">Trust in AI products is asymmetric, fragile, and finite. It builds slowly through hundreds of correct interactions and breaks instantly through one bad one. The playbook: map your failure modes by severity, build immediate response patterns that acknowledge specifically and give users control, invest in systemic recovery that&rsquo;s fast and visible, architect your product so failures cause minimal damage, and manage your trust budget by optimizing for worst-case impact, not average accuracy. <strong>The products that win aren&rsquo;t the ones that never fail &mdash; they&rsquo;re the ones that fail well.</strong></div>
+    </div>
+
+  </article>
+
+  <nav class="article-nav">
+    <a href="streaming-ux.html">&larr; Part 3: Streaming UX Patterns</a>
+    <a href="index.html">Back to series overview &rarr;</a>
+  </nav>
+
+  <!-- Capstone Quiz -->
+  <div class="capstone-quiz" id="capstone-quiz">
+    <div class="capstone-quiz__title">Capstone Quiz</div>
+    <div class="capstone-quiz__progress" id="cq-progress"></div>
+    <div class="capstone-quiz__question" id="cq-question"></div>
+    <div class="capstone-quiz__options" id="cq-options"></div>
+    <div class="capstone-quiz__explanation" id="cq-explanation"></div>
+    <button class="capstone-quiz__next" id="cq-next">Next question &rarr;</button>
+    <div class="capstone-quiz__score" id="cq-score" style="display:none;"></div>
+  </div>
+
+  <script>
+  // Reading Progress
+  (function() { var bar = document.getElementById('reading-progress-bar'); if (!bar) return; window.addEventListener('scroll', function() { var h = document.documentElement; bar.style.width = Math.min((h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100, 100) + '%'; }); })();
+  // TOC visibility
+  (function() { var toc = document.querySelector('.toc'), hero = document.getElementById('article-hero'); if (!toc || !hero) return; new IntersectionObserver(function(e) { toc.classList.toggle('toc--visible', !e[0].isIntersecting); }, { threshold: 0 }).observe(hero); })();
+  // TOC active
+  (function() { var h = document.querySelectorAll('h2[id]'), ti = document.querySelectorAll('.toc__item'); if (!h.length) return; h.forEach(function(hd) { new IntersectionObserver(function(e) { if (e[0].isIntersecting) { ti.forEach(function(i) { i.classList.remove('toc__item--active'); }); var l = document.querySelector('.toc__item a[href="#' + e[0].target.id + '"]'); if (l) l.parentElement.classList.add('toc__item--active'); } }, { rootMargin: '-20% 0px -80% 0px' }).observe(hd); }); })();
+  // Hero canvas
+  (function() { var c = document.getElementById('hero-canvas'); if (!c) return; var ctx = c.getContext('2d'), p = []; function r() { c.width = c.offsetWidth * (window.devicePixelRatio || 1); c.height = c.offsetHeight * (window.devicePixelRatio || 1); ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1); } r(); window.addEventListener('resize', r); for (var i = 0; i < 35; i++) p.push({ x: Math.random() * c.offsetWidth, y: Math.random() * c.offsetHeight, r: Math.random() * 2 + 1, dx: (Math.random() - 0.5) * 0.4, dy: (Math.random() - 0.5) * 0.4, a: Math.random() * 0.3 + 0.1 }); function d() { ctx.clearRect(0, 0, c.offsetWidth, c.offsetHeight); p.forEach(function(pt) { pt.x += pt.dx; pt.y += pt.dy; if (pt.x < 0 || pt.x > c.offsetWidth) pt.dx *= -1; if (pt.y < 0 || pt.y > c.offsetHeight) pt.dy *= -1; ctx.beginPath(); ctx.arc(pt.x, pt.y, pt.r, 0, Math.PI * 2); ctx.fillStyle = 'rgba(255,255,255,' + pt.a + ')'; ctx.fill(); }); for (var i = 0; i < p.length; i++) for (var j = i + 1; j < p.length; j++) { var dx = p[i].x - p[j].x, dy = p[i].y - p[j].y, dist = Math.sqrt(dx * dx + dy * dy); if (dist < 100) { ctx.beginPath(); ctx.moveTo(p[i].x, p[i].y); ctx.lineTo(p[j].x, p[j].y); ctx.strokeStyle = 'rgba(255,255,255,' + (0.12 * (1 - dist / 100)) + ')'; ctx.lineWidth = 0.5; ctx.stroke(); } } requestAnimationFrame(d); } d(); })();
+
+  // Widget 1: Trust Impact Calculator
+  (function() {
+    var failureEl = document.getElementById('tc-failure');
+    var severityEl = document.getElementById('tc-severity');
+    var resultEl = document.getElementById('tc-result');
+    var damageFill = document.getElementById('tc-damage-fill');
+    var damageLabel = document.getElementById('tc-damage-label');
+    var ratioEl = document.getElementById('tc-recovery-ratio');
+    var timeEl = document.getElementById('tc-recovery-time');
+    var churnEl = document.getElementById('tc-churn-risk');
+    var explanationEl = document.getElementById('tc-explanation');
+
+    var data = {
+      'format': { base: 10, label: 'Minimal', ratio: 2, time: '1-2 days', churn: '< 5%', color: '#22C55E',
+        explanation: { hedged: 'Formatting errors are quickly forgiven, especially when the AI hedged. Users barely register these.', neutral: 'A minor cosmetic issue. Users notice but don\'t change behavior. One or two good interactions erase it.', confident: 'Even a confident tone on a formatting error is forgettable. The content was still usable.' } },
+      'fact-low': { base: 35, label: 'Moderate', ratio: 5, time: '1-2 weeks', churn: '10-15%', color: '#F59E0B',
+        explanation: { hedged: 'The hedging language softened the blow. Users think "at least it warned me." Recovery takes fewer positive interactions.', neutral: 'A factual error stated matter-of-factly in a low-stakes context. Users recalibrate their trust downward, but continued accurate responses recover it within a week or two.', confident: 'Confident delivery of wrong information, even in low-stakes domains, makes users question what else might be wrong. The confidence is the problem, not the stakes.' } },
+      'fact-high': { base: 65, label: 'Severe', ratio: 10, time: '1-3 months', churn: '25-40%', color: '#EF4444',
+        explanation: { hedged: 'High-stakes domain, but the hedging gave the user a chance to verify. The damage is real but partially mitigated by the AI\'s own uncertainty signal.', neutral: 'A factual error in a high-stakes domain stated without qualification. Users may have acted on this information. Recovery requires visible systemic changes, not just more correct answers.', confident: 'This is near-catastrophic. A confident factual error in medicine, law, or finance can cause real-world harm. Think Moffatt v. Air Canada. Recovery requires public acknowledgment, systemic fixes, and months of re-earned trust.' } },
+      'confident-wrong': { base: 85, label: 'Catastrophic', ratio: 15, time: '3-6 months', churn: '40-60%', color: '#DC2626',
+        explanation: { hedged: 'Even hedged, getting a critical topic wrong is serious. But the hedging shows the system has some self-awareness, which preserves a thread of trust to rebuild from.', neutral: 'Confidently wrong on a critical topic, stated neutrally. The user trusted the output, acted on it, and discovered it was wrong. They now question every past interaction.', confident: 'Maximum trust destruction. The AI was emphatic and wrong on something that matters. The user may never fully trust the product again. Recovery requires feature rollback, direct outreach, and months of demonstrated improvement.' } },
+      'hallucination': { base: 90, label: 'Catastrophic+', ratio: 15, time: '3-6+ months', churn: '50-70%', color: '#991B1B',
+        explanation: { hedged: 'Late-discovered hallucinations are devastating regardless of confidence level, because the user has already acted on the information. The hedging is cold comfort after the fact.', neutral: 'A hallucination discovered days or weeks later. The user now distrusts not just this response but all previous responses they didn\'t independently verify. Retroactive trust damage.', confident: 'The worst-case scenario. A confident hallucination discovered late. The user built decisions on fabricated information. Every past interaction is now suspect. Many users will not return.' } }
+    };
+
+    var confMultiplier = { hedged: 0.7, neutral: 1.0, confident: 1.3 };
+
+    function update() {
+      var f = failureEl.value;
+      var s = severityEl.value;
+      if (!f || !s) { resultEl.classList.remove('trust-calc__result--visible'); return; }
+
+      var d = data[f];
+      var mult = confMultiplier[s];
+      var damage = Math.min(100, Math.round(d.base * mult));
+      var ratio = Math.round(d.ratio * mult);
+      var churnParts = d.churn.split('-');
+
+      damageFill.style.width = damage + '%';
+      damageFill.style.background = d.color;
+      damageLabel.textContent = damage <= 25 ? 'Minimal' : damage <= 50 ? 'Moderate' : damage <= 75 ? 'Severe' : 'Catastrophic';
+      ratioEl.textContent = ratio + ':1';
+      timeEl.textContent = d.time;
+      churnEl.textContent = d.churn;
+      explanationEl.textContent = d.explanation[s];
+
+      resultEl.classList.add('trust-calc__result--visible');
+    }
+
+    failureEl.addEventListener('change', update);
+    severityEl.addEventListener('change', update);
+  })();
+
+  // Widget 2: Recovery Playbook
+  (function() {
+    var scenarios = [
+      { label: '<strong>Hallucinated Citation</strong><span>AI cited a source that doesn\'t exist in a legal/research context</span>',
+        title: 'Recovery Plan: Hallucinated Citation',
+        steps: [
+          { text: '<strong>Immediate (0-1 hours):</strong> Flag the specific citation as unverified. Show a visual strike-through with explanation: "This citation could not be verified against known databases."' },
+          { text: '<strong>Acknowledge (1-4 hours):</strong> Notify all users who received the same or similar citations. Provide the correct sources if available, or clearly state they don\'t exist.' },
+          { text: '<strong>Fix (1-3 days):</strong> Add a citation verification layer that cross-references generated citations against a known database before displaying them. Surface verification status in the UI.' },
+          { text: '<strong>Rebuild (1-4 weeks):</strong> Drop back on the autonomy ladder: citations now appear as "suggested, unverified" with a one-click verify action. Show verification badge only after confirmation.' },
+          { text: '<strong>Communicate (ongoing):</strong> Publish a brief incident report. Add a visible "Citations verified" indicator to the UI so users can see the improvement.' }
+        ],
+        timing: 'Expected trust recovery: 8-12 weeks of consistent, verified citations. Monitor user re-engagement with citation-heavy features as a trust signal.'
+      },
+      { label: '<strong>Wrong Financial Figure</strong><span>AI generated incorrect numbers in a financial report or analysis</span>',
+        title: 'Recovery Plan: Wrong Financial Figure',
+        steps: [
+          { text: '<strong>Immediate (0-1 hours):</strong> Mark the specific figure with a correction notice. Show the wrong number struck through alongside the corrected number (or "unable to verify").' },
+          { text: '<strong>Acknowledge (1-4 hours):</strong> Direct outreach to affected users: "The figure of $X in your [report] was incorrect. The correct figure is $Y." Include what decisions this may have affected.' },
+          { text: '<strong>Fix (1-5 days):</strong> Add numerical validation against source data. Implement a "figures confidence" check that flags generated numbers that can\'t be traced to input data.' },
+          { text: '<strong>Rebuild (2-6 weeks):</strong> All AI-generated financial figures now show source attribution: "Based on row 47 of uploaded spreadsheet." Require user confirmation before figures enter any exported document.' },
+          { text: '<strong>Communicate (ongoing):</strong> Add a "Source Verified" badge to all financial outputs. Weekly accuracy reports visible to users.' }
+        ],
+        timing: 'Expected trust recovery: 10-16 weeks. Financial errors carry legal exposure (see Moffatt v. Air Canada). Consider legal review of your liability posture.'
+      },
+      { label: '<strong>Incorrect Medical/Health Info</strong><span>AI provided wrong health information that a user may act on</span>',
+        title: 'Recovery Plan: Incorrect Health Information',
+        steps: [
+          { text: '<strong>Immediate (0-30 minutes):</strong> Replace the incorrect information with a prominent correction and health disclaimer. Link to authoritative medical sources (CDC, WHO, Mayo Clinic).' },
+          { text: '<strong>Acknowledge (1-2 hours):</strong> Urgent direct outreach to every user who received the information: "The health information provided about X was incorrect. Please consult your healthcare provider. Here is the correct guidance from [authoritative source]."' },
+          { text: '<strong>Fix (1-3 days):</strong> Implement hard guardrails for health topics: mandatory disclaimers, mandatory source citations, confidence threshold that blocks low-confidence health responses entirely.' },
+          { text: '<strong>Rebuild (4-12 weeks):</strong> Health-related responses now require explicit user acknowledgment ("I understand this is not medical advice"). All health outputs carry visible source attribution and verification badges.' },
+          { text: '<strong>Communicate (immediately):</strong> Public statement if the information was broadly distributed. Regulatory review if operating in a health-adjacent domain. Consider temporary feature suspension for health queries.' }
+        ],
+        timing: 'Expected trust recovery: 12-24 weeks, potentially longer. Health errors are the highest-liability category. Some users may not return regardless of recovery efforts.'
+      },
+      { label: '<strong>Chatbot Policy Misinformation</strong><span>AI told users about policies or offers that don\'t exist</span>',
+        title: 'Recovery Plan: Policy Misinformation',
+        steps: [
+          { text: '<strong>Immediate (0-2 hours):</strong> Honor the stated policy for affected users. If the AI said there\'s a bereavement discount, provide the bereavement discount. Eating the cost is cheaper than the alternative.' },
+          { text: '<strong>Acknowledge (2-8 hours):</strong> Contact all affected users: "Our AI assistant provided incorrect information about [policy]. We are honoring what was communicated to you and have corrected the system."' },
+          { text: '<strong>Fix (1-3 days):</strong> Ground all policy responses in a verified policy database (RAG with strict retrieval). Block the AI from generating policy information not found in the knowledge base.' },
+          { text: '<strong>Rebuild (2-6 weeks):</strong> Policy responses now cite the specific policy document and version. Add a "Verified against [Company] Policy v3.2" badge. Route edge-case policy questions to human agents.' },
+          { text: '<strong>Communicate (1 week):</strong> Publish a brief report: "What happened, what we changed, how policy answers now work." Include a link for users to verify any previous policy information they received.' }
+        ],
+        timing: 'Expected trust recovery: 6-10 weeks. Honor commitments made by the AI to affected users. The Moffatt v. Air Canada ruling confirmed: companies are liable for their chatbot\'s promises.'
+      }
+    ];
+
+    var container = document.getElementById('pb-scenarios');
+    var planEl = document.getElementById('pb-plan');
+
+    scenarios.forEach(function(s, i) {
+      var btn = document.createElement('div');
+      btn.className = 'playbook__scenario';
+      btn.innerHTML = s.label;
+      btn.addEventListener('click', function() {
+        container.querySelectorAll('.playbook__scenario').forEach(function(b) { b.classList.remove('playbook__scenario--active'); });
+        btn.classList.add('playbook__scenario--active');
+
+        var html = '<h4>' + s.title + '</h4>';
+        s.steps.forEach(function(step, idx) {
+          html += '<div class="playbook__step"><div class="playbook__step-num">' + (idx + 1) + '</div><div class="playbook__step-text">' + step.text + '</div></div>';
+        });
+        html += '<div class="playbook__timing">' + s.timing + '</div>';
+        planEl.innerHTML = html;
+        planEl.classList.add('playbook__plan--visible');
+      });
+      container.appendChild(btn);
+    });
+  })();
+
+  // Capstone Quiz
+  (function() {
+    var questions = [
+      { question: 'Your AI legal research tool hallucinated a case citation. A user included it in a court filing before discovering the error. In the immediate aftermath, what is the most important action?',
+        options: [
+          { label: 'Quietly fix the model so it doesn\'t hallucinate citations again, and hope the user doesn\'t escalate', key: 'a' },
+          { label: 'Send a generic apology email to all users about "system improvements"', key: 'b' },
+          { label: 'Directly contact the affected user with the specific error, provide correct information, and explain what systemic changes you\'re making to prevent recurrence', key: 'c' },
+          { label: 'Add a disclaimer to the product saying "AI outputs may contain errors" and move on', key: 'd' }
+        ],
+        answer: 'c',
+        explanation: 'Immediate, specific, direct communication is the foundation of trust recovery. The user needs to know exactly what went wrong, that you know it went wrong, and what you\'re doing about it. Quiet fixes (A) and generic disclaimers (D) signal that you don\'t take the failure seriously. Generic apologies (B) are barely better than silence because they don\'t address the specific harm.' },
+      { question: 'Two AI failures occur on the same day: (1) the model formats a table incorrectly in a report, and (2) the model confidently states an incorrect drug interaction with a hedged tone. Which failure demands more urgent trust recovery, and why?',
+        options: [
+          { label: 'The table formatting, because it\'s more visible to the user', key: 'a' },
+          { label: 'Both are equally urgent because any AI error damages trust', key: 'b' },
+          { label: 'The drug interaction, because domain severity (medical) massively outweighs the hedged delivery. Formatting errors are forgettable; health misinformation can cause real harm.', key: 'c' },
+          { label: 'Neither is urgent since the drug interaction was hedged, which means the AI communicated its uncertainty', key: 'd' }
+        ],
+        answer: 'c',
+        explanation: 'The failure taxonomy has three dimensions: domain severity, confidence calibration, and discoverability. Domain severity is the strongest factor. A hedged medical error is still far more trust-damaging than a confident formatting glitch, because the consequences of acting on wrong medical information are incomparably worse. Hedging mitigates but does not eliminate the trust damage in high-stakes domains.' },
+      { question: 'Your AI product had a significant hallucination incident two weeks ago. You\'ve fixed the underlying issue and accuracy has improved. But user engagement metrics haven\'t recovered. What\'s most likely missing from your recovery?',
+        options: [
+          { label: 'You need to offer affected users a discount or credit to bring them back', key: 'a' },
+          { label: 'The fix is invisible to users. You need visible improvements they can observe: verification badges, source citations, confidence indicators that show the system has changed.', key: 'b' },
+          { label: 'Two weeks isn\'t enough time. Just wait and metrics will recover on their own.', key: 'c' },
+          { label: 'The product needs a complete rebrand to distance itself from the incident', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'Invisible improvements don\'t rebuild trust because trust is rebuilt through observation, not announcements. Users need to see that something changed in the product. Verification badges, source citations, confidence indicators, and "checked against X sources" messages are all visible trust signals that tell users the system is different now. Discounts (A) don\'t address the trust issue. Waiting (C) assumes trust recovers passively, which it doesn\'t. Rebranding (D) is expensive avoidance.' },
+      { question: 'A PM argues: "Our model is 97% accurate, so we should focus engineering effort on new features rather than trust recovery infrastructure like undo buttons and error reporting." What\'s the strongest counter-argument?',
+        options: [
+          { label: '97% accuracy means 3 errors per 100 interactions. At a recovery cost of 10-15 good interactions per error, users spend a third of their positive experiences just recovering from failures. Without trust infrastructure, accuracy alone can\'t build deep trust.', key: 'a' },
+          { label: 'Regulators may require error reporting features, so it\'s a compliance issue', key: 'b' },
+          { label: 'Competitors are investing in trust features, so it\'s a competitive disadvantage', key: 'c' },
+          { label: 'Users expect undo buttons in modern software, so it\'s a table-stakes UX feature', key: 'd' }
+        ],
+        answer: 'a',
+        explanation: 'The trust budget math makes the case. At 97% accuracy, every 100 interactions includes 3 failures. If each failure requires 10-15 good interactions to recover from, that\'s 30-45 of the remaining 97 good interactions spent on recovery. The user never builds surplus trust. Undo, error reporting, and recovery patterns aren\'t nice-to-haves \u2014 they\'re the infrastructure that lets your accuracy actually translate into user trust.' },
+      { question: 'After a high-profile AI failure, your team debates whether to drop back on the autonomy ladder (reverting from auto-send to draft-for-review). An engineer argues this will hurt product metrics and user experience. How should you respond?',
+        options: [
+          { label: 'The engineer is right \u2014 reverting capabilities punishes users who weren\'t affected by the failure', key: 'a' },
+          { label: 'Compromise by adding a warning banner but keeping auto-send enabled', key: 'b' },
+          { label: 'Graduated re-earning of autonomy is the correct pattern. Temporarily dropping back signals that you take the failure seriously and gives users visible control. Climb back as trust data improves. Short-term metric dip prevents long-term user exodus.', key: 'c' },
+          { label: 'Only revert for the specific users who were affected by the failure', key: 'd' }
+        ],
+        answer: 'c',
+        explanation: 'Graduated re-earning of autonomy is a core trust recovery pattern. Temporarily stepping back on the autonomy ladder \u2014 from auto-send to draft-for-review \u2014 sends a powerful signal: "We take this seriously enough to sacrifice convenience for safety." A warning banner (B) is insufficient because it doesn\'t change the risk profile. Only reverting for affected users (D) misses that trust damage spreads beyond those directly impacted. The short-term metric cost is an investment in long-term retention.' }
+    ];
+    var currentQ = 0, score = 0;
+    var qEl = document.getElementById('cq-question'), pEl = document.getElementById('cq-progress');
+    var oEl = document.getElementById('cq-options'), eEl = document.getElementById('cq-explanation');
+    var nEl = document.getElementById('cq-next'), sEl = document.getElementById('cq-score');
+    if (!qEl) return;
+    function render() {
+      if (currentQ >= questions.length) {
+        qEl.style.display = 'none'; pEl.style.display = 'none'; oEl.style.display = 'none'; eEl.style.display = 'none'; nEl.style.display = 'none'; sEl.style.display = 'block';
+        var pct = Math.round((score / questions.length) * 100);
+        var msgs = ['Review the article \u2014 trust recovery has patterns worth internalizing.', 'Decent foundation \u2014 you get the basics but the nuances of trust math need work.', 'Solid understanding \u2014 you know that recovery is a different discipline than building.', 'Strong grasp \u2014 you\'re ready to design trust infrastructure that actually works.', 'Exceptional \u2014 you understand the asymmetry, the budget, and the playbook.'];
+        var mi = score <= 1 ? 0 : score <= 2 ? 1 : score <= 3 ? 2 : score <= 4 ? 3 : 4;
+        sEl.innerHTML = '<div class="capstone-quiz__score-number">' + score + '/' + questions.length + '</div><div class="capstone-quiz__score-label">' + pct + '% correct</div><div class="capstone-quiz__score-message">' + msgs[mi] + '</div>';
+        return;
+      }
+      var q = questions[currentQ]; pEl.textContent = 'Question ' + (currentQ + 1) + ' of ' + questions.length; qEl.textContent = q.question; oEl.innerHTML = '';
+      eEl.classList.remove('capstone-quiz__explanation--visible'); eEl.style.display = 'none'; nEl.classList.remove('capstone-quiz__next--visible'); nEl.style.display = 'none';
+      q.options.forEach(function(opt) {
+        var btn = document.createElement('button'); btn.className = 'capstone-quiz__option'; btn.textContent = opt.label;
+        btn.addEventListener('click', function() {
+          oEl.querySelectorAll('.capstone-quiz__option').forEach(function(b) { b.style.pointerEvents = 'none'; });
+          if (opt.key === q.answer) { btn.classList.add('capstone-quiz__option--correct'); score++; }
+          else { btn.classList.add('capstone-quiz__option--wrong'); oEl.querySelectorAll('.capstone-quiz__option').forEach(function(b) { if (b.textContent === q.options.find(function(o) { return o.key === q.answer; }).label) b.classList.add('capstone-quiz__option--correct'); }); }
+          eEl.textContent = q.explanation; eEl.style.display = 'block'; eEl.classList.add('capstone-quiz__explanation--visible');
+          nEl.style.display = 'inline-block'; nEl.classList.add('capstone-quiz__next--visible');
+        });
+        oEl.appendChild(btn);
+      });
+    }
+    nEl.addEventListener('click', function() { currentQ++; render(); }); render();
+  })();
+  </script>
+</body>
+</html>

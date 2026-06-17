@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-E8RQLQXRWH"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-E8RQLQXRWH');
+  </script>
+  <title>Debugging with an Agent — AI for Builders</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/shared.css?v=10">
+  <style>
+    .article-hero { background: var(--accent-vibe-gradient); }
+    .toc__list a:hover { color: var(--accent-vibe); }
+    .prose blockquote { border-left-color: var(--accent-vibe); }
+    .widget { background: var(--accent-vibe-light); border-color: #99F6E4; }
+    .widget__label { color: var(--accent-vibe); }
+    .btn--primary { background: var(--accent-vibe); }
+    .btn--active { background: var(--accent-vibe); border-color: var(--accent-vibe); }
+    .btn--secondary:hover:not(:disabled) { border-color: var(--accent-vibe); color: var(--accent-vibe); }
+    .tier-table tbody tr:hover { background: var(--accent-vibe-light); }
+    .quiz__progress-bar { background: var(--accent-vibe); }
+    .quiz__score { color: var(--accent-vibe); }
+
+    /* Error Decoder Widget */
+    .error-decoder__tabs {
+      display: flex;
+      gap: var(--space-2);
+      margin-bottom: var(--space-4);
+      flex-wrap: wrap;
+    }
+    .error-decoder__tab {
+      padding: var(--space-2) var(--space-4);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: var(--font-sans);
+      font-size: var(--text-xs);
+      font-weight: 500;
+      color: var(--color-text-secondary);
+      transition: all var(--duration-fast) var(--ease-out);
+    }
+    .error-decoder__tab:hover {
+      border-color: var(--accent-vibe);
+      color: var(--accent-vibe);
+    }
+    .error-decoder__tab--active {
+      background: var(--accent-vibe);
+      border-color: var(--accent-vibe);
+      color: #fff;
+    }
+    .error-decoder__error-box {
+      background: #1E293B;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: var(--space-6);
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      line-height: 1.7;
+    }
+    .error-decoder__error-header {
+      background: #334155;
+      padding: var(--space-2) var(--space-4);
+      color: #94A3B8;
+      font-size: 11px;
+      font-family: var(--font-sans);
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+    .error-decoder__error-body {
+      padding: var(--space-4);
+      overflow-x: auto;
+    }
+    .error-decoder__line {
+      padding: 2px 0;
+      cursor: pointer;
+      border-radius: 3px;
+      transition: background 0.15s;
+    }
+    .error-decoder__line:hover {
+      background: rgba(255,255,255,0.06);
+    }
+    .error-decoder__line--highlighted {
+      background: rgba(13, 148, 136, 0.2) !important;
+      border-left: 3px solid #0D9488;
+      padding-left: var(--space-2);
+    }
+    .err-type { color: #FCA5A5; font-weight: 600; }
+    .err-msg { color: #E2E8F0; }
+    .err-file { color: #67E8F9; }
+    .err-line-num { color: #FCD34D; }
+    .err-dim { color: #64748B; }
+    .err-fn { color: #C084FC; }
+    .error-decoder__breakdown {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: var(--space-4);
+      margin-bottom: var(--space-4);
+    }
+    @media (max-width: 600px) {
+      .error-decoder__breakdown { grid-template-columns: 1fr; }
+    }
+    .error-decoder__card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      padding: var(--space-4);
+      animation: messageSlideIn var(--duration-normal) var(--ease-out);
+    }
+    .error-decoder__card-label {
+      font-family: var(--font-sans);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent-vibe);
+      margin-bottom: var(--space-2);
+    }
+    .error-decoder__card-value {
+      font-family: var(--font-mono);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-text);
+      margin-bottom: var(--space-2);
+    }
+    .error-decoder__card-explain {
+      font-family: var(--font-sans);
+      font-size: var(--text-xs);
+      color: var(--color-text-secondary);
+      line-height: 1.5;
+    }
+    .error-decoder__plain {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      padding: var(--space-5);
+      font-family: var(--font-sans);
+      font-size: var(--text-sm);
+      line-height: 1.6;
+      color: var(--color-text);
+      animation: messageSlideIn var(--duration-normal) var(--ease-out);
+    }
+    .error-decoder__plain strong {
+      color: var(--accent-vibe);
+    }
+    .error-decoder__agent-label {
+      font-family: var(--font-sans);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent-vibe);
+      margin-bottom: var(--space-3);
+    }
+
+    /* Debug or Escalate Widget */
+    .escalate__scenarios {
+      display: flex;
+      gap: var(--space-2);
+      margin-bottom: var(--space-6);
+      flex-wrap: wrap;
+    }
+    .escalate__scenario-btn {
+      padding: var(--space-2) var(--space-4);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: var(--font-sans);
+      font-size: var(--text-xs);
+      font-weight: 500;
+      color: var(--color-text-secondary);
+      transition: all var(--duration-fast) var(--ease-out);
+    }
+    .escalate__scenario-btn:hover {
+      border-color: var(--accent-vibe);
+      color: var(--accent-vibe);
+    }
+    .escalate__scenario-btn--active {
+      background: var(--accent-vibe);
+      border-color: var(--accent-vibe);
+      color: #fff;
+    }
+    .escalate__situation {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      padding: var(--space-5);
+      margin-bottom: var(--space-4);
+      font-family: var(--font-sans);
+      font-size: var(--text-sm);
+      line-height: 1.6;
+      color: var(--color-text);
+    }
+    .escalate__situation-label {
+      font-family: var(--font-sans);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-2);
+    }
+    .escalate__choices {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-3);
+      margin-bottom: var(--space-4);
+    }
+    @media (max-width: 600px) {
+      .escalate__choices { grid-template-columns: 1fr; }
+    }
+    .escalate__choice {
+      padding: var(--space-5);
+      background: var(--color-surface);
+      border: 2px solid var(--color-border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all var(--duration-fast) var(--ease-out);
+      text-align: center;
+      font-family: var(--font-sans);
+    }
+    .escalate__choice:hover:not(:disabled) {
+      border-color: var(--accent-vibe);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(13, 148, 136, 0.12);
+    }
+    .escalate__choice:disabled { cursor: default; transform: none; box-shadow: none; }
+    .escalate__choice--correct {
+      border-color: #059669 !important;
+      background: #F0FDF4 !important;
+    }
+    .escalate__choice--incorrect {
+      border-color: #DC2626 !important;
+      background: #FEF2F2 !important;
+      opacity: 0.6;
+    }
+    .escalate__choice-icon {
+      font-size: 1.8rem;
+      margin-bottom: var(--space-2);
+    }
+    .escalate__choice-title {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-text);
+      margin-bottom: var(--space-1);
+    }
+    .escalate__choice-desc {
+      font-size: var(--text-xs);
+      color: var(--color-text-secondary);
+      line-height: 1.4;
+    }
+    .escalate__feedback {
+      padding: var(--space-4);
+      border-radius: 8px;
+      font-family: var(--font-sans);
+      font-size: var(--text-sm);
+      line-height: 1.55;
+      animation: messageSlideIn var(--duration-normal) var(--ease-out);
+    }
+    .escalate__feedback--correct {
+      background: #F0FDF4;
+      border: 1px solid #A7F3D0;
+      color: #065F46;
+    }
+    .escalate__feedback--incorrect {
+      background: #FEF2F2;
+      border: 1px solid #FECACA;
+      color: #991B1B;
+    }
+    .escalate__score {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-4);
+      margin-top: var(--space-4);
+      padding: var(--space-4);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      font-family: var(--font-sans);
+    }
+    .escalate__score-num {
+      font-size: var(--text-xl);
+      font-weight: 700;
+      color: var(--accent-vibe);
+      font-family: var(--font-mono);
+    }
+    .escalate__score-label {
+      font-size: var(--text-sm);
+      color: var(--color-text-secondary);
+    }
+
+    /* Reading Progress Bar */
+    .reading-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      z-index: 1000;
+      pointer-events: none;
+      background: transparent;
+    }
+    .reading-progress__bar {
+      height: 100%;
+      width: 0%;
+      background: #0D9488;
+      transition: width 0.15s ease-out;
+    }
+
+    /* TOC Active Highlighting */
+    .toc__item--active > a {
+      color: var(--accent-vibe, #0D9488);
+      opacity: 1;
+    }
+    .toc__item--active > .toc__numeral {
+      color: var(--accent-vibe, #0D9488);
+      opacity: 1;
+    }
+
+    /* TOC: fixed sidebar on wide screens, hidden until past hero */
+    @media (min-width: 1280px) {
+      .toc {
+        position: fixed;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 180px;
+        left: calc((100vw - 760px) / 2 - 220px);
+        padding: 0;
+        margin: 0;
+        z-index: 100;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+      }
+      .toc--visible {
+        opacity: 1;
+        pointer-events: auto;
+      }
+      .toc__inner {
+        padding: 0.75rem 1rem;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 8px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        backdrop-filter: blur(8px);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      }
+      .toc__title { font-size: 0.65rem; margin-bottom: 0.5rem; }
+      .toc__list li { padding: 0.2rem 0; }
+      .toc__list a, .toc__numeral { font-size: 0.8rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="reading-progress"><div class="reading-progress__bar" id="reading-progress-bar"></div></div>
+
+  <header class="article-hero" id="article-hero">
+    <canvas class="article-hero__canvas" id="hero-canvas"></canvas>
+    <div class="article-hero__overlay"></div>
+    <div class="article-hero__content">
+      <nav class="breadcrumb breadcrumb--hero">
+        <a href="../index.html">AI for Builders</a> &nbsp;/&nbsp; <a href="index.html">Vibe Coding</a> &nbsp;/&nbsp; <span>Part 4</span>
+      </nav>
+      <div class="article-header__meta" style="color: rgba(255,255,255,0.9);">Part 4 of 4 &middot; ~9 min read</div>
+      <h1 style="color: #fff;">Debugging with an Agent</h1>
+      <p class="lead" style="color: rgba(255,255,255,0.85);">You didn't write the code, but you can still fix it. The debugging loop, reading error messages, and knowing when to escalate.</p>
+    </div>
+  </header>
+
+  <nav class="toc" aria-label="Table of contents">
+    <div class="toc__inner">
+      <div class="toc__title">Contents</div>
+      <ol class="toc__list">
+        <li><span class="toc__numeral">I.</span><a href="#debugging-is-different">Debugging Is Different Now</a></li>
+        <li><span class="toc__numeral">II.</span><a href="#the-debugging-loop">The Debugging Loop</a></li>
+        <li><span class="toc__numeral">III.</span><a href="#reading-errors">Reading Error Messages</a></li>
+        <li><span class="toc__numeral">IV.</span><a href="#failure-patterns">Common Failure Patterns</a></li>
+        <li><span class="toc__numeral">V.</span><a href="#when-agent-cant-help">When the Agent Can't Help</a></li>
+        <li><span class="toc__numeral">VI.</span><a href="#maintenance-mindset">The Maintenance Mindset</a></li>
+      </ol>
+    </div>
+  </nav>
+
+  <div class="epigraph">
+    <p class="epigraph__verse">
+      The stack trace screams but you don't speak its tongue,<br>
+      Paste the whole thing in &mdash; let the agent get it done.<br>
+      You ain't the author but you're still in the chair,<br>
+      Debug the vibe, or debug the despair.
+    </p>
+  </div>
+
+  <article class="prose">
+
+    <!-- ================================================================
+         Section I: Debugging Is Different Now
+         ================================================================ -->
+    <h2 id="debugging-is-different"><span class="section-number">I</span> Debugging Is Different Now</h2>
+
+    <p>Traditional debugging has a prerequisite that nobody talks about: you wrote the code. You remember why that function exists, what the variable name means, what edge case prompted that weird conditional on line 47. When something breaks, you retrace your own steps. It's archaeology of your own thinking.</p>
+
+    <p>Vibe-coded projects don't give you that luxury. You described what you wanted, the agent built it, and now something is broken in code you've never read. <strong>You're debugging someone else's work &mdash; except that someone else is available 24/7 and has perfect recall of every line it wrote.</strong></p>
+
+    <p>This is the counterintuitive unlock: the same agent that wrote the code is often the best debugger of that code. It doesn't forget what it built. It doesn't get tired of reading stack traces. And it's seen thousands of variations of whatever error you're staring at. Andrej Karpathy hasn't typed code since late 2025 &mdash; and when his agent-delegated builds break, he's said the failure is always a skill issue on the human side: unclear instructions, missing memory, poor parallelization. Never a capability ceiling on the agent.</p>
+
+    <p>That's both liberating and demanding. Liberating because you don't need to become a software engineer to fix things. Demanding because you <em>do</em> need to become good at describing problems, reading signals, and knowing when you're out of your depth.</p>
+
+    <div class="callout callout--insight">
+      <div class="callout__label">Key Insight</div>
+      <div class="callout__body"><strong>Debugging with an agent isn't about understanding the code. It's about understanding the problem.</strong> You don't need to know why line 142 throws a TypeError. You need to know what you were trying to do, what happened instead, and what the error message says. The agent handles the rest &mdash; if you give it the right inputs.</div>
+    </div>
+
+    <!-- ================================================================
+         Section II: The Debugging Loop
+         ================================================================ -->
+    <h2 id="the-debugging-loop"><span class="section-number">II</span> The Debugging Loop</h2>
+
+    <p>If you've read the <a href="../agents/index.html">Agents series</a>, the debugging loop will feel familiar. It's the think-act-observe cycle applied to your own broken code:</p>
+
+    <ol>
+      <li><strong>You describe the error.</strong> What were you doing? What happened? What did you expect instead? Paste the full error message.</li>
+      <li><strong>The agent reads code + error.</strong> It examines the relevant files, the stack trace, the surrounding context.</li>
+      <li><strong>The agent proposes a hypothesis.</strong> "The API endpoint changed its response format" or "The environment variable isn't set in production."</li>
+      <li><strong>You verify.</strong> Does the hypothesis match what you see? Can you reproduce it? Does the proposed fix make sense?</li>
+      <li><strong>The agent fixes.</strong> It writes the patch, you test it. If it works, you're done. If not, loop back to step 1 with new information.</li>
+    </ol>
+
+    <p>The most important step is the first one. <strong>The quality of the fix is directly proportional to the quality of your error report.</strong> "It doesn't work" gives the agent nothing. "When I click Submit on the checkout page, I get a white screen and the console shows 'TypeError: Cannot read properties of undefined (reading map)' at line 84 of CartSummary.jsx" gives it everything.</p>
+
+    <div class="callout callout--pm-tip">
+      <div class="callout__label">Builder Tip</div>
+      <div class="callout__body"><strong>Paste the full error. Always.</strong> New builders instinctively paraphrase error messages: "it says something about a missing module." Don't. Copy the entire error &mdash; every line, every path, every number. The parts that look like meaningless noise to you are the parts the agent uses to pinpoint the problem. A full stack trace is worth a thousand descriptions.</div>
+    </div>
+
+    <p>The loop typically converges in one to three cycles. If you're on cycle four and still stuck, it's a signal &mdash; either the problem is outside the agent's view (an environment issue, a missing API key, a deployment configuration) or the problem is complex enough to need a human engineer. We'll cover how to tell the difference in Section V.</p>
+
+    <!-- ================================================================
+         Section III: Reading Error Messages
+         ================================================================ -->
+    <h2 id="reading-errors"><span class="section-number">III</span> Reading Error Messages</h2>
+
+    <p>Error messages are written by engineers for engineers. If you're a builder without a CS background, they look like encrypted transmissions from a hostile civilization. But they follow a pattern, and the pattern is learnable.</p>
+
+    <p>Every error message has three parts, and you need exactly zero programming knowledge to identify them:</p>
+
+    <p><strong>The error type</strong> &mdash; the first capitalized phrase, usually ending in "Error." <code>TypeError</code>, <code>ReferenceError</code>, <code>ModuleNotFoundError</code>, <code>404 Not Found</code>. This is the category of what went wrong. You don't need to understand it &mdash; but the agent does, and it narrows the search space immediately.</p>
+
+    <p><strong>The message</strong> &mdash; the human-readable sentence right after the type. "Cannot read properties of undefined" or "No module named 'flask'." This is the what. It tells you (and the agent) what specific thing failed.</p>
+
+    <p><strong>The file and line number</strong> &mdash; the path that tells you where the error happened. <code>src/components/Cart.jsx:84</code> means line 84 of the Cart component. <strong>The top of the stack trace is where the error surfaced, but it's not always where the bug lives.</strong> The agent reads the full trace to find the root cause, which might be several files deeper.</p>
+
+    <p>You don't need to memorize error types. You need to know that they exist and that the agent needs them. Think of yourself as a paramedic relaying vitals to the ER doctor &mdash; you don't need to diagnose the condition, but you do need to read the numbers off the monitor accurately.</p>
+
+    <div class="callout callout--analogy">
+      <div class="callout__label">Analogy</div>
+      <div class="callout__body"><strong>A stack trace is a flight recorder.</strong> When a plane (your app) crashes, the black box doesn't tell you why in plain English. But it records every altitude change, every system warning, every input from the cockpit &mdash; in reverse chronological order. The investigators (the agent) read from the top down to reconstruct the sequence that led to the crash. Your job is to hand over the black box intact, not summarize it from memory.</div>
+    </div>
+
+  </article>
+
+  <!-- ================================================================
+       Widget: Error Decoder
+       ================================================================ -->
+  <div class="wide-container">
+    <div class="widget" id="widget-error-decoder">
+      <div class="widget__label">Try it yourself</div>
+      <div class="widget__title">Error Decoder</div>
+      <div class="widget__instruction">Pick a simulated error message. See it broken down into type, file, and cause &mdash; with a plain-English explanation of what went wrong.</div>
+
+      <div class="error-decoder__tabs" id="error-tabs">
+        <!-- Rendered by JS -->
+      </div>
+
+      <div class="error-decoder__error-box" id="error-box">
+        <div class="error-decoder__error-header">
+          <span>Terminal</span>
+        </div>
+        <div class="error-decoder__error-body" id="error-body">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+
+      <div class="error-decoder__breakdown" id="error-breakdown">
+        <!-- Rendered by JS -->
+      </div>
+
+      <div class="error-decoder__agent-label">What the agent would tell you</div>
+      <div class="error-decoder__plain" id="error-plain">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+  </div>
+
+  <article class="prose">
+
+    <!-- ================================================================
+         Section IV: Common Failure Patterns
+         ================================================================ -->
+    <h2 id="failure-patterns"><span class="section-number">IV</span> Common Failure Patterns</h2>
+
+    <p>Not all bugs are created equal. Some are trivial for the agent, some require context you have to provide, and some are signals that you're past the vibe coding frontier. Here are the patterns you'll encounter most, and what to tell the agent for each.</p>
+
+    <p><strong>API changes breaking integrations.</strong> You shipped a working Stripe checkout last month. This month, it throws 400 errors. The API version changed, an endpoint was deprecated, or a required field was added. What to tell the agent: "The Stripe checkout that was working last month now returns this error [paste error]. I haven't changed the code. Check if the Stripe API has breaking changes."</p>
+
+    <p><strong>Dependency version conflicts.</strong> You ran <code>npm install</code> and now nothing works. A library updated and broke compatibility with another library. What to tell the agent: "After running npm install, the app crashes with [paste error]. Here's my package.json. What changed and how do I pin the versions?"</p>
+
+    <p><strong>Environment mismatches.</strong> The dreaded "works locally, fails deployed." Your app runs perfectly on your laptop but crashes on Vercel, Render, or Replit's hosting. The difference is usually environment variables, Node versions, or build settings. What to tell the agent: "This works locally but fails when deployed to [platform]. Here's the deploy log [paste]. My local Node version is [version]."</p>
+
+    <p><strong>Silent data errors.</strong> The most insidious category. Nothing crashes. No error message. But the numbers are wrong, the list is incomplete, or the data is stale. A query returns 10 results when there should be 50. A calculation is off by a penny on every transaction. What to tell the agent: "No error, but [specific thing] shows [wrong value] when it should show [correct value]. Here's the data source and the function that processes it."</p>
+
+    <p><strong>CSS layout bugs.</strong> Surprisingly common and surprisingly frustrating. The sidebar overlaps the content on mobile. The button is invisible against its background. The spacing looks wrong but only on Safari. What to tell the agent: "On [device/browser], [element] looks like [describe or screenshot]. It should look like [describe]. Here's the CSS file." The agent is quite good at CSS &mdash; layout bugs are usually its fastest fixes.</p>
+
+    <div class="callout callout--insight">
+      <div class="callout__label">Key Insight</div>
+      <div class="callout__body"><strong>The pattern across all these failures is the same: context the agent doesn't have.</strong> The agent can see your code but not your deploy environment, your API dashboard, your browser's viewport size, or the state of your database. Your job is to bridge that gap. Every piece of environmental context you provide saves a round trip in the debugging loop.</div>
+    </div>
+
+    <!-- ================================================================
+         Section V: When the Agent Can't Help
+         ================================================================ -->
+    <h2 id="when-agent-cant-help"><span class="section-number">V</span> When the Agent Can't Help</h2>
+
+    <p>The agent is a brilliant debugger within its field of view. But some categories of problems are outside that field, and no amount of prompt engineering will change that. Recognizing these early saves you from the most expensive debugging mistake: going in circles with an agent that can't see the real problem.</p>
+
+    <p><strong>Race conditions.</strong> Two things happen at almost the same time and interfere with each other. A user clicks "submit" twice before the first request finishes. Two API calls try to update the same database row simultaneously. These bugs are intermittent &mdash; they happen sometimes, under specific timing conditions, and they're nearly impossible to reproduce on demand. The agent can suggest fixes in theory, but testing those fixes requires engineering infrastructure: load testing, concurrent request simulation, transaction isolation. If your bug only happens "sometimes" and involves concurrent users, bring in a human.</p>
+
+    <p><strong>Performance problems.</strong> The page loads in 2 seconds instead of 200 milliseconds. The API takes 10 seconds to respond. The app freezes when the dataset grows past 1,000 rows. The agent can suggest general optimizations, but real performance work requires profiling &mdash; measuring exactly where time is spent, identifying bottlenecks in database queries, network calls, or rendering. This is specialist work.</p>
+
+    <p><strong>Security vulnerabilities.</strong> The agent that wrote SQL-injection-vulnerable code (remember the checkout from <a href="the-reality-check.html">Part 3</a>?) is unlikely to catch its own security oversights through debugging alone. Security requires adversarial thinking &mdash; what can go wrong if someone <em>tries</em> to break it &mdash; which is fundamentally different from "does it work correctly for honest users." If your app handles authentication, personal data, or payments, security review needs human eyes.</p>
+
+    <p><strong>Architectural problems.</strong> Your app was built as a single file and now it's 3,000 lines long. Adding a feature requires changing code in six places. Data flows through three intermediate functions before reaching the component that displays it. These aren't bugs &mdash; the code works. But the architecture is fighting you, and the solution is restructuring, not patching. Boris Cherny's observation applies here with full force: the constraint has moved from coding to architecture and intent. The agent can restructure code you tell it to restructure, but diagnosing <em>which</em> restructuring will solve the problem requires the kind of systems thinking that remains firmly human. If every fix creates a new bug somewhere else, that's the signal.</p>
+
+    <div class="callout callout--pm-tip">
+      <div class="callout__label">Builder Tip</div>
+      <div class="callout__body"><strong>The three-cycle rule:</strong> If you've been through the debugging loop three times for the same issue and you're no closer to a fix, stop. Either the problem is outside the agent's field of view (environment, timing, architecture) or you're missing context that you can't provide through text. This is the moment to bring in an engineer &mdash; not as a failure, but as a signal that the problem has graduated past the vibe coding tier. Frame it the way Part 3 taught you: "Here's what I built, here's what's broken, here's what I've tried."</div>
+    </div>
+
+  </article>
+
+  <!-- ================================================================
+       Widget: Debug or Escalate
+       ================================================================ -->
+  <div class="wide-container">
+    <div class="widget" id="widget-escalate">
+      <div class="widget__label">Try it yourself</div>
+      <div class="widget__title">Debug or Escalate?</div>
+      <div class="widget__instruction">Read each scenario and decide: can you debug this with the agent, or should you bring in a human engineer?</div>
+
+      <div class="escalate__scenarios" id="escalate-tabs">
+        <!-- Rendered by JS -->
+      </div>
+
+      <div class="escalate__situation" id="escalate-situation">
+        <!-- Rendered by JS -->
+      </div>
+
+      <div class="escalate__choices" id="escalate-choices">
+        <!-- Rendered by JS -->
+      </div>
+
+      <div id="escalate-feedback"></div>
+
+      <div class="escalate__score" id="escalate-score">
+        <div><span class="escalate__score-num" id="escalate-correct">0</span> <span class="escalate__score-label">of 6 correct</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================================================
+       Capstone Quiz: Article Recap
+       ================================================================ -->
+  <div class="wide-container">
+    <div class="widget" id="widget-capstone-quiz">
+      <div class="widget__label">Test your understanding</div>
+      <div class="widget__title">Article Recap</div>
+      <div class="widget__instruction">5 questions covering the key concepts from this article.</div>
+
+      <div class="quiz__progress">
+        <div class="quiz__progress-bar" id="quiz-progress-bar"></div>
+      </div>
+      <div class="quiz__progress-text" id="quiz-progress-text">1 of 5</div>
+
+      <div class="quiz__card" id="quiz-card">
+        <p class="quiz__scenario" id="quiz-scenario"></p>
+        <div class="widget__controls" id="quiz-options"></div>
+        <div class="quiz__explanation" id="quiz-explanation" style="display: none;"></div>
+      </div>
+
+      <div class="widget__controls widget__controls--mt">
+        <button class="btn btn--primary" id="quiz-next" style="display: none;">Next Question &rarr;</button>
+      </div>
+
+      <div class="quiz__summary" id="quiz-summary" style="display: none;">
+        <div class="quiz__score" id="quiz-score"></div>
+        <p class="quiz__summary-text" id="quiz-summary-text"></p>
+        <button class="btn btn--secondary" id="quiz-retry" style="margin-top: var(--space-4);">Try Again</button>
+      </div>
+    </div>
+  </div>
+
+  <article class="prose">
+
+    <!-- ================================================================
+         Section VI: The Maintenance Mindset
+         ================================================================ -->
+    <h2 id="maintenance-mindset"><span class="section-number">VI</span> The Maintenance Mindset</h2>
+
+    <p>Part 3 introduced the one-month test: can you come back to your project in a month and still work on it? Debugging is where that test gets real. The first time something breaks after you've stepped away, you discover whether you built a sustainable project or a ticking clock.</p>
+
+    <p>Remember the Replit production database deletion incident &mdash; an AI agent trying to fix a bug deleted a user's entire production database instead. The agent had the access, the intent was reasonable, and the outcome was catastrophic. That's an extreme case, but the pattern is everywhere: debugging without understanding creates risk. <strong>If you can't explain what the code does, you can't predict what a fix might break.</strong></p>
+
+    <p><strong>Tests are the best debugging documentation.</strong> When your app breaks six months from now, the first question is "what changed?" If you have tests, the answer is immediate &mdash; the failing test tells you exactly which behavior stopped working. Without tests, you're guessing. Ask the agent to write tests for your critical paths: the checkout flow, the login process, the data transformation that feeds your dashboard. Tests aren't about catching bugs when you write them. They're about catching bugs when something <em>else</em> changes.</p>
+
+    <p><strong>Git blame is archaeology.</strong> When something breaks and you don't know why, <code>git log</code> shows you every change in reverse chronological order. "The dashboard broke on Tuesday" becomes "on Tuesday, this commit changed the API response parsing" &mdash; which is a debuggable statement. If you don't use version control, every debugging session starts from zero. If you do, every session starts with a timeline of what changed and when.</p>
+
+    <p><strong>The Linux kernel AI code policy is instructive here.</strong> The kernel project allows AI-generated code, but requires a human submitter who takes full legal responsibility. The code isn't reviewed any differently &mdash; but a real person's name is on the line. That principle applies to your projects too. You built it with an agent. That's fine. But the bugs are yours, the maintenance is yours, and the consequences are yours. The agent is a tool, not an owner.</p>
+
+    <p>Stanford's 2026 AI Index documented that SWE-bench performance &mdash; the standard benchmark for AI coding agents &mdash; jumped from 60% to near 100% in a single year. The agents are getting remarkably good at writing and debugging code. But the gap between "agent can fix this" and "I understand what was fixed and why" is the gap between a project that survives and a project that accumulates invisible risk with every patch.</p>
+
+    <div class="callout callout--summary">
+      <div class="callout__label">Summary</div>
+      <div class="callout__body">
+        <strong>The debugging playbook for builders:</strong><br>
+        1. <strong>Paste the full error.</strong> Don't paraphrase. Don't truncate. The whole thing.<br>
+        2. <strong>Describe what you did, what happened, and what you expected.</strong> Three sentences that give the agent everything it needs.<br>
+        3. <strong>Provide environmental context.</strong> Deploy platform, browser, device, Node version &mdash; anything the agent can't see from the code alone.<br>
+        4. <strong>Three cycles max.</strong> If the loop hasn't converged, the problem is bigger than the agent's field of view.<br>
+        5. <strong>Invest in tests and version control.</strong> They make future debugging sessions start from knowledge instead of guesswork.
+      </div>
+    </div>
+
+  </article>
+
+  <!-- ================================================================
+       Article Navigation
+       ================================================================ -->
+  <nav class="article-nav">
+    <a href="the-reality-check.html">&larr; Part 3: The Reality Check</a>
+    <a href="index.html">Back to series &rarr;</a>
+  </nav>
+
+  <!-- ================================================================
+       Scripts
+       ================================================================ -->
+  <script>
+  // ====================================================================
+  // Hero: Animated floating particles
+  // ====================================================================
+  (function() {
+    var canvas = document.getElementById('hero-canvas');
+    var ctx = canvas.getContext('2d');
+    var hero = document.getElementById('article-hero');
+    var nodes = [];
+    var numNodes = 40;
+    var connectionDist = 140;
+    var dpr = window.devicePixelRatio || 1;
+    var w, h;
+
+    function resize() {
+      var rect = hero.getBoundingClientRect();
+      w = rect.width;
+      h = rect.height;
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    function initNodes() {
+      nodes = [];
+      for (var i = 0; i < numNodes; i++) {
+        nodes.push({
+          x: Math.random() * w,
+          y: Math.random() * h,
+          vx: (Math.random() - 0.5) * 0.4,
+          vy: (Math.random() - 0.5) * 0.4,
+          r: 2 + Math.random() * 3,
+          pulse: Math.random() * Math.PI * 2
+        });
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, w, h);
+      for (var i = 0; i < nodes.length; i++) {
+        var n = nodes[i];
+        n.x += n.vx; n.y += n.vy; n.pulse += 0.015;
+        if (n.x < -20) n.x = w + 20; if (n.x > w + 20) n.x = -20;
+        if (n.y < -20) n.y = h + 20; if (n.y > h + 20) n.y = -20;
+      }
+      ctx.lineWidth = 1;
+      for (var i = 0; i < nodes.length; i++) {
+        for (var j = i + 1; j < nodes.length; j++) {
+          var dx = nodes[i].x - nodes[j].x, dy = nodes[i].y - nodes[j].y;
+          var dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < connectionDist) {
+            ctx.strokeStyle = 'rgba(255,255,255,' + ((1 - dist / connectionDist) * 0.3) + ')';
+            ctx.beginPath(); ctx.moveTo(nodes[i].x, nodes[i].y); ctx.lineTo(nodes[j].x, nodes[j].y); ctx.stroke();
+          }
+        }
+      }
+      for (var i = 0; i < nodes.length; i++) {
+        var n = nodes[i], glow = 0.5 + 0.5 * Math.sin(n.pulse);
+        ctx.fillStyle = 'rgba(255,255,255,' + (0.4 + 0.4 * glow) + ')';
+        ctx.beginPath(); ctx.arc(n.x, n.y, n.r * (0.8 + 0.4 * glow), 0, Math.PI * 2); ctx.fill();
+      }
+      requestAnimationFrame(draw);
+    }
+
+    resize(); initNodes(); requestAnimationFrame(draw);
+    window.addEventListener('resize', function() { resize(); initNodes(); });
+  })();
+
+  // ====================================================================
+  // Widget: Error Decoder
+  // ====================================================================
+  (function() {
+    var errors = [
+      {
+        tab: 'TypeError',
+        lines: [
+          { text: '<span class="err-type">TypeError</span><span class="err-msg">: Cannot read properties of undefined (reading \'map\')</span>', highlight: true },
+          { text: '<span class="err-dim">    at</span> <span class="err-fn">CartSummary</span> <span class="err-dim">(</span><span class="err-file">src/components/CartSummary.jsx</span><span class="err-dim">:</span><span class="err-line-num">84</span><span class="err-dim">)</span>', highlight: false },
+          { text: '<span class="err-dim">    at</span> <span class="err-fn">renderWithHooks</span> <span class="err-dim">(</span><span class="err-file">node_modules/react-dom/cjs/react-dom.development.js</span><span class="err-dim">:</span><span class="err-line-num">14985</span><span class="err-dim">)</span>', highlight: false },
+          { text: '<span class="err-dim">    at</span> <span class="err-fn">mountIndeterminateComponent</span> <span class="err-dim">(</span><span class="err-file">node_modules/react-dom/cjs/react-dom.development.js</span><span class="err-dim">:</span><span class="err-line-num">17811</span><span class="err-dim">)</span>', highlight: false },
+          { text: '<span class="err-dim">    at</span> <span class="err-fn">beginWork</span> <span class="err-dim">(</span><span class="err-file">node_modules/react-dom/cjs/react-dom.development.js</span><span class="err-dim">:</span><span class="err-line-num">19049</span><span class="err-dim">)</span>', highlight: false }
+        ],
+        type: { value: 'TypeError', explain: 'The code tried to do something with a value that doesn\'t exist or is the wrong kind of thing.' },
+        file: { value: 'CartSummary.jsx:84', explain: 'Line 84 of the CartSummary component. The other files in the trace are React internals \u2014 ignore them.' },
+        cause: { value: 'undefined.map()', explain: 'The code called .map() on something that was undefined \u2014 probably an array that hasn\'t loaded yet.' },
+        plain: 'Your cart component is trying to loop through a list of items, but the list is <strong>undefined</strong> \u2014 it hasn\'t loaded from the API yet. The fix is to add a check: <code>items?.map()</code> or a loading state that waits for the data before rendering. This is one of the most common React errors.'
+      },
+      {
+        tab: 'ModuleNotFound',
+        lines: [
+          { text: '<span class="err-type">ModuleNotFoundError</span><span class="err-msg">: No module named \'flask_cors\'</span>', highlight: true },
+          { text: '<span class="err-dim">  File</span> <span class="err-file">"/app/server.py"</span><span class="err-dim">, line</span> <span class="err-line-num">3</span><span class="err-dim">, in</span> <span class="err-fn">&lt;module&gt;</span>', highlight: false },
+          { text: '<span class="err-dim">    from</span> <span class="err-fn">flask_cors</span> <span class="err-dim">import</span> <span class="err-fn">CORS</span>', highlight: false },
+        ],
+        type: { value: 'ModuleNotFoundError', explain: 'Python can\'t find a package that the code is trying to import.' },
+        file: { value: 'server.py:3', explain: 'Line 3 of your server file, where it tries to import the missing package.' },
+        cause: { value: 'flask_cors not installed', explain: 'The flask-cors package is in the code but wasn\'t installed in this environment.' },
+        plain: 'Your server imports <strong>flask-cors</strong> but it isn\'t installed. Run <code>pip install flask-cors</code> and try again. This often happens when you deploy to a new environment and forget to include the package in <code>requirements.txt</code>. The fix: add it to requirements.txt so every environment installs it automatically.'
+      },
+      {
+        tab: '404 API Error',
+        lines: [
+          { text: '<span class="err-type">Error</span><span class="err-msg">: Request failed with status code 404</span>', highlight: true },
+          { text: '<span class="err-dim">    at</span> <span class="err-fn">createError</span> <span class="err-dim">(</span><span class="err-file">node_modules/axios/lib/core/createError.js</span><span class="err-dim">:</span><span class="err-line-num">16</span><span class="err-dim">)</span>', highlight: false },
+          { text: '<span class="err-dim">    at</span> <span class="err-fn">settle</span> <span class="err-dim">(</span><span class="err-file">node_modules/axios/lib/core/settle.js</span><span class="err-dim">:</span><span class="err-line-num">17</span><span class="err-dim">)</span>', highlight: false },
+          { text: '<span class="err-dim">    at</span> <span class="err-fn">fetchUserProfile</span> <span class="err-dim">(</span><span class="err-file">src/api/users.js</span><span class="err-dim">:</span><span class="err-line-num">12</span><span class="err-dim">)</span>', highlight: false },
+          { text: '<span class="err-dim">  GET</span> <span class="err-file">https://api.example.com/v1/users/profile</span> <span class="err-type">404 (Not Found)</span>', highlight: true },
+        ],
+        type: { value: '404 Not Found', explain: 'The server says the URL you\'re requesting doesn\'t exist.' },
+        file: { value: 'src/api/users.js:12', explain: 'The API call originates in your users.js file. The axios lines are library internals.' },
+        cause: { value: 'Wrong endpoint URL', explain: 'The URL /v1/users/profile either changed, was deprecated, or never existed on this server.' },
+        plain: 'Your app is calling an API endpoint that <strong>doesn\'t exist</strong>. Either the URL is wrong (typo, wrong version), the API changed its routes, or the backend server isn\'t running. Check the API documentation to confirm the correct URL. If it used to work, look for an API changelog \u2014 the route may have moved to /v2/ or been renamed.'
+      },
+      {
+        tab: 'CORS Error',
+        lines: [
+          { text: '<span class="err-type">Access to XMLHttpRequest</span> <span class="err-msg">at \'https://api.example.com/data\'</span>', highlight: true },
+          { text: '<span class="err-msg">from origin \'http://localhost:3000\' has been blocked by CORS policy:</span>', highlight: true },
+          { text: '<span class="err-msg">No \'Access-Control-Allow-Origin\' header is present on the requested resource.</span>', highlight: false },
+        ],
+        type: { value: 'CORS Policy Error', explain: 'The browser is blocking a request because the server didn\'t give permission for your domain to access it.' },
+        file: { value: 'Browser (network level)', explain: 'This isn\'t a code error \u2014 it\'s the browser blocking the request before your code even sees the response.' },
+        cause: { value: 'Missing CORS headers', explain: 'Your frontend (localhost:3000) and API (api.example.com) are on different domains, and the API server hasn\'t whitelisted your domain.' },
+        plain: 'This is a <strong>server configuration issue</strong>, not a bug in your code. The API needs to include your domain in its allowed origins. If you control the API, add CORS headers (flask-cors for Python, cors middleware for Express). If you don\'t control the API, you\'ll need a proxy server. This error only happens in browsers \u2014 the same request works fine from the terminal.'
+      }
+    ];
+
+    var currentIdx = 0;
+    var tabsEl = document.getElementById('error-tabs');
+    var bodyEl = document.getElementById('error-body');
+    var breakdownEl = document.getElementById('error-breakdown');
+    var plainEl = document.getElementById('error-plain');
+
+    function renderTabs() {
+      var html = '';
+      for (var i = 0; i < errors.length; i++) {
+        var cls = 'error-decoder__tab';
+        if (i === currentIdx) cls += ' error-decoder__tab--active';
+        html += '<button class="' + cls + '" data-idx="' + i + '">' + errors[i].tab + '</button>';
+      }
+      tabsEl.innerHTML = html;
+    }
+
+    function renderError() {
+      var err = errors[currentIdx];
+
+      // Lines
+      var html = '';
+      for (var i = 0; i < err.lines.length; i++) {
+        var cls = 'error-decoder__line';
+        if (err.lines[i].highlight) cls += ' error-decoder__line--highlighted';
+        html += '<div class="' + cls + '">' + err.lines[i].text + '</div>';
+      }
+      bodyEl.innerHTML = html;
+
+      // Breakdown cards
+      var cards = [
+        { label: 'Error Type', value: err.type.value, explain: err.type.explain },
+        { label: 'Location', value: err.file.value, explain: err.file.explain },
+        { label: 'Root Cause', value: err.cause.value, explain: err.cause.explain }
+      ];
+      html = '';
+      for (var i = 0; i < cards.length; i++) {
+        html += '<div class="error-decoder__card">';
+        html += '<div class="error-decoder__card-label">' + cards[i].label + '</div>';
+        html += '<div class="error-decoder__card-value">' + cards[i].value + '</div>';
+        html += '<div class="error-decoder__card-explain">' + cards[i].explain + '</div>';
+        html += '</div>';
+      }
+      breakdownEl.innerHTML = html;
+
+      // Plain English
+      plainEl.innerHTML = err.plain;
+    }
+
+    tabsEl.addEventListener('click', function(e) {
+      var tab = e.target.closest('.error-decoder__tab');
+      if (!tab) return;
+      currentIdx = parseInt(tab.dataset.idx, 10);
+      renderTabs();
+      renderError();
+    });
+
+    renderTabs();
+    renderError();
+  })();
+
+  // ====================================================================
+  // Widget: Debug or Escalate
+  // ====================================================================
+  (function() {
+    var scenarios = [
+      {
+        title: 'CSS overlap',
+        situation: 'Your sidebar overlaps the main content on mobile devices. The layout looks fine on desktop. The browser console shows no errors.',
+        answer: 'debug',
+        feedback: 'CSS layout bugs are squarely in the agent\'s wheelhouse. Tell it: "On mobile, the sidebar overlaps the content. Here\'s the CSS." Responsive layout fixes are one of the fastest agent resolutions.'
+      },
+      {
+        title: 'Intermittent crash',
+        situation: 'Your app crashes about once every 20 requests, but only under load. The error is different each time. It works perfectly when you test it alone.',
+        answer: 'escalate',
+        feedback: 'Intermittent failures under load point to a race condition or concurrency issue. The agent can suggest theoretical fixes, but reproducing, testing, and verifying them requires load testing infrastructure and engineering expertise.'
+      },
+      {
+        title: 'API 401 error',
+        situation: 'Your app suddenly returns "401 Unauthorized" errors when calling the payment API. Nothing in the code has changed. The error started this morning.',
+        answer: 'debug',
+        feedback: 'A sudden 401 with no code changes usually means an expired API key, a rotated secret, or a billing issue on the API provider. Tell the agent the exact error, and check your API dashboard. This is environmental context the agent can diagnose once you provide it.'
+      },
+      {
+        title: 'Slow page load',
+        situation: 'Your dashboard takes 8 seconds to load. Users are complaining. The data comes from 4 different API calls and renders 12 chart components.',
+        answer: 'escalate',
+        feedback: 'Performance optimization requires profiling \u2014 measuring where the 8 seconds are spent. Is it the API calls? The rendering? The data transformation? The agent can suggest general optimizations, but knowing which optimization matters requires measurement tools and engineering judgment.'
+      },
+      {
+        title: 'Deploy failure',
+        situation: 'Your app works locally but the Vercel deployment fails. The build log says: "Error: Cannot find module \'dotenv\'. Make sure this package is installed."',
+        answer: 'debug',
+        feedback: 'Classic environment mismatch. The package exists locally but isn\'t in your package.json dependencies (probably in devDependencies or installed globally). Paste the build log to the agent \u2014 it will fix the dependency declaration in one step.'
+      },
+      {
+        title: 'Data leak concern',
+        situation: 'A user reports they can see another user\'s profile data by changing the ID in the URL. You check and confirm: /profile/123 shows user 123\'s data to anyone, with no authentication check.',
+        answer: 'escalate',
+        feedback: 'This is a security vulnerability (broken access control), not a bug. The agent can add an auth check, but the larger question \u2014 what other endpoints are unprotected? Is any data already exposed? \u2014 requires a security audit by someone who thinks adversarially about access patterns.'
+      }
+    ];
+
+    var answered = {};
+    var correct = 0;
+    var tabsEl = document.getElementById('escalate-tabs');
+    var situationEl = document.getElementById('escalate-situation');
+    var choicesEl = document.getElementById('escalate-choices');
+    var feedbackEl = document.getElementById('escalate-feedback');
+    var correctEl = document.getElementById('escalate-correct');
+    var currentIdx = 0;
+
+    function renderTabs() {
+      var html = '';
+      for (var i = 0; i < scenarios.length; i++) {
+        var cls = 'escalate__scenario-btn';
+        if (i === currentIdx) cls += ' escalate__scenario-btn--active';
+        html += '<button class="' + cls + '" data-idx="' + i + '">' + (i + 1) + '. ' + scenarios[i].title + '</button>';
+      }
+      tabsEl.innerHTML = html;
+    }
+
+    function renderScenario() {
+      var s = scenarios[currentIdx];
+      situationEl.innerHTML = '<div class="escalate__situation-label">Scenario</div>' + s.situation;
+
+      var isAnswered = answered[currentIdx] !== undefined;
+
+      var html = '';
+      html += '<button class="escalate__choice' + (isAnswered && s.answer === 'debug' ? ' escalate__choice--correct' : '') + (isAnswered && answered[currentIdx] === 'debug' && s.answer !== 'debug' ? ' escalate__choice--incorrect' : '') + '" data-choice="debug"' + (isAnswered ? ' disabled' : '') + '>';
+      html += '<div class="escalate__choice-icon">&#x1F916;</div>';
+      html += '<div class="escalate__choice-title">Debug with Agent</div>';
+      html += '<div class="escalate__choice-desc">This is within the agent\'s field of view. Paste the error and let it fix it.</div>';
+      html += '</button>';
+
+      html += '<button class="escalate__choice' + (isAnswered && s.answer === 'escalate' ? ' escalate__choice--correct' : '') + (isAnswered && answered[currentIdx] === 'escalate' && s.answer !== 'escalate' ? ' escalate__choice--incorrect' : '') + '" data-choice="escalate"' + (isAnswered ? ' disabled' : '') + '>';
+      html += '<div class="escalate__choice-icon">&#x1F9D1;&#x200D;&#x1F4BB;</div>';
+      html += '<div class="escalate__choice-title">Bring in a Human</div>';
+      html += '<div class="escalate__choice-desc">This problem needs engineering expertise the agent can\'t provide.</div>';
+      html += '</button>';
+
+      choicesEl.innerHTML = html;
+
+      if (isAnswered) {
+        var isCorrect = answered[currentIdx] === s.answer;
+        feedbackEl.innerHTML = '<div class="escalate__feedback ' + (isCorrect ? 'escalate__feedback--correct' : 'escalate__feedback--incorrect') + '">' +
+          '<strong>' + (isCorrect ? 'Correct!' : 'Not quite.') + '</strong> ' + s.feedback + '</div>';
+      } else {
+        feedbackEl.innerHTML = '';
+      }
+    }
+
+    function handleChoice(choice) {
+      if (answered[currentIdx] !== undefined) return;
+      var s = scenarios[currentIdx];
+      answered[currentIdx] = choice;
+      if (choice === s.answer) correct++;
+      correctEl.textContent = correct;
+      renderScenario();
+    }
+
+    tabsEl.addEventListener('click', function(e) {
+      var btn = e.target.closest('.escalate__scenario-btn');
+      if (!btn) return;
+      currentIdx = parseInt(btn.dataset.idx, 10);
+      renderTabs();
+      renderScenario();
+    });
+
+    choicesEl.addEventListener('click', function(e) {
+      var btn = e.target.closest('.escalate__choice');
+      if (!btn || btn.disabled) return;
+      handleChoice(btn.dataset.choice);
+    });
+
+    renderTabs();
+    renderScenario();
+  })();
+
+  // ====================================================================
+  // Capstone Quiz: Article Recap
+  // ====================================================================
+  (function() {
+    var questions = [
+      {
+        question: 'Your vibe-coded app crashes and you see a long error message you don\'t understand. A colleague suggests paraphrasing the error to the agent: "it says something about a missing module." Why is this a bad approach?',
+        options: [
+          { label: 'The agent only understands error messages in their original format', key: 'a' },
+          { label: 'Paraphrasing loses critical details \u2014 the exact error type, file path, and line number that the agent uses to pinpoint the problem. A full paste is worth a thousand descriptions.', key: 'b' },
+          { label: 'You should fix the error yourself before involving the agent', key: 'c' },
+          { label: 'Paraphrasing is fine as long as you include the file name', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'Error messages contain structured information that looks like noise to humans but is critical signal for the agent: exact error types narrow the category, file paths locate the problem, and line numbers pinpoint it. Paraphrasing "something about a missing module" loses the module name, the file that tried to import it, and the error type. Paste the full error \u2014 every line, every path, every number.'
+      },
+      {
+        question: 'You\'ve been through the debugging loop four times for the same issue. The agent keeps proposing fixes that don\'t work. What does this signal?',
+        options: [
+          { label: 'The agent is broken and you should switch to a different AI tool', key: 'a' },
+          { label: 'You need to write a longer, more detailed prompt', key: 'b' },
+          { label: 'The problem is likely outside the agent\'s field of view \u2014 an environment issue, timing problem, or architectural flaw \u2014 and you should bring in a human engineer', key: 'c' },
+          { label: 'Delete the code and start over from scratch', key: 'd' }
+        ],
+        answer: 'c',
+        explanation: 'The three-cycle rule is the diagnostic: if the debugging loop hasn\'t converged after three rounds, the problem is probably outside the agent\'s field of view. The agent can see your code but not your deploy environment, concurrent request timing, or architectural dependencies. This is the signal to escalate \u2014 not as a failure, but as a recognition that the problem has graduated past the vibe coding tier.'
+      },
+      {
+        question: 'Your checkout worked last month but now throws errors. You haven\'t changed the code. What should you tell the agent?',
+        options: [
+          { label: '"The checkout is broken. Fix it."', key: 'a' },
+          { label: '"The Stripe checkout that was working last month now returns this error [full error]. I haven\'t changed the code. Check if the Stripe API has breaking changes."', key: 'b' },
+          { label: '"I think there\'s a JavaScript error somewhere in the checkout flow."', key: 'c' },
+          { label: '"Rewrite the entire checkout from scratch."', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'The pattern for API-breaking bugs is: state what worked, state what\'s broken now (with the full error), state what hasn\'t changed, and direct the agent to check the external dependency. This gives the agent the key context \u2014 the code is unchanged, so the problem is external \u2014 which narrows the search space dramatically. Vague prompts or full rewrites waste time on the wrong problem.'
+      },
+      {
+        question: 'A user reports they can view other users\' data by changing the ID in the URL. The agent can add an authentication check in minutes. Why should you still bring in a human engineer?',
+        options: [
+          { label: 'The agent can\'t write authentication code', key: 'a' },
+          { label: 'Broken access control is a security vulnerability, not just a bug. The larger questions \u2014 what other endpoints are unprotected, has data already been exposed \u2014 require adversarial security thinking and a systematic audit.', key: 'b' },
+          { label: 'The user is probably wrong about what they saw', key: 'c' },
+          { label: 'Authentication changes require redeploying the entire application', key: 'd' }
+        ],
+        answer: 'b',
+        explanation: 'The agent can absolutely write the auth check. But patching one endpoint while others remain unprotected is like locking the front door while leaving windows open. Security requires adversarial thinking \u2014 "what can go wrong if someone tries to break it" \u2014 which is fundamentally different from "does it work correctly for honest users." A human engineer with security awareness audits all endpoints, checks for data exposure, and thinks about attack patterns the agent won\'t anticipate.'
+      },
+      {
+        question: 'Six months after building an app with AI, an API dependency breaks. You can\'t find the relevant function or understand the data flow. What maintenance practices would have prevented this?',
+        options: [
+          { label: 'Building the app without AI so you\'d understand every line', key: 'a' },
+          { label: 'Using a more stable API provider', key: 'b' },
+          { label: 'Tests that document expected behavior (the failing test tells you what broke), version control that provides a timeline of changes (git log shows when it last worked), and enough code understanding to navigate the project', key: 'c' },
+          { label: 'Rewriting the app every six months to keep the code fresh', key: 'd' }
+        ],
+        answer: 'c',
+        explanation: 'Tests and version control are the maintenance safety net. When something breaks, tests tell you which behavior stopped working. Git log tells you what changed and when. Together, they turn "the app is broken and I don\'t know why" into "this test started failing after this commit changed the API parsing" \u2014 which is a debuggable statement. Building without AI (option A) misses the point; the issue isn\'t the tool but the lack of documentation and understanding.'
+      }
+    ];
+
+    var currentQ = 0;
+    var score = 0;
+    var answered = false;
+
+    var scenarioEl = document.getElementById('quiz-scenario');
+    var optionsEl = document.getElementById('quiz-options');
+    var explanationEl = document.getElementById('quiz-explanation');
+    var progressBar = document.getElementById('quiz-progress-bar');
+    var progressText = document.getElementById('quiz-progress-text');
+    var nextBtn = document.getElementById('quiz-next');
+    var summaryEl = document.getElementById('quiz-summary');
+    var scoreEl = document.getElementById('quiz-score');
+    var summaryTextEl = document.getElementById('quiz-summary-text');
+    var cardEl = document.getElementById('quiz-card');
+    var retryBtn = document.getElementById('quiz-retry');
+
+    function loadQuestion() {
+      answered = false;
+      var q = questions[currentQ];
+      scenarioEl.textContent = q.question;
+      explanationEl.style.display = 'none';
+      nextBtn.style.display = 'none';
+
+      optionsEl.innerHTML = '';
+      q.options.forEach(function(opt) {
+        var btn = document.createElement('button');
+        btn.className = 'btn btn--secondary';
+        btn.dataset.answer = opt.key;
+        btn.textContent = opt.label;
+        optionsEl.appendChild(btn);
+      });
+
+      progressBar.style.width = ((currentQ) / questions.length * 100) + '%';
+      progressText.textContent = (currentQ + 1) + ' of ' + questions.length;
+    }
+
+    function handleAnswer(selected) {
+      if (answered) return;
+      answered = true;
+      var q = questions[currentQ];
+      var isCorrect = selected === q.answer;
+      if (isCorrect) score++;
+
+      optionsEl.querySelectorAll('.btn').forEach(function(btn) {
+        btn.disabled = true;
+        var ans = btn.dataset.answer;
+        if (ans === q.answer) {
+          btn.className = 'btn btn--correct';
+        } else if (ans === selected && !isCorrect) {
+          btn.className = 'btn btn--incorrect';
+        }
+      });
+
+      explanationEl.textContent = (isCorrect ? 'Correct! ' : 'Not quite. ') + q.explanation;
+      explanationEl.className = 'quiz__explanation ' + (isCorrect ? 'quiz__explanation--correct' : 'quiz__explanation--incorrect');
+      explanationEl.style.display = 'block';
+
+      progressBar.style.width = ((currentQ + 1) / questions.length * 100) + '%';
+
+      if (currentQ < questions.length - 1) {
+        nextBtn.style.display = 'inline-flex';
+      } else {
+        setTimeout(showSummary, 800);
+      }
+    }
+
+    function showSummary() {
+      cardEl.style.display = 'none';
+      progressBar.parentElement.style.display = 'none';
+      progressText.style.display = 'none';
+      nextBtn.style.display = 'none';
+      summaryEl.style.display = 'block';
+      scoreEl.textContent = score + ' out of ' + questions.length;
+
+      var messages = [
+        'Worth a re-read \u2014 the concepts will click with another pass!',
+        'Worth a re-read \u2014 the concepts will click with another pass!',
+        'You\'ve got the basics. The debugging loop and escalation signals are worth revisiting.',
+        'Solid understanding of the fundamentals!',
+        'Strong grasp \u2014 you\'re thinking like someone who truly gets this.',
+        'Perfect score. You\'ve nailed the core concepts.'
+      ];
+      summaryTextEl.textContent = messages[score];
+    }
+
+    function reset() {
+      currentQ = 0;
+      score = 0;
+      cardEl.style.display = 'block';
+      progressBar.parentElement.style.display = 'block';
+      progressText.style.display = 'block';
+      summaryEl.style.display = 'none';
+      loadQuestion();
+    }
+
+    optionsEl.addEventListener('click', function(e) {
+      var btn = e.target.closest('[data-answer]');
+      if (!btn) return;
+      handleAnswer(btn.dataset.answer);
+    });
+
+    nextBtn.addEventListener('click', function() {
+      currentQ++;
+      loadQuestion();
+    });
+
+    retryBtn.addEventListener('click', reset);
+
+    loadQuestion();
+  })();
+
+  // ====================================================================
+  // Reading Progress Bar
+  // ====================================================================
+  (function() {
+    var bar = document.getElementById('reading-progress-bar');
+    var ticking = false;
+
+    function updateProgress() {
+      var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      var progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+      bar.style.width = Math.min(100, Math.max(0, progress)) + '%';
+      ticking = false;
+    }
+
+    window.addEventListener('scroll', function() {
+      if (!ticking) {
+        requestAnimationFrame(updateProgress);
+        ticking = true;
+      }
+    }, { passive: true });
+
+    updateProgress();
+  })();
+
+  // ====================================================================
+  // TOC Sidebar Visibility (show after scrolling past hero)
+  // ====================================================================
+  (function() {
+    var toc = document.querySelector('.toc');
+    var hero = document.getElementById('article-hero');
+
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        toc.classList.toggle('toc--visible', !entry.isIntersecting);
+      });
+    }, { threshold: 0 });
+
+    observer.observe(hero);
+  })();
+
+  // ====================================================================
+  // TOC Section Highlighting
+  // ====================================================================
+  (function() {
+    var headings = document.querySelectorAll('h2[id]');
+    var tocItems = document.querySelectorAll('.toc__list li');
+    var tocLinks = {};
+
+    tocItems.forEach(function(item) {
+      var link = item.querySelector('a');
+      if (link) {
+        var href = link.getAttribute('href');
+        if (href && href.startsWith('#')) {
+          tocLinks[href.substring(1)] = item;
+        }
+      }
+    });
+
+    function activate(item) {
+      tocItems.forEach(function(li) { li.classList.remove('toc__item--active'); });
+      item.classList.add('toc__item--active');
+    }
+
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (!entry.isIntersecting) return;
+        var id = entry.target.getAttribute('id');
+        var item = tocLinks[id];
+        if (item) activate(item);
+      });
+    }, { rootMargin: '0px 0px -70% 0px' });
+
+    headings.forEach(function(h) { observer.observe(h); });
+
+    window.addEventListener('scroll', function() {
+      if ((window.innerHeight + window.scrollY) >= document.documentElement.scrollHeight - 50) {
+        activate(tocItems[tocItems.length - 1]);
+      }
+    }, { passive: true });
+  })();
+  </script>
+
+</body>
+</html>
