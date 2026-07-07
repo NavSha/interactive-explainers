@@ -29,7 +29,14 @@ a phase completes. Merging is manual (master auto-deploys to GitHub Pages).
       a widget or page behavior.
       → gstack browse sweep over all 41 pages (local http.server): zero console
       errors/warnings on every page.
-- [ ] Smoke-test the primary widget on each article page: does it respond to input?
+- [x] Smoke-test the primary widget on each article page: does it respond to input?
+      → Headless click-smoke on all 29 articles. FOUND + FIXED launch blocker:
+      unescaped apostrophe in quiz `question: 'You're …'` strings caused a
+      SyntaxError that silently killed ALL widgets on 3 pages —
+      ai-ux/designing-for-uncertainty.html, cost-latency/tokens.html,
+      llm-fundamentals/ml-concepts.html. New `scripts/check_scripts.py` now
+      node-checks every inline script block (41 files pass). All widgets
+      verified responsive post-fix.
 - [ ] Nav consistency sweep: "Part X of Y" counts match actual series sizes
       (LLM Fundamentals 3, Agents 4, Cost & Latency 3, Evaluation 4,
       Context Windows 3, Grounding 4, AI UX 4, Vibe Coding 4); prev/next links
