@@ -57,6 +57,10 @@ a phase completes. Merging is manual (master auto-deploys to GitHub Pages).
       types used correctly (--insight/--analogy/--pm-tip/--summary), repeated
       analogies across articles. Fix clear errors; log judgment calls to
       Deferred instead of rewriting.
+      → REVIEW DONE (7 parallel agents, 2026-07-08): ~35 FIX findings queued in
+      AUDIT-FINDINGS.md — work that file top to bottom, then check this off.
+      Epigraphs + callouts structurally clean across all 29; dominant issues are
+      stale 2024 model rosters/prices and internal math errors.
 - [ ] Widget UX pass on every interactive widget: obvious affordance, works with
       touch (no hover-only interactions), keyboard-operable, honors
       prefers-reduced-motion. Fix mechanical gaps; log design-level issues.
@@ -92,3 +96,37 @@ a phase completes. Merging is manual (master auto-deploys to GitHub Pages).
   Latency" vs "Cost & Latency Tradeoffs", "Vibe Coding" vs "The Builder's Guide
   to Vibe Coding"). Uniform within each series; looks intentional. Decide
   post-launch whether to align.
+
+### Phase 2 editorial JUDGMENT log (not fixed — style/verification calls)
+- callout--summary label split: "Takeaway" (how-llms-work, tokenization) vs
+  "Summary" (ml-concepts, most others). Pick one label series-wide.
+- Name-drop density: Garry Tan attributed 3x in harness-engineering (incl.
+  "Memory is markdown / Brain is a git repo" quote that doesn't read like him);
+  Karpathy "hasn't typed code since Dec 2025 / late 2025" appears in
+  orchestration + vibe-coding (hedged in one, flat fact in another). Verify or
+  soften attributions; anchor Andrew Chen's "18 months" prediction to a date.
+- "Surgeon applying bandaids" analogy verbatim in tokens.html AND latency.html;
+  Anthropic "~50% agentic tool calls are software engineering" stat in all 3
+  cost-latency parts; a16z "$1B revenue" stat in latency + caching-batching.
+  Dedupe when next editing these.
+- Klarna cited as autonomy success in human-in-the-loop.html:551 — Klarna
+  publicly walked back AI-only support in 2025; acknowledging it would
+  strengthen the HITL thesis.
+- tools.html:68 "very articulate quadriplegic" — ableist punchline, brand risk.
+- Unverifiable vendor stats in orchestration.html:790 (Cars24 250 AI coworkers,
+  Klarna $50 refunds) — verify or hedge "reportedly".
+- needle-in-haystack heatmap (the-context-window.html:648) presents simulated
+  data as measurements — add "illustrative data" to widget instruction.
+- context-engineering.html compression example undercuts its own "structured
+  beats prose" claim (:227); 4K/8K framing reads dated (:157,:213).
+- the-reality-check.html:962 Spot-the-Bug sample has unintended 6th bug
+  (quantity/qty, productId/id mismatch) that widget calls "fine".
+- designing-for-uncertainty.html:470 epigraph line 4 breaks rhyme scheme ("fam").
+- streaming-ux.html:178 "serif or proportional font" category confusion →
+  "proportional font (serif or sans)".
+- grounding-your-data.html:367 epigraph "confidently hack" strained rhyme.
+- the-craft.html:587 orphan telephone-game analogy interrupts flow.
+- trust-recovery widget can show 20:1 vs prose "5 to 15" (cap at 15 or leave).
+- evals-in-practice.html:222 stacks 4 stat citations in one paragraph (dense);
+  "SWE-bench 60%→near-perfect" claim needs source verification (also appears in
+  planning, reality-check, debugging — being softened under FIX queue).
