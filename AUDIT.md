@@ -50,17 +50,18 @@ a phase completes. Merging is manual (master auto-deploys to GitHub Pages).
 
 ## Phase 2 — Editorial + interaction quality (branch: `audit/editorial`)
 
-- [ ] Per-article editorial review, all 29 articles (parallel sub-agents OK, one
+- [x] Per-article editorial review, all 29 articles (parallel sub-agents OK, one
       per article, shared rubric): factual accuracy (model names, prices, context
       sizes — flag stale claims), tone consistency (humor 2.5–3/5, confident
       conversational), epigraph present and correct format (4-bar verse), callout
       types used correctly (--insight/--analogy/--pm-tip/--summary), repeated
       analogies across articles. Fix clear errors; log judgment calls to
       Deferred instead of rewriting.
-      → REVIEW DONE (7 parallel agents, 2026-07-08): ~35 FIX findings queued in
-      AUDIT-FINDINGS.md — work that file top to bottom, then check this off.
-      Epigraphs + callouts structurally clean across all 29; dominant issues are
-      stale 2024 model rosters/prices and internal math errors.
+      → DONE (7 parallel review agents + fix batches, 2026-07-08): all 35 FIX
+      findings in AUDIT-FINDINGS.md applied and committed (0 unchecked).
+      Epigraphs + callouts structurally clean across all 29; dominant issues
+      were stale 2024 model rosters/prices and internal math errors. Judgment
+      calls logged under Deferred below.
 - [ ] Widget UX pass on every interactive widget: obvious affordance, works with
       touch (no hover-only interactions), keyboard-operable, honors
       prefers-reduced-motion. Fix mechanical gaps; log design-level issues.
