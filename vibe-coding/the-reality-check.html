@@ -474,7 +474,7 @@
         <li><span class="toc__numeral">I.</span><a href="#what-vibe-coding-cant-do">What Vibe Coding Can't Do</a></li>
         <li><span class="toc__numeral">II.</span><a href="#quality-question">The Quality Question</a></li>
         <li><span class="toc__numeral">III.</span><a href="#when-to-hand-off">When to Hand Off</a></li>
-        <li><span class="toc__numeral">IV.</span><a href="#working-with-engineers">Working with Engineers</a></li>
+        <li><span class="toc__numeral">IV.</span><a href="#collaborating-on-production-code">Working with Engineers</a></li>
         <li><span class="toc__numeral">V.</span><a href="#maintenance-trap">The Maintenance Trap</a></li>
         <li><span class="toc__numeral">VI.</span><a href="#road-ahead">The Road Ahead</a></li>
       </ol>
@@ -729,7 +729,7 @@
          ================================================================ -->
     <h2 id="road-ahead"><span class="section-number">VI</span> The Road Ahead</h2>
 
-    <p>Here's where this is all going. The tools are getting better every month. The gap between "AI-generated code" and "production code" is narrowing. The things that require a senior engineer today will require a junior engineer tomorrow, and a builder with good prompting instincts the day after. The pace is staggering: Stanford's 2026 AI Index found that on SWE-bench, a standardized benchmark for coding agents, performance jumped from 60% to near 100% in a single year &mdash; the steepest capability gain in any domain they measured.</p>
+    <p>Here's where this is all going. The tools are getting better every month. The gap between "AI-generated code" and "production code" is narrowing. The things that require a senior engineer today will require a junior engineer tomorrow, and a builder with good prompting instincts the day after. The pace is staggering: Stanford's 2026 AI Index found that on SWE-bench, a standardized benchmark for coding agents, performance jumped from around 60% to roughly 80% in a single year &mdash; among the steepest capability gains in any domain they measured.</p>
 
     <p>But that doesn't mean engineers go away. It means the leverage changes. <strong>Builders who understand their users will have a superpower</strong> &mdash; not because they replace engineers, but because they communicate in working software. The spec that runs. The prototype that demonstrates exactly what "I think it should feel like this" means. The internal tool that solves the problem instead of describing it.</p>
 
@@ -1272,18 +1272,18 @@
           { label: '"I built this to show intent, not to ship. What would need to change to make this production-ready?"', key: 'd' }
         ],
         answer: 'd',
-        explanation: 'The framing "I built the feature" implies the work is done and the engineer\'s job is quality control, minimizing their expertise. "I built this to show intent, not to ship" positions the prototype as communication \u2014 a spec that runs \u2014 and explicitly acknowledges that the path from prototype to production is where engineering expertise matters. Options B and D are worse versions of the same problem. Option C implies AI code doesn\'t need serious review, which is exactly the wrong assumption.'
+        explanation: 'The framing "I built the feature" implies the work is done and the engineer\'s job is quality control, minimizing their expertise. "I built this to show intent, not to ship" positions the prototype as communication \u2014 a spec that runs \u2014 and explicitly acknowledges that the path from prototype to production is where engineering expertise matters. Options A and B are worse versions of the same problem. Option C implies AI code doesn\'t need serious review, which is exactly the wrong assumption.'
       },
       {
-        question: 'You built an internal tool with AI three months ago. An API it depends on changed, and now the tool is broken. You can\'t find the relevant function or understand the data flow. What maintenance principle did they violate?',
+        question: 'You built an internal tool with AI three months ago. An API it depends on changed, and now the tool is broken. You can\'t find the relevant function or understand the data flow. What maintenance principle did you violate?',
         options: [
-          { label: 'They should have used a more stable API provider', key: 'a' },
-          { label: 'They should have built it without AI so they\'d understand the code', key: 'b' },
-          { label: 'They failed the one-month test \u2014 code you can\'t explain is a house with no blueprints, and they didn\'t keep it simple, write tests, or use version control to maintain understanding', key: 'c' },
+          { label: 'You should have used a more stable API provider', key: 'a' },
+          { label: 'You should have built it without AI so you\'d understand the code', key: 'b' },
+          { label: 'You failed the one-month test \u2014 code you can\'t explain is a house with no blueprints, and you didn\'t keep it simple, write tests, or use version control to maintain understanding', key: 'c' },
           { label: 'AI-generated code always breaks after three months and needs to be regenerated', key: 'd' }
         ],
         answer: 'c',
-        explanation: 'The one-month test is the maintenance litmus test: can you come back in a month and still work on it? This builder can\'t explain what each file does or trace the data flow, which means they built a prototype without realizing it. The three strategies for avoiding this trap \u2014 keeping it simple, writing tests, and using version control \u2014 would have helped. Building without AI (option B) misses the point; the issue isn\'t the tool but the lack of understanding and documentation. APIs changing is normal; being unable to respond to the change is the real failure.'
+        explanation: 'The one-month test is the maintenance litmus test: can you come back in a month and still work on it? You can\'t explain what each file does or trace the data flow, which means you built a prototype without realizing it. The three strategies for avoiding this trap \u2014 keeping it simple, writing tests, and using version control \u2014 would have helped. Building without AI (option B) misses the point; the issue isn\'t the tool but the lack of understanding and documentation. APIs changing is normal; being unable to respond to the change is the real failure.'
       }
     ];
 

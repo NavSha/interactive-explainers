@@ -31,7 +31,7 @@ prices, prefer genericizing ("small/mid/frontier tier") over guessing.
 - [ ] tools.html:281 "40%+ of an 8k context window" stale framing → token-count framing
 - [ ] tools.html:724–726 latency bar: else-if and else both #D97706, green state unreachable → final else #059669
 - [ ] planning.html:528–530 calculator pricing stale (Haiku $0.25/$1.25, Opus $15/$75) → Haiku 4.5 $1/$5, Opus $5/$25
-- [ ] planning.html:356 "SWE-bench 60% to near 100% in a single year" overstated → soften to verified range
+- [x] planning.html:356 "SWE-bench 60% to near 100% in a single year" overstated → soften to verified range
 - [ ] orchestration.html:540 "In Part 3, we showed" broken cross-ref → state stat directly
 - [ ] orchestration.html:436–438 callout--analogy labeled "Architecture Insight" → callout--insight + "Key Insight"
 - [ ] orchestration.html:470 "Both protocols donated late 2025" → A2A mid-2025, MCP late 2025
@@ -75,11 +75,11 @@ prices, prefer genericizing ("small/mid/frontier tier") over guessing.
 - [ ] trust-recovery.html:141 "positive impact from the technology" overstates survey → scope to job impact (match Part 1)
 
 ## vibe-coding/
-- [ ] the-tools.html:204 TOC anchor #why-pms-should-care vs id why-this-changes-how-you-build → fix href
-- [ ] the-reality-check.html:477 TOC anchor #working-with-engineers vs id collaborating-on-production-code → fix href
-- [ ] the-reality-check.html:1275 quiz "Options B and D" → "Options A and B"
-- [ ] the-reality-check.html:1278,:1286 quiz person mix (you/they) → consistent second person
-- [ ] the-reality-check.html:732 + debugging.html:630 "SWE-bench 60% to near 100%" overstated → soften (same as planning.html:356)
+- [x] the-tools.html:204 TOC anchor #why-pms-should-care vs id why-this-changes-how-you-build → fix href
+- [x] the-reality-check.html:477 TOC anchor #working-with-engineers vs id collaborating-on-production-code → fix href
+- [x] the-reality-check.html:1275 quiz "Options B and D" → "Options A and B"
+- [x] the-reality-check.html:1278,:1286 quiz person mix (you/they) → consistent second person
+- [x] the-reality-check.html:732 + debugging.html:630 "SWE-bench 60% to near 100%" overstated → soften (same as planning.html:356)
 
 ## evaluation/harness-engineering.html + ai-ux (structural, decide once)
 Quiz-after-nav also flagged for harness-engineering.html:317–333 — same fix as
