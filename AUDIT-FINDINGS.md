@@ -26,15 +26,15 @@ prices, prefer genericizing ("small/mid/frontier tier") over guessing.
 - [ ] :590 Spanish preset "marron"/"esta cambiando" → "marrón"/"está cambiando"
 
 ## agents/
-- [ ] agent-loop.html:990 quiz "support bot with GPT-4" → genericize "a frontier LLM"
-- [ ] tools.html:282 "50 tools adds" → "50 tools add"
-- [ ] tools.html:281 "40%+ of an 8k context window" stale framing → token-count framing
-- [ ] tools.html:724–726 latency bar: else-if and else both #D97706, green state unreachable → final else #059669
-- [ ] planning.html:528–530 calculator pricing stale (Haiku $0.25/$1.25, Opus $15/$75) → Haiku 4.5 $1/$5, Opus $5/$25
+- [x] agent-loop.html:990 quiz "support bot with GPT-4" → genericize "a frontier LLM"
+- [x] tools.html:282 "50 tools adds" → "50 tools add"
+- [x] tools.html:281 "40%+ of an 8k context window" stale framing → token-count framing
+- [x] tools.html:724–726 latency bar: else-if and else both #D97706, green state unreachable → final else #059669
+- [x] planning.html:528–530 calculator pricing stale (Haiku $0.25/$1.25, Opus $15/$75) → Haiku 4.5 $1/$5, Opus $5/$25
 - [x] planning.html:356 "SWE-bench 60% to near 100% in a single year" overstated → soften to verified range
-- [ ] orchestration.html:540 "In Part 3, we showed" broken cross-ref → state stat directly
-- [ ] orchestration.html:436–438 callout--analogy labeled "Architecture Insight" → callout--insight + "Key Insight"
-- [ ] orchestration.html:470 "Both protocols donated late 2025" → A2A mid-2025, MCP late 2025
+- [x] orchestration.html:540 "In Part 3, we showed" broken cross-ref → state stat directly
+- [x] orchestration.html:436–438 callout--analogy labeled "Architecture Insight" → callout--insight + "Key Insight"
+- [x] orchestration.html:470 "Both protocols donated late 2025" → A2A mid-2025, MCP late 2025
 
 ## cost-latency/
 - [ ] tokens.html:188 "in 2026" pricing table stale → update tiers (Haiku 4.5 $1/$5; Opus $5/$25) AND recompute ripple: "60x" (:221), "1/60th" (:300,:579,:731,:734), JS pricing (:602,:643)

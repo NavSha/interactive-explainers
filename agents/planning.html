@@ -525,9 +525,9 @@
   // ====================================================================
   (function() {
     var models = {
-      small:  { name: 'Haiku',  inputCost: 0.25, outputCost: 1.25, avgSteps: 1.0 },    // per 1M tokens
+      small:  { name: 'Haiku',  inputCost: 1.00, outputCost: 5.00, avgSteps: 1.0 },    // per 1M tokens
       medium: { name: 'Sonnet', inputCost: 3.00, outputCost: 15.00, avgSteps: 0.8 },
-      large:  { name: 'Opus',   inputCost: 15.00, outputCost: 75.00, avgSteps: 0.6 }
+      large:  { name: 'Opus',   inputCost: 5.00, outputCost: 25.00, avgSteps: 0.6 }
     };
 
     var currentModel = 'small';
