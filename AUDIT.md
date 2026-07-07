@@ -25,8 +25,10 @@ a phase completes. Merging is manual (master auto-deploys to GitHub Pages).
 - [x] Verify `shared.css?v=10` (correct version, no stale N) on every site HTML file.
       → 38/38 pages that link shared.css are at v=10; infographics/* are
       intentionally self-contained (no shared.css link).
-- [ ] Load every page headless and collect JS console errors; fix any that break
+- [x] Load every page headless and collect JS console errors; fix any that break
       a widget or page behavior.
+      → gstack browse sweep over all 41 pages (local http.server): zero console
+      errors/warnings on every page.
 - [ ] Smoke-test the primary widget on each article page: does it respond to input?
 - [ ] Nav consistency sweep: "Part X of Y" counts match actual series sizes
       (LLM Fundamentals 3, Agents 4, Cost & Latency 3, Evaluation 4,
