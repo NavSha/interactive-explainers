@@ -531,7 +531,7 @@
 
     <p>The conceptual pipeline &mdash; embed, search, generate &mdash; fits on a napkin. The engineering details are where teams spend months. Here's the practical checklist that separates a working RAG system from a frustrating demo.</p>
 
-    <p><strong>1. Choose an embedding model.</strong> OpenAI's <code>text-embedding-3-small</code> is the default choice: cheap, fast, and good enough for most use cases. Cohere's <code>embed-v3</code> and open-source models like <code>bge-large</code> are strong alternatives. The key decision is dimension count — higher dimensions capture more nuance but cost more to store and search.</p>
+    <p><strong>1. Choose an embedding model.</strong> OpenAI's <code>text-embedding-3-small</code> is the default choice: cheap, fast, and good enough for most use cases. Cohere's <code>embed-v4</code> and open-source models like <code>bge-large</code> are strong alternatives. The key decision is dimension count — higher dimensions capture more nuance but cost more to store and search.</p>
 
     <p><strong>2. Pick a vector database.</strong> If you're already on PostgreSQL, start with pgvector. If you need managed infrastructure at scale, Pinecone or Weaviate. If you're prototyping, an in-memory store like ChromaDB gets you running in minutes. You can always migrate later — the embedding format is portable.</p>
 

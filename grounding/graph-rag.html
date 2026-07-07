@@ -354,7 +354,7 @@
 
     <p>The extraction step is where the LLM earns its keep before the user even asks a question. You run your documents through a model with a prompt like: <em>"Extract all entities and their relationships from this text. Output as (entity1, relationship, entity2) triples."</em> A budget memo becomes <code>(Sarah Chen, approved, Project Atlas)</code>, <code>(Project Atlas, budget, $2.4M)</code>, <code>(Project Atlas, team, Platform Engineering)</code>. An incident report becomes <code>(Compliance Incident CI-2024-17, caused_by, Project Atlas)</code>, <code>(CI-2024-17, reported_by, Legal)</code>.</p>
 
-    <p>Now the multi-hop question from Section I becomes trivial. "Which team lead approved the budget for the project that caused last quarter's compliance incident?" turns into a graph traversal: start at the incident node, follow the <code>caused_by</code> edge to the project, follow the <code>approved</code> edge to the person. Three hops, one answer. No embedding similarity required.</p>
+    <p>Now the multi-hop question from Section I becomes trivial. "Which team lead approved the budget for the project that caused last quarter's compliance incident?" turns into a graph traversal: start at the incident node, follow the <code>caused_by</code> edge to the project, follow the <code>approved</code> edge to the person. Two hops, one answer. No embedding similarity required.</p>
 
     <div class="callout callout--analogy">
       <div class="callout__label">Analogy</div>

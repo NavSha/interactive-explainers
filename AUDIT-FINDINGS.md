@@ -61,12 +61,12 @@ prices, prefer genericizing ("small/mid/frontier tier") over guessing.
 - [ ] llm-as-judge.html:214 "GPT-4 judging Claude" → current/generic
 
 ## grounding/
-- [ ] grounding-your-data.html:534 "embed-v3" → "embed-v4"
-- [ ] when-rag-isnt-enough.html:453 "Upgrading from GPT-4" → "last year's model"
-- [ ] when-rag-isnt-enough.html:411 "70% of the way" vs Part 1 "80%" → align to 80%
-- [ ] when-rag-isnt-enough.html:639 summary labeled "Takeaway" vs series "Summary" → "Summary"
-- [ ] hallucinations-safety.html:1184,:1190 citation widget misattributes HackAPrompt paper (Schulhoff et al., not Perez/Ribeiro) → fix source card per review
-- [ ] graph-rag.html:357 "Three hops" but traversal is two (widget verdict agrees) → "Two hops"
+- [x] grounding-your-data.html:534 "embed-v3" → "embed-v4"
+- [x] when-rag-isnt-enough.html:453 "Upgrading from GPT-4" → "last year's model"
+- [x] when-rag-isnt-enough.html:411 "70% of the way" vs Part 1 "80%" → align to 80%
+- [x] when-rag-isnt-enough.html:639 summary labeled "Takeaway" vs series "Summary" → "Summary"
+- [x] hallucinations-safety.html:1184,:1190 citation widget misattributes HackAPrompt paper (Schulhoff et al., not Perez/Ribeiro) → fix source card per review
+- [x] graph-rag.html:357 "Three hops" but traversal is two (widget verdict agrees) → "Two hops"
 
 ## ai-ux/
 - [ ] human-in-the-loop.html:761 "(~20% vs. >40%)" reversed vs sentence order → "(>40% vs. ~20%)"

@@ -408,7 +408,7 @@
       </nav>
       <div class="article-header__meta" style="color: rgba(255,255,255,0.9);">Part 2 of 4 &middot; ~8 min read</div>
       <h1 style="color: #fff;">When RAG Isn't Enough</h1>
-      <p class="lead" style="color: rgba(255,255,255,0.85);">Basic retrieval gets you 70% of the way. Chunking strategies, hybrid search, reranking, and query rewriting close the gap.</p>
+      <p class="lead" style="color: rgba(255,255,255,0.85);">Basic retrieval gets you 80% of the way. Chunking strategies, hybrid search, reranking, and query rewriting close the gap.</p>
     </div>
   </header>
 
@@ -450,7 +450,7 @@
 
     <div class="callout callout--insight">
       <div class="callout__label">Key Insight</div>
-      <div class="callout__body"><strong>RAG quality is a pipeline problem, not a model problem.</strong> Upgrading from GPT-4 to the latest model with bad retrieval buys you marginal improvement. Fixing the retrieval pipeline with the same model can double your accuracy. Always optimize retrieval before upgrading the generator.</div>
+      <div class="callout__body"><strong>RAG quality is a pipeline problem, not a model problem.</strong> Upgrading from last year's model to the latest frontier model with bad retrieval buys you marginal improvement. Fixing the retrieval pipeline with the same model can double your accuracy. Always optimize retrieval before upgrading the generator.</div>
     </div>
 
     <p>The rest of this article covers the four techniques that close the gap: chunking strategies, hybrid search, reranking, and query rewriting. Each one addresses a different failure mode. Together, they turn a decent RAG system into a great one.</p>
@@ -636,7 +636,7 @@
     </ol>
 
     <div class="callout callout--summary">
-      <div class="callout__label">Takeaway</div>
+      <div class="callout__label">Summary</div>
       <div class="callout__body"><strong>The full advanced RAG stack: chunk well, search with hybrid, rerank the results, rewrite the query.</strong> Each layer addresses a different failure mode. Chunking fixes context boundaries. Hybrid search fixes vocabulary mismatch. Reranking fixes imprecise ordering. Query rewriting fixes ambiguous user intent. You don't need all four on day one, but knowing the stack lets you diagnose exactly where your pipeline is failing.</div>
     </div>
 
