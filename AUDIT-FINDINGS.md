@@ -53,12 +53,12 @@ prices, prefer genericizing ("small/mid/frontier tier") over guessing.
 - [ ] designing-for-memory.html:1056 "server-side caching doesn't exist in standard APIs" outdated (OpenAI Responses API) → soften per review
 
 ## evaluation/
-- [ ] what-makes-ai-good.html:1053–1058 quiz Q2 cast mismatch (stakeholder/engineer vs user/teammate) → align options + explanation
-- [ ] evals-in-practice.html:355–368 "take from this series" reads as finale but is Part 2 of 4 → reword + point to Part 3
-- [ ] evals-in-practice.html:222 "AgentCompany" → "TheAgentCompany"
-- [ ] evals-in-practice.html:841 "Donde está mi pedido?" → "¿Dónde está mi pedido?"
-- [ ] harness-engineering.html:305–308 callout--analogy labeled "Architecture Insight" → callout--insight + "Key Insight"
-- [ ] llm-as-judge.html:214 "GPT-4 judging Claude" → current/generic
+- [x] what-makes-ai-good.html:1053–1058 quiz Q2 cast mismatch (stakeholder/engineer vs user/teammate) → align options + explanation
+- [x] evals-in-practice.html:355–368 "take from this series" reads as finale but is Part 2 of 4 → reword + point to Part 3
+- [x] evals-in-practice.html:222 "AgentCompany" → "TheAgentCompany"
+- [x] evals-in-practice.html:841 "Donde está mi pedido?" → "¿Dónde está mi pedido?"
+- [x] harness-engineering.html:305–308 callout--analogy labeled "Architecture Insight" → callout--insight + "Key Insight"
+- [x] llm-as-judge.html:214 "GPT-4 judging Claude" → current/generic
 
 ## grounding/
 - [x] grounding-your-data.html:534 "embed-v3" → "embed-v4"
@@ -69,10 +69,10 @@ prices, prefer genericizing ("small/mid/frontier tier") over guessing.
 - [x] graph-rag.html:357 "Three hops" but traversal is two (widget verdict agrees) → "Two hops"
 
 ## ai-ux/
-- [ ] human-in-the-loop.html:761 "(~20% vs. >40%)" reversed vs sentence order → "(>40% vs. ~20%)"
-- [ ] streaming-ux.html:256–270 article-nav before capstone quiz (Parts 1–2 do quiz first) → move quiz above nav
-- [ ] trust-recovery.html:345–359 same nav/quiz order issue → move quiz above nav
-- [ ] trust-recovery.html:141 "positive impact from the technology" overstates survey → scope to job impact (match Part 1)
+- [x] human-in-the-loop.html:761 "(~20% vs. >40%)" reversed vs sentence order → "(>40% vs. ~20%)"
+- [x] streaming-ux.html:256–270 article-nav before capstone quiz (Parts 1–2 do quiz first) → move quiz above nav
+- [x] trust-recovery.html:345–359 same nav/quiz order issue → move quiz above nav
+- [x] trust-recovery.html:141 "positive impact from the technology" overstates survey → scope to job impact (match Part 1)
 
 ## vibe-coding/
 - [x] the-tools.html:204 TOC anchor #why-pms-should-care vs id why-this-changes-how-you-build → fix href

@@ -211,7 +211,7 @@
 
     <p><strong>Not circular (use confidently):</strong></p>
     <ul>
-      <li><strong>Different model judges a different model.</strong> GPT-4 judging Claude, or Opus judging Haiku. Different training data, different failure modes, different blindspots. Cross-model judging catches failures that same-model judging misses.</li>
+      <li><strong>Different model judges a different model.</strong> A GPT-class model judging Claude, or Opus judging Haiku. Different training data, different failure modes, different blindspots. Cross-model judging catches failures that same-model judging misses.</li>
       <li><strong>Rubric-constrained evaluation.</strong> A well-crafted rubric with specific criteria and evidence requirements forces the judge to evaluate <em>specific claims</em>, not vibes. The rubric turns an open-ended question into a verification task, which LLMs are much better at.</li>
       <li><strong>Verification is easier than generation.</strong> This is the fundamental reason LLM-as-judge works. Checking whether a response correctly cites a source document is much simpler than generating the response in the first place. The judge doesn&rsquo;t need to be smarter than the generator &mdash; it needs to be good at checking specific properties.</li>
     </ul>
