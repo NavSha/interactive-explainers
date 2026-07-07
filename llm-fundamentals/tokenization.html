@@ -380,7 +380,7 @@
 
     <p>Every API call has two token counts that determine your bill: <strong>input tokens</strong> (your prompt, system message, and any context) and <strong>output tokens</strong> (the model's response). Output tokens typically cost 2-5x more than input tokens because they require more computation to generate.</p>
 
-    <p>The widely cited ratio &mdash; <strong>1 word is approximately 0.75 tokens</strong> (or 1 token is roughly 4 characters) &mdash; is a useful estimate for English prose. But it's wildly wrong in specific cases:</p>
+    <p>The widely cited ratio &mdash; <strong>1 token is approximately 0.75 words</strong> (or 1 token is roughly 4 characters) &mdash; is a useful estimate for English prose. But it's wildly wrong in specific cases:</p>
 
     <ul>
       <li><strong>Code:</strong> 1.5-2.5x more tokens per "word" than English prose. Curly braces, operators, and indentation all consume tokens.</li>
@@ -389,7 +389,7 @@
       <li><strong>System prompts:</strong> Your system prompt is sent with every single request. A 500-token system prompt at 10,000 requests/day is 5 million tokens/day just in system prompt overhead. That adds up fast.</li>
     </ul>
 
-    <p>And here's a fact that surprises most builders: <strong>the same text produces different token counts across different models.</strong> Claude, GPT-4, Gemini, and Llama all use different tokenizers with different vocabularies. A prompt optimized for one model's tokenizer may cost more on another. See it for yourself:</p>
+    <p>And here's a fact that surprises most builders: <strong>the same text produces different token counts across different models.</strong> Claude, GPT, Gemini, and Llama all use different tokenizers with different vocabularies. A prompt optimized for one model's tokenizer may cost more on another. See it for yourself:</p>
   </article>
 
   <!-- ================================================================
@@ -446,7 +446,7 @@
 
     <p>This has several implications that matter for product decisions:</p>
 
-    <p><strong>Different models tokenize differently.</strong> The same text might be 100 tokens on Claude and 120 tokens on GPT-4. That 20% difference flows directly to cost and context window utilization. When comparing model costs, comparing price-per-token is only half the story &mdash; you need price-per-equivalent-output.</p>
+    <p><strong>Different models tokenize differently.</strong> The same text might be 100 tokens on Claude and 120 tokens on GPT. That 20% difference flows directly to cost and context window utilization. When comparing model costs, comparing price-per-token is only half the story &mdash; you need price-per-equivalent-output.</p>
 
     <p><strong>Tokenizer quality varies by language.</strong> If your product serves a multilingual audience, tokenizer efficiency in non-English languages becomes a real variable. A model with a tokenizer trained on more diverse data will be cheaper to run for non-English users. This is a hidden factor in vendor selection that rarely shows up in benchmark comparisons.</p>
 
@@ -587,7 +587,7 @@
       'The quick brown fox jumps over the lazy dog.',
       'def fibonacci(n):\n    if n <= 1:\n        return n\n    return fibonacci(n-1) + fibonacci(n-2)',
       '{"name": "Alice", "age": 30, "email": "alice@example.com", "active": true}',
-      'El veloz zorro marron salta sobre el perro perezoso. La inteligencia artificial esta cambiando el mundo.',
+      'El veloz zorro marrón salta sobre el perro perezoso. La inteligencia artificial está cambiando el mundo.',
       '3 + 7 = 10, 127 * 48 = 6096, 3.14159265358979'
     ];
 
@@ -793,12 +793,12 @@
     var insightEl = document.getElementById('tcc-insight');
 
     var models = [
-      { name: 'GPT-4o', inputCost: 2.50, outputCost: 10.00, tokenMultiplier: 1.0 },
+      { name: 'Frontier flagship (GPT-class)', inputCost: 2.50, outputCost: 10.00, tokenMultiplier: 1.0 },
       { name: 'Claude Sonnet', inputCost: 3.00, outputCost: 15.00, tokenMultiplier: 0.95 },
-      { name: 'Gemini 1.5 Pro', inputCost: 1.25, outputCost: 5.00, tokenMultiplier: 1.05 },
-      { name: 'GPT-4o mini', inputCost: 0.15, outputCost: 0.60, tokenMultiplier: 1.0 },
-      { name: 'Claude Haiku', inputCost: 0.25, outputCost: 1.25, tokenMultiplier: 0.95 },
-      { name: 'Llama 3 70B', inputCost: 0.59, outputCost: 0.79, tokenMultiplier: 1.08 }
+      { name: 'Gemini Pro-class', inputCost: 1.25, outputCost: 5.00, tokenMultiplier: 1.05 },
+      { name: 'Fast mini-class', inputCost: 0.15, outputCost: 0.60, tokenMultiplier: 1.0 },
+      { name: 'Claude Haiku 4.5', inputCost: 1.00, outputCost: 5.00, tokenMultiplier: 0.95 },
+      { name: 'Open-weight 70B', inputCost: 0.59, outputCost: 0.79, tokenMultiplier: 1.08 }
     ];
 
     function estimateTokens(text, multiplier) {
@@ -888,8 +888,8 @@
           { label: 'About $1,368.75/year \u2014 a no-brainer optimization.', key: 'c' },
           { label: 'About $13,687.50/year \u2014 this should have been done on day one.', key: 'd' }
         ],
-        answer: 'a',
-        explanation: 'The math: 250 fewer tokens x 50,000 requests/day = 12.5M tokens/day saved. At $3/million tokens, that\'s $37.50/day or $13,687.50/year. Wait \u2014 that\'s option D. Let\'s recalculate: 250 x 50,000 = 12,500,000 tokens/day. 12.5M / 1M = 12.5. 12.5 x $3 = $37.50/day. $37.50 x 365 = $13,687.50/year. The correct answer is actually D. System prompt optimization at scale is a no-brainer.'
+        answer: 'd',
+        explanation: 'The math: 250 fewer tokens x 50,000 requests/day = 12.5 million tokens/day saved. At $3/million tokens, that\'s $37.50/day, or $13,687.50/year. System prompt optimization is one of the highest-leverage cost moves at scale \u2014 every token you remove saves money on every single request.'
       },
       {
         question: 'Your team is comparing costs between two LLM providers. Provider A charges $3/million tokens and Provider B charges $4/million tokens. A colleague says "Provider A is obviously cheaper." What\'s missing from this analysis?',
@@ -900,12 +900,12 @@
           { label: 'Provider B probably has better quality, so you\'d need fewer retries, making it cheaper overall.', key: 'd' }
         ],
         answer: 'c',
-        explanation: 'Different tokenizers produce different token counts for the same text. If Provider A\'s tokenizer produces 1,000 tokens for your typical prompt but Provider B\'s produces only 750, then Provider B costs $3.00 per request vs Provider A\'s $3.00 \u2014 they\'re equal despite the different per-token prices. Always compare cost per equivalent output, not cost per token.'
+        explanation: 'Different tokenizers produce different token counts for the same text. If Provider A\'s tokenizer produces 1,000 tokens for your typical prompt (1,000 x $3/M = $0.003) but Provider B\'s produces only 750 (750 x $4/M = $0.003), the two cost exactly the same per request despite the different per-token prices \u2014 and at 700 tokens, Provider B would be cheaper. Always compare cost per equivalent output, not cost per token.'
       },
       {
         question: 'An engineer wants to truncate user-uploaded documents to fit within the model\'s context window. They propose cutting at exactly 100,000 characters. What\'s wrong with this approach?',
         options: [
-          { label: 'Character count and token count don\'t have a fixed relationship. 100,000 characters could be 20,000 tokens for English prose but 35,000 tokens for code. Plus, cutting mid-token creates malformed input. Always truncate using the actual tokenizer and cut on token or semantic boundaries.', key: 'a' },
+          { label: 'Character count and token count don\'t have a fixed relationship. 100,000 characters could be 25,000 tokens for English prose but 35,000 tokens for code. Plus, cutting mid-token creates malformed input. Always truncate using the actual tokenizer and cut on token or semantic boundaries.', key: 'a' },
           { label: 'Nothing \u2014 100,000 characters is a safe estimate for any context window.', key: 'b' },
           { label: 'The issue is that 100,000 characters is too many. They should cut at 50,000 to leave room for the response.', key: 'c' },
           { label: 'Character truncation works fine, but they should add a warning message at the end telling the model the text was cut.', key: 'd' }
@@ -914,10 +914,6 @@
         explanation: 'The characters-to-tokens ratio varies dramatically by content type. English prose averages ~4 chars/token, but code, JSON, and non-English text can be 2-3 chars/token. Naive character truncation can also split a multi-byte character or token in half. Always use the model\'s actual tokenizer to count tokens, and truncate on semantic boundaries (sentence or paragraph breaks) for better results.'
       }
     ];
-
-    // Fix quiz question 3 - the answer should be 'd' based on the math
-    questions[2].answer = 'd';
-    questions[2].explanation = 'The math: 250 fewer tokens x 50,000 requests/day = 12.5 million tokens/day saved. At $3/million tokens, that\'s $37.50/day, or $13,687.50/year. System prompt optimization is one of the highest-leverage cost moves at scale \u2014 every token you remove saves money on every single request.';
 
     var currentQ = 0;
     var score = 0;

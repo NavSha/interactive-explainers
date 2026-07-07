@@ -335,9 +335,9 @@
       <div style="display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-6);">
         <label for="stack-model" style="font-family: var(--font-sans); font-size: var(--text-sm); font-weight: 500;">Model:</label>
         <select id="stack-model" style="font-family: var(--font-sans); font-size: var(--text-sm); padding: var(--space-2) var(--space-3); border: 1px solid var(--color-border); border-radius: 6px; background: var(--color-surface); cursor: pointer;">
-          <option value="8192">GPT-4 (8K)</option>
-          <option value="128000" selected>GPT-4 Turbo (128K)</option>
-          <option value="200000">Claude 3.5 (200K)</option>
+          <option value="8192">Legacy 8K model</option>
+          <option value="200000" selected>Claude Sonnet 4.5 (200K)</option>
+          <option value="1000000">GPT-4.1 (1M)</option>
         </select>
       </div>
 
@@ -1053,7 +1053,7 @@
           { label: 'Large language models develop persistent memory after enough interactions with the same user', key: 'd' }
         ],
         answer: 'c',
-        explanation: 'Every API call is completely independent \u2014 the model is stateless. Any apparent "memory" is your application doing the work: loading user data from a database and injecting it into the context. Option A confuses inference with training. Option B describes a feature that doesn\'t exist in standard APIs. Option D fundamentally misunderstands how LLMs work \u2014 they don\'t learn from individual conversations.'
+        explanation: 'Every API call is completely independent \u2014 the model is stateless. Any apparent "memory" is your application doing the work: loading user data from a database and injecting it into the context. Option A confuses inference with training. Option B isn\'t how chat-completion APIs work by default — where provider-side conversation state exists, it\'s the application explicitly opting in and passing a reference, not the model remembering. Option D fundamentally misunderstands how LLMs work \u2014 they don\'t learn from individual conversations.'
       },
       {
         question: 'Your team is debating memory strategies for a customer support bot. Conversations average 40 turns, and users get frustrated when the bot forgets their name or account details from earlier in the chat. An engineer suggests a sliding window of the last 8 turns. What\'s the biggest risk?',

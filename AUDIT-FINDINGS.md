@@ -9,21 +9,21 @@ Claude Sonnet 4.x $3/$15, Claude Opus $5/$25. Where a widget needs non-Anthropic
 prices, prefer genericizing ("small/mid/frontier tier") over guessing.
 
 ## llm-fundamentals/how-llms-work.html
-- [ ] :1241 "factor of 68 billion" math error → "factor of 25 billion" (per-query basis)
-- [ ] :1247 "inference cost approaches training cost" wrong at $1.1M/yr vs $75M → reword to lifetime line-item framing
-- [ ] :517 stale lineup "GPT-4o, Claude Sonnet, Gemini Pro" → current gen names
-- [ ] :1037–1117 Model Landscape widget = 2024 roster/prices → reframe as tier archetypes or refresh
-- [ ] :509, :1292 "beat GPT-4" (retired) → "a frontier model"
-- [ ] :1046 GPT-4o $5/$15 here vs $2.50/$10 in tokenization.html → align or drop hard prices
+- [x] :1241 "factor of 68 billion" math error → "factor of 25 billion" (per-query basis)
+- [x] :1247 "inference cost approaches training cost" wrong at $1.1M/yr vs $75M → reword to lifetime line-item framing
+- [x] :517 stale lineup "GPT-4o, Claude Sonnet, Gemini Pro" → current gen names
+- [x] :1037–1117 Model Landscape widget = 2024 roster/prices → reframe as tier archetypes or refresh
+- [x] :509, :1292 "beat GPT-4" (retired) → "a frontier model"
+- [x] :1046 GPT-4o $5/$15 here vs $2.50/$10 in tokenization.html → align or drop hard prices
 
 ## llm-fundamentals/tokenization.html
-- [ ] :383 inverted ratio "1 word ≈ 0.75 tokens" → "1 token ≈ 0.75 words"
-- [ ] :892,:919–920 leftover LLM self-correction "Wait — that's option D" + runtime patch → set answer 'd' + clean explanation directly, delete patch block
-- [ ] :903 quiz Q4 "$3.00 per request" units error ($0.003) + "they're equal" undercuts answer → fix units, adjust example so B is cheaper
-- [ ] :908 quiz Q5 "100,000 chars = 20,000 tokens" → 25,000 (4 chars/token)
-- [ ] :392,:449 "GPT-4" stale → current name or "GPT"
-- [ ] :795–801 cost widget 2024 roster/prices → refresh (Haiku 4.5 $1/$5) or genericize
-- [ ] :590 Spanish preset "marron"/"esta cambiando" → "marrón"/"está cambiando"
+- [x] :383 inverted ratio "1 word ≈ 0.75 tokens" → "1 token ≈ 0.75 words"
+- [x] :892,:919–920 leftover LLM self-correction "Wait — that's option D" + runtime patch → set answer 'd' + clean explanation directly, delete patch block
+- [x] :903 quiz Q4 "$3.00 per request" units error ($0.003) + "they're equal" undercuts answer → fix units, adjust example so B is cheaper
+- [x] :908 quiz Q5 "100,000 chars = 20,000 tokens" → 25,000 (4 chars/token)
+- [x] :392,:449 "GPT-4" stale → current name or "GPT"
+- [x] :795–801 cost widget 2024 roster/prices → refresh (Haiku 4.5 $1/$5) or genericize
+- [x] :590 Spanish preset "marron"/"esta cambiando" → "marrón"/"está cambiando"
 
 ## agents/
 - [x] agent-loop.html:990 quiz "support bot with GPT-4" → genericize "a frontier LLM"
@@ -37,20 +37,20 @@ prices, prefer genericizing ("small/mid/frontier tier") over guessing.
 - [x] orchestration.html:470 "Both protocols donated late 2025" → A2A mid-2025, MCP late 2025
 
 ## cost-latency/
-- [ ] tokens.html:188 "in 2026" pricing table stale → update tiers (Haiku 4.5 $1/$5; Opus $5/$25) AND recompute ripple: "60x" (:221), "1/60th" (:300,:579,:731,:734), JS pricing (:602,:643)
-- [ ] tokens.html:225 "GPT-4o-mini/GPT-4o/o1" stale → genericize tiers
-- [ ] tokens.html:235 "bandaids" → "band-aids" (also latency.html:231)
-- [ ] latency.html:231 "GPT-4-class models" → "frontier-class models"
-- [ ] caching-batching.html:93 "$500/day into $75" vs body math ($191) → "$190"
-- [ ] caching-batching.html:275 "55% reduction on the input side" → total 55%, input ~78%
-- [ ] caching-batching.html:145 "$6/million" conflicts with $3/M elsewhere → $3/M, cached "$0.30–$0.75/million"
+- [x] tokens.html:188 "in 2026" pricing table stale → update tiers (Haiku 4.5 $1/$5; Opus $5/$25) AND recompute ripple: "60x" (:221), "1/60th" (:300,:579,:731,:734), JS pricing (:602,:643)
+- [x] tokens.html:225 "GPT-4o-mini/GPT-4o/o1" stale → genericize tiers
+- [x] tokens.html:235 "bandaids" → "band-aids" (also latency.html:231)
+- [x] latency.html:231 "GPT-4-class models" → "frontier-class models"
+- [x] caching-batching.html:93 "$500/day into $75" vs body math ($191) → "$190"
+- [x] caching-batching.html:275 "55% reduction on the input side" → total 55%, input ~78%
+- [x] caching-batching.html:145 "$6/million" conflicts with $3/M elsewhere → $3/M, cached "$0.30–$0.75/million"
 
 ## context-windows/
-- [ ] the-context-window.html:924–931 widget roster stale + "Claude (extended) 680,000" never real → update roster, fix 680K
-- [ ] the-context-window.html:721–725,:1156–1158 dropdown stale models/prices (GPT-4 $30/M) → update; keep 8K option as "Legacy 8K model"
-- [ ] the-context-window.html:702 "6,200 tokens… 77%" vs own math/quiz (6,000 / 73%) → 6,000 / 73%
-- [ ] designing-for-memory.html:338–341 widget dropdown stale roster → current names
-- [ ] designing-for-memory.html:1056 "server-side caching doesn't exist in standard APIs" outdated (OpenAI Responses API) → soften per review
+- [x] the-context-window.html:924–931 widget roster stale + "Claude (extended) 680,000" never real → update roster, fix 680K
+- [x] the-context-window.html:721–725,:1156–1158 dropdown stale models/prices (GPT-4 $30/M) → update; keep 8K option as "Legacy 8K model"
+- [x] the-context-window.html:702 "6,200 tokens… 77%" vs own math/quiz (6,000 / 73%) → 6,000 / 73%
+- [x] designing-for-memory.html:338–341 widget dropdown stale roster → current names
+- [x] designing-for-memory.html:1056 "server-side caching doesn't exist in standard APIs" outdated (OpenAI Responses API) → soften per review
 
 ## evaluation/
 - [x] what-makes-ai-good.html:1053–1058 quiz Q2 cast mismatch (stakeholder/engineer vs user/teammate) → align options + explanation
