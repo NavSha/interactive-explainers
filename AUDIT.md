@@ -22,7 +22,9 @@ a phase completes. Merging is manual (master auto-deploys to GitHub Pages).
       → `scripts/check_links.py`: all internal refs resolve, 41 HTML files.
 - [x] Verify every referenced asset exists (scripts, images, fonts, data files).
       → covered by the same crawler (href+src) + url() sweep: no file url() refs.
-- [ ] Verify `shared.css?v=10` (correct version, no stale N) on every site HTML file.
+- [x] Verify `shared.css?v=10` (correct version, no stale N) on every site HTML file.
+      → 38/38 pages that link shared.css are at v=10; infographics/* are
+      intentionally self-contained (no shared.css link).
 - [ ] Load every page headless and collect JS console errors; fix any that break
       a widget or page behavior.
 - [ ] Smoke-test the primary widget on each article page: does it respond to input?
