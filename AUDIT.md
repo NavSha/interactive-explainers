@@ -37,12 +37,16 @@ a phase completes. Merging is manual (master auto-deploys to GitHub Pages).
       llm-fundamentals/ml-concepts.html. New `scripts/check_scripts.py` now
       node-checks every inline script block (41 files pass). All widgets
       verified responsive post-fix.
-- [ ] Nav consistency sweep: "Part X of Y" counts match actual series sizes
+- [x] Nav consistency sweep: "Part X of Y" counts match actual series sizes
       (LLM Fundamentals 3, Agents 4, Cost & Latency 3, Evaluation 4,
       Context Windows 3, Grounding 4, AI UX 4, Vibe Coding 4); prev/next links
       correct; series names consistent between landing page and article headers.
-- [ ] Landing page Latest strip is current and links resolve.
-- [ ] Open PR for Phase 1.
+      → All 8 series: part counts match, all 21 next-part chains link correctly,
+      breadcrumbs uniform within every series.
+- [x] Landing page Latest strip is current and links resolve.
+      → Current (top 3 = May 18 batch, nothing newer on master); links verified
+      by crawler.
+- [x] Open PR for Phase 1.
 
 ## Phase 2 — Editorial + interaction quality (branch: `audit/editorial`)
 
@@ -84,3 +88,7 @@ a phase completes. Merging is manual (master auto-deploys to GitHub Pages).
 (Loop appends out-of-scope findings here — one line each, with file:line.)
 
 - Masthead micro-widget (from June critique follow-ups)
+- Breadcrumb series names are shortened vs landing-page titles (e.g. "Cost &
+  Latency" vs "Cost & Latency Tradeoffs", "Vibe Coding" vs "The Builder's Guide
+  to Vibe Coding"). Uniform within each series; looks intentional. Decide
+  post-launch whether to align.
