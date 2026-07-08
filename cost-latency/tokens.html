@@ -712,7 +712,7 @@
         explanation: 'JSON is significantly more token-dense than prose. Every quotation mark, colon, comma, brace, and key name counts as one or more tokens. A line like "user_id": "abc123" alone is 7-8 tokens. The engineer\'s estimate treats tokens like lines, but structured data eats through your token budget much faster than natural language. Language of values matters too, but the structure itself is the primary culprit here.'
       },
       {
-        question: 'You're comparing two feature designs: Feature A sends a 2,000-token document to an LLM and gets back a one-word classification label. Feature B sends a 100-token instruction and gets back a 1,500-token article. Which costs more, and why?',
+        question: 'You\'re comparing two feature designs: Feature A sends a 2,000-token document to an LLM and gets back a one-word classification label. Feature B sends a 100-token instruction and gets back a 1,500-token article. Which costs more, and why?',
         options: [
           { label: 'Feature A \u2014 it has more total tokens (2,001 vs. 1,600)', key: 'a' },
           { label: 'They cost roughly the same since total tokens are similar', key: 'b' },
