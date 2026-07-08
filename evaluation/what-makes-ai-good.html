@@ -437,7 +437,7 @@
         ctx.fill();
       }
 
-      requestAnimationFrame(draw);
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(draw);
     }
 
     var observer = new IntersectionObserver(function(entries) {

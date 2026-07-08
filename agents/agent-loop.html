@@ -472,13 +472,13 @@
         ctx.fill();
       }
 
-      requestAnimationFrame(draw);
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(draw);
     }
 
     // Only animate when hero is visible
     var observer = new IntersectionObserver(function(entries) {
       if (entries[0].isIntersecting) {
-        requestAnimationFrame(draw);
+        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(draw);
       }
     }, { threshold: 0 });
 

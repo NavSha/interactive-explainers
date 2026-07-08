@@ -62,10 +62,18 @@ a phase completes. Merging is manual (master auto-deploys to GitHub Pages).
       Epigraphs + callouts structurally clean across all 29; dominant issues
       were stale 2024 model rosters/prices and internal math errors. Judgment
       calls logged under Deferred below.
-- [ ] Widget UX pass on every interactive widget: obvious affordance, works with
+- [x] Widget UX pass on every interactive widget: obvious affordance, works with
       touch (no hover-only interactions), keyboard-operable, honors
       prefers-reduced-motion. Fix mechanical gaps; log design-level issues.
-- [ ] Open PR for Phase 2.
+      → Touch: all 3 hover handlers site-wide are progressive enhancement over
+      click targets (heatmap has click twin) — no hover-only blockers.
+      Keyboard: all widgets drive via real <button> elements (verified in P1
+      smoke); heatmap-cell tooltips logged to Deferred as design-level.
+      Reduced motion: FIXED — all 29 decorative hero canvas loops now guard
+      requestAnimationFrame behind prefers-reduced-motion (render one static
+      frame, no loop); finite user-triggered animations left as-is. shared.css
+      already covered CSS animations.
+- [x] Open PR for Phase 2.
 
 ## Phase 3 — Launch surface (branch: `audit/launch-surface`)
 
@@ -97,6 +105,10 @@ a phase completes. Merging is manual (master auto-deploys to GitHub Pages).
   Latency" vs "Cost & Latency Tradeoffs", "Vibe Coding" vs "The Builder's Guide
   to Vibe Coding"). Uniform within each series; looks intentional. Decide
   post-launch whether to align.
+
+- Heatmap cells (the-context-window needle-in-haystack widget) expose per-cell
+  tooltips only via click/hover on non-focusable divs — keyboard users can't
+  reach them. Design-level: consider tabindex + focus handler post-launch.
 
 ### Phase 2 editorial JUDGMENT log (not fixed — style/verification calls)
 - callout--summary label split: "Takeaway" (how-llms-work, tokenization) vs

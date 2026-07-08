@@ -715,7 +715,7 @@
         ctx.fillStyle = 'rgba(255,255,255,' + (0.4 + 0.4 * glow) + ')';
         ctx.beginPath(); ctx.arc(n.x, n.y, n.r * (0.8 + 0.4 * glow), 0, Math.PI * 2); ctx.fill();
       }
-      requestAnimationFrame(draw);
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(draw);
     }
 
     resize(); initNodes(); requestAnimationFrame(draw);
