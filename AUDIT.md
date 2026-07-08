@@ -115,8 +115,9 @@ a phase completes. Merging is manual (master auto-deploys to GitHub Pages).
 - [x] Post-merge live-site smoke test (GitHub Pages, ~1 min deploy lag).
       → All URLs 200 (css v=11, og-image, favicon, sitemap); custom 404 serves;
       previously-dead widget verified interactive on live site; console clean.
-- [ ] Post-merge: paste one article URL into a Twitter/LinkedIn card validator
+- [x] Post-merge: paste one article URL into a Twitter/LinkedIn card validator
       to confirm og-image renders (image URL only resolves once deployed).
+      → Verified by Navneet 2026-07-08: card image renders correctly.
 - [ ] Content freeze: no changes in the last 24h before launch except audit fixes.
 
 ## Deferred / post-launch
