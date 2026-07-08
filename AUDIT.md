@@ -91,8 +91,14 @@ a phase completes. Merging is manual (master auto-deploys to GitHub Pages).
       → "Token not in vocabulary / didn't make it into the context window".
 - [x] `sitemap.xml` + per-page `<meta name="description">`.
       → 41-URL sitemap + robots.txt pointing at it; descriptions covered above.
-- [ ] Mobile sweep: screenshot every page at 375px width; fix layout breaks and
+- [x] Mobile sweep: screenshot every page at 375px width; fix layout breaks and
       widget touch failures.
+      → Programmatic overflow detection across all 41 pages found 9 with
+      horizontal scroll: 6 wide tables (fixed via shared.css mobile rule —
+      tables scroll in their box; cache-buster bumped v=10→v=11 site-wide),
+      plus 3 widget layouts (memory-walkthrough control row, heatmap grid,
+      burn-rate slider) fixed individually. Re-check: 0 overflow on all 9;
+      landing page visually verified at 375px.
 - [ ] Performance spot-check: flag any page loading heavy assets (>500KB) or
       noticeably slow on throttled connection.
 - [ ] Landing-page funnel walk: landing → learning path → first article → next

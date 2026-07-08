@@ -28,7 +28,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../styles/shared.css?v=10">
+  <link rel="stylesheet" href="../styles/shared.css?v=11">
   <style>
     /* Reading Progress Bar */
     .reading-progress {
@@ -187,9 +187,9 @@
         <button class="btn btn--secondary" data-tab="summary">Summarization</button>
       </div>
 
-      <div style="display: flex; align-items: center; gap: var(--space-4); margin-top: var(--space-6);">
+      <div style="display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-4); margin-top: var(--space-6);">
         <button class="btn btn--secondary" id="memory-prev" disabled>Prev</button>
-        <div style="flex: 1; display: flex; align-items: center; gap: var(--space-3);">
+        <div style="flex: 1; min-width: 200px; display: flex; align-items: center; gap: var(--space-3);">
           <span style="font-family: var(--font-sans); font-size: var(--text-sm); white-space: nowrap; color: var(--color-text-secondary);">Turn:</span>
           <input type="range" id="memory-slider" min="1" max="20" value="1" style="flex: 1; accent-color: var(--accent-context);">
           <span id="memory-turn-label" style="font-family: var(--font-mono); font-size: var(--text-sm); font-weight: 600; min-width: 4rem; text-align: center;">1 / 20</span>
