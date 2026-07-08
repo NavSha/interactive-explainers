@@ -281,6 +281,25 @@
       .rag-pipeline__stages { flex-direction: column; }
       .rag-pipeline__arrow { justify-content: center; transform: rotate(90deg); padding: var(--space-1) 0; }
     }
+
+    /* Hand-drawn concept sketch (samosa-sketches motif) */
+    .sketch-figure {
+      margin: var(--space-6) 0;
+      text-align: center;
+    }
+    .sketch-figure img {
+      width: 100%;
+      max-width: 620px;
+      height: auto;
+      display: inline-block;
+    }
+    .sketch-figure figcaption {
+      margin-top: var(--space-2);
+      font-family: var(--font-sans);
+      font-size: 0.85rem;
+      color: var(--color-ink-soft, #6B7280);
+      font-style: normal;
+    }
   </style>
   <style>
     /* Reading Progress Bar */
@@ -402,6 +421,12 @@
          Section II: The RAG Pipeline
          ================================================================ -->
     <h2 id="the-rag-pipeline"><span class="section-number">II</span> The RAG Pipeline</h2>
+
+    <figure class="sketch-figure">
+      <img src="../assets/sketches/rag-samosa.webp"
+           alt="A samosa stands on a stool beside a bookshelf labeled 'your docs.' A question mark hovers nearby; the samosa fetches a folder from the shelf and produces an answer.">
+      <figcaption>RAG in one frame: a question comes in, the relevant docs are fetched, and the model answers from what it found &mdash; not from memory.</figcaption>
+    </figure>
 
     <p>Retrieval-Augmented Generation — RAG — is a deceptively simple idea: instead of asking the model to recall information from memory, you <em>look up</em> the relevant information first and paste it into the prompt. The model generates its answer based on what you gave it, not what it memorized during training.</p>
 
