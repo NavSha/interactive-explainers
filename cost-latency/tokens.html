@@ -28,7 +28,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../styles/shared.css?v=11">
+  <link rel="stylesheet" href="../styles/shared.css?v=12">
   <style>
     /* Reading Progress Bar */
     .reading-progress {
@@ -190,6 +190,12 @@
     <p>Notice how code and JSON use more tokens per "word" than prose. A JSON key-value pair like <code>"user_id": "abc123"</code> is 7-8 tokens despite being just a few "words." Structured data eats your token budget for breakfast.</p>
 
     <h2 id="the-price-tag"><span class="section-number">II</span> The Price Tag</h2>
+
+    <figure class="sketch-figure">
+      <img src="../assets/sketches/token-cost.webp"
+           alt="A samosa feeds word-tokens one at a time into a tall fare meter; the meter's rising total is shown in orange, labeled 'cost per token'.">
+      <figcaption>Every token is a coin in the meter. Tokens in, tokens out &mdash; the fare climbs with each one the model reads or writes.</figcaption>
+    </figure>
 
     <p><strong>Input tokens and output tokens are priced differently.</strong> Output tokens cost 3-5x more because generation is computationally harder than comprehension. The meter runs faster on the way out.</p>
 
