@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Page Not Found — AI for Builders</title>
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/interactive-explainers/styles/shared.css?v=11">
+  <link rel="icon" type="image/png" sizes="32x32" href="/interactive-explainers/assets/favicon-32.png">
+  <link rel="apple-touch-icon" href="/interactive-explainers/assets/apple-touch-icon.png">
+  <style>
+    .notfound {
+      min-height: 70vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: var(--space-8, 2rem);
+    }
+    .notfound__code {
+      font-family: var(--font-mono, 'JetBrains Mono', monospace);
+      font-size: 0.85rem;
+      color: var(--color-text-secondary, #6B6B6B);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+    .notfound h1 {
+      font-family: var(--font-serif, 'Newsreader', serif);
+      font-size: clamp(2rem, 5vw, 3.25rem);
+      font-weight: 600;
+      color: var(--color-text, #1A1A1A);
+      margin-bottom: 1rem;
+    }
+    .notfound h1 em { font-style: italic; font-weight: 400; }
+    .notfound p {
+      font-family: var(--font-sans, 'Inter', sans-serif);
+      font-size: 1.05rem;
+      color: var(--color-text-secondary, #6B6B6B);
+      max-width: 34rem;
+      line-height: 1.6;
+      margin-bottom: 2rem;
+    }
+    .notfound a.home-link {
+      font-family: var(--font-sans, 'Inter', sans-serif);
+      font-weight: 500;
+      color: #FAF8F5;
+      background: #1A1A1A;
+      padding: 0.7rem 1.4rem;
+      border-radius: 8px;
+      text-decoration: none;
+    }
+    .notfound a.home-link:hover { opacity: 0.85; }
+  </style>
+</head>
+<body>
+  <main class="notfound">
+    <div class="notfound__code">404 · Token not in vocabulary</div>
+    <h1>This page didn't make it <em>into the context window</em>.</h1>
+    <p>The URL you followed doesn't resolve to anything here — it may have moved, or it may never have existed. Either way, everything worth reading is one hop from the front page.</p>
+    <a class="home-link" href="/interactive-explainers/">Back to AI for Builders</a>
+  </main>
+</body>
+</html>

@@ -77,23 +77,44 @@ a phase completes. Merging is manual (master auto-deploys to GitHub Pages).
 
 ## Phase 3 — Launch surface (branch: `audit/launch-surface`)
 
-- [ ] OG + Twitter card meta tags on every page (title, description, og:image);
+- [x] OG + Twitter card meta tags on every page (title, description, og:image);
       verify one page of each series renders correctly in a card validator.
-- [ ] Favicon (all standard sizes + touch icon), linked from every page.
-- [ ] Custom 404 page (GitHub Pages: `404.html` at root, on-brand).
-- [ ] `sitemap.xml` + per-page `<meta name="description">`.
-- [ ] Mobile sweep: screenshot every page at 375px width; fix layout breaks and
+      → `scripts/inject_meta.py` injected og:*/twitter:*/description into all 41
+      pages (descriptions harvested from each page's lead paragraph); branded
+      1200x630 `assets/og-image.png` generated. NOTE: external card-validator
+      check must happen post-merge (og:image URL only resolves once deployed) —
+      added to Final gate.
+- [x] Favicon (all standard sizes + touch icon), linked from every page.
+      → `assets/favicon-32.png` + `apple-touch-icon.png` (+512 master), linked
+      from all 41 pages. "ai" monogram, Newsreader italic on ink.
+- [x] Custom 404 page (GitHub Pages: `404.html` at root, on-brand).
+      → "Token not in vocabulary / didn't make it into the context window".
+- [x] `sitemap.xml` + per-page `<meta name="description">`.
+      → 41-URL sitemap + robots.txt pointing at it; descriptions covered above.
+- [x] Mobile sweep: screenshot every page at 375px width; fix layout breaks and
       widget touch failures.
-- [ ] Performance spot-check: flag any page loading heavy assets (>500KB) or
+      → Programmatic overflow detection across all 41 pages found 9 with
+      horizontal scroll: 6 wide tables (fixed via shared.css mobile rule —
+      tables scroll in their box; cache-buster bumped v=10→v=11 site-wide),
+      plus 3 widget layouts (memory-walkthrough control row, heatmap grid,
+      burn-rate slider) fixed individually. Re-check: 0 overflow on all 9;
+      landing page visually verified at 375px.
+- [x] Performance spot-check: flag any page loading heavy assets (>500KB) or
       noticeably slow on throttled connection.
-- [ ] Landing-page funnel walk: landing → learning path → first article → next
+      → Pass, no action: largest page 86KB HTML; og-image 52KB; shared.css 32KB.
+      External loads are Google Fonts + GA only. Nothing near 500KB.
+- [x] Landing-page funnel walk: landing → learning path → first article → next
       article. Confirm the path holds end to end.
-- [ ] Open PR for Phase 3.
+      → Verified headless: landing Foundations band → llm-fundamentals index →
+      parts listed in order → ml-concepts has next-part link + breadcrumb home.
+- [x] Open PR for Phase 3.
 
 ## Final gate (manual — Navneet)
 
 - [ ] Review + merge the three PRs.
 - [ ] Post-merge live-site smoke test (GitHub Pages, ~1 min deploy lag).
+- [ ] Post-merge: paste one article URL into a Twitter/LinkedIn card validator
+      to confirm og-image renders (image URL only resolves once deployed).
 - [ ] Content freeze: no changes in the last 24h before launch except audit fixes.
 
 ## Deferred / post-launch
