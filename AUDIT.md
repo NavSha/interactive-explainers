@@ -99,11 +99,15 @@ a phase completes. Merging is manual (master auto-deploys to GitHub Pages).
       plus 3 widget layouts (memory-walkthrough control row, heatmap grid,
       burn-rate slider) fixed individually. Re-check: 0 overflow on all 9;
       landing page visually verified at 375px.
-- [ ] Performance spot-check: flag any page loading heavy assets (>500KB) or
+- [x] Performance spot-check: flag any page loading heavy assets (>500KB) or
       noticeably slow on throttled connection.
-- [ ] Landing-page funnel walk: landing → learning path → first article → next
+      → Pass, no action: largest page 86KB HTML; og-image 52KB; shared.css 32KB.
+      External loads are Google Fonts + GA only. Nothing near 500KB.
+- [x] Landing-page funnel walk: landing → learning path → first article → next
       article. Confirm the path holds end to end.
-- [ ] Open PR for Phase 3.
+      → Verified headless: landing Foundations band → llm-fundamentals index →
+      parts listed in order → ml-concepts has next-part link + breadcrumb home.
+- [x] Open PR for Phase 3.
 
 ## Final gate (manual — Navneet)
 
