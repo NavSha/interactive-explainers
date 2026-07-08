@@ -28,7 +28,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../styles/shared.css?v=11">
+  <link rel="stylesheet" href="../styles/shared.css?v=12">
   <style>
     .article-hero { background: var(--accent-llm-gradient); }
     .toc__list a:hover { color: var(--accent-llm); }
@@ -461,6 +461,12 @@
          Section III: Next-Token Prediction
          ================================================================ -->
     <h2 id="next-token-prediction"><span class="section-number">III</span> Next-Token Prediction</h2>
+
+    <figure class="sketch-figure">
+      <img src="../assets/sketches/next-token.webp"
+           alt="A samosa holds a card reading 'the cat sat on the ___' and reaches up to pick the most likely next word from a floating cloud of candidates; the chosen word 'mat' is circled in orange.">
+      <figcaption>Next-token prediction in one frame: given the words so far, the model picks the single most likely word to come next &mdash; then does it again.</figcaption>
+    </figure>
 
     <p>Every LLM does exactly one thing: predict the most likely next <em>token</em> given everything before it.</p>
 

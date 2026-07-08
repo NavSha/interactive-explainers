@@ -334,6 +334,16 @@ h1, h2, h3 {
 .prose li             { margin-bottom: var(--space-2); }
 .prose li + li        { margin-top: var(--space-2); }
 
+/* --- Hand-drawn concept sketches (samosa-sketches motif) --- */
+.sketch-figure { margin: var(--space-6) 0; text-align: center; }
+.sketch-figure img { width: 100%; max-width: 620px; height: auto; display: inline-block; }
+.sketch-figure figcaption {
+  margin-top: var(--space-2);
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+}
+
 .section-number {
   font-family: var(--font-serif);
   font-size: var(--text-lg);

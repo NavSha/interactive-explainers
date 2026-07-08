@@ -28,7 +28,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../styles/shared.css?v=11">
+  <link rel="stylesheet" href="../styles/shared.css?v=12">
   <style>
     /* Reading Progress Bar */
     .reading-progress {
@@ -194,6 +194,12 @@
          Section III: The Loop
          ================================================================ -->
     <h2 id="the-loop"><span class="section-number">III</span> The Loop</h2>
+
+    <figure class="sketch-figure">
+      <img src="../assets/sketches/agent-loop.webp"
+           alt="A samosa wearing a small toolbelt stands at the center of a circular orange arrow loop connecting three stations labeled think, act, and observe.">
+      <figcaption>The agent loop: think, act, observe &mdash; then around again. The tools on the belt are how it acts on the world between turns.</figcaption>
+    </figure>
 
     <p>The agent loop transforms an LLM from a one-shot oracle into an iterative problem-solver. Anthropic's engineering team, after shipping Claude Code and working with dozens of production deployments, landed on a core principle: what separates a working agent from a prototype isn't model capability — it's system design. Context management, error handling, and the loop itself matter more than raw intelligence. Four phases, repeated until the task is complete:</p>
 
