@@ -77,11 +77,20 @@ a phase completes. Merging is manual (master auto-deploys to GitHub Pages).
 
 ## Phase 3 — Launch surface (branch: `audit/launch-surface`)
 
-- [ ] OG + Twitter card meta tags on every page (title, description, og:image);
+- [x] OG + Twitter card meta tags on every page (title, description, og:image);
       verify one page of each series renders correctly in a card validator.
-- [ ] Favicon (all standard sizes + touch icon), linked from every page.
-- [ ] Custom 404 page (GitHub Pages: `404.html` at root, on-brand).
-- [ ] `sitemap.xml` + per-page `<meta name="description">`.
+      → `scripts/inject_meta.py` injected og:*/twitter:*/description into all 41
+      pages (descriptions harvested from each page's lead paragraph); branded
+      1200x630 `assets/og-image.png` generated. NOTE: external card-validator
+      check must happen post-merge (og:image URL only resolves once deployed) —
+      added to Final gate.
+- [x] Favicon (all standard sizes + touch icon), linked from every page.
+      → `assets/favicon-32.png` + `apple-touch-icon.png` (+512 master), linked
+      from all 41 pages. "ai" monogram, Newsreader italic on ink.
+- [x] Custom 404 page (GitHub Pages: `404.html` at root, on-brand).
+      → "Token not in vocabulary / didn't make it into the context window".
+- [x] `sitemap.xml` + per-page `<meta name="description">`.
+      → 41-URL sitemap + robots.txt pointing at it; descriptions covered above.
 - [ ] Mobile sweep: screenshot every page at 375px width; fix layout breaks and
       widget touch failures.
 - [ ] Performance spot-check: flag any page loading heavy assets (>500KB) or
@@ -94,6 +103,8 @@ a phase completes. Merging is manual (master auto-deploys to GitHub Pages).
 
 - [ ] Review + merge the three PRs.
 - [ ] Post-merge live-site smoke test (GitHub Pages, ~1 min deploy lag).
+- [ ] Post-merge: paste one article URL into a Twitter/LinkedIn card validator
+      to confirm og-image renders (image URL only resolves once deployed).
 - [ ] Content freeze: no changes in the last 24h before launch except audit fixes.
 
 ## Deferred / post-launch
