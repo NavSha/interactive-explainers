@@ -30,7 +30,11 @@ for hf in sorted(html_files):
         path = unquote(urlparse(url).path)
         if not path:  # pure query/fragment link
             continue
-        if path.startswith("/"):
+        if path.startswith("/interactive-explainers/") or path == "/interactive-explainers":
+            # site-absolute GitHub Pages path (used by 404.html) — maps to repo root
+            sub = path[len("/interactive-explainers/"):]
+            target = os.path.join(ROOT, sub) if sub else os.path.join(ROOT, "index.html")
+        elif path.startswith("/"):
             target = os.path.join(ROOT, path.lstrip("/"))
         else:
             target = os.path.normpath(os.path.join(os.path.dirname(hf), path))
