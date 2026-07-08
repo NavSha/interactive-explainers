@@ -302,8 +302,8 @@
 
     <p><strong>Keep rollback instant.</strong> If a prompt change degrades quality, you need to revert in seconds, not minutes. This means the previous version is always one click away. Prompt rollback is your circuit breaker for AI behavior.</p>
 
-    <div class="callout callout--analogy">
-      <div class="callout__label">Architecture Insight</div>
+    <div class="callout callout--insight">
+      <div class="callout__label">Key Insight</div>
       <div class="callout__body">Garry Tan frames the philosophy: <strong>&ldquo;Memory is markdown. Skills are markdown. Brain is a git repo. The harness is a thin conductor &mdash; it reads the files, it doesn&rsquo;t own them.&rdquo;</strong> Your prompts, eval rubrics, and test sets should be simple, human-readable files that survive your framework. If your eval infrastructure dies, the knowledge of what you test and how you score should be portable to whatever comes next.</div>
     </div>
 
@@ -313,11 +313,6 @@
     </div>
 
   </article>
-
-  <nav class="article-nav">
-    <a href="evals-in-practice.html">&larr; Part 2: Evals in Practice</a>
-    <a href="llm-as-judge.html">Part 4: LLM-as-Judge Done Right &rarr;</a>
-  </nav>
 
   <!-- ================================================================
        Capstone Quiz
@@ -331,6 +326,11 @@
     <button class="capstone-quiz__next" id="cq-next">Next question &rarr;</button>
     <div class="capstone-quiz__score" id="cq-score" style="display:none;"></div>
   </div>
+
+  <nav class="article-nav">
+    <a href="evals-in-practice.html">&larr; Part 2: Evals in Practice</a>
+    <a href="llm-as-judge.html">Part 4: LLM-as-Judge Done Right &rarr;</a>
+  </nav>
 
   <!-- ================================================================
        Scripts
@@ -415,7 +415,7 @@
           }
         }
       }
-      requestAnimationFrame(draw);
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(draw);
     }
     draw();
   })();

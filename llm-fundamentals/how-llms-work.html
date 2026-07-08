@@ -506,7 +506,7 @@
 
     <div class="callout callout--pm-tip">
       <div class="callout__label">Builder Tip</div>
-      <div class="callout__body"><strong>Pick models by task, not parameter count.</strong> A smaller model fine-tuned for your specific use case will often outperform a frontier model used generically. If your product classifies support tickets, a fine-tuned 8B model may beat GPT-4 at a fraction of the cost. Save frontier models for tasks that genuinely need broad reasoning.</div>
+      <div class="callout__body"><strong>Pick models by task, not parameter count.</strong> A smaller model fine-tuned for your specific use case will often outperform a frontier model used generically. If your product classifies support tickets, a fine-tuned 8B model may beat a frontier model at a fraction of the cost. Save frontier models for tasks that genuinely need broad reasoning.</div>
     </div>
 
     <!-- ================================================================
@@ -514,7 +514,7 @@
          ================================================================ -->
     <h2 id="capability-landscape"><span class="section-number">V</span> The Capability Landscape</h2>
 
-    <p><strong>Proprietary frontier models</strong> (GPT-4o, Claude Sonnet, Gemini Pro) are the most capable. Complex reasoning, broad knowledge, best instruction-following. The price: your data goes to a third party, you pay per token, and the model can change under you without warning.</p>
+    <p><strong>Proprietary frontier models</strong> (GPT-5, Claude Sonnet, Gemini Pro) are the most capable. Complex reasoning, broad knowledge, best instruction-following. The price: your data goes to a third party, you pay per token, and the model can change under you without warning.</p>
 
     <p><strong>Open-source models</strong> (Llama, Mistral, Command R+) run on your infrastructure. You own the data, the cost structure, and the version. The price: you need ML talent to deploy and maintain them, and they trail proprietary models on the hardest tasks — usually by a few months, sometimes by more.</p>
 
@@ -738,7 +738,7 @@
         ctx.fillStyle = 'rgba(255,255,255,' + (0.4 + 0.4 * glow) + ')';
         ctx.beginPath(); ctx.arc(n.x, n.y, n.r * (0.8 + 0.4 * glow), 0, Math.PI * 2); ctx.fill();
       }
-      requestAnimationFrame(draw);
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(draw);
     }
 
     resize(); initNodes(); requestAnimationFrame(draw);
@@ -1036,84 +1036,84 @@
   (function() {
     const models = [
       {
-        name: "GPT-4o",
-        provider: "OpenAI",
+        name: "Frontier flagship (GPT-5-class)",
+        provider: "OpenAI-style labs",
         tier: "frontier",
         tierLabel: "Frontier",
         best: "Complex reasoning, multimodal tasks",
         cost: "$$$",
         tags: ["code", "rag"],
-        detail: "OpenAI's flagship multimodal model. Excels at nuanced instruction following, complex multi-step reasoning, and tasks combining text, images, and code. The default choice when you need the highest capability and can afford the cost. Input: $5/M tokens, Output: $15/M tokens."
+        detail: "The top-of-the-line tier from a major lab. Excels at nuanced instruction following, complex multi-step reasoning, and tasks combining text, images, and code. The default choice when you need the highest capability and can afford the cost — and the most expensive per token."
       },
       {
-        name: "Claude 3.5 Sonnet",
+        name: "Balanced workhorse (Claude Sonnet-class)",
         provider: "Anthropic",
         tier: "frontier",
         tierLabel: "Frontier",
         best: "Long documents, careful analysis, code",
         cost: "$$$",
         tags: ["code", "rag"],
-        detail: "Anthropic's leading model, known for strong instruction following, careful reasoning, and excellent performance on long documents (200k context window). Particularly strong at code generation and analysis tasks. Input: $3/M tokens, Output: $15/M tokens."
+        detail: "The near-frontier workhorse tier: strong instruction following, careful reasoning, and excellent performance on long documents, at a lower price than flagship models. Particularly strong at code generation and analysis tasks. Claude Sonnet, for example: Input: $3/M tokens, Output: $15/M tokens."
       },
       {
-        name: "Gemini 1.5 Pro",
-        provider: "Google",
+        name: "Long-context specialist (Gemini Pro-class)",
+        provider: "Google-style labs",
         tier: "frontier",
         tierLabel: "Frontier",
-        best: "Massive context (1M tokens), multimodal",
+        best: "Massive context (1M+ tokens), multimodal",
         cost: "$$$",
         tags: ["rag"],
-        detail: "Google's frontier model with an industry-leading 1 million token context window. Strong at processing entire codebases, long documents, and video. Best choice when your use case requires fitting very large amounts of context in a single call. Input: $3.50/M tokens, Output: $10.50/M tokens."
+        detail: "Frontier-tier models with very large context windows (1 million tokens or more). Strong at processing entire codebases, long documents, and video. Best choice when your use case requires fitting very large amounts of context in a single call."
       },
       {
-        name: "Llama 3 70B",
-        provider: "Meta (Open Source)",
+        name: "Open-weight flagship (Llama-class 70B+)",
+        provider: "Meta-style open releases",
         tier: "frontier",
         tierLabel: "Frontier",
         best: "Self-hosted, data-sensitive use cases",
         cost: "$ (self-hosted)",
         tags: ["open", "code"],
-        detail: "Meta's open-source frontier model. Performance approaches proprietary models on many benchmarks. The go-to choice when you need to keep data on-premise, want to fine-tune on your own data, or need predictable costs at high volume. Requires ML infrastructure to deploy."
+        detail: "Large open-weight models whose performance approaches proprietary models on many benchmarks. The go-to choice when you need to keep data on-premise, want to fine-tune on your own data, or need predictable costs at high volume. Requires ML infrastructure to deploy."
       },
       {
-        name: "Mistral Large",
-        provider: "Mistral AI (Open Source)",
+        name: "European contender (Mistral-class)",
+        provider: "EU-based labs",
         tier: "frontier",
         tierLabel: "Frontier",
         best: "European data sovereignty, multilingual",
         cost: "$$",
         tags: ["open", "rag"],
-        detail: "Mistral's top model, strong at multilingual tasks and European language support. Available both via API and as open weights. A good choice for teams that need data sovereignty (Mistral is based in France/EU) or strong non-English performance. Input: $2/M tokens, Output: $6/M tokens."
+        detail: "Capable models from European labs, strong at multilingual tasks and European language support. Often available both via API and as open weights. A good choice for teams that need data sovereignty (EU-based providers) or strong non-English performance."
       },
       {
-        name: "Command R+",
-        provider: "Cohere (Open Source)",
+        name: "RAG specialist (Command-class)",
+        provider: "Enterprise-focused labs",
         tier: "mid",
         tierLabel: "Mid-tier",
         best: "RAG, enterprise search, grounded generation",
         cost: "$$",
         tags: ["open", "rag"],
-        detail: "Purpose-built for retrieval-augmented generation (RAG). Excels at citing sources, grounding responses in provided documents, and enterprise search tasks. If your product is document Q&A or knowledge base search, this model is specifically optimized for it. Input: $3/M tokens, Output: $15/M tokens."
+        detail: "Models purpose-built for retrieval-augmented generation (RAG). Excel at citing sources, grounding responses in provided documents, and enterprise search tasks. If your product is document Q&A or knowledge base search, this tier is specifically optimized for it."
       },
       {
-        name: "GPT-4o mini",
-        provider: "OpenAI",
+        name: "Fast & cheap (Haiku-class)",
+        provider: "Anthropic",
         tier: "mid",
         tierLabel: "Mid-tier",
         best: "High-volume tasks, cost-sensitive products",
         cost: "$",
         tags: ["code"],
-        detail: "OpenAI's cost-optimized model. 90% of GPT-4o's quality at roughly 3% of the price. Ideal for classification, summarization, and structured extraction at high volume. When your task doesn't need frontier reasoning, this is the smart default. Input: $0.15/M tokens, Output: $0.60/M tokens."
+        detail: "The cost-optimized tier: most of a frontier model's quality at a fraction of the price. Ideal for classification, summarization, and structured extraction at high volume. When your task doesn't need frontier reasoning, this is the smart default. Claude Haiku 4.5, for example: Input: $1/M tokens, Output: $5/M tokens."
       },
       {
-        name: "Llama 3 8B",
-        provider: "Meta (Open Source)",
+        name: "Small open-weight (Llama-class 8B)",
+        provider: "Open releases",
         tier: "small",
         tierLabel: "Small",
         best: "Edge deployment, fine-tuning, low latency",
         cost: "$ (self-hosted)",
         tags: ["open"],
-        detail: "Lightweight open-source model that runs on a single GPU. Ideal for fine-tuning on specific tasks like classification, entity extraction, or intent detection. When fine-tuned, it often matches or beats frontier models on narrow tasks at dramatically lower cost and latency."
+        detail: "Lightweight open-weight models that run on a single GPU. Ideal for fine-tuning on specific tasks like classification, entity extraction, or intent detection. When fine-tuned, they often match or beat frontier models on narrow tasks at dramatically lower cost and latency."
       }
     ];
 
@@ -1238,13 +1238,13 @@
 
       // Insights
       const insights = [
-        'At 1 query per day, training cost dwarfs inference by a factor of 68 billion. Training is a one-time investment; inference scales linearly with usage.',
+        'At 1 query per day, training cost dwarfs inference by a factor of 25 billion. Training is a one-time investment; inference scales linearly with usage.',
         'At 100 queries/day, yearly inference cost is ~$110. Training cost is still overwhelmingly dominant. This is hobby-project scale.',
         'At 10K queries/day, you\'re spending ~$11K/year on inference. Meaningful, but still a rounding error compared to the $75M training investment.',
         'At 50K queries/day, inference hits ~$55K/year. Now it\'s a real line item in your budget. But you\'re benefiting from a $75M model without paying for training.',
         'At 100K queries/day (~$110K/year), inference cost is significant. This is where model choice and prompt optimization start saving real money.',
         'At 500K queries/day (~$548K/year), inference is a serious cost center. Companies at this scale negotiate volume pricing and consider smaller or self-hosted models.',
-        'At 1M queries/day (~$1.1M/year), inference cost approaches training cost. At this scale, fine-tuning a smaller model or self-hosting can pay for itself within months.'
+        'At 1M queries/day (~$1.1M/year), inference is a multi-million-dollar line item over the model\'s lifetime. This is the scale where fine-tuning a smaller model or self-hosting starts to pay for itself.'
       ];
       insightEl.textContent = insights[idx];
     }
@@ -1289,7 +1289,7 @@
           { label: 'Disagree \u2014 parameter count isn\'t the only factor. A smaller model fine-tuned for a specific task often outperforms a frontier model used generically, at a fraction of the cost. Pick models by task, not size.', key: 'd' }
         ],
         answer: 'd',
-        explanation: 'Model selection should be task-driven, not size-driven. Training data quality, fine-tuning, and task fit often matter more than raw parameter count. A fine-tuned 8B model can beat GPT-4 on narrow tasks at a fraction of the cost. Option A ignores cost scaling. Option B overstates open-source advantages and ignores deployment complexity. Option C makes speed an absolute priority when the real answer is matching the model to the task.'
+        explanation: 'Model selection should be task-driven, not size-driven. Training data quality, fine-tuning, and task fit often matter more than raw parameter count. A fine-tuned 8B model can beat a frontier model on narrow tasks at a fraction of the cost. Option A ignores cost scaling. Option B overstates open-source advantages and ignores deployment complexity. Option C makes speed an absolute priority when the real answer is matching the model to the task.'
       },
       {
         question: 'Your team is choosing between a proprietary API model and an open-source model for a healthcare product that processes sensitive patient data. What\'s the most important tradeoff to weigh?',

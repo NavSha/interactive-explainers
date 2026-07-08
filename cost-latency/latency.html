@@ -228,7 +228,7 @@
 
     <div class="callout callout--pm-tip">
       <div class="callout__label">Builder Tip</div>
-      <div class="callout__body">Start with model routing. Most production workloads are 70% simple tasks that a small model handles perfectly. Sending every request to GPT-4-class models is the API-cost equivalent of hiring a surgeon to apply bandaids. This isn't hypothetical — Anthropic's data shows that ~50% of all agentic tool calls are software engineering, where teams have already learned to route simple completions to fast, cheap models and reserve heavyweight reasoning for complex tasks.</div>
+      <div class="callout__body">Start with model routing. Most production workloads are 70% simple tasks that a small model handles perfectly. Sending every request to frontier-class models is the API-cost equivalent of hiring a surgeon to apply band-aids. This isn't hypothetical — Anthropic's data shows that ~50% of all agentic tool calls are software engineering, where teams have already learned to route simple completions to fast, cheap models and reserve heavyweight reasoning for complex tasks.</div>
     </div>
 
     <p>Explore how these levers interact:</p>
@@ -430,7 +430,7 @@
     <ul>
       <li><strong>Tokens</strong> are the unit of cost — not the same as words.</li>
       <li><strong>Output tokens</strong> cost 3-5x more than input tokens.</li>
-      <li><strong>Model tiers</strong> span a 60x cost range — match the model to the task, not to the hype.</li>
+      <li><strong>Model tiers</strong> span a 5x cost range — match the model to the task, not to the hype.</li>
       <li><strong>Streaming</strong> transforms perceived latency without changing actual latency.</li>
       <li><strong>Five optimization levers</strong> (routing, caching, shorter prompts, response caching, fewer output tokens) can stack to cut costs 80-90%.</li>
       <li>Every feature lives in a <strong>cost-latency-quality triangle</strong> — and the right position varies by use case.</li>
@@ -464,7 +464,7 @@
       for(var i=0;i<nodes.length;i++){var n=nodes[i];n.x+=n.vx;n.y+=n.vy;n.pulse+=0.015;if(n.x<-20)n.x=w+20;if(n.x>w+20)n.x=-20;if(n.y<-20)n.y=h+20;if(n.y>h+20)n.y=-20;}
       ctx.lineWidth=1;for(var i=0;i<nodes.length;i++)for(var j=i+1;j<nodes.length;j++){var dx=nodes[i].x-nodes[j].x,dy=nodes[i].y-nodes[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<connectionDist){ctx.strokeStyle='rgba(255,255,255,'+((1-d/connectionDist)*0.3)+')';ctx.beginPath();ctx.moveTo(nodes[i].x,nodes[i].y);ctx.lineTo(nodes[j].x,nodes[j].y);ctx.stroke();}}
       for(var i=0;i<nodes.length;i++){var n=nodes[i],g=0.5+0.5*Math.sin(n.pulse);ctx.fillStyle='rgba(255,255,255,'+(0.4+0.4*g)+')';ctx.beginPath();ctx.arc(n.x,n.y,n.r*(0.8+0.4*g),0,Math.PI*2);ctx.fill();}
-      requestAnimationFrame(draw);
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(draw);
     }
     resize();init();requestAnimationFrame(draw);window.addEventListener('resize',function(){resize();init();});
   })();
@@ -730,10 +730,10 @@
           { label: 'Response caching \u2014 eliminating LLM calls entirely is always the biggest savings', key: 'a' },
           { label: 'Shorter prompts \u2014 because input tokens are the largest cost driver in most applications', key: 'b' },
           { label: 'It\'s impossible to say \u2014 optimizations stack multiplicatively, so the 85% is a combined effect where no single lever deserves most of the credit', key: 'c' },
-          { label: 'Model routing \u2014 it alone typically delivers 50-80% cost reduction by exploiting the 60x price range between model tiers', key: 'd' }
+          { label: 'Model routing \u2014 it alone typically delivers 50-60% cost reduction by exploiting the 5x price range between model tiers', key: 'd' }
         ],
         answer: 'd',
-        explanation: 'Model routing is consistently the highest-impact single optimization because it exploits the massive price difference between model tiers (up to 60x). Routing 70% of traffic to a small model alone delivers 50-80% savings. The other optimizations are valuable but work on smaller multipliers: caching saves 30-50% of remaining costs, prompt trimming saves proportionally to tokens cut. Option C sounds sophisticated but dodges the question \u2014 while optimizations do stack, model routing clearly contributes the largest individual share. Option A overestimates response caching since only a fraction of queries are cacheable. Option B is wrong because output tokens (not input) are usually the bigger cost per token.'
+        explanation: 'Model routing is consistently the highest-impact single optimization because it exploits the large price difference between model tiers (up to 5x). Routing 70% of traffic to a small model alone delivers 50-60% savings. The other optimizations are valuable but work on smaller multipliers: caching saves 30-50% of remaining costs, prompt trimming saves proportionally to tokens cut. Option C sounds sophisticated but dodges the question \u2014 while optimizations do stack, model routing clearly contributes the largest individual share. Option A overestimates response caching since only a fraction of queries are cacheable. Option B is wrong because output tokens (not input) are usually the bigger cost per token.'
       }
     ];
 

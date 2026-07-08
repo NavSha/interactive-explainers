@@ -50,17 +50,30 @@ a phase completes. Merging is manual (master auto-deploys to GitHub Pages).
 
 ## Phase 2 — Editorial + interaction quality (branch: `audit/editorial`)
 
-- [ ] Per-article editorial review, all 29 articles (parallel sub-agents OK, one
+- [x] Per-article editorial review, all 29 articles (parallel sub-agents OK, one
       per article, shared rubric): factual accuracy (model names, prices, context
       sizes — flag stale claims), tone consistency (humor 2.5–3/5, confident
       conversational), epigraph present and correct format (4-bar verse), callout
       types used correctly (--insight/--analogy/--pm-tip/--summary), repeated
       analogies across articles. Fix clear errors; log judgment calls to
       Deferred instead of rewriting.
-- [ ] Widget UX pass on every interactive widget: obvious affordance, works with
+      → DONE (7 parallel review agents + fix batches, 2026-07-08): all 35 FIX
+      findings in AUDIT-FINDINGS.md applied and committed (0 unchecked).
+      Epigraphs + callouts structurally clean across all 29; dominant issues
+      were stale 2024 model rosters/prices and internal math errors. Judgment
+      calls logged under Deferred below.
+- [x] Widget UX pass on every interactive widget: obvious affordance, works with
       touch (no hover-only interactions), keyboard-operable, honors
       prefers-reduced-motion. Fix mechanical gaps; log design-level issues.
-- [ ] Open PR for Phase 2.
+      → Touch: all 3 hover handlers site-wide are progressive enhancement over
+      click targets (heatmap has click twin) — no hover-only blockers.
+      Keyboard: all widgets drive via real <button> elements (verified in P1
+      smoke); heatmap-cell tooltips logged to Deferred as design-level.
+      Reduced motion: FIXED — all 29 decorative hero canvas loops now guard
+      requestAnimationFrame behind prefers-reduced-motion (render one static
+      frame, no loop); finite user-triggered animations left as-is. shared.css
+      already covered CSS animations.
+- [x] Open PR for Phase 2.
 
 ## Phase 3 — Launch surface (branch: `audit/launch-surface`)
 
@@ -92,3 +105,41 @@ a phase completes. Merging is manual (master auto-deploys to GitHub Pages).
   Latency" vs "Cost & Latency Tradeoffs", "Vibe Coding" vs "The Builder's Guide
   to Vibe Coding"). Uniform within each series; looks intentional. Decide
   post-launch whether to align.
+
+- Heatmap cells (the-context-window needle-in-haystack widget) expose per-cell
+  tooltips only via click/hover on non-focusable divs — keyboard users can't
+  reach them. Design-level: consider tabindex + focus handler post-launch.
+
+### Phase 2 editorial JUDGMENT log (not fixed — style/verification calls)
+- callout--summary label split: "Takeaway" (how-llms-work, tokenization) vs
+  "Summary" (ml-concepts, most others). Pick one label series-wide.
+- Name-drop density: Garry Tan attributed 3x in harness-engineering (incl.
+  "Memory is markdown / Brain is a git repo" quote that doesn't read like him);
+  Karpathy "hasn't typed code since Dec 2025 / late 2025" appears in
+  orchestration + vibe-coding (hedged in one, flat fact in another). Verify or
+  soften attributions; anchor Andrew Chen's "18 months" prediction to a date.
+- "Surgeon applying bandaids" analogy verbatim in tokens.html AND latency.html;
+  Anthropic "~50% agentic tool calls are software engineering" stat in all 3
+  cost-latency parts; a16z "$1B revenue" stat in latency + caching-batching.
+  Dedupe when next editing these.
+- Klarna cited as autonomy success in human-in-the-loop.html:551 — Klarna
+  publicly walked back AI-only support in 2025; acknowledging it would
+  strengthen the HITL thesis.
+- tools.html:68 "very articulate quadriplegic" — ableist punchline, brand risk.
+- Unverifiable vendor stats in orchestration.html:790 (Cars24 250 AI coworkers,
+  Klarna $50 refunds) — verify or hedge "reportedly".
+- needle-in-haystack heatmap (the-context-window.html:648) presents simulated
+  data as measurements — add "illustrative data" to widget instruction.
+- context-engineering.html compression example undercuts its own "structured
+  beats prose" claim (:227); 4K/8K framing reads dated (:157,:213).
+- the-reality-check.html:962 Spot-the-Bug sample has unintended 6th bug
+  (quantity/qty, productId/id mismatch) that widget calls "fine".
+- designing-for-uncertainty.html:470 epigraph line 4 breaks rhyme scheme ("fam").
+- streaming-ux.html:178 "serif or proportional font" category confusion →
+  "proportional font (serif or sans)".
+- grounding-your-data.html:367 epigraph "confidently hack" strained rhyme.
+- the-craft.html:587 orphan telephone-game analogy interrupts flow.
+- trust-recovery widget can show 20:1 vs prose "5 to 15" (cap at 15 or leave).
+- evals-in-practice.html:222 stacks 4 stat citations in one paragraph (dense);
+  "SWE-bench 60%→near-perfect" claim needs source verification (also appears in
+  planning, reality-check, debugging — being softened under FIX queue).

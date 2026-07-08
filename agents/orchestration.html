@@ -433,8 +433,8 @@
     <p><strong>When it works:</strong> Honestly? Rarely in production. This pattern sounds elegant but creates unpredictable behavior, makes debugging nearly impossible, and turns cost estimation into guesswork.</p>
     <p><strong>When it breaks:</strong> Most of the time. Without a coordinator, agents can enter infinite delegation loops, duplicate work, or make conflicting decisions. The overhead of &ldquo;agent politics&rdquo; often exceeds the cost of a simpler pattern.</p>
 
-    <div class="callout callout--analogy">
-      <div class="callout__label">Architecture Insight</div>
+    <div class="callout callout--insight">
+      <div class="callout__label">Key Insight</div>
       <div class="callout__body">A pattern emerging in production: <strong>thin harness, fat skills.</strong> Keep the orchestration layer minimal &mdash; a lightweight router or supervisor that reads task descriptions and dispatches to specialized agents. Put the intelligence in the skills (specialized agents with focused tools and prompts), not in the orchestration. Heavy orchestration frameworks are a smell. If your routing logic is more complex than your agents, you&rsquo;ve inverted the architecture.</div>
     </div>
 
@@ -467,7 +467,7 @@
 
     <h3>A2A: Agent-to-Agent</h3>
     <p><strong>Agent2Agent</strong>, introduced by Google in April 2025, addresses the complementary problem: how agents communicate with <em>each other</em>. Where MCP connects agents to tools, A2A connects agents to agents &mdash; enabling discovery, task delegation, and status updates between independently-built agent systems.</p>
-    <p>Both protocols were donated to the Linux Foundation in late 2025, putting them on an open-standards track. The fact that two competitors converged on complementary, donated standards is the strongest signal that agent infrastructure is being treated as table stakes, not competitive moat.</p>
+    <p>A2A was donated to the Linux Foundation in mid-2025 and MCP followed in late 2025, putting both on an open-standards track. The fact that two competitors converged on complementary, donated standards is the strongest signal that agent infrastructure is being treated as table stakes, not competitive moat.</p>
 
     <h3>Context Passing: The Hard Part</h3>
     <p>Protocols tell agents <em>how</em> to talk. The harder question is <em>what</em> to pass. When a supervisor delegates to a worker, how much context does the worker need? Too little and it hallucinates the gaps. Too much and you&rsquo;re paying for a bloated context window on every subtask.</p>
@@ -537,7 +537,7 @@
     <p>Multi-agent systems don&rsquo;t just inherit single-agent failure modes &mdash; they multiply them. Every connection between agents is a new place for things to break.</p>
 
     <h3>Cascading Failure</h3>
-    <p>In Part 3, we showed that a 95%-reliable tool called 5 times drops to ~77% reliability. In a multi-agent system, add another dimension: <strong>agents passing bad output to other agents.</strong> If the research agent hallucinates a statistic, the writing agent cites it confidently, and the review agent &mdash; which lacks access to the original source &mdash; can&rsquo;t catch it. Errors don&rsquo;t just compound across steps; they <em>launder</em> across agents, gaining unearned credibility at each handoff.</p>
+    <p>A 95%-reliable tool called 5 times drops to ~77% reliability (0.95<sup>5</sup>). In a multi-agent system, add another dimension: <strong>agents passing bad output to other agents.</strong> If the research agent hallucinates a statistic, the writing agent cites it confidently, and the review agent &mdash; which lacks access to the original source &mdash; can&rsquo;t catch it. Errors don&rsquo;t just compound across steps; they <em>launder</em> across agents, gaining unearned credibility at each handoff.</p>
 
     <h3>The Lethal Trifecta</h3>
     <p>Security researcher Simon Willison identified the three properties that make an agent dangerous when combined: <strong>(1) access to private data</strong>, <strong>(2) exposure to untrusted content</strong>, and <strong>(3) the ability to communicate externally</strong>. Any two are manageable. All three together create an attack surface where a prompt injection in untrusted content can exfiltrate private data through external communication.</p>
@@ -702,7 +702,7 @@
           }
         }
       }
-      requestAnimationFrame(draw);
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(draw);
     }
     draw();
   })();

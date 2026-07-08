@@ -888,7 +888,7 @@
         ctx.fill();
       }
 
-      requestAnimationFrame(draw);
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(draw);
     }
 
     resize();

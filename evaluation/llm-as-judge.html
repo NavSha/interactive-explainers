@@ -211,7 +211,7 @@
 
     <p><strong>Not circular (use confidently):</strong></p>
     <ul>
-      <li><strong>Different model judges a different model.</strong> GPT-4 judging Claude, or Opus judging Haiku. Different training data, different failure modes, different blindspots. Cross-model judging catches failures that same-model judging misses.</li>
+      <li><strong>Different model judges a different model.</strong> A GPT-class model judging Claude, or Opus judging Haiku. Different training data, different failure modes, different blindspots. Cross-model judging catches failures that same-model judging misses.</li>
       <li><strong>Rubric-constrained evaluation.</strong> A well-crafted rubric with specific criteria and evidence requirements forces the judge to evaluate <em>specific claims</em>, not vibes. The rubric turns an open-ended question into a verification task, which LLMs are much better at.</li>
       <li><strong>Verification is easier than generation.</strong> This is the fundamental reason LLM-as-judge works. Checking whether a response correctly cites a source document is much simpler than generating the response in the first place. The judge doesn&rsquo;t need to be smarter than the generator &mdash; it needs to be good at checking specific properties.</li>
     </ul>
@@ -326,7 +326,7 @@
       ctx.clearRect(0, 0, canvas.offsetWidth, canvas.offsetHeight);
       particles.forEach(function(p) { p.x += p.dx; p.y += p.dy; if (p.x < 0 || p.x > canvas.offsetWidth) p.dx *= -1; if (p.y < 0 || p.y > canvas.offsetHeight) p.dy *= -1; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fillStyle = 'rgba(255,255,255,' + p.alpha + ')'; ctx.fill(); });
       for (var i = 0; i < particles.length; i++) for (var j = i + 1; j < particles.length; j++) { var dx = particles[i].x - particles[j].x, dy = particles[i].y - particles[j].y, dist = Math.sqrt(dx * dx + dy * dy); if (dist < 100) { ctx.beginPath(); ctx.moveTo(particles[i].x, particles[i].y); ctx.lineTo(particles[j].x, particles[j].y); ctx.strokeStyle = 'rgba(255,255,255,' + (0.12 * (1 - dist / 100)) + ')'; ctx.lineWidth = 0.5; ctx.stroke(); } }
-      requestAnimationFrame(draw);
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(draw);
     }
     draw();
   })();

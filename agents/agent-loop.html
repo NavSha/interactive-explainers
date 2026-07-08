@@ -472,13 +472,13 @@
         ctx.fill();
       }
 
-      requestAnimationFrame(draw);
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(draw);
     }
 
     // Only animate when hero is visible
     var observer = new IntersectionObserver(function(entries) {
       if (entries[0].isIntersecting) {
-        requestAnimationFrame(draw);
+        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(draw);
       }
     }, { threshold: 0 });
 
@@ -987,7 +987,7 @@
   (function() {
     var questions = [
       {
-        question: 'A team builds a support bot with GPT-4. It drafts helpful replies, but a human still clicks "Send," looks up order info, and issues refunds. Is this an agent?',
+        question: 'A team builds a support bot on a frontier LLM. It drafts helpful replies, but a human still clicks "Send," looks up order info, and issues refunds. Is this an agent?',
         options: [
           { label: 'Yes \u2014 it uses a frontier LLM, which makes it agentic', key: 'a' },
           { label: 'Yes \u2014 it\'s part of an automated support pipeline, so it qualifies', key: 'b' },

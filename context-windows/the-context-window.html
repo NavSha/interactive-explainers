@@ -699,7 +699,7 @@
       </tbody>
     </table>
 
-    <p>This leads to what engineers call the <strong>context budget problem.</strong> You have a fixed token budget per API call, and every component of your system competes for it: system prompt, conversation history, retrieved documents, the user's message, and reserved output tokens. Zero-sum game. A modest setup &mdash; 500-token system prompt, 10 turns of history, 3 RAG chunks, 1,000 tokens reserved for the response &mdash; already consumes 6,200 tokens. On an 8K model, that's 77% capacity before the conversation even gets interesting.</p>
+    <p>This leads to what engineers call the <strong>context budget problem.</strong> You have a fixed token budget per API call, and every component of your system competes for it: system prompt, conversation history, retrieved documents, the user's message, and reserved output tokens. Zero-sum game. A modest setup &mdash; 500-token system prompt, 10 turns of history, 3 RAG chunks, 1,000 tokens reserved for the response &mdash; already consumes 6,000 tokens. On an 8K model, that's 73% capacity before the conversation even gets interesting.</p>
 
     <div class="callout callout--insight">
       <div class="callout__label">Key Insight</div>
@@ -719,9 +719,9 @@
       <div class="widget__instruction">Configure your AI feature's context usage. Watch how fast the budget fills up.</div>
 
       <select class="budget-model-select" id="budget-model-select">
-        <option value="0">GPT-4 (8,192 tokens)</option>
-        <option value="1" selected>GPT-4 Turbo (128,000 tokens)</option>
-        <option value="2">Claude 3.5 Sonnet (200,000 tokens)</option>
+        <option value="0">Legacy 8K model (8,192 tokens)</option>
+        <option value="1" selected>Claude Haiku 4.5 (200,000 tokens)</option>
+        <option value="2">Claude Sonnet 4.5 (200,000 tokens)</option>
       </select>
 
       <div class="budget-sliders" id="budget-sliders">
@@ -898,7 +898,7 @@
         ctx.fill();
       }
 
-      requestAnimationFrame(draw);
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(draw);
     }
 
     var observer = new IntersectionObserver(function(entries) {
@@ -922,12 +922,11 @@
   // ====================================================================
   (function() {
     var models = [
-      { name: 'GPT-3.5',               tokens: 4096 },
-      { name: 'GPT-4 (original)',       tokens: 8192 },
-      { name: 'GPT-4 Turbo',           tokens: 128000 },
-      { name: 'Claude 3.5 Sonnet',     tokens: 200000 },
-      { name: 'Claude (extended)',      tokens: 680000 },
-      { name: 'Gemini 1.5 Pro',        tokens: 1000000 }
+      { name: 'Legacy 8K model',        tokens: 8192 },
+      { name: 'Claude Sonnet 4.5',     tokens: 200000 },
+      { name: 'Claude Sonnet 4.5 (extended beta)', tokens: 1000000 },
+      { name: 'GPT-4.1',               tokens: 1000000 },
+      { name: 'Gemini 2.5 Pro',        tokens: 1000000 }
     ];
 
     var maxTokens = 1000000;
@@ -1153,9 +1152,9 @@
   // ====================================================================
   (function() {
     var budgetModels = [
-      { name: 'GPT-4',          tokens: 8192,   price: 30 },   // $30 per 1M input tokens
-      { name: 'GPT-4 Turbo',    tokens: 128000, price: 10 },   // $10 per 1M input tokens
-      { name: 'Claude 3.5 Sonnet', tokens: 200000, price: 3 }  // $3 per 1M input tokens
+      { name: 'Legacy 8K model',  tokens: 8192,   price: 30 },  // legacy pricing, per 1M input tokens
+      { name: 'Claude Haiku 4.5', tokens: 200000, price: 1 },   // $1 per 1M input tokens
+      { name: 'Claude Sonnet 4.5', tokens: 200000, price: 3 }   // $3 per 1M input tokens
     ];
 
     var segmentColors = {

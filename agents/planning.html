@@ -353,7 +353,7 @@
       <div class="callout__body">Whether you're building agents or making decisions about them, you need to speak the language. When someone says "the agent is selecting the wrong tool," think tool descriptions and toolbox size. When someone asks "why can't it just do everything automatically," think failure modes, costs, and human-in-the-loop design.</div>
     </div>
 
-    <p>The most successful AI products aren't the most autonomous. They're the ones where someone made smart decisions about what to automate, what to guard, and where to keep a human in the loop. The proof is in the numbers: on SWE-bench Verified, coding agent performance rose from 60% to near 100% in a single year — the most dramatic capability jump in any domain. But that success came precisely because coding has machine-checkable outputs, well-defined tools, and tight feedback loops. The domains that lack those properties are still waiting.</p>
+    <p>The most successful AI products aren't the most autonomous. They're the ones where someone made smart decisions about what to automate, what to guard, and where to keep a human in the loop. The proof is in the numbers: on SWE-bench Verified, coding agent performance rose from around 60% to roughly 80% in a single year — among the most dramatic capability jumps in any domain. But that success came precisely because coding has machine-checkable outputs, well-defined tools, and tight feedback loops. The domains that lack those properties are still waiting.</p>
 
     <p>That someone is you.</p>
   </article>
@@ -412,7 +412,7 @@
         ctx.fillStyle = 'rgba(255,255,255,'+(0.4+0.4*glow)+')';
         ctx.beginPath(); ctx.arc(n.x, n.y, n.r*(0.8+0.4*glow), 0, Math.PI*2); ctx.fill();
       }
-      requestAnimationFrame(draw);
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(draw);
     }
     resize(); initNodes(); requestAnimationFrame(draw);
     window.addEventListener('resize', function() { resize(); initNodes(); });
@@ -525,9 +525,9 @@
   // ====================================================================
   (function() {
     var models = {
-      small:  { name: 'Haiku',  inputCost: 0.25, outputCost: 1.25, avgSteps: 1.0 },    // per 1M tokens
+      small:  { name: 'Haiku',  inputCost: 1.00, outputCost: 5.00, avgSteps: 1.0 },    // per 1M tokens
       medium: { name: 'Sonnet', inputCost: 3.00, outputCost: 15.00, avgSteps: 0.8 },
-      large:  { name: 'Opus',   inputCost: 15.00, outputCost: 75.00, avgSteps: 0.6 }
+      large:  { name: 'Opus',   inputCost: 5.00, outputCost: 25.00, avgSteps: 0.6 }
     };
 
     var currentModel = 'small';

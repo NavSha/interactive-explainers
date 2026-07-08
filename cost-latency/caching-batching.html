@@ -90,7 +90,7 @@
       </nav>
       <div class="article-header__meta" style="color: rgba(255,255,255,0.9);">Part 3 of 3 &middot; ~9 min read</div>
       <h1 style="color: #fff;">Prompt Caching &amp; Batching</h1>
-      <p class="lead" style="color: rgba(255,255,255,0.85);">The two techniques that turn a $500/day API bill into $75. One saves money on every request. The other saves money by not rushing.</p>
+      <p class="lead" style="color: rgba(255,255,255,0.85);">The two techniques that turn a $500/day API bill into $190. One saves money on every request. The other saves money by not rushing.</p>
     </div>
   </header>
 
@@ -142,7 +142,7 @@
 
     <p><strong>Step 2: Subsequent requests.</strong> You send the same prefix plus a new user message. The provider recognizes the prefix, loads the cached KV-cache, and the model only has to process the new tokens. The static portion is essentially free.</p>
 
-    <p><strong>Step 3: Billing.</strong> Cached input tokens are billed at a steep discount &mdash; typically 75-90% off. So a 2,000-token system prompt that normally costs $6/million tokens might cost $0.60-$1.50/million when cached. The non-cached portion (the user's actual message) is billed at the normal rate.</p>
+    <p><strong>Step 3: Billing.</strong> Cached input tokens are billed at a steep discount &mdash; typically 75-90% off. So a 2,000-token system prompt that normally costs $3/million tokens might cost $0.30-$0.75/million when cached. The non-cached portion (the user's actual message) is billed at the normal rate.</p>
 
     <div class="callout callout--analogy">
       <div class="callout__label">Analogy</div>
@@ -272,7 +272,7 @@
       <li>Total: <strong>$225/day</strong> ($6,750/month)</li>
     </ul>
 
-    <p>That's a <strong>55% reduction</strong> on the input side and <strong>$8,100/month saved</strong> &mdash; from a configuration change that takes an afternoon to implement.</p>
+    <p>That's a <strong>~78% reduction on the input side</strong> (about 55% off the total bill) and <strong>$8,100/month saved</strong> &mdash; from a configuration change that takes an afternoon to implement.</p>
 
     <p>Now layer on batching for your offline workloads. Say 30% of your traffic is non-urgent (ticket classification, weekly summaries, eval runs). Move those to batch at 50% off:</p>
 
@@ -450,7 +450,7 @@
       for(var i=0;i<nodes.length;i++){var n=nodes[i];n.x+=n.vx;n.y+=n.vy;n.pulse+=0.015;if(n.x<-20)n.x=w+20;if(n.x>w+20)n.x=-20;if(n.y<-20)n.y=h+20;if(n.y>h+20)n.y=-20;}
       ctx.lineWidth=1;for(var i=0;i<nodes.length;i++)for(var j=i+1;j<nodes.length;j++){var dx=nodes[i].x-nodes[j].x,dy=nodes[i].y-nodes[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<connectionDist){ctx.strokeStyle='rgba(255,255,255,'+((1-d/connectionDist)*0.3)+')';ctx.beginPath();ctx.moveTo(nodes[i].x,nodes[i].y);ctx.lineTo(nodes[j].x,nodes[j].y);ctx.stroke();}}
       for(var i=0;i<nodes.length;i++){var n=nodes[i],g=0.5+0.5*Math.sin(n.pulse);ctx.fillStyle='rgba(255,255,255,'+(0.4+0.4*g)+')';ctx.beginPath();ctx.arc(n.x,n.y,n.r*(0.8+0.4*g),0,Math.PI*2);ctx.fill();}
-      requestAnimationFrame(draw);
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(draw);
     }
     resize();init();requestAnimationFrame(draw);window.addEventListener('resize',function(){resize();init();});
   })();

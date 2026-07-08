@@ -278,8 +278,8 @@
       </thead>
       <tbody>
         <tr><td><strong>Selection accuracy drops</strong></td><td>The LLM confuses similar tools or picks the wrong one</td><td>5 tools: 97% accuracy. 50 tools: below 60%</td></tr>
-        <tr><td><strong>Prompt size grows</strong></td><td>Every tool eats context tokens, crowding out conversation and reasoning</td><td>50 tools can consume 40%+ of an 8k context window</td></tr>
-        <tr><td><strong>Latency increases</strong></td><td>Larger prompts take longer to process; the agent slows down</td><td>Each tool adds ~50ms; 50 tools adds 2.5s per call</td></tr>
+        <tr><td><strong>Prompt size grows</strong></td><td>Every tool eats context tokens, crowding out conversation and reasoning</td><td>50 tool definitions can eat 7,500+ tokens of prompt before the user says a word</td></tr>
+        <tr><td><strong>Latency increases</strong></td><td>Larger prompts take longer to process; the agent slows down</td><td>Each tool adds ~50ms; 50 tools add 2.5s per call</td></tr>
       </tbody>
     </table>
 
@@ -454,7 +454,7 @@
         ctx.fillStyle = 'rgba(255,255,255,' + (0.4 + 0.4 * glow) + ')';
         ctx.beginPath(); ctx.arc(n.x, n.y, n.r * (0.8 + 0.4 * glow), 0, Math.PI * 2); ctx.fill();
       }
-      requestAnimationFrame(draw);
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(draw);
     }
 
     resize(); initNodes(); requestAnimationFrame(draw);
@@ -723,7 +723,7 @@
       latencyVal.textContent = latency + 's';
       if (latency >= 3) latencyBar.style.background = '#DC2626';
       else if (latency >= 2) latencyBar.style.background = '#D97706';
-      else latencyBar.style.background = '#D97706';
+      else latencyBar.style.background = '#059669';
 
       // Tips
       if (n <= 5) tipEl.textContent = n + ' tools \u2014 the sweet spot for most agents. High accuracy, low overhead.';

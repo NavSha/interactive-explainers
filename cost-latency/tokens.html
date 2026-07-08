@@ -199,8 +199,8 @@
       <tbody>
         <tr>
           <td>Small (Haiku-class)</td>
-          <td>$0.25</td>
-          <td>$1.25</td>
+          <td>$1.00</td>
+          <td>$5.00</td>
           <td>Classification, extraction, routing</td>
         </tr>
         <tr>
@@ -211,18 +211,18 @@
         </tr>
         <tr>
           <td>Large (Opus-class)</td>
-          <td>$15.00</td>
-          <td>$75.00</td>
+          <td>$5.00</td>
+          <td>$25.00</td>
           <td>Complex reasoning, coding, research</td>
         </tr>
       </tbody>
     </table>
 
-    <p>That's a <strong>60x price difference</strong> between cheapest and most expensive. Choosing the right model tier is one of the highest-leverage decisions you can make. And these decisions add up fast: Anthropic's analysis of millions of API interactions found that roughly <strong>50% of all agentic tool calls</strong> go to software engineering tasks alone, with every other domain in the single digits. That concentration means a huge share of real-world LLM spend is driven by one use case — and optimizing model selection there has outsized impact.</p>
+    <p>That's a <strong>5x price difference</strong> between cheapest and most expensive. Choosing the right model tier is one of the highest-leverage decisions you can make. And these decisions add up fast: Anthropic's analysis of millions of API interactions found that roughly <strong>50% of all agentic tool calls</strong> go to software engineering tasks alone, with every other domain in the single digits. That concentration means a huge share of real-world LLM spend is driven by one use case — and optimizing model selection there has outsized impact.</p>
 
     <h2 id="model-tiers"><span class="section-number">III</span> Model Tiers</h2>
 
-    <p>Every provider offers small, medium, and large tiers. The naming varies — Haiku/Sonnet/Opus, GPT-4o-mini/GPT-4o/o1 — but the tradeoff is universal:</p>
+    <p>Every provider offers small, medium, and large tiers. The naming varies — Haiku/Sonnet/Opus, or mini/standard/frontier tiers — but the tradeoff is universal:</p>
 
     <ul>
       <li><strong>Small models</strong> — fast and cheap, but struggle with nuance and complex reasoning. Great for classification, extraction, simple Q&A.</li>
@@ -232,7 +232,7 @@
 
     <div class="callout callout--pm-tip">
       <div class="callout__label">Builder Tip</div>
-      <div class="callout__body"><strong>You don't need one model for your whole product.</strong> A small model classifies requests, a medium model handles conversations, a large model tackles the hard stuff. This is called <strong>model routing</strong>, and it cuts costs 70-80% compared to defaulting to the biggest model — which is like hiring a surgeon to apply bandaids.</div>
+      <div class="callout__body"><strong>You don't need one model for your whole product.</strong> A small model classifies requests, a medium model handles conversations, a large model tackles the hard stuff. This is called <strong>model routing</strong>, and it cuts costs 50-60% compared to defaulting to the biggest model — which is like hiring a surgeon to apply band-aids.</div>
     </div>
 
     <p>Compare the same task across model tiers:</p>
@@ -297,7 +297,7 @@
   </div>
 
   <article class="prose">
-    <p>Model selection is task-dependent. A small model classifies a support ticket just as well as a large one — at 1/60th the cost. But ask it to analyze churn, and you'll get the analytical equivalent of "have you tried turning it off and on again." <strong>Match the model to the task, not to your ego.</strong></p>
+    <p>Model selection is task-dependent. A small model classifies a support ticket just as well as a large one — at 1/5th the cost. But ask it to analyze churn, and you'll get the analytical equivalent of "have you tried turning it off and on again." <strong>Match the model to the task, not to your ego.</strong></p>
 
     <h2 id="cost-at-scale"><span class="section-number">IV</span> Cost at Scale</h2>
 
@@ -308,7 +308,7 @@
     <ul>
       <li><strong>Requests</strong> scale with users. 1,000 DAUs × 5 requests = 5,000/day. 100,000 DAUs = 500,000/day.</li>
       <li><strong>Tokens per request</strong> depend on prompt design. A 200-token prompt with a 50-token response is fundamentally different from 2,000 in and 500 out.</li>
-      <li><strong>Price per token</strong> depends on model choice — a 60x range.</li>
+      <li><strong>Price per token</strong> depends on model choice — a 5x range.</li>
     </ul>
 
     <p>Two builders building similar features can end up with costs that differ by <strong>100x or more</strong>, based solely on design decisions:</p>
@@ -355,9 +355,9 @@
         <div class="scale__control">
           <label>Model tier</label>
           <div class="widget__controls">
-            <button class="btn btn--secondary" data-tier="small">Small ($0.25/$1.25)</button>
+            <button class="btn btn--secondary" data-tier="small">Small ($1/$5)</button>
             <button class="btn btn--active" data-tier="medium">Medium ($3/$15)</button>
-            <button class="btn btn--secondary" data-tier="large">Large ($15/$75)</button>
+            <button class="btn btn--secondary" data-tier="large">Large ($5/$25)</button>
           </div>
         </div>
       </div>
@@ -458,7 +458,7 @@
       ctx.lineWidth=1;
       for(var i=0;i<nodes.length;i++)for(var j=i+1;j<nodes.length;j++){var dx=nodes[i].x-nodes[j].x,dy=nodes[i].y-nodes[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<connectionDist){ctx.strokeStyle='rgba(255,255,255,'+((1-d/connectionDist)*0.3)+')';ctx.beginPath();ctx.moveTo(nodes[i].x,nodes[i].y);ctx.lineTo(nodes[j].x,nodes[j].y);ctx.stroke();}}
       for(var i=0;i<nodes.length;i++){var n=nodes[i],g=0.5+0.5*Math.sin(n.pulse);ctx.fillStyle='rgba(255,255,255,'+(0.4+0.4*g)+')';ctx.beginPath();ctx.arc(n.x,n.y,n.r*(0.8+0.4*g),0,Math.PI*2);ctx.fill();}
-      requestAnimationFrame(draw);
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(draw);
     }
     resize();init();requestAnimationFrame(draw);
     window.addEventListener('resize',function(){resize();init();});
@@ -576,7 +576,7 @@
         small:  { quality: 4, speed: '0.3s', response: 'Category: billing\nPriority: medium' },
         medium: { quality: 5, speed: '0.8s', response: 'Category: billing\nPriority: medium\nSentiment: frustrated' },
         large:  { quality: 5, speed: '2.1s', response: 'Category: billing\nPriority: medium\nSentiment: frustrated\nSuggested action: expedite' },
-        insight: 'For classification, the small model performs nearly as well as the large one — at 1/60th the cost. This is a clear case where a small model is the right choice.'
+        insight: 'For classification, the small model performs nearly as well as the large one — at 1/5th the cost. This is a clear case where a small model is the right choice.'
       },
       summarize: {
         name: 'Summarize a 2-page document',
@@ -599,7 +599,7 @@
     };
 
     var currentTask = 'classify';
-    var pricing = { small: [0.25, 1.25], medium: [3, 15], large: [15, 75] };
+    var pricing = { small: [1, 5], medium: [3, 15], large: [5, 25] };
 
     function stars(n) {
       var s = '';
@@ -640,7 +640,7 @@
   // Widget 3: Cost at Scale
   // ====================================================================
   (function() {
-    var pricing = { small: [0.25, 1.25], medium: [3, 15], large: [15, 75] };
+    var pricing = { small: [1, 5], medium: [3, 15], large: [5, 25] };
     var currentTier = 'medium';
 
     var usersSlider = document.getElementById('scale-users');
@@ -728,10 +728,10 @@
           { label: 'Large models are too slow for any production use case', key: 'a' },
           { label: 'The quality difference between medium and large models is negligible for all tasks', key: 'b' },
           { label: 'Large models produce longer responses, which increases output token costs even further', key: 'c' },
-          { label: 'Most tasks don\'t benefit from a large model \u2014 a small model classifies just as well at 1/60th the cost, and model routing lets you reserve the large model only for tasks that genuinely need it', key: 'd' }
+          { label: 'Most tasks don\'t benefit from a large model \u2014 a small model classifies just as well at 1/5th the cost, and model routing lets you reserve the large model only for tasks that genuinely need it', key: 'd' }
         ],
         answer: 'd',
-        explanation: 'The key insight is that model selection should be task-dependent, not blanket. A small model handles classification and extraction just as well as a large one. Model routing \u2014 using a small model for simple tasks and reserving the large model for genuinely complex ones \u2014 cuts costs 70-80%. Option A is too absolute (large models work fine for some production cases). Option C is sometimes true but not the core argument. Option B is wrong \u2014 large models are genuinely better at complex reasoning and analysis.'
+        explanation: 'The key insight is that model selection should be task-dependent, not blanket. A small model handles classification and extraction just as well as a large one. Model routing \u2014 using a small model for simple tasks and reserving the large model for genuinely complex ones \u2014 cuts costs 50-60%. Option A is too absolute (large models work fine for some production cases). Option C is sometimes true but not the core argument. Option B is wrong \u2014 large models are genuinely better at complex reasoning and analysis.'
       },
       {
         question: 'An engineer on your team says, "Each API call only costs $0.003 \u2014 basically free." Your product has 50,000 DAUs making 8 requests per day. What should you tell them?',
@@ -747,13 +747,13 @@
       {
         question: 'Your team is debating how to reduce API costs. One engineer wants to halve the prompt length (1,000 to 500 tokens). Another wants to switch from a medium to a small model for 70% of traffic. You can only prioritize one this sprint. Which has more impact, and why?',
         options: [
-          { label: 'Model routing \u2014 switching 70% of traffic to a small model exploits the 60x price range between tiers, which dwarfs a 50% input token reduction', key: 'a' },
+          { label: 'Model routing \u2014 switching 70% of traffic to a small model exploits the 3x price gap between small and medium tiers, which dwarfs a 50% input token reduction', key: 'a' },
           { label: 'Halving the prompt \u2014 reducing tokens is always the highest-leverage optimization', key: 'b' },
           { label: 'They\'re equivalent \u2014 both roughly halve the cost', key: 'c' },
           { label: 'Halving the prompt \u2014 because input tokens are always the largest cost component', key: 'd' }
         ],
         answer: 'a',
-        explanation: 'Model routing exploits the 60x price difference between small and large tiers. Routing 70% of traffic to a small model cuts costs by roughly 65-70%. Halving the prompt from 1,000 to 500 tokens only reduces the input portion of the cost by 50% \u2014 and since output tokens are more expensive, the total savings might be 20-30%. Options B and D overstate the impact of prompt trimming relative to tier switching. Option C is mathematically wrong \u2014 the tier price difference is far more powerful than a linear token reduction.'
+        explanation: 'Model routing exploits the 3x price difference between small and medium tiers. Routing 70% of traffic to a small model cuts costs by roughly 45-50%. Halving the prompt from 1,000 to 500 tokens only reduces the input portion of the cost by 50% \u2014 and since output tokens are more expensive, the total savings might be 20-30%. Options B and D overstate the impact of prompt trimming relative to tier switching. Option C is mathematically wrong \u2014 the tier price difference is far more powerful than a linear token reduction.'
       }
     ];
 

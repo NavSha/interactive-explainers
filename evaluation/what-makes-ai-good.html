@@ -437,7 +437,7 @@
         ctx.fill();
       }
 
-      requestAnimationFrame(draw);
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(draw);
     }
 
     var observer = new IntersectionObserver(function(entries) {
@@ -1052,8 +1052,8 @@
       {
         question: 'Your team\'s customer support chatbot occasionally declines to answer questions about medication interactions, responding with "I can\'t provide medical advice." A user reports this as a critical bug. Your teammate argues it\'s actually a safety feature working as intended. Who\'s right?',
         options: [
-          { label: 'The stakeholder \u2014 any declined request is a failure that hurts user experience', key: 'a' },
-          { label: 'The engineer \u2014 safety guardrails should never be loosened, even if users are frustrated', key: 'b' },
+          { label: 'The user \u2014 any declined request is a failure that hurts user experience', key: 'a' },
+          { label: 'Your teammate \u2014 safety guardrails should never be loosened, even if users are frustrated', key: 'b' },
           { label: 'Neither \u2014 this is an excessive refusal, which is a distinct failure mode that needs to be evaluated against the specific use case', key: 'c' },
           { label: 'Both \u2014 the model should answer the question but add a disclaimer about consulting a doctor', key: 'd' }
         ],
