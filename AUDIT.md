@@ -111,8 +111,10 @@ a phase completes. Merging is manual (master auto-deploys to GitHub Pages).
 
 ## Final gate (manual — Navneet)
 
-- [ ] Review + merge the three PRs.
-- [ ] Post-merge live-site smoke test (GitHub Pages, ~1 min deploy lag).
+- [x] Review + merge the three PRs. → #15, #16, #17 merged 2026-07-08.
+- [x] Post-merge live-site smoke test (GitHub Pages, ~1 min deploy lag).
+      → All URLs 200 (css v=11, og-image, favicon, sitemap); custom 404 serves;
+      previously-dead widget verified interactive on live site; console clean.
 - [ ] Post-merge: paste one article URL into a Twitter/LinkedIn card validator
       to confirm og-image renders (image URL only resolves once deployed).
 - [ ] Content freeze: no changes in the last 24h before launch except audit fixes.
