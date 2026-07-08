@@ -29,6 +29,113 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles/shared.css?v=11">
+  <style>
+    /* --- Masthead presence --- */
+    .site-title {
+      font-size: clamp(2.5rem, 6vw, 3.75rem);
+      text-wrap: balance;
+    }
+    .site-subtitle,
+    .site-hook {
+      text-wrap: balance;
+    }
+
+    /* --- Hook tokenizer: the tagline is the first widget --- */
+    .site-hook {
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .site-hook:focus-visible {
+      outline: 2px solid var(--color-text);
+      outline-offset: 4px;
+      border-radius: 4px;
+    }
+    .site-hook .tok {
+      border-radius: 3px;
+      transition: background-color 0.3s var(--ease-out), color 0.3s var(--ease-out);
+    }
+    .site-hook.is-tokenized .tok {
+      background: var(--tok-bg);
+      color: var(--tok-ink);
+      font-style: normal;
+    }
+    .site-hook-caption {
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      color: var(--color-text-secondary);
+      margin: var(--space-3) auto 0;
+      min-height: 1.6em;
+      letter-spacing: 0.02em;
+      transition: opacity 0.3s var(--ease-out);
+    }
+    .site-hook-caption a {
+      color: var(--color-text);
+      font-weight: 500;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .site-hook .tok,
+      .site-hook-caption { transition: none; }
+    }
+
+    /* --- Latest strip: series names are links; titles get a non-color hover cue --- */
+    .latest__series {
+      text-decoration: none;
+    }
+    a.latest__series:hover {
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    .latest__link:hover {
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
+
+    /* --- Accent presence: part counts carry the series color --- */
+    .topic-card__parts {
+      color: var(--card-deep, var(--color-text-secondary));
+      font-weight: 500;
+    }
+
+    /* --- Wide card variant: fills the odd slot, breaks the grid stamp --- */
+    .topic-card--wide {
+      grid-column: 1 / -1;
+    }
+    @media (min-width: 720px) {
+      .topic-card--wide {
+        display: flex;
+        align-items: stretch;
+      }
+      .topic-card--wide::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: var(--card-keyline, var(--accent-agents-gradient));
+        z-index: 1;
+      }
+      .topic-card--wide .topic-card__banner::before {
+        display: none;
+      }
+      .topic-card--wide .topic-card__banner {
+        flex: 0 0 38%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        border-bottom: none;
+        border-right: 1px solid var(--color-border-light);
+        padding: var(--space-8);
+      }
+      .topic-card--wide .topic-card__body {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: var(--space-8);
+      }
+    }
+  </style>
 </head>
 <body>
 
@@ -36,7 +143,8 @@
     <div class="site-header__inner">
       <h1 class="site-title">AI for Builders</h1>
       <p class="site-subtitle">Learn the concepts. Build the judgment. Ship the product.</p>
-      <p class="site-hook">Interactive guides on the decisions between &ldquo;I called the API&rdquo; and &ldquo;this is a product I&rsquo;d ship.&rdquo;</p>
+      <p class="site-hook" id="site-hook" tabindex="0" role="button" aria-pressed="false">Interactive guides on the decisions between &ldquo;I called the API&rdquo; and &ldquo;this is a product I&rsquo;d ship.&rdquo;</p>
+      <p class="site-hook-caption" id="hook-caption">tap or hover the line above to read it the way a model does</p>
     </div>
   </header>
 
@@ -47,15 +155,15 @@
       <ol class="latest__list">
         <li class="latest__item" style="--row-accent: var(--accent-llm); --row-deep: var(--accent-llm-deep);">
           <a class="latest__link" href="llm-fundamentals/tokenization.html">Tokenization Up Close</a>
-          <span class="latest__meta"><span class="latest__series">How LLMs Actually Work</span> &middot; <time datetime="2026-05-18">May 18</time></span>
+          <span class="latest__meta"><a class="latest__series" href="llm-fundamentals/index.html">How LLMs Actually Work</a> &middot; <time datetime="2026-05-18">May 18</time></span>
         </li>
         <li class="latest__item" style="--row-accent: var(--accent-grounding); --row-deep: var(--accent-grounding-deep);">
           <a class="latest__link" href="grounding/graph-rag.html">Graph RAG &amp; Structured Retrieval</a>
-          <span class="latest__meta"><span class="latest__series">Grounding &amp; Guardrails</span> &middot; <time datetime="2026-05-18">May 18</time></span>
+          <span class="latest__meta"><a class="latest__series" href="grounding/index.html">Grounding &amp; Guardrails</a> &middot; <time datetime="2026-05-18">May 18</time></span>
         </li>
         <li class="latest__item" style="--row-accent: var(--accent-ux); --row-deep: var(--accent-ux-deep);">
           <a class="latest__link" href="ai-ux/trust-recovery.html">Trust Recovery After Failure</a>
-          <span class="latest__meta"><span class="latest__series">AI UX &amp; Human-in-the-Loop</span> &middot; <time datetime="2026-05-18">May 18</time></span>
+          <span class="latest__meta"><a class="latest__series" href="ai-ux/index.html">AI UX &amp; Human-in-the-Loop</a> &middot; <time datetime="2026-05-18">May 18</time></span>
         </li>
       </ol>
     </section>
@@ -92,7 +200,7 @@
           </div>
           <div class="topic-card__body">
             <p class="topic-card__description">
-              Why do models "forget"? Understand context windows, token limits, and the conversation design patterns that give AI applications persistent memory.
+              Every model has a fixed working memory, and half of product design flows from that constraint. Token budgets, why models "forget," and the patterns that fake persistence convincingly.
             </p>
             <div class="topic-card__tags">
               <span class="topic-card__tag">Context</span>
@@ -102,14 +210,14 @@
           </div>
         </article>
 
-        <article class="topic-card" style="--card-accent: var(--accent-cost); --card-deep: var(--accent-cost-deep); --card-wash: var(--accent-cost-light); --card-keyline: var(--accent-cost-gradient);">
+        <article class="topic-card topic-card--wide" style="--card-accent: var(--accent-cost); --card-deep: var(--accent-cost-deep); --card-wash: var(--accent-cost-light); --card-keyline: var(--accent-cost-gradient);">
           <div class="topic-card__banner">
             <h3 class="topic-card__title"><a class="topic-card__link" href="cost-latency/index.html">Cost &amp; Latency Tradeoffs</a></h3>
             <div class="topic-card__parts">3 parts</div>
           </div>
           <div class="topic-card__body">
             <p class="topic-card__description">
-              Tokens aren't free. Understand how LLM pricing works, why bigger models aren't always better, and the optimization levers that turn an expensive prototype into a viable product.
+              Tokens aren't free — and output tokens cost five times what input does. How pricing actually works, why bigger isn't better, and the levers that turn an expensive prototype into a viable product.
             </p>
             <div class="topic-card__tags">
               <span class="topic-card__tag">Tokens</span>
@@ -136,7 +244,7 @@
           </div>
           <div class="topic-card__body">
             <p class="topic-card__description">
-              What makes an AI agent different from a chatbot? Learn how the think-act-observe loop, tool use, and orchestration patterns turn LLMs into systems that can take action in the real world.
+              A chatbot talks; an agent does. The think-act-observe loop, tool use, and the orchestration patterns that let LLMs act on the real world — plus what breaks when they do.
             </p>
             <div class="topic-card__tags">
               <span class="topic-card__tag">Agent Loop</span>
@@ -153,7 +261,7 @@
           </div>
           <div class="topic-card__body">
             <p class="topic-card__description">
-              LLMs are confident about everything — including things they made up. Learn how RAG grounds outputs in real data, how to optimize retrieval quality, and how to build the safety guardrails your product needs.
+              LLMs are confident about everything — including things they made up. RAG that grounds answers in your data, retrieval worth trusting, and the guardrails that keep your product's mouth in check.
             </p>
             <div class="topic-card__tags">
               <span class="topic-card__tag">RAG</span>
@@ -163,7 +271,7 @@
           </div>
         </article>
 
-        <article class="topic-card" style="--card-accent: var(--accent-vibe); --card-deep: var(--accent-vibe-deep); --card-wash: var(--accent-vibe-light); --card-keyline: var(--accent-vibe-gradient);">
+        <article class="topic-card topic-card--wide" style="--card-accent: var(--accent-vibe); --card-deep: var(--accent-vibe-deep); --card-wash: var(--accent-vibe-light); --card-keyline: var(--accent-vibe-gradient);">
           <div class="topic-card__banner">
             <div class="topic-card__series-label">New</div>
             <h3 class="topic-card__title"><a class="topic-card__link" href="vibe-coding/index.html">The Builder's Guide to Vibe Coding</a></h3>
@@ -171,12 +279,13 @@
           </div>
           <div class="topic-card__body">
             <p class="topic-card__description">
-              You don't need to become an engineer to build with AI. Learn the tools, the craft, and the reality of what's possible when a builder starts writing code with AI.
+              You don't need to become an engineer to ship software anymore. The tools, the craft, and an honest account of where vibe coding shines — and where it bites.
             </p>
             <div class="topic-card__tags">
               <span class="topic-card__tag">Replit</span>
               <span class="topic-card__tag">Claude Code</span>
               <span class="topic-card__tag">Prompting</span>
+              <span class="topic-card__tag">Debugging</span>
             </div>
           </div>
         </article>
@@ -198,7 +307,7 @@
           </div>
           <div class="topic-card__body">
             <p class="topic-card__description">
-              How do you know if your AI feature is actually good? Learn the evaluation mindset, testing methods, and the practical playbook for shipping AI you can trust.
+              You can't unit test creativity. The evaluation mindset, the testing playbook, and how to know your AI is good before your users find out it isn't.
             </p>
             <div class="topic-card__tags">
               <span class="topic-card__tag">Evals</span>
@@ -215,7 +324,7 @@
           </div>
           <div class="topic-card__body">
             <p class="topic-card__description">
-              AI that's 95% accurate still fails 1 in 20 times. Learn the UX patterns that make uncertainty transparent and the human oversight architectures that catch what the model misses.
+              95% accurate means failing one user in twenty. UX patterns for showing uncertainty honestly, recovering trust after failure, and keeping humans in the loop where it counts.
             </p>
             <div class="topic-card__tags">
               <span class="topic-card__tag">Uncertainty UX</span>
@@ -229,13 +338,90 @@
     </section>
 
     <div class="follow-banner">
-      &#128236; To get updated whenever new explainers are added, follow <a href="https://x.com/navsha" target="_blank" rel="noopener">@navsha on X</a>.
+      <span aria-hidden="true">&#128236;</span> To get updated whenever new explainers are added, follow <a href="https://x.com/navsha" target="_blank" rel="noopener">@navsha on X</a>.
     </div>
   </main>
 
   <footer class="site-footer">
     <p>A project by Navneet from <a href="https://www.airtribe.live/" target="_blank" rel="noopener">Airtribe</a></p>
   </footer>
+
+  <script>
+  // Hook tokenizer: the tagline doubles as the site's first widget.
+  (function() {
+    var hook = document.getElementById('site-hook');
+    var caption = document.getElementById('hook-caption');
+    if (!hook || !caption) return;
+
+    var HINT = 'tap or hover the line above to read it the way a model does';
+    var ACCENTS = ['llm', 'context', 'cost', 'agents', 'grounding', 'vibe', 'eval', 'ux'];
+    var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // BPE-flavored chunking: long words split into subword-sized pieces.
+    function chunk(word) {
+      if (word.length <= 5) return [word];
+      if (word.length <= 9) {
+        var mid = Math.ceil(word.length / 2);
+        return [word.slice(0, mid), word.slice(mid)];
+      }
+      return [word.slice(0, 5), word.slice(5, 9), word.slice(9)];
+    }
+
+    var words = hook.textContent.split(' ');
+    var frag = document.createDocumentFragment();
+    var tokenCount = 0;
+    words.forEach(function(word, w) {
+      chunk(word).forEach(function(piece) {
+        var span = document.createElement('span');
+        span.className = 'tok';
+        span.textContent = piece;
+        var accent = ACCENTS[tokenCount % ACCENTS.length];
+        span.style.setProperty('--tok-bg', 'color-mix(in oklab, var(--accent-' + accent + ') 16%, transparent)');
+        span.style.setProperty('--tok-ink', 'var(--accent-' + accent + '-deep)');
+        frag.appendChild(span);
+        tokenCount++;
+      });
+      if (w < words.length - 1) frag.appendChild(document.createTextNode(' '));
+    });
+    hook.textContent = '';
+    hook.appendChild(frag);
+    caption.textContent = HINT;
+
+    var pinned = false;
+    var interacted = false;
+
+    function setTokenized(on) {
+      hook.classList.toggle('is-tokenized', on);
+      hook.setAttribute('aria-pressed', String(on));
+      if (on) {
+        caption.innerHTML = '&asymp; ' + tokenCount + ' tokens &middot; how the model reads this line &mdash; <a href="llm-fundamentals/tokenization.html">Tokenization Up Close &rarr;</a>';
+      } else {
+        caption.textContent = HINT;
+      }
+    }
+
+    hook.addEventListener('mouseenter', function() { interacted = true; if (!pinned) setTokenized(true); });
+    hook.addEventListener('mouseleave', function() { if (!pinned) setTokenized(false); });
+    hook.addEventListener('click', function() { interacted = true; pinned = !pinned; setTokenized(pinned); });
+    hook.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        interacted = true;
+        pinned = !pinned;
+        setTokenized(pinned);
+      }
+    });
+
+    // One discovery wink on load; skipped for reduced motion or early interaction.
+    if (!prefersReducedMotion) {
+      setTimeout(function() {
+        if (interacted || pinned) return;
+        setTokenized(true);
+        setTimeout(function() { if (!interacted && !pinned) setTokenized(false); }, 1600);
+      }, 1100);
+    }
+  })();
+  </script>
 
 </body>
 </html>
