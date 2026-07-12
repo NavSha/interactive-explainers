@@ -21,6 +21,6 @@ LLMs generate plausible-sounding but factually wrong output because they optimiz
 
 27 mentions across 6 articles.
 
-## PM takeaway
+## Builder takeaway
 
 Don't promise "no hallucinations" — design for graceful failure. Citation UX, confidence signals, and human review loops are the product answer.

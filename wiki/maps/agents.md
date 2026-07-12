@@ -35,7 +35,7 @@ when *not* to reach for them.
   memory patterns (compaction, summarization during loops) deserve their own page.
 - **Your first agent — a build-along** — Hands-on tutorial: Claude + tool use
   API → working research agent in < 50 lines. *Gap:* current series is
-  conceptual only. PMs who've read it ask "how do I actually try this?"
+  conceptual only. Builders who've read it ask "how do I actually try this?"
 
 ### Considered, dropped
 

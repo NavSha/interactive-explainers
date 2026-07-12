@@ -17,6 +17,6 @@ The site's core thesis: everything LLMs do reduces to predicting the most likely
 
 10 mentions across 2 topics. The site's foundational claim — referenced implicitly throughout.
 
-## PM takeaway
+## Builder takeaway
 
 When an LLM surprises you — brilliant answer or confident nonsense — ask: "what would the most probable next token be?" That mental model explains both the magic and the failure modes.

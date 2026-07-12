@@ -8,7 +8,7 @@ parts_planned: 4
 
 # LLM Fundamentals
 
-What LLMs are, how they predict, and the ML vocabulary PMs need before
+What LLMs are, how they predict, and the ML vocabulary builders need before
 everything else. The foundation course for the rest of the site.
 
 ## Articles
@@ -16,7 +16,7 @@ everything else. The foundation course for the rest of the site.
 ### Written
 
 - [The ML Concepts Behind LLMs](../../llm-fundamentals/ml-concepts.html) — The
-  vocabulary PMs need: supervised vs. unsupervised, overfitting, train/test
+  vocabulary builders need: supervised vs. unsupervised, overfitting, train/test
   split, fine-tuning vs. prompting, embeddings & similarity.
 - [How LLMs Actually Work](../../llm-fundamentals/how-llms-work.html) — From
   training to inference, next-token prediction, parameters, the capability
@@ -29,7 +29,7 @@ everything else. The foundation course for the rest of the site.
   *Gap:* tokens are introduced in `cost-latency/tokens` as a pricing unit;
   the *linguistic* side of tokenization never gets explained, yet it drives
   model failures readers will hit.
-- **Transformers, for PMs** — Attention, self-attention, why this
+- **Transformers, for builders** — Attention, self-attention, why this
   architecture beat RNNs. *Gap:* readers keep asking "what actually makes
   LLMs different from chatbots from 2015?" and the answer lives one level below
   next-token prediction.
@@ -38,7 +38,7 @@ everything else. The foundation course for the rest of the site.
   model persona decisions only make sense once you understand the
   training pipeline.
 - **Open vs. closed models** — Llama, Mistral, DeepSeek, GPT-4, Claude —
-  licensing, hosting, cost implications. *Gap:* PMs increasingly face the
+  licensing, hosting, cost implications. *Gap:* builders increasingly face the
   "should we self-host?" question; the site currently assumes API-hosted models.
 
 ### Considered, dropped

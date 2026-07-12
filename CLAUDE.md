@@ -1,7 +1,7 @@
 # CLAUDE.md — Interactive Explainers
 
 ## What This Is
-"AI for PMs" — a static site of interactive guides explaining AI concepts. No frameworks, no build step. Plain HTML/CSS/JS.
+"AI for Builders" — a static site of interactive guides explaining AI concepts. No frameworks, no build step. Plain HTML/CSS/JS.
 
 ## Tech Stack
 - HTML pages with inline `<script>` and `<style>` blocks for per-page interactivity

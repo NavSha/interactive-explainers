@@ -18,6 +18,6 @@ When agents call external tools, each call introduces a failure point — wrong 
 
 14 mentions across 4 articles.
 
-## PM takeaway
+## Builder takeaway
 
 A 95% reliable tool called 5 times in a loop gives ~77% end-to-end reliability. Budget for retries, fallbacks, and human escalation in any multi-step agent workflow.
