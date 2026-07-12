@@ -20,6 +20,6 @@ HITL is the pattern where a human reviews, corrects, or approves AI output befor
 
 14 mentions across 6 articles.
 
-## PM takeaway
+## Builder takeaway
 
-HITL is a spectrum, not a binary. The key PM decision is where on the automation–oversight continuum each workflow sits, and how that shifts as model quality improves.
+HITL is a spectrum, not a binary. The key builder decision is where on the automation–oversight continuum each workflow sits, and how that shifts as model quality improves.

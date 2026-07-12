@@ -23,6 +23,6 @@ Every AI feature lives inside a triangle of cost, quality, and latency — impro
 
 "Tradeoff" appears 23 times across 13 articles spanning all 7 non-fundamental topics.
 
-## PM takeaway
+## Builder takeaway
 
 Never evaluate an AI feature on one axis. Every proposal should answer: what does this cost per call, how fast is it, and how good is it — and which axis are we willing to sacrifice?

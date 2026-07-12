@@ -1,6 +1,6 @@
 # Wiki Schema — Interactive Explainers
 
-A planning layer for the "AI for PMs" site. Adapted from Karpathy's "LLM Wiki"
+A planning layer for the "AI for Builders" site. Adapted from Karpathy's "LLM Wiki"
 pattern (compilation over retrieval), but **flipped**: articles are the
 deliverable, this wiki is the brain that reasons about what to write next.
 
@@ -60,7 +60,7 @@ last_updated: YYYY-MM-DD
 ---
 ```
 
-Sections: *Summary* (≤ 3 sentences) · *Articles mentioning it* · *PM takeaway*.
+Sections: *Summary* (≤ 3 sentences) · *Articles mentioning it* · *Builder takeaway*.
 
 ## Entity page — `entities/<slug>.md`
 

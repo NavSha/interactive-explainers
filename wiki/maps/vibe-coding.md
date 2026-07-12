@@ -16,7 +16,7 @@ bridge topic.
 ### Written
 
 - [The Tools](../../vibe-coding/the-tools.html) — What vibe coding is, why
-  PMs should care, Replit, Claude Code, the landscape.
+  builders should care, Replit, Claude Code, the landscape.
 - [The Craft](../../vibe-coding/the-craft.html) — Prompting mindset, anatomy
   of a good prompt, iteration loop, working with context, patterns and
   anti-patterns.
@@ -65,7 +65,7 @@ bridge topic.
   is literally context engineering.
 - **vibe-coding ↔ evaluation** — "How do you know the code works?" is an
   eval question.
-- **vibe-coding ↔ ai-ux** — The PM experience of *using* these tools is
+- **vibe-coding ↔ ai-ux** — The builder's experience of *using* these tools is
   itself a case study in AI UX.
 
 ## Sources

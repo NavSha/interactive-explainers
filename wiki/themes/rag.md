@@ -21,6 +21,6 @@ RAG augments LLM responses with retrieved external knowledge at inference time, 
 
 47 mentions across 7 articles.
 
-## PM takeaway
+## Builder takeaway
 
 RAG is not a magic box — chunk quality, retrieval relevance, and faithfulness each need their own eval axis. Treat RAG as a system with tunable knobs, not a single toggle.

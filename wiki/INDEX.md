@@ -1,6 +1,6 @@
 # Interactive Explainers Wiki
 
-Planning layer for the "AI for PMs" site. Tracks what's covered, what's planned,
+Planning layer for the "AI for Builders" site. Tracks what's covered, what's planned,
 what's missing, and what concepts cut across topics.
 
 Last updated: 2026-05-16

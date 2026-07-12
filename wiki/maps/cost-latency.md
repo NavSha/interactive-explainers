@@ -9,7 +9,7 @@ parts_planned: 3
 # Cost & Latency
 
 Tokens, pricing, model tiers, streaming, and the cost-latency-quality triangle
-every AI PM ends up haggling with.
+every AI builder ends up haggling with.
 
 ## Articles
 
@@ -27,10 +27,10 @@ every AI PM ends up haggling with.
 - **Prompt caching & batching** — Both Anthropic and OpenAI expose prompt
   caching; batching can cut bulk-job costs 50%+. *Gap:* the optimization
   playbook in `latency §III` mentions caching only in passing. This is the
-  single biggest lever most PMs miss.
+  single biggest lever most builders miss.
 - **Self-hosting tradeoffs** — When running your own model on vLLM or
   similar makes financial sense. *Gap:* site assumes hosted APIs; many
-  enterprise PMs need the self-host calculus.
+  enterprise builders need the self-host calculus.
 - **Cost forecasting for launch docs** — How to put a defensible $/month
   number in a PRD before shipping. *Gap:* `tokens §IV` teaches unit economics
   but not forecasting methodology.
