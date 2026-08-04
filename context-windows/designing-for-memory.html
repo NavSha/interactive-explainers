@@ -17,6 +17,7 @@
   <meta property="og:title" content="Designing for Memory — AI for Builders">
   <meta property="og:description" content="Models don&#x27;t remember anything. Memory is an illusion — and you&#x27;re the one building it.">
   <meta property="og:url" content="https://navsha.github.io/interactive-explainers/context-windows/designing-for-memory.html">
+  <link rel="canonical" href="https://navsha.github.io/interactive-explainers/context-windows/designing-for-memory.html">
   <meta property="og:image" content="https://navsha.github.io/interactive-explainers/assets/og-image.png">
   <meta property="og:site_name" content="AI for Builders">
   <meta name="twitter:card" content="summary_large_image">
@@ -27,8 +28,8 @@
   <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../styles/shared.css?v=12">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400&amp;family=Newsreader:ital,wght@0,400;0,600;1,400&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/shared.css?v=13">
   <style>
     /* Reading Progress Bar */
     .reading-progress {
@@ -96,7 +97,7 @@
   <div class="reading-progress"><div class="reading-progress__bar" id="reading-progress-bar"></div></div>
 
   <header class="article-hero" id="article-hero" style="background: linear-gradient(135deg, #6D28D9 0%, #BE185D 100%);">
-    <canvas class="article-hero__canvas" id="hero-canvas"></canvas>
+    <canvas class="article-hero__canvas" id="hero-canvas" aria-hidden="true"></canvas>
     <div class="article-hero__overlay"></div>
     <div class="article-hero__content">
       <nav class="breadcrumb breadcrumb--hero">
@@ -181,17 +182,17 @@
       <div class="widget__title">Memory Strategy Simulator</div>
       <div class="widget__instruction">Step through a 20-turn conversation and see what each memory strategy retains.</div>
 
-      <div class="widget__controls" id="memory-tabs">
-        <button class="btn btn--secondary btn--active" data-tab="full">Full History</button>
-        <button class="btn btn--secondary" data-tab="sliding">Sliding Window (5)</button>
-        <button class="btn btn--secondary" data-tab="summary">Summarization</button>
+      <div class="widget__controls" id="memory-tabs" role="tablist" aria-label="Memory strategy">
+        <button class="btn btn--secondary btn--active" data-tab="full" role="tab" aria-selected="true">Full History</button>
+        <button class="btn btn--secondary" data-tab="sliding" role="tab" aria-selected="false">Sliding Window (5)</button>
+        <button class="btn btn--secondary" data-tab="summary" role="tab" aria-selected="false">Summarization</button>
       </div>
 
       <div style="display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-4); margin-top: var(--space-6);">
         <button class="btn btn--secondary" id="memory-prev" disabled>Prev</button>
         <div style="flex: 1; min-width: 200px; display: flex; align-items: center; gap: var(--space-3);">
           <span style="font-family: var(--font-sans); font-size: var(--text-sm); white-space: nowrap; color: var(--color-text-secondary);">Turn:</span>
-          <input type="range" id="memory-slider" min="1" max="20" value="1" style="flex: 1; accent-color: var(--accent-context);">
+          <input type="range" id="memory-slider" min="1" max="20" value="1" aria-label="Conversation turn" style="flex: 1; accent-color: var(--accent-context);">
           <span id="memory-turn-label" style="font-family: var(--font-mono); font-size: var(--text-sm); font-weight: 600; min-width: 4rem; text-align: center;">1 / 20</span>
         </div>
         <button class="btn btn--secondary" id="memory-next">Next</button>
@@ -292,7 +293,7 @@
           <button class="btn btn--secondary" data-answer="summarization">Summarization</button>
           <button class="btn btn--secondary" data-answer="hybrid">Hybrid + Retrieval</button>
         </div>
-        <div class="quiz__explanation" id="design-explanation" style="display: none;"></div>
+        <div class="quiz__explanation" id="design-explanation" role="status" aria-live="polite" style="display: none;"></div>
       </div>
 
       <div class="widget__controls widget__controls--mt">
@@ -365,7 +366,7 @@
               </span>
               <span class="stack-token-val" style="font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-text-secondary);">500</span>
             </div>
-            <input type="range" class="stack-slider" data-layer="system" min="100" max="3000" value="500" step="50" style="width: 100%; accent-color: #7C3AED;">
+            <input type="range" class="stack-slider" data-layer="system" min="100" max="3000" value="500" step="50" aria-label="System prompt tokens" style="width: 100%; accent-color: #7C3AED;">
           </div>
 
           <div class="stack-slider-group" data-layer="profile" style="margin-top: var(--space-4);">
@@ -376,7 +377,7 @@
               </span>
               <span class="stack-token-val" style="font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-text-secondary);">200</span>
             </div>
-            <input type="range" class="stack-slider" data-layer="profile" min="0" max="2000" value="200" step="50" style="width: 100%; accent-color: #EC4899;">
+            <input type="range" class="stack-slider" data-layer="profile" min="0" max="2000" value="200" step="50" aria-label="User profile tokens" style="width: 100%; accent-color: #EC4899;">
           </div>
 
           <div class="stack-slider-group" data-layer="summaryHist" style="margin-top: var(--space-4);">
@@ -387,7 +388,7 @@
               </span>
               <span class="stack-token-val" style="font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-text-secondary);">500</span>
             </div>
-            <input type="range" class="stack-slider" data-layer="summaryHist" min="0" max="5000" value="500" step="100" style="width: 100%; accent-color: #8B5CF6;">
+            <input type="range" class="stack-slider" data-layer="summaryHist" min="0" max="5000" value="500" step="100" aria-label="Summarized history tokens" style="width: 100%; accent-color: #8B5CF6;">
           </div>
 
           <div class="stack-slider-group" data-layer="recent" style="margin-top: var(--space-4);">
@@ -398,7 +399,7 @@
               </span>
               <span class="stack-token-val" style="font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-text-secondary);">2000</span>
             </div>
-            <input type="range" class="stack-slider" data-layer="recent" min="0" max="10000" value="2000" step="100" style="width: 100%; accent-color: #A78BFA;">
+            <input type="range" class="stack-slider" data-layer="recent" min="0" max="10000" value="2000" step="100" aria-label="Recent messages tokens" style="width: 100%; accent-color: #A78BFA;">
           </div>
 
           <div class="stack-slider-group" data-layer="retrieved" style="margin-top: var(--space-4);">
@@ -409,7 +410,7 @@
               </span>
               <span class="stack-token-val" style="font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-text-secondary);">1000</span>
             </div>
-            <input type="range" class="stack-slider" data-layer="retrieved" min="0" max="20000" value="1000" step="100" style="width: 100%; accent-color: #C084FC;">
+            <input type="range" class="stack-slider" data-layer="retrieved" min="0" max="20000" value="1000" step="100" aria-label="Retrieved context tokens" style="width: 100%; accent-color: #C084FC;">
           </div>
         </div>
 
@@ -426,15 +427,15 @@
       <div style="background: var(--color-border-light); border-radius: 4px; height: 8px; overflow: hidden;">
         <div id="stack-total-bar" style="height: 100%; border-radius: 4px; background: var(--accent-context); transition: width 0.3s ease; width: 0%;"></div>
       </div>
-      <div id="stack-warning" style="display: none; margin-top: var(--space-3); padding: var(--space-3) var(--space-4); background: #FEF2F2; border: 1px solid #FECACA; border-radius: 8px; font-family: var(--font-sans); font-size: var(--text-sm); color: #991B1B;">
+      <div id="stack-warning" role="status" aria-live="polite" style="display: none; margin-top: var(--space-3); padding: var(--space-3) var(--space-4); background: #FEF2F2; border: 1px solid #FECACA; border-radius: 8px; font-family: var(--font-sans); font-size: var(--text-sm); color: #991B1B;">
         Warning: Total allocation exceeds model context window!
       </div>
 
       <div class="widget__controls widget__controls--mt">
-        <button class="btn btn--secondary stack-preset" data-preset="chatbot">Simple Chatbot</button>
-        <button class="btn btn--secondary stack-preset" data-preset="support">Support Agent</button>
-        <button class="btn btn--secondary stack-preset" data-preset="code">Code Assistant</button>
-        <button class="btn btn--secondary stack-preset" data-preset="research">Research Tool</button>
+        <button class="btn btn--secondary stack-preset" data-preset="chatbot" aria-pressed="false">Simple Chatbot</button>
+        <button class="btn btn--secondary stack-preset" data-preset="support" aria-pressed="false">Support Agent</button>
+        <button class="btn btn--secondary stack-preset" data-preset="code" aria-pressed="false">Code Assistant</button>
+        <button class="btn btn--secondary stack-preset" data-preset="research" aria-pressed="false">Research Tool</button>
       </div>
     </div>
   </div>
@@ -456,7 +457,7 @@
       <div class="quiz__card" id="quiz-card">
         <p class="quiz__scenario" id="quiz-scenario"></p>
         <div class="widget__controls" id="quiz-options"></div>
-        <div class="quiz__explanation" id="quiz-explanation" style="display: none;"></div>
+        <div class="quiz__explanation" id="quiz-explanation" role="status" aria-live="polite" style="display: none;"></div>
       </div>
 
       <div class="widget__controls widget__controls--mt">
@@ -593,22 +594,28 @@
       if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(draw);
     }
 
-    var observer = new IntersectionObserver(function(entries) {
-      if (entries[0].isIntersecting) {
-        if (!running) {
-          running = true;
-          if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(draw);
-        }
-      } else {
+    function setRunning(on) {
+      if (on && !running) {
+        running = true;
+        requestAnimationFrame(draw);
+      } else if (!on) {
         running = false;
       }
+    }
+
+    var intersecting = false;
+    var observer = new IntersectionObserver(function(entries) {
+      intersecting = entries[0].isIntersecting;
+      setRunning(intersecting && !document.hidden);
     }, { threshold: 0 });
+
+    document.addEventListener('visibilitychange', function() {
+      setRunning(intersecting && !document.hidden);
+    });
 
     resize();
     initNodes();
     observer.observe(hero);
-    running = true;
-    requestAnimationFrame(draw);
 
     window.addEventListener('resize', function() {
       resize();
@@ -670,6 +677,7 @@
       activeTab = tab;
       tabBtns.forEach(function(b) {
         b.classList.toggle('btn--active', b.dataset.tab === tab);
+        b.setAttribute('aria-selected', b.dataset.tab === tab ? 'true' : 'false');
       });
       render();
     }
@@ -1021,6 +1029,7 @@
 
       presetBtns.forEach(function(b) {
         b.classList.toggle('btn--active', b.dataset.preset === name);
+        b.setAttribute('aria-pressed', b.dataset.preset === name ? 'true' : 'false');
       });
 
       // Animate sliders
@@ -1035,7 +1044,7 @@
     // Event listeners
     for (var key in sliders) {
       sliders[key].addEventListener('input', function() {
-        presetBtns.forEach(function(b) { b.classList.remove('btn--active'); });
+        presetBtns.forEach(function(b) { b.classList.remove('btn--active'); b.setAttribute('aria-pressed', 'false'); });
         fullUpdate();
       });
     }

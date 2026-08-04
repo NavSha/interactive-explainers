@@ -23,12 +23,13 @@
   <meta name="twitter:title" content="Tokens, Models &amp; the Cost Curve — AI for Builders">
   <meta name="twitter:description" content="Every character costs money. Understanding tokens and pricing is the foundation of every AI product decision.">
   <meta name="twitter:image" content="https://navsha.github.io/interactive-explainers/assets/og-image.png">
+  <link rel="canonical" href="https://navsha.github.io/interactive-explainers/cost-latency/tokens.html">
   <link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon-32.png">
   <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../styles/shared.css?v=12">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400&amp;family=Newsreader:ital,wght@0,400;0,600;1,400&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/shared.css?v=13">
   <style>
     /* Reading Progress Bar */
     .reading-progress {
@@ -95,7 +96,7 @@
   <div class="reading-progress"><div class="reading-progress__bar" id="reading-progress-bar"></div></div>
 
   <header class="article-hero" id="article-hero" style="background: linear-gradient(135deg, #D97706 0%, #DC2626 100%);">
-    <canvas class="article-hero__canvas" id="hero-canvas"></canvas>
+    <canvas class="article-hero__canvas" id="hero-canvas" aria-hidden="true"></canvas>
     <div class="article-hero__overlay"></div>
     <div class="article-hero__content">
       <nav class="breadcrumb breadcrumb--hero">
@@ -154,7 +155,7 @@
       <div class="widget__title">Tokenizer Playground</div>
       <div class="widget__instruction">Type or paste text below. Each colored block is one token.</div>
 
-      <textarea class="tokenizer__input" id="tokenizer-input" rows="3" placeholder="Type something here... try &quot;The product manager analyzed the quarterly metrics.&quot;">The product manager analyzed the quarterly metrics.</textarea>
+      <textarea class="tokenizer__input" id="tokenizer-input" rows="3" aria-label="Text to tokenize" placeholder="Type something here... try &quot;The product manager analyzed the quarterly metrics.&quot;">The product manager analyzed the quarterly metrics.</textarea>
 
       <div class="tokenizer__output" id="tokenizer-output"></div>
 
@@ -192,7 +193,7 @@
     <h2 id="the-price-tag"><span class="section-number">II</span> The Price Tag</h2>
 
     <figure class="sketch-figure">
-      <img src="../assets/sketches/token-cost.webp"
+      <img src="../assets/sketches/token-cost.webp" width="1240" height="693" loading="lazy"
            alt="A samosa feeds word-tokens one at a time into a tall fare meter; the meter's rising total is shown in orange, labeled 'cost per token'.">
       <figcaption>Every token is a coin in the meter. Tokens in, tokens out &mdash; the fare climbs with each one the model reads or writes.</figcaption>
     </figure>
@@ -267,9 +268,9 @@
       <div class="widget__instruction">Pick a task type and see how each model tier handles it — quality, speed, and cost.</div>
 
       <div class="widget__controls" id="mc-tasks">
-        <button class="btn btn--active" data-task="classify" style="--accent: var(--accent-cost);">Classify support ticket</button>
-        <button class="btn btn--secondary" data-task="summarize">Summarize document</button>
-        <button class="btn btn--secondary" data-task="analyze">Analyze churn data</button>
+        <button class="btn btn--active" data-task="classify" aria-pressed="true" style="--accent: var(--accent-cost);">Classify support ticket</button>
+        <button class="btn btn--secondary" data-task="summarize" aria-pressed="false">Summarize document</button>
+        <button class="btn btn--secondary" data-task="analyze" aria-pressed="false">Analyze churn data</button>
       </div>
 
       <div class="mc__grid" id="mc-grid">
@@ -311,7 +312,7 @@
         </div>
       </div>
 
-      <div class="dilemma__tip" id="mc-insight" style="border-color: #FDE68A;"></div>
+      <div class="dilemma__tip" id="mc-insight" role="status" aria-live="polite" style="border-color: #FDE68A;"></div>
     </div>
   </div>
 
@@ -344,28 +345,28 @@
 
       <div class="scale__controls">
         <div class="scale__control">
-          <label>Daily active users</label>
+          <label for="scale-users">Daily active users</label>
           <div class="cost__slider-row">
             <input type="range" id="scale-users" min="100" max="500000" value="10000" step="100" class="dilemma__slider">
             <span class="dilemma__slider-value" id="scale-users-val">10,000</span>
           </div>
         </div>
         <div class="scale__control">
-          <label>Requests per user per day</label>
+          <label for="scale-reqs">Requests per user per day</label>
           <div class="cost__slider-row">
             <input type="range" id="scale-reqs" min="1" max="50" value="5" class="dilemma__slider">
             <span class="dilemma__slider-value" id="scale-reqs-val">5</span>
           </div>
         </div>
         <div class="scale__control">
-          <label>Avg input tokens per request</label>
+          <label for="scale-input">Avg input tokens per request</label>
           <div class="cost__slider-row">
             <input type="range" id="scale-input" min="50" max="4000" value="500" step="50" class="dilemma__slider">
             <span class="dilemma__slider-value" id="scale-input-val">500</span>
           </div>
         </div>
         <div class="scale__control">
-          <label>Avg output tokens per request</label>
+          <label for="scale-output">Avg output tokens per request</label>
           <div class="cost__slider-row">
             <input type="range" id="scale-output" min="10" max="2000" value="150" step="10" class="dilemma__slider">
             <span class="dilemma__slider-value" id="scale-output-val">150</span>
@@ -374,9 +375,9 @@
         <div class="scale__control">
           <label>Model tier</label>
           <div class="widget__controls">
-            <button class="btn btn--secondary" data-tier="small">Small ($1/$5)</button>
-            <button class="btn btn--active" data-tier="medium">Medium ($3/$15)</button>
-            <button class="btn btn--secondary" data-tier="large">Large ($5/$25)</button>
+            <button class="btn btn--secondary" data-tier="small" aria-pressed="false">Small ($1/$5)</button>
+            <button class="btn btn--active" data-tier="medium" aria-pressed="true">Medium ($3/$15)</button>
+            <button class="btn btn--secondary" data-tier="large" aria-pressed="false">Large ($5/$25)</button>
           </div>
         </div>
       </div>
@@ -400,7 +401,7 @@
         </div>
       </div>
 
-      <div class="dilemma__tip" id="scale-tip" style="border-color: #FDE68A;"></div>
+      <div class="dilemma__tip" id="scale-tip" role="status" aria-live="polite" style="border-color: #FDE68A;"></div>
     </div>
   </div>
 
@@ -428,14 +429,14 @@
       <div class="quiz__card" id="quiz-card">
         <p class="quiz__scenario" id="quiz-scenario"></p>
         <div class="widget__controls" id="quiz-options"></div>
-        <div class="quiz__explanation" id="quiz-explanation" style="display: none;"></div>
+        <div class="quiz__explanation" id="quiz-explanation" role="status" aria-live="polite" style="display: none;"></div>
       </div>
 
       <div class="widget__controls widget__controls--mt">
         <button class="btn btn--primary" id="quiz-next" style="display: none;">Next Question &rarr;</button>
       </div>
 
-      <div class="quiz__summary" id="quiz-summary" style="display: none;">
+      <div class="quiz__summary" id="quiz-summary" role="status" aria-live="polite" style="display: none;">
         <div class="quiz__score" id="quiz-score"></div>
         <p class="quiz__summary-text" id="quiz-summary-text"></p>
         <button class="btn btn--secondary" id="quiz-retry" style="margin-top: var(--space-4);">Try Again</button>
@@ -477,9 +478,32 @@
       ctx.lineWidth=1;
       for(var i=0;i<nodes.length;i++)for(var j=i+1;j<nodes.length;j++){var dx=nodes[i].x-nodes[j].x,dy=nodes[i].y-nodes[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<connectionDist){ctx.strokeStyle='rgba(255,255,255,'+((1-d/connectionDist)*0.3)+')';ctx.beginPath();ctx.moveTo(nodes[i].x,nodes[i].y);ctx.lineTo(nodes[j].x,nodes[j].y);ctx.stroke();}}
       for(var i=0;i<nodes.length;i++){var n=nodes[i],g=0.5+0.5*Math.sin(n.pulse);ctx.fillStyle='rgba(255,255,255,'+(0.4+0.4*g)+')';ctx.beginPath();ctx.arc(n.x,n.y,n.r*(0.8+0.4*g),0,Math.PI*2);ctx.fill();}
-      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(draw);
+      if (!heroRunning) return;
+      requestAnimationFrame(draw);
     }
-    resize();init();requestAnimationFrame(draw);
+
+    var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var heroRunning = false;
+    var heroVisible = true;
+
+    function setRunning(on) {
+      if (reducedMotion) return;
+      if (on && !heroRunning) { heroRunning = true; requestAnimationFrame(draw); }
+      else if (!on) { heroRunning = false; }
+    }
+
+    resize();init();
+    if (reducedMotion) {
+      draw(); // single static frame; heroRunning stays false so no rAF chain starts
+    } else {
+      new IntersectionObserver(function(entries) {
+        heroVisible = entries[0].isIntersecting;
+        setRunning(heroVisible && !document.hidden);
+      }).observe(canvas);
+      document.addEventListener('visibilitychange', function() {
+        setRunning(heroVisible && !document.hidden);
+      });
+    }
     window.addEventListener('resize',function(){resize();init();});
   })();
 
@@ -649,6 +673,7 @@
       currentTask = btn.dataset.task;
       document.querySelectorAll('#mc-tasks .btn').forEach(function(b) {
         b.className = 'btn ' + (b.dataset.task === currentTask ? 'btn--active' : 'btn--secondary');
+        b.setAttribute('aria-pressed', b.dataset.task === currentTask ? 'true' : 'false');
       });
       render();
     });
@@ -707,6 +732,7 @@
       currentTier = btn.dataset.tier;
       document.querySelectorAll('#widget-scale [data-tier]').forEach(function(b) {
         b.className = 'btn ' + (b.dataset.tier === currentTier ? 'btn--active' : 'btn--secondary');
+        b.setAttribute('aria-pressed', b.dataset.tier === currentTier ? 'true' : 'false');
       });
       update();
     });

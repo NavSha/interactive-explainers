@@ -23,12 +23,13 @@
   <meta name="twitter:title" content="Tokenization Up Close — AI for Builders">
   <meta name="twitter:description" content="The model doesn&#x27;t see words. It sees integers. Understanding that one fact explains half the mysteries builders encounter.">
   <meta name="twitter:image" content="https://navsha.github.io/interactive-explainers/assets/og-image.png">
+  <link rel="canonical" href="https://navsha.github.io/interactive-explainers/llm-fundamentals/tokenization.html">
   <link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon-32.png">
   <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../styles/shared.css?v=12">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400&amp;family=Newsreader:ital,wght@0,400;0,600;1,400&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/shared.css?v=13">
   <style>
     .article-hero { background: var(--accent-llm-gradient); }
     .toc__list a:hover { color: var(--accent-llm); }
@@ -60,6 +61,10 @@
     }
     .tok__input-wrap textarea:focus {
       border-color: var(--accent-llm);
+    }
+    .tok__input-wrap textarea:focus-visible {
+      outline: 2px solid var(--accent-llm);
+      outline-offset: 2px;
     }
     .tok__output {
       background: var(--color-surface);
@@ -129,6 +134,10 @@
     }
     .tcc__input-wrap textarea:focus {
       border-color: var(--accent-llm);
+    }
+    .tcc__input-wrap textarea:focus-visible {
+      outline: 2px solid var(--accent-llm);
+      outline-offset: 2px;
     }
     .tcc__grid {
       display: grid;
@@ -256,7 +265,7 @@
   <div class="reading-progress"><div class="reading-progress__bar" id="reading-progress-bar"></div></div>
 
   <header class="article-hero" id="article-hero">
-    <canvas class="article-hero__canvas" id="hero-canvas"></canvas>
+    <canvas class="article-hero__canvas" id="hero-canvas" aria-hidden="true"></canvas>
     <div class="article-hero__overlay"></div>
     <div class="article-hero__content">
       <nav class="breadcrumb breadcrumb--hero">
@@ -342,7 +351,7 @@
       <div class="widget__instruction">Type or paste text to see it split into tokens. Each color represents a different token. Watch how the count changes with different types of text.</div>
 
       <div class="tok__input-wrap">
-        <textarea id="tok-input" placeholder="Type something here...">The quick brown fox jumps over the lazy dog.</textarea>
+        <textarea id="tok-input" aria-label="Text to tokenize" placeholder="Type something here...">The quick brown fox jumps over the lazy dog.</textarea>
       </div>
 
       <div class="tok__output" id="tok-output"></div>
@@ -356,11 +365,11 @@
 
       <div class="tok__presets-label">Try different text types</div>
       <div class="widget__controls" id="tok-presets">
-        <button class="btn btn--secondary btn--active" data-preset="0">English prose</button>
-        <button class="btn btn--secondary" data-preset="1">Python code</button>
-        <button class="btn btn--secondary" data-preset="2">JSON</button>
-        <button class="btn btn--secondary" data-preset="3">Spanish</button>
-        <button class="btn btn--secondary" data-preset="4">Numbers</button>
+        <button class="btn btn--secondary btn--active" data-preset="0" aria-pressed="true">English prose</button>
+        <button class="btn btn--secondary" data-preset="1" aria-pressed="false">Python code</button>
+        <button class="btn btn--secondary" data-preset="2" aria-pressed="false">JSON</button>
+        <button class="btn btn--secondary" data-preset="3" aria-pressed="false">Spanish</button>
+        <button class="btn btn--secondary" data-preset="4" aria-pressed="false">Numbers</button>
       </div>
     </div>
   </div>
@@ -415,12 +424,12 @@
       <div class="widget__instruction">Enter text to see estimated token counts and costs across different model tiers. Token counts vary because each model uses a different tokenizer.</div>
 
       <div class="tcc__input-wrap">
-        <textarea id="tcc-input" placeholder="Enter text to compare costs...">You are a helpful customer support assistant for Acme Corp. Answer questions about our products accurately and concisely. If you don't know the answer, say so.</textarea>
+        <textarea id="tcc-input" aria-label="Text to compare token costs across models" placeholder="Enter text to compare costs...">You are a helpful customer support assistant for Acme Corp. Answer questions about our products accurately and concisely. If you don't know the answer, say so.</textarea>
       </div>
 
       <div class="tcc__grid" id="tcc-grid"></div>
 
-      <div class="tcc__insight" id="tcc-insight">
+      <div class="tcc__insight" id="tcc-insight" role="status" aria-live="polite">
         Enter text above to see how tokenization affects cost across models.
       </div>
     </div>
@@ -490,14 +499,14 @@
       <div class="quiz__card" id="quiz-card">
         <p class="quiz__scenario" id="quiz-scenario"></p>
         <div class="widget__controls" id="quiz-options"></div>
-        <div class="quiz__explanation" id="quiz-explanation" style="display: none;"></div>
+        <div class="quiz__explanation" id="quiz-explanation" role="status" aria-live="polite" style="display: none;"></div>
       </div>
 
       <div class="widget__controls widget__controls--mt">
         <button class="btn btn--primary" id="quiz-next" style="display: none;">Next Question &rarr;</button>
       </div>
 
-      <div class="quiz__summary" id="quiz-summary" style="display: none;">
+      <div class="quiz__summary" id="quiz-summary" role="status" aria-live="polite" style="display: none;">
         <div class="quiz__score" id="quiz-score"></div>
         <p class="quiz__summary-text" id="quiz-summary-text"></p>
         <button class="btn btn--secondary" id="quiz-retry" style="margin-top: var(--space-4);">Try Again</button>
@@ -577,10 +586,32 @@
         ctx.fillStyle = 'rgba(255,255,255,' + (0.4 + 0.4 * glow) + ')';
         ctx.beginPath(); ctx.arc(n.x, n.y, n.r * (0.8 + 0.4 * glow), 0, Math.PI * 2); ctx.fill();
       }
-      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(draw);
+      if (!heroRunning) return;
+      requestAnimationFrame(draw);
     }
 
-    resize(); initNodes(); requestAnimationFrame(draw);
+    var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var heroRunning = false;
+    var heroVisible = true;
+
+    function setRunning(on) {
+      if (reducedMotion) return;
+      if (on && !heroRunning) { heroRunning = true; requestAnimationFrame(draw); }
+      else if (!on) { heroRunning = false; }
+    }
+
+    resize(); initNodes();
+    if (reducedMotion) {
+      draw(); // single static frame; heroRunning stays false so no rAF chain starts
+    } else {
+      new IntersectionObserver(function(entries) {
+        heroVisible = entries[0].isIntersecting;
+        setRunning(heroVisible && !document.hidden);
+      }).observe(canvas);
+      document.addEventListener('visibilitychange', function() {
+        setRunning(heroVisible && !document.hidden);
+      });
+    }
     window.addEventListener('resize', function() { resize(); initNodes(); });
   })();
 
@@ -788,8 +819,9 @@
     presetsEl.addEventListener('click', function(e) {
       var btn = e.target.closest('[data-preset]');
       if (!btn) return;
-      presetsEl.querySelectorAll('.btn').forEach(function(b) { b.classList.remove('btn--active'); });
+      presetsEl.querySelectorAll('.btn').forEach(function(b) { b.classList.remove('btn--active'); b.setAttribute('aria-pressed', 'false'); });
       btn.classList.add('btn--active');
+      btn.setAttribute('aria-pressed', 'true');
       inputEl.value = presets[parseInt(btn.dataset.preset)];
       render();
     });

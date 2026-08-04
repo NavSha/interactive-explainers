@@ -17,6 +17,7 @@
   <meta property="og:title" content="LLM-as-Judge Done Right — AI for Builders">
   <meta property="og:description" content="Using one LLM to judge another sounds circular. Done right, it’s the most scalable eval method you have. Done wrong, it’s expensive self-deception.">
   <meta property="og:url" content="https://navsha.github.io/interactive-explainers/evaluation/llm-as-judge.html">
+  <link rel="canonical" href="https://navsha.github.io/interactive-explainers/evaluation/llm-as-judge.html">
   <meta property="og:image" content="https://navsha.github.io/interactive-explainers/assets/og-image.png">
   <meta property="og:site_name" content="AI for Builders">
   <meta name="twitter:card" content="summary_large_image">
@@ -27,8 +28,8 @@
   <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../styles/shared.css?v=12">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400&amp;family=Newsreader:ital,wght@0,400;0,600;1,400&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/shared.css?v=13">
   <style>
     .reading-progress { position: fixed; top: 0; left: 0; width: 100%; height: 3px; z-index: 1000; pointer-events: none; background: transparent; }
     .reading-progress__bar { height: 100%; width: 0%; background: #059669; transition: width 0.15s ease-out; }
@@ -87,7 +88,7 @@
   <div class="reading-progress"><div class="reading-progress__bar" id="reading-progress-bar"></div></div>
 
   <header class="article-hero" id="article-hero" style="background: linear-gradient(135deg, #059669 0%, #0891B2 100%);">
-    <canvas class="article-hero__canvas" id="hero-canvas"></canvas>
+    <canvas class="article-hero__canvas" id="hero-canvas" aria-hidden="true"></canvas>
     <div class="article-hero__overlay"></div>
     <div class="article-hero__content">
       <nav class="breadcrumb breadcrumb--hero">
@@ -130,7 +131,7 @@
     <h2 id="why-judge"><span class="section-number">I</span> Why Judge?</h2>
 
     <figure class="sketch-figure">
-      <img src="../assets/sketches/llm-as-judge.webp"
+      <img src="../assets/sketches/llm-as-judge.webp" width="1240" height="693" loading="lazy"
            alt="An answer sheet flows in from the left; a samosa inspects it through a magnifying glass and assigns a verdict shown on the right as a bold orange score, 7 out of 10.">
       <figcaption>LLM-as-judge: one model marks another's answer against a standard &mdash; grading at machine speed instead of waiting on humans.</figcaption>
     </figure>
@@ -178,7 +179,7 @@
       <div class="rubric-tester__title">Interactive &middot; Vague vs. Specific Rubrics</div>
       <p style="font-family: var(--font-sans); font-size: var(--text-sm); color: var(--color-text-secondary); margin-bottom: var(--space-4);">See how rubric precision affects scoring consistency. Click a pair to compare.</p>
       <div id="rt-pairs"></div>
-      <div class="rubric-tester__result" id="rt-result"></div>
+      <div class="rubric-tester__result" id="rt-result" role="status" aria-live="polite"></div>
     </div>
   </div>
 
@@ -295,9 +296,9 @@
     <div class="capstone-quiz__progress" id="cq-progress"></div>
     <div class="capstone-quiz__question" id="cq-question"></div>
     <div class="capstone-quiz__options" id="cq-options"></div>
-    <div class="capstone-quiz__explanation" id="cq-explanation"></div>
+    <div class="capstone-quiz__explanation" id="cq-explanation" role="status" aria-live="polite"></div>
     <button class="capstone-quiz__next" id="cq-next">Next question &rarr;</button>
-    <div class="capstone-quiz__score" id="cq-score" style="display:none;"></div>
+    <div class="capstone-quiz__score" id="cq-score" role="status" aria-live="polite" style="display:none;"></div>
   </div>
 
   <script>
@@ -345,8 +346,17 @@
       ctx.clearRect(0, 0, canvas.offsetWidth, canvas.offsetHeight);
       particles.forEach(function(p) { p.x += p.dx; p.y += p.dy; if (p.x < 0 || p.x > canvas.offsetWidth) p.dx *= -1; if (p.y < 0 || p.y > canvas.offsetHeight) p.dy *= -1; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fillStyle = 'rgba(255,255,255,' + p.alpha + ')'; ctx.fill(); });
       for (var i = 0; i < particles.length; i++) for (var j = i + 1; j < particles.length; j++) { var dx = particles[i].x - particles[j].x, dy = particles[i].y - particles[j].y, dist = Math.sqrt(dx * dx + dy * dy); if (dist < 100) { ctx.beginPath(); ctx.moveTo(particles[i].x, particles[i].y); ctx.lineTo(particles[j].x, particles[j].y); ctx.strokeStyle = 'rgba(255,255,255,' + (0.12 * (1 - dist / 100)) + ')'; ctx.lineWidth = 0.5; ctx.stroke(); } }
-      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(draw);
+      if (heroRunning) requestAnimationFrame(draw);
     }
+    var heroRunning = false, heroVisible = true;
+    var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function setRunning(on) {
+      if (reducedMotion) return;
+      if (on && !heroRunning) { heroRunning = true; requestAnimationFrame(draw); }
+      else if (!on) { heroRunning = false; }
+    }
+    new IntersectionObserver(function(entries) { heroVisible = entries[0].isIntersecting; setRunning(heroVisible && !document.hidden); }).observe(canvas);
+    document.addEventListener('visibilitychange', function() { setRunning(heroVisible && !document.hidden); });
     draw();
   })();
 
@@ -379,9 +389,12 @@
       div.className = 'rubric-tester__pairs';
       div.style.marginBottom = 'var(--space-4)';
       div.innerHTML =
-        '<div class="rubric-tester__card" data-idx="' + idx + '" data-type="vague"><div class="rubric-tester__card-label rubric-tester__card-label--vague">Vague</div><div class="rubric-tester__card-text">' + pair.vague.text.replace(/\n/g, '<br>') + '</div></div>' +
-        '<div class="rubric-tester__card" data-idx="' + idx + '" data-type="specific"><div class="rubric-tester__card-label rubric-tester__card-label--specific">Specific</div><div class="rubric-tester__card-text">' + pair.specific.text.replace(/\n/g, '<br>') + '</div></div>';
+        '<div class="rubric-tester__card" data-idx="' + idx + '" data-type="vague" tabindex="0" role="button"><div class="rubric-tester__card-label rubric-tester__card-label--vague">Vague</div><div class="rubric-tester__card-text">' + pair.vague.text.replace(/\n/g, '<br>') + '</div></div>' +
+        '<div class="rubric-tester__card" data-idx="' + idx + '" data-type="specific" tabindex="0" role="button"><div class="rubric-tester__card-label rubric-tester__card-label--specific">Specific</div><div class="rubric-tester__card-text">' + pair.specific.text.replace(/\n/g, '<br>') + '</div></div>';
       div.querySelectorAll('.rubric-tester__card').forEach(function(card) {
+        card.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.click(); }
+        });
         card.addEventListener('click', function() {
           container.querySelectorAll('.rubric-tester__card').forEach(function(c) { c.classList.remove('rubric-tester__card--active'); });
           div.querySelectorAll('.rubric-tester__card').forEach(function(c) { c.classList.add('rubric-tester__card--active'); });
@@ -474,7 +487,7 @@
         sEl.innerHTML = '<div class="capstone-quiz__score-number">' + score + '/' + questions.length + '</div><div class="capstone-quiz__score-label">' + pct + '% correct</div><div class="capstone-quiz__score-message">' + msgs[mi] + '</div>';
         return;
       }
-      var q = questions[currentQ];
+      var q = questions[currentQ], answered = false;
       pEl.textContent = 'Question ' + (currentQ + 1) + ' of ' + questions.length;
       qEl.textContent = q.question; oEl.innerHTML = '';
       eEl.classList.remove('capstone-quiz__explanation--visible'); eEl.style.display = 'none';
@@ -483,7 +496,9 @@
         var btn = document.createElement('button');
         btn.className = 'capstone-quiz__option'; btn.textContent = opt.label;
         btn.addEventListener('click', function() {
-          oEl.querySelectorAll('.capstone-quiz__option').forEach(function(b) { b.style.pointerEvents = 'none'; });
+          if (answered) return;
+          answered = true;
+          oEl.querySelectorAll('.capstone-quiz__option').forEach(function(b) { b.style.pointerEvents = 'none'; b.disabled = true; });
           if (opt.key === q.answer) { btn.classList.add('capstone-quiz__option--correct'); score++; }
           else { btn.classList.add('capstone-quiz__option--wrong'); oEl.querySelectorAll('.capstone-quiz__option').forEach(function(b) { if (b.textContent === q.options.find(function(o) { return o.key === q.answer; }).label) b.classList.add('capstone-quiz__option--correct'); }); }
           eEl.textContent = q.explanation; eEl.style.display = 'block'; eEl.classList.add('capstone-quiz__explanation--visible');

@@ -17,6 +17,7 @@
   <meta property="og:title" content="Grounding Models in Your Data — AI for Builders">
   <meta property="og:description" content="LLMs know the internet. They don&#x27;t know your company. Retrieval-Augmented Generation bridges that gap — here&#x27;s how it works and why it matters.">
   <meta property="og:url" content="https://navsha.github.io/interactive-explainers/grounding/grounding-your-data.html">
+  <link rel="canonical" href="https://navsha.github.io/interactive-explainers/grounding/grounding-your-data.html">
   <meta property="og:image" content="https://navsha.github.io/interactive-explainers/assets/og-image.png">
   <meta property="og:site_name" content="AI for Builders">
   <meta name="twitter:card" content="summary_large_image">
@@ -27,8 +28,8 @@
   <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../styles/shared.css?v=12">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400&amp;family=Newsreader:ital,wght@0,400;0,600;1,400&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/shared.css?v=13">
   <style>
     .article-hero { background: var(--accent-grounding-gradient); }
     .toc__list a:hover { color: var(--accent-grounding); }
@@ -91,6 +92,10 @@
     }
     .embed-viz__input:focus {
       border-color: var(--accent-grounding);
+    }
+    .embed-viz__input:focus-visible {
+      outline: 2px solid var(--accent-grounding);
+      outline-offset: 2px;
     }
 
     /* Widget 2: RAG Pipeline */
@@ -217,6 +222,10 @@
     }
     .sim-calc__textarea:focus {
       border-color: var(--accent-grounding);
+    }
+    .sim-calc__textarea:focus-visible {
+      outline: 2px solid var(--accent-grounding);
+      outline-offset: 2px;
     }
     .sim-calc__input-label {
       font-family: var(--font-sans);
@@ -348,7 +357,7 @@
   <div class="reading-progress"><div class="reading-progress__bar" id="reading-progress-bar"></div></div>
 
   <header class="article-hero" id="article-hero">
-    <canvas class="article-hero__canvas" id="hero-canvas"></canvas>
+    <canvas class="article-hero__canvas" id="hero-canvas" aria-hidden="true"></canvas>
     <div class="article-hero__overlay"></div>
     <div class="article-hero__content">
       <nav class="breadcrumb breadcrumb--hero">
@@ -404,7 +413,7 @@
     <h2 id="the-rag-pipeline"><span class="section-number">II</span> The RAG Pipeline</h2>
 
     <figure class="sketch-figure">
-      <img src="../assets/sketches/rag-samosa.webp"
+      <img src="../assets/sketches/rag-samosa.webp" width="1240" height="693" loading="lazy"
            alt="A samosa stands on a stool beside a bookshelf labeled 'your docs.' A question mark hovers nearby; the samosa fetches a folder from the shelf and produces an answer.">
       <figcaption>RAG in one frame: a question comes in, the relevant docs are fetched, and the model answers from what it found &mdash; not from memory.</figcaption>
     </figure>
@@ -457,13 +466,13 @@
       <div class="widget__instruction">Phrases with similar meanings cluster together in embedding space. Type a phrase and click "Add" to see where it lands.</div>
 
       <div class="embed-viz__canvas-wrap">
-        <canvas id="embed-canvas"></canvas>
+        <canvas id="embed-canvas" role="img" aria-label="Scatter plot of phrases in embedding space: cooking, programming, sports, and business phrases each form their own cluster. Added phrases land in the cluster whose meaning they share."></canvas>
       </div>
 
       <div class="embed-viz__legend" id="embed-legend"></div>
 
       <div class="embed-viz__input-row">
-        <input type="text" class="embed-viz__input" id="embed-input" placeholder="Type a phrase, e.g. 'bake a cake at 350 degrees'">
+        <input type="text" class="embed-viz__input" id="embed-input" aria-label="Phrase to add to the embedding map" placeholder="Type a phrase, e.g. 'bake a cake at 350 degrees'">
         <button class="btn btn--primary" id="embed-add-btn">Add</button>
       </div>
     </div>
@@ -501,9 +510,9 @@
       <div class="widget__instruction">Pick a query, then step through each stage of the RAG pipeline to see how retrieval and generation work together.</div>
 
       <div class="rag-pipeline__presets" id="rag-presets">
-        <button class="btn btn--secondary btn--active" data-query="0">Refund policy</button>
-        <button class="btn btn--secondary" data-query="1">API rate limits</button>
-        <button class="btn btn--secondary" data-query="2">Onboarding checklist</button>
+        <button class="btn btn--secondary btn--active" data-query="0" aria-pressed="true">Refund policy</button>
+        <button class="btn btn--secondary" data-query="1" aria-pressed="false">API rate limits</button>
+        <button class="btn btn--secondary" data-query="2" aria-pressed="false">Onboarding checklist</button>
       </div>
 
       <div class="rag-pipeline__stages" id="rag-stages">
@@ -528,7 +537,7 @@
         </div>
       </div>
 
-      <div class="rag-pipeline__detail" id="rag-detail">
+      <div class="rag-pipeline__detail" id="rag-detail" role="status" aria-live="polite">
         <div class="rag-pipeline__detail-title" id="rag-detail-title">Select a query above, then step through the pipeline.</div>
         <div id="rag-detail-body">Each stage transforms data as it flows from your question to a grounded answer.</div>
       </div>
@@ -587,14 +596,14 @@
         <div class="sim-calc__bar-wrap">
           <div class="sim-calc__bar" id="sim-bar" style="width: 82%;"></div>
         </div>
-        <div class="sim-calc__interpretation" id="sim-interp">High similarity — these sentences describe the same scene using different words.</div>
+        <div class="sim-calc__interpretation" id="sim-interp" role="status" aria-live="polite">High similarity — these sentences describe the same scene using different words.</div>
       </div>
 
       <div class="sim-calc__pairs" id="sim-pairs">
-        <button class="btn btn--secondary btn--active" data-pair="0">Cat / Kitten</button>
-        <button class="btn btn--secondary" data-pair="1">Return / Refund</button>
-        <button class="btn btn--secondary" data-pair="2">Same word, diff meaning</button>
-        <button class="btn btn--secondary" data-pair="3">Unrelated topics</button>
+        <button class="btn btn--secondary btn--active" data-pair="0" aria-pressed="true">Cat / Kitten</button>
+        <button class="btn btn--secondary" data-pair="1" aria-pressed="false">Return / Refund</button>
+        <button class="btn btn--secondary" data-pair="2" aria-pressed="false">Same word, diff meaning</button>
+        <button class="btn btn--secondary" data-pair="3" aria-pressed="false">Unrelated topics</button>
       </div>
     </div>
   </div>
@@ -631,7 +640,7 @@
       <div class="quiz__card" id="quiz-card">
         <p class="quiz__scenario" id="quiz-scenario"></p>
         <div class="widget__controls" id="quiz-options"></div>
-        <div class="quiz__explanation" id="quiz-explanation" style="display: none;"></div>
+        <div class="quiz__explanation" id="quiz-explanation" role="status" aria-live="polite" style="display: none;"></div>
       </div>
 
       <div class="widget__controls widget__controls--mt">
@@ -682,6 +691,8 @@
     var connectionDist = 140;
     var dpr = window.devicePixelRatio || 1;
     var w, h;
+    var running = false;
+    var intersecting = false;
 
     function resize() {
       var rect = hero.getBoundingClientRect();
@@ -707,6 +718,7 @@
     }
 
     function draw() {
+      if (!running) return;
       ctx.clearRect(0, 0, w, h);
       for (var i = 0; i < nodes.length; i++) {
         var n = nodes[i];
@@ -733,7 +745,25 @@
       if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(draw);
     }
 
-    resize(); initNodes(); requestAnimationFrame(draw);
+    function setRunning(on) {
+      if (on && !running) {
+        running = true;
+        requestAnimationFrame(draw);
+      } else if (!on) {
+        running = false;
+      }
+    }
+
+    var observer = new IntersectionObserver(function(entries) {
+      intersecting = entries[0].isIntersecting;
+      setRunning(intersecting && !document.hidden);
+    }, { threshold: 0 });
+
+    document.addEventListener('visibilitychange', function() {
+      setRunning(intersecting && !document.hidden);
+    });
+
+    resize(); initNodes(); observer.observe(hero);
     window.addEventListener('resize', function() { resize(); initNodes(); });
   })();
 
@@ -1143,8 +1173,9 @@
       const btn = e.target.closest('[data-query]');
       if (!btn) return;
       currentScenario = parseInt(btn.dataset.query);
-      presets.querySelectorAll('.btn').forEach(function(b) { b.classList.remove('btn--active'); });
+      presets.querySelectorAll('.btn').forEach(function(b) { b.classList.remove('btn--active'); b.setAttribute('aria-pressed', 'false'); });
       btn.classList.add('btn--active');
+      btn.setAttribute('aria-pressed', 'true');
       resetPipeline();
     });
   })();
@@ -1297,17 +1328,18 @@
       const idx = parseInt(btn.dataset.pair);
       textA.value = pairs[idx].a;
       textB.value = pairs[idx].b;
-      pairsEl.querySelectorAll('.btn').forEach(function(b) { b.classList.remove('btn--active'); });
+      pairsEl.querySelectorAll('.btn').forEach(function(b) { b.classList.remove('btn--active'); b.setAttribute('aria-pressed', 'false'); });
       btn.classList.add('btn--active');
+      btn.setAttribute('aria-pressed', 'true');
       update();
     });
 
     textA.addEventListener('input', function() {
-      pairsEl.querySelectorAll('.btn').forEach(function(b) { b.classList.remove('btn--active'); });
+      pairsEl.querySelectorAll('.btn').forEach(function(b) { b.classList.remove('btn--active'); b.setAttribute('aria-pressed', 'false'); });
       update();
     });
     textB.addEventListener('input', function() {
-      pairsEl.querySelectorAll('.btn').forEach(function(b) { b.classList.remove('btn--active'); });
+      pairsEl.querySelectorAll('.btn').forEach(function(b) { b.classList.remove('btn--active'); b.setAttribute('aria-pressed', 'false'); });
       update();
     });
 

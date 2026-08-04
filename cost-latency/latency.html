@@ -23,12 +23,13 @@
   <meta name="twitter:title" content="Latency, Streaming &amp; Optimization — AI for Builders">
   <meta name="twitter:description" content="Fast enough beats perfect. The levers that make AI features feel instant — and cost 80% less.">
   <meta name="twitter:image" content="https://navsha.github.io/interactive-explainers/assets/og-image.png">
+  <link rel="canonical" href="https://navsha.github.io/interactive-explainers/cost-latency/latency.html">
   <link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon-32.png">
   <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../styles/shared.css?v=12">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400&amp;family=Newsreader:ital,wght@0,400;0,600;1,400&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/shared.css?v=13">
   <style>
     /* Reading Progress Bar */
     .reading-progress {
@@ -95,7 +96,7 @@
   <div class="reading-progress"><div class="reading-progress__bar" id="reading-progress-bar"></div></div>
 
   <header class="article-hero" id="article-hero" style="background: linear-gradient(135deg, #B45309 0%, #9F1239 100%);">
-    <canvas class="article-hero__canvas" id="hero-canvas"></canvas>
+    <canvas class="article-hero__canvas" id="hero-canvas" aria-hidden="true"></canvas>
     <div class="article-hero__overlay"></div>
     <div class="article-hero__content">
       <nav class="breadcrumb breadcrumb--hero">
@@ -331,7 +332,7 @@
             </div>
           </div>
         </div>
-        <div class="opt__savings" id="opt-savings"></div>
+        <div class="opt__savings" id="opt-savings" role="status" aria-live="polite"></div>
       </div>
     </div>
   </div>
@@ -369,11 +370,11 @@
       <div class="widget__instruction">Select a product feature to see where it falls on the triangle and the recommended approach.</div>
 
       <div class="widget__controls" id="tri-features">
-        <button class="btn btn--secondary" data-feature="autocomplete">Autocomplete</button>
-        <button class="btn btn--secondary" data-feature="chatbot">Support chatbot</button>
-        <button class="btn btn--secondary" data-feature="summarize">Doc summarizer</button>
-        <button class="btn btn--secondary" data-feature="analysis">Data analysis</button>
-        <button class="btn btn--secondary" data-feature="content">Content generator</button>
+        <button class="btn btn--secondary" data-feature="autocomplete" aria-pressed="false">Autocomplete</button>
+        <button class="btn btn--secondary" data-feature="chatbot" aria-pressed="false">Support chatbot</button>
+        <button class="btn btn--secondary" data-feature="summarize" aria-pressed="false">Doc summarizer</button>
+        <button class="btn btn--secondary" data-feature="analysis" aria-pressed="false">Data analysis</button>
+        <button class="btn btn--secondary" data-feature="content" aria-pressed="false">Content generator</button>
       </div>
 
       <div class="tri__display">
@@ -394,7 +395,7 @@
             <div class="tri__meter-value" id="tri-quality-val"></div>
           </div>
         </div>
-        <div class="tri__recommendation" id="tri-rec">
+        <div class="tri__recommendation" id="tri-rec" role="status" aria-live="polite">
           <div class="tri__rec-title" id="tri-rec-title">Select a feature above</div>
           <div class="tri__rec-body" id="tri-rec-body"></div>
         </div>
@@ -419,14 +420,14 @@
       <div class="quiz__card" id="quiz-card">
         <p class="quiz__scenario" id="quiz-scenario"></p>
         <div class="widget__controls" id="quiz-options"></div>
-        <div class="quiz__explanation" id="quiz-explanation" style="display: none;"></div>
+        <div class="quiz__explanation" id="quiz-explanation" role="status" aria-live="polite" style="display: none;"></div>
       </div>
 
       <div class="widget__controls widget__controls--mt">
         <button class="btn btn--primary" id="quiz-next" style="display: none;">Next Question &rarr;</button>
       </div>
 
-      <div class="quiz__summary" id="quiz-summary" style="display: none;">
+      <div class="quiz__summary" id="quiz-summary" role="status" aria-live="polite" style="display: none;">
         <div class="quiz__score" id="quiz-score"></div>
         <p class="quiz__summary-text" id="quiz-summary-text"></p>
         <button class="btn btn--secondary" id="quiz-retry" style="margin-top: var(--space-4);">Try Again</button>
@@ -477,9 +478,33 @@
       for(var i=0;i<nodes.length;i++){var n=nodes[i];n.x+=n.vx;n.y+=n.vy;n.pulse+=0.015;if(n.x<-20)n.x=w+20;if(n.x>w+20)n.x=-20;if(n.y<-20)n.y=h+20;if(n.y>h+20)n.y=-20;}
       ctx.lineWidth=1;for(var i=0;i<nodes.length;i++)for(var j=i+1;j<nodes.length;j++){var dx=nodes[i].x-nodes[j].x,dy=nodes[i].y-nodes[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<connectionDist){ctx.strokeStyle='rgba(255,255,255,'+((1-d/connectionDist)*0.3)+')';ctx.beginPath();ctx.moveTo(nodes[i].x,nodes[i].y);ctx.lineTo(nodes[j].x,nodes[j].y);ctx.stroke();}}
       for(var i=0;i<nodes.length;i++){var n=nodes[i],g=0.5+0.5*Math.sin(n.pulse);ctx.fillStyle='rgba(255,255,255,'+(0.4+0.4*g)+')';ctx.beginPath();ctx.arc(n.x,n.y,n.r*(0.8+0.4*g),0,Math.PI*2);ctx.fill();}
-      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(draw);
+      if (!heroRunning) return;
+      requestAnimationFrame(draw);
     }
-    resize();init();requestAnimationFrame(draw);window.addEventListener('resize',function(){resize();init();});
+
+    var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var heroRunning = false;
+    var heroVisible = true;
+
+    function setRunning(on) {
+      if (reducedMotion) return;
+      if (on && !heroRunning) { heroRunning = true; requestAnimationFrame(draw); }
+      else if (!on) { heroRunning = false; }
+    }
+
+    resize();init();
+    if (reducedMotion) {
+      draw(); // single static frame; heroRunning stays false so no rAF chain starts
+    } else {
+      new IntersectionObserver(function(entries) {
+        heroVisible = entries[0].isIntersecting;
+        setRunning(heroVisible && !document.hidden);
+      }).observe(canvas);
+      document.addEventListener('visibilitychange', function() {
+        setRunning(heroVisible && !document.hidden);
+      });
+    }
+    window.addEventListener('resize',function(){resize();init();});
   })();
 
   // ====================================================================
@@ -502,6 +527,18 @@
 
     document.getElementById('stream-start').addEventListener('click', function() {
       if (running) return;
+
+      // Reduced motion: skip the typing animation, show final state immediately
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        streamOff.textContent = response;
+        streamOn.textContent = response;
+        timerOff.textContent = '4.0s — content visible (all at once)';
+        timerOn.textContent = '0.4s — first word, 4.0s — complete';
+        cursorOff.className = 'streaming__cursor streaming__cursor--hidden';
+        cursorOn.className = 'streaming__cursor streaming__cursor--hidden';
+        return;
+      }
+
       running = true;
       streamOff.textContent = '';
       streamOn.textContent = '';
@@ -674,8 +711,9 @@
       var f = features[btn.dataset.feature];
       if (!f) return;
 
-      document.querySelectorAll('#tri-features .btn').forEach(function(b) { b.classList.remove('btn--active'); });
+      document.querySelectorAll('#tri-features .btn').forEach(function(b) { b.classList.remove('btn--active'); b.setAttribute('aria-pressed', 'false'); });
       btn.classList.add('btn--active');
+      btn.setAttribute('aria-pressed', 'true');
 
       document.getElementById('tri-cost').style.width = f.cost + '%';
       document.getElementById('tri-cost-val').textContent = f.cost >= 70 ? 'Critical' : f.cost >= 40 ? 'Important' : 'Secondary';

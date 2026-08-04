@@ -17,6 +17,7 @@
   <meta property="og:title" content="Graph RAG &amp; Structured Retrieval — AI for Builders">
   <meta property="og:description" content="Vector search finds similar documents. But when the answer lives in the connections between documents, you need retrieval that can follow the thread.">
   <meta property="og:url" content="https://navsha.github.io/interactive-explainers/grounding/graph-rag.html">
+  <link rel="canonical" href="https://navsha.github.io/interactive-explainers/grounding/graph-rag.html">
   <meta property="og:image" content="https://navsha.github.io/interactive-explainers/assets/og-image.png">
   <meta property="og:site_name" content="AI for Builders">
   <meta name="twitter:card" content="summary_large_image">
@@ -27,8 +28,8 @@
   <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../styles/shared.css?v=12">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400&amp;family=Newsreader:ital,wght@0,400;0,600;1,400&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/shared.css?v=13">
   <style>
     .article-hero { background: var(--accent-grounding-gradient); }
     .toc__list a:hover { color: var(--accent-grounding); }
@@ -293,7 +294,7 @@
   <div class="reading-progress"><div class="reading-progress__bar" id="reading-progress-bar"></div></div>
 
   <header class="article-hero" id="article-hero">
-    <canvas class="article-hero__canvas" id="hero-canvas"></canvas>
+    <canvas class="article-hero__canvas" id="hero-canvas" aria-hidden="true"></canvas>
     <div class="article-hero__overlay"></div>
     <div class="article-hero__content">
       <nav class="breadcrumb breadcrumb--hero">
@@ -396,9 +397,9 @@
       <div class="widget__instruction">Select a query to see how vector search and graph traversal each approach the same question.</div>
 
       <div class="widget__controls" id="compare-controls">
-        <button class="btn btn--secondary" data-cquery="0">Multi-hop (budget approval)</button>
-        <button class="btn btn--secondary" data-cquery="1">Org structure</button>
-        <button class="btn btn--secondary" data-cquery="2">Dependency chain</button>
+        <button class="btn btn--secondary" data-cquery="0" aria-pressed="false">Multi-hop (budget approval)</button>
+        <button class="btn btn--secondary" data-cquery="1" aria-pressed="false">Org structure</button>
+        <button class="btn btn--secondary" data-cquery="2" aria-pressed="false">Dependency chain</button>
       </div>
 
       <div id="compare-area" style="display: none;">
@@ -481,7 +482,7 @@
       <div class="widget__instruction">Click a query type to see the recommended retrieval strategy and why it fits.</div>
 
       <div class="picker__scenarios" id="picker-scenarios"></div>
-      <div id="picker-result"></div>
+      <div id="picker-result" role="status" aria-live="polite"></div>
     </div>
   </div>
 
@@ -550,7 +551,7 @@
       <div class="quiz__card" id="quiz-card">
         <p class="quiz__scenario" id="quiz-scenario"></p>
         <div class="widget__controls" id="quiz-options"></div>
-        <div class="quiz__explanation" id="quiz-explanation" style="display: none;"></div>
+        <div class="quiz__explanation" id="quiz-explanation" role="status" aria-live="polite" style="display: none;"></div>
       </div>
 
       <div class="widget__controls widget__controls--mt">
@@ -589,7 +590,8 @@
     var connectionDist = 130;
     var dpr = window.devicePixelRatio || 1;
     var w, h;
-    var running = true;
+    var running = false;
+    var intersecting = false;
 
     function resize() {
       var rect = hero.getBoundingClientRect();
@@ -642,15 +644,29 @@
       if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(draw);
     }
 
-    resize(); initParticles(); requestAnimationFrame(draw);
+    function setRunning(on) {
+      if (on && !running) {
+        running = true;
+        requestAnimationFrame(draw);
+      } else if (!on) {
+        running = false;
+      }
+    }
+
+    resize(); initParticles();
     window.addEventListener('resize', function() { resize(); initParticles(); });
 
     if ('IntersectionObserver' in window) {
       var observer = new IntersectionObserver(function(entries) {
-        running = entries[0].isIntersecting;
-        if (running) requestAnimationFrame(draw);
+        intersecting = entries[0].isIntersecting;
+        setRunning(intersecting && !document.hidden);
       }, { threshold: 0 });
       observer.observe(hero);
+      document.addEventListener('visibilitychange', function() {
+        setRunning(intersecting && !document.hidden);
+      });
+    } else {
+      setRunning(true);
     }
   })();
 
@@ -741,6 +757,7 @@
 
       controlsEl.querySelectorAll('.btn').forEach(function(b) {
         b.classList.toggle('btn--active', b.dataset.cquery === String(idx));
+        b.setAttribute('aria-pressed', b.dataset.cquery === String(idx) ? 'true' : 'false');
       });
 
       areaEl.style.display = 'block';
@@ -822,10 +839,21 @@
       var div = document.createElement('div');
       div.className = 'picker__scenario';
       div.dataset.scenario = idx;
+      div.setAttribute('role', 'button');
+      div.setAttribute('tabindex', '0');
+      div.setAttribute('aria-pressed', 'false');
       div.innerHTML =
         '<div class="picker__scenario-label">' + s.label + '</div>' +
         '<div class="picker__scenario-query">' + s.query + '</div>';
       scenariosEl.appendChild(div);
+    });
+
+    scenariosEl.addEventListener('keydown', function(e) {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      var card = e.target.closest('[data-scenario]');
+      if (!card) return;
+      e.preventDefault();
+      card.click();
     });
 
     scenariosEl.addEventListener('click', function(e) {
@@ -836,6 +864,7 @@
 
       scenariosEl.querySelectorAll('.picker__scenario').forEach(function(el) {
         el.classList.toggle('picker__scenario--selected', el.dataset.scenario === String(idx));
+        el.setAttribute('aria-pressed', el.dataset.scenario === String(idx) ? 'true' : 'false');
       });
 
       var tagMap = {

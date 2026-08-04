@@ -17,6 +17,7 @@
   <meta property="og:title" content="The Agent Loop — AI for Builders">
   <meta property="og:description" content="Think. Act. Observe. Repeat. The four-step cycle that turns a language model into something that can actually get things done.">
   <meta property="og:url" content="https://navsha.github.io/interactive-explainers/agents/agent-loop.html">
+  <link rel="canonical" href="https://navsha.github.io/interactive-explainers/agents/agent-loop.html">
   <meta property="og:image" content="https://navsha.github.io/interactive-explainers/assets/og-image.png">
   <meta property="og:site_name" content="AI for Builders">
   <meta name="twitter:card" content="summary_large_image">
@@ -27,8 +28,8 @@
   <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../styles/shared.css?v=12">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400&amp;family=Newsreader:ital,wght@0,400;0,600;1,400&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/shared.css?v=13">
   <style>
     /* Reading Progress Bar */
     .reading-progress {
@@ -95,7 +96,7 @@
   <div class="reading-progress"><div class="reading-progress__bar" id="reading-progress-bar"></div></div>
 
   <header class="article-hero" id="article-hero">
-    <canvas class="article-hero__canvas" id="hero-canvas"></canvas>
+    <canvas class="article-hero__canvas" id="hero-canvas" aria-hidden="true"></canvas>
     <div class="article-hero__overlay"></div>
     <div class="article-hero__content">
       <nav class="breadcrumb breadcrumb--hero">
@@ -183,7 +184,7 @@
         <div class="chat-placeholder">Select a scenario above to see how a standard LLM responds.</div>
       </div>
 
-      <div class="widget__annotation" id="ask-llm-annotation" style="display: none;"></div>
+      <div class="widget__annotation" id="ask-llm-annotation" role="status" aria-live="polite" style="display: none;"></div>
     </div>
   </div>
 
@@ -196,7 +197,7 @@
     <h2 id="the-loop"><span class="section-number">III</span> The Loop</h2>
 
     <figure class="sketch-figure">
-      <img src="../assets/sketches/agent-loop.webp"
+      <img src="../assets/sketches/agent-loop.webp" width="1240" height="693" loading="lazy"
            alt="A samosa wearing a small toolbelt stands at the center of a circular orange arrow loop connecting three stations labeled think, act, and observe.">
       <figcaption>The agent loop: think, act, observe &mdash; then around again. The tools on the belt are how it acts on the world between turns.</figcaption>
     </figure>
@@ -228,8 +229,8 @@
       <div class="widget__instruction">Click each phase to learn more, or press Play to watch the full cycle animate.</div>
 
       <div class="widget__canvas-wrap" id="loop-canvas-wrap">
-        <canvas id="loop-canvas"></canvas>
-        <div class="loop-center-text" id="loop-center-text">
+        <canvas id="loop-canvas" role="img" aria-label="Circular diagram of the four agent-loop phases — Think, Act, Observe, Decide — connected by arrows that cycle back to Think."></canvas>
+        <div class="loop-center-text" id="loop-center-text" role="status" aria-live="polite">
           <div class="loop-center-text__phase" id="loop-phase-label">The Agent Loop</div>
           <div class="loop-center-text__desc" id="loop-phase-desc">Click a phase to explore it.</div>
         </div>
@@ -241,7 +242,7 @@
         <button class="btn btn--secondary" data-phase="2">Observe</button>
         <button class="btn btn--secondary" data-phase="3">Decide</button>
         <div style="flex: 1;"></div>
-        <button class="btn btn--primary" id="loop-play">&#9654; Play</button>
+        <button class="btn btn--primary" id="loop-play" aria-pressed="false">&#9654; Play</button>
         <button class="btn btn--secondary" id="loop-reset">Reset</button>
       </div>
 
@@ -371,7 +372,7 @@
       <div class="quiz__card" id="quiz-card">
         <p class="quiz__scenario" id="quiz-scenario"></p>
         <div class="widget__controls" id="quiz-options"></div>
-        <div class="quiz__explanation" id="quiz-explanation" style="display: none;"></div>
+        <div class="quiz__explanation" id="quiz-explanation" role="status" aria-live="polite" style="display: none;"></div>
       </div>
 
       <div class="widget__controls widget__controls--mt">
@@ -379,7 +380,7 @@
       </div>
 
       <div class="quiz__summary" id="quiz-summary" style="display: none;">
-        <div class="quiz__score" id="quiz-score"></div>
+        <div class="quiz__score" id="quiz-score" role="status" aria-live="polite"></div>
         <p class="quiz__summary-text" id="quiz-summary-text"></p>
         <button class="btn btn--secondary" id="quiz-retry" style="margin-top: var(--space-4);">Try Again</button>
       </div>
@@ -446,7 +447,7 @@
       }
     }
 
-    function draw(time) {
+    function drawFrame() {
       ctx.clearRect(0, 0, w, h);
 
       // Update positions
@@ -491,20 +492,34 @@
         ctx.fill();
       }
 
-      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(draw);
     }
 
-    // Only animate when hero is visible
+    var running = false;
+    function draw() {
+      if (!running) return;
+      drawFrame();
+      requestAnimationFrame(draw);
+    }
+
+    var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var lastVisible = true;
+    function setRunning(on) {
+      if (reducedMotion) return;
+      if (on && !running) { running = true; requestAnimationFrame(draw); }
+      else if (!on) { running = false; }
+    }
+
+    // Only animate when hero is visible and the tab is in the foreground
     var observer = new IntersectionObserver(function(entries) {
-      if (entries[0].isIntersecting) {
-        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(draw);
-      }
+      lastVisible = entries[0].isIntersecting;
+      setRunning(lastVisible && !document.hidden);
     }, { threshold: 0 });
+    document.addEventListener('visibilitychange', function() { setRunning(lastVisible && !document.hidden); });
 
     resize();
     initNodes();
     observer.observe(hero);
-    requestAnimationFrame(draw);
+    drawFrame();
 
     window.addEventListener('resize', function() {
       resize();
@@ -554,6 +569,12 @@
     }
 
     function typeText(element, text, speed, callback) {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        element.textContent = text;
+        chat.scrollTop = chat.scrollHeight;
+        if (callback) callback();
+        return;
+      }
       let i = 0;
       element.textContent = '';
       function tick() {
@@ -879,6 +900,7 @@
     function startPlay() {
       isPlaying = true;
       document.getElementById('loop-play').innerHTML = '&#9724; Pause';
+      document.getElementById('loop-play').setAttribute('aria-pressed', 'true');
       var i = 0;
       setPhase(0, false);
       draw();
@@ -891,6 +913,7 @@
     function stopPlay() {
       isPlaying = false;
       document.getElementById('loop-play').innerHTML = '&#9654; Play';
+      document.getElementById('loop-play').setAttribute('aria-pressed', 'false');
       clearInterval(playTimer);
       playTimer = null;
     }

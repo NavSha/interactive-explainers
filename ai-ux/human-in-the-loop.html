@@ -17,6 +17,7 @@
   <meta property="og:title" content="When to Keep Humans in the Loop — AI for Builders">
   <meta property="og:description" content="Full automation sounds great until a 5% error rate meets a million decisions a day. Knowing where to draw the line is the hardest design call in AI products.">
   <meta property="og:url" content="https://navsha.github.io/interactive-explainers/ai-ux/human-in-the-loop.html">
+  <link rel="canonical" href="https://navsha.github.io/interactive-explainers/ai-ux/human-in-the-loop.html">
   <meta property="og:image" content="https://navsha.github.io/interactive-explainers/assets/og-image.png">
   <meta property="og:site_name" content="AI for Builders">
   <meta name="twitter:card" content="summary_large_image">
@@ -27,8 +28,8 @@
   <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../styles/shared.css?v=12">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400&amp;family=Newsreader:ital,wght@0,400;0,600;1,400&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/shared.css?v=13">
   <style>
     .article-hero { background: var(--accent-ux-gradient); }
     .toc__list a:hover { color: var(--accent-ux); }
@@ -70,6 +71,10 @@
       border-radius: 3px;
       background: var(--color-border);
       outline: none;
+    }
+    .threshold-slider-input:focus-visible {
+      outline: 2px solid var(--accent-ux);
+      outline-offset: 2px;
     }
     .threshold-slider-input::-webkit-slider-thumb {
       -webkit-appearance: none;
@@ -501,7 +506,7 @@
   <div class="reading-progress"><div class="reading-progress__bar" id="reading-progress-bar"></div></div>
 
   <header class="article-hero" id="article-hero">
-    <canvas class="article-hero__canvas" id="hero-canvas"></canvas>
+    <canvas class="article-hero__canvas" id="hero-canvas" aria-hidden="true"></canvas>
     <div class="article-hero__overlay"></div>
     <div class="article-hero__content">
       <nav class="breadcrumb breadcrumb--hero">
@@ -590,12 +595,12 @@
 
       <div class="threshold-controls">
         <div class="threshold-slider-row">
-          <div class="threshold-slider-label">Accuracy</div>
+          <label class="threshold-slider-label" for="threshold-accuracy">Accuracy</label>
           <input type="range" class="threshold-slider-input" id="threshold-accuracy" min="900" max="999" value="950" step="1">
           <span class="threshold-slider-value" id="threshold-accuracy-val">95.0%</span>
         </div>
         <div class="threshold-slider-row">
-          <div class="threshold-slider-label">Volume</div>
+          <label class="threshold-slider-label" for="threshold-volume">Volume</label>
           <select class="threshold-volume-select" id="threshold-volume">
             <option value="100">100 / day</option>
             <option value="1000">1,000 / day</option>
@@ -619,7 +624,7 @@
       <div class="threshold-results" id="threshold-results">
         <div class="threshold-stats" id="threshold-stats"></div>
         <div class="threshold-dot-grid" id="threshold-dots"></div>
-        <div class="threshold-message" id="threshold-message"></div>
+        <div class="threshold-message" id="threshold-message" role="status" aria-live="polite"></div>
       </div>
     </div>
   </div>
@@ -683,7 +688,7 @@
 
       <div class="review-queue" id="review-queue"></div>
 
-      <div class="review-complete" id="review-complete">
+      <div class="review-complete" id="review-complete" role="status" aria-live="polite">
         <div class="review-complete__title">Queue Complete</div>
         <div class="review-complete__text" id="review-summary-text"></div>
         <button class="btn btn--primary" id="review-reset" style="margin-top: var(--space-4);">Reset Queue</button>
@@ -727,12 +732,12 @@
       <div class="widget__instruction">Watch how model accuracy diverges over 12 weeks depending on whether human corrections feed back into the model.</div>
 
       <div class="feedback-canvas-wrap">
-        <canvas id="feedback-canvas"></canvas>
+        <canvas id="feedback-canvas" role="img" aria-label="Line chart of model accuracy over 12 weeks. With a feedback loop, accuracy climbs from 82% to 94%; without one, it stays flat around 83%. Annotations mark the first retraining batch at week 3 and a 40% drop in review volume at week 8."></canvas>
       </div>
 
       <div class="widget__controls widget__controls--mt">
         <button class="btn btn--primary" id="feedback-replay">Replay</button>
-        <button class="btn btn--secondary" id="feedback-toggle">Hide "Without Feedback"</button>
+        <button class="btn btn--secondary" id="feedback-toggle" aria-pressed="false">Hide "Without Feedback"</button>
       </div>
 
       <div class="feedback-metrics" id="feedback-metrics">
@@ -844,14 +849,14 @@
       <div class="quiz__card" id="quiz-card">
         <p class="quiz__scenario" id="quiz-scenario"></p>
         <div class="widget__controls" id="quiz-options"></div>
-        <div class="quiz__explanation" id="quiz-explanation" style="display: none;"></div>
+        <div class="quiz__explanation" id="quiz-explanation" role="status" aria-live="polite" style="display: none;"></div>
       </div>
 
       <div class="widget__controls widget__controls--mt">
         <button class="btn btn--primary" id="quiz-next" style="display: none;">Next Question &rarr;</button>
       </div>
 
-      <div class="quiz__summary" id="quiz-summary" style="display: none;">
+      <div class="quiz__summary" id="quiz-summary" role="status" aria-live="polite" style="display: none;">
         <div class="quiz__score" id="quiz-score"></div>
         <p class="quiz__summary-text" id="quiz-summary-text"></p>
         <button class="btn btn--secondary" id="quiz-retry" style="margin-top: var(--space-4);">Try Again</button>
@@ -883,7 +888,9 @@
     var connectionDist = 140;
     var dpr = window.devicePixelRatio || 1;
     var w, h;
-    var running = true;
+    var running = false;
+    var heroVisible = true;
+    var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     function resize() {
       var rect = hero.getBoundingClientRect();
@@ -909,7 +916,6 @@
     }
 
     function draw() {
-      if (!running) return;
       ctx.clearRect(0, 0, w, h);
 
       for (var i = 0; i < nodes.length; i++) {
@@ -950,18 +956,27 @@
         ctx.fill();
       }
 
-      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(draw);
+      if (running) requestAnimationFrame(draw);
+    }
+
+    function setRunning(on) {
+      if (reduced) return;
+      if (on && !running) { running = true; requestAnimationFrame(draw); }
+      else if (!on) { running = false; }
     }
 
     var observer = new IntersectionObserver(function(entries) {
-      running = entries[0].isIntersecting;
-      if (running) requestAnimationFrame(draw);
+      heroVisible = entries[0].isIntersecting;
+      setRunning(heroVisible && !document.hidden);
     }, { threshold: 0 });
 
     resize();
     initNodes();
+    draw();
     observer.observe(hero);
-    requestAnimationFrame(draw);
+    document.addEventListener('visibilitychange', function() {
+      setRunning(!document.hidden && heroVisible);
+    });
 
     window.addEventListener('resize', function() {
       resize();
@@ -1512,6 +1527,11 @@
 
     function animate() {
       if (animRAF) cancelAnimationFrame(animRAF);
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        animProgress = 1;
+        drawChart();
+        return;
+      }
       animProgress = 0;
       const duration = 4000; // 4 seconds
       const startTime = performance.now();
@@ -1536,6 +1556,7 @@
     toggleBtn.addEventListener('click', function() {
       showWithout = !showWithout;
       toggleBtn.textContent = showWithout ? 'Hide "Without Feedback"' : 'Show "Without Feedback"';
+      toggleBtn.setAttribute('aria-pressed', showWithout ? 'false' : 'true');
       drawChart();
     });
 

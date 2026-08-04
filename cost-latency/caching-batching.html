@@ -23,12 +23,13 @@
   <meta name="twitter:title" content="Prompt Caching &amp; Batching — AI for Builders">
   <meta name="twitter:description" content="The two techniques that turn a $500/day API bill into $190. One saves money on every request. The other saves money by not rushing.">
   <meta name="twitter:image" content="https://navsha.github.io/interactive-explainers/assets/og-image.png">
+  <link rel="canonical" href="https://navsha.github.io/interactive-explainers/cost-latency/caching-batching.html">
   <link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon-32.png">
   <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../styles/shared.css?v=12">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400&amp;family=Newsreader:ital,wght@0,400;0,600;1,400&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/shared.css?v=13">
   <style>
     /* Reading Progress Bar */
     .reading-progress {
@@ -95,7 +96,7 @@
   <div class="reading-progress"><div class="reading-progress__bar" id="reading-progress-bar"></div></div>
 
   <header class="article-hero" id="article-hero" style="background: linear-gradient(135deg, #B45309 0%, #9F1239 100%);">
-    <canvas class="article-hero__canvas" id="hero-canvas"></canvas>
+    <canvas class="article-hero__canvas" id="hero-canvas" aria-hidden="true"></canvas>
     <div class="article-hero__overlay"></div>
     <div class="article-hero__content">
       <nav class="breadcrumb breadcrumb--hero">
@@ -232,15 +233,15 @@
       <div class="widget__instruction">Select your use case to see whether batching, caching, or standard API calls are the right fit.</div>
 
       <div class="widget__controls" id="decision-cases">
-        <button class="btn btn--secondary" data-case="chatbot">Customer chatbot</button>
-        <button class="btn btn--secondary" data-case="evals">Eval harness</button>
-        <button class="btn btn--secondary" data-case="bulk">Bulk classification</button>
-        <button class="btn btn--secondary" data-case="copilot">Code copilot</button>
-        <button class="btn btn--secondary" data-case="reports">Weekly reports</button>
-        <button class="btn btn--secondary" data-case="rag">RAG Q&amp;A</button>
+        <button class="btn btn--secondary" data-case="chatbot" aria-pressed="false">Customer chatbot</button>
+        <button class="btn btn--secondary" data-case="evals" aria-pressed="false">Eval harness</button>
+        <button class="btn btn--secondary" data-case="bulk" aria-pressed="false">Bulk classification</button>
+        <button class="btn btn--secondary" data-case="copilot" aria-pressed="false">Code copilot</button>
+        <button class="btn btn--secondary" data-case="reports" aria-pressed="false">Weekly reports</button>
+        <button class="btn btn--secondary" data-case="rag" aria-pressed="false">RAG Q&amp;A</button>
       </div>
 
-      <div class="decision__result" id="decision-result">
+      <div class="decision__result" id="decision-result" role="status" aria-live="polite">
         <div class="decision__rec-title" id="decision-title">Select a use case above</div>
         <div class="decision__meters">
           <div class="decision__meter">
@@ -311,35 +312,35 @@
 
       <div class="calc__controls">
         <div class="calc__control">
-          <label>Daily requests</label>
+          <label for="calc-requests">Daily requests</label>
           <div class="cost__slider-row">
             <input type="range" id="calc-requests" min="1000" max="500000" value="50000" step="1000" class="dilemma__slider">
             <span class="dilemma__slider-value" id="calc-requests-val">50,000</span>
           </div>
         </div>
         <div class="calc__control">
-          <label>System prompt tokens (cacheable)</label>
+          <label for="calc-system">System prompt tokens (cacheable)</label>
           <div class="cost__slider-row">
             <input type="range" id="calc-system" min="100" max="8000" value="2000" step="100" class="dilemma__slider">
             <span class="dilemma__slider-value" id="calc-system-val">2,000</span>
           </div>
         </div>
         <div class="calc__control">
-          <label>User message tokens (not cacheable)</label>
+          <label for="calc-user">User message tokens (not cacheable)</label>
           <div class="cost__slider-row">
             <input type="range" id="calc-user" min="50" max="2000" value="300" step="50" class="dilemma__slider">
             <span class="dilemma__slider-value" id="calc-user-val">300</span>
           </div>
         </div>
         <div class="calc__control">
-          <label>Output tokens</label>
+          <label for="calc-output">Output tokens</label>
           <div class="cost__slider-row">
             <input type="range" id="calc-output" min="50" max="2000" value="200" step="50" class="dilemma__slider">
             <span class="dilemma__slider-value" id="calc-output-val">200</span>
           </div>
         </div>
         <div class="calc__control">
-          <label>% of traffic that can be batched</label>
+          <label for="calc-batch">% of traffic that can be batched</label>
           <div class="cost__slider-row">
             <input type="range" id="calc-batch" min="0" max="80" value="0" step="5" class="dilemma__slider">
             <span class="dilemma__slider-value" id="calc-batch-val">0%</span>
@@ -362,7 +363,7 @@
         <div class="calc__savings-bar-wrap">
           <div class="calc__savings-bar" id="calc-savings-bar"></div>
         </div>
-        <div class="calc__summary" id="calc-summary"></div>
+        <div class="calc__summary" id="calc-summary" role="status" aria-live="polite"></div>
       </div>
     </div>
   </div>
@@ -426,14 +427,14 @@
       <div class="quiz__card" id="quiz-card">
         <p class="quiz__scenario" id="quiz-scenario"></p>
         <div class="widget__controls" id="quiz-options"></div>
-        <div class="quiz__explanation" id="quiz-explanation" style="display: none;"></div>
+        <div class="quiz__explanation" id="quiz-explanation" role="status" aria-live="polite" style="display: none;"></div>
       </div>
 
       <div class="widget__controls widget__controls--mt">
         <button class="btn btn--primary" id="quiz-next" style="display: none;">Next Question &rarr;</button>
       </div>
 
-      <div class="quiz__summary" id="quiz-summary" style="display: none;">
+      <div class="quiz__summary" id="quiz-summary" role="status" aria-live="polite" style="display: none;">
         <div class="quiz__score" id="quiz-score"></div>
         <p class="quiz__summary-text" id="quiz-summary-text"></p>
         <button class="btn btn--secondary" id="quiz-retry" style="margin-top: var(--space-4);">Try Again</button>
@@ -463,9 +464,33 @@
       for(var i=0;i<nodes.length;i++){var n=nodes[i];n.x+=n.vx;n.y+=n.vy;n.pulse+=0.015;if(n.x<-20)n.x=w+20;if(n.x>w+20)n.x=-20;if(n.y<-20)n.y=h+20;if(n.y>h+20)n.y=-20;}
       ctx.lineWidth=1;for(var i=0;i<nodes.length;i++)for(var j=i+1;j<nodes.length;j++){var dx=nodes[i].x-nodes[j].x,dy=nodes[i].y-nodes[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<connectionDist){ctx.strokeStyle='rgba(255,255,255,'+((1-d/connectionDist)*0.3)+')';ctx.beginPath();ctx.moveTo(nodes[i].x,nodes[i].y);ctx.lineTo(nodes[j].x,nodes[j].y);ctx.stroke();}}
       for(var i=0;i<nodes.length;i++){var n=nodes[i],g=0.5+0.5*Math.sin(n.pulse);ctx.fillStyle='rgba(255,255,255,'+(0.4+0.4*g)+')';ctx.beginPath();ctx.arc(n.x,n.y,n.r*(0.8+0.4*g),0,Math.PI*2);ctx.fill();}
-      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(draw);
+      if (!heroRunning) return;
+      requestAnimationFrame(draw);
     }
-    resize();init();requestAnimationFrame(draw);window.addEventListener('resize',function(){resize();init();});
+
+    var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var heroRunning = false;
+    var heroVisible = true;
+
+    function setRunning(on) {
+      if (reducedMotion) return;
+      if (on && !heroRunning) { heroRunning = true; requestAnimationFrame(draw); }
+      else if (!on) { heroRunning = false; }
+    }
+
+    resize();init();
+    if (reducedMotion) {
+      draw(); // single static frame; heroRunning stays false so no rAF chain starts
+    } else {
+      new IntersectionObserver(function(entries) {
+        heroVisible = entries[0].isIntersecting;
+        setRunning(heroVisible && !document.hidden);
+      }).observe(canvas);
+      document.addEventListener('visibilitychange', function() {
+        setRunning(heroVisible && !document.hidden);
+      });
+    }
+    window.addEventListener('resize',function(){resize();init();});
   })();
 
   // ====================================================================
@@ -517,8 +542,9 @@
       var c = cases[btn.dataset.case];
       if (!c) return;
 
-      document.querySelectorAll('#decision-cases .btn').forEach(function(b) { b.classList.remove('btn--active'); });
+      document.querySelectorAll('#decision-cases .btn').forEach(function(b) { b.classList.remove('btn--active'); b.setAttribute('aria-pressed', 'false'); });
       btn.classList.add('btn--active');
+      btn.setAttribute('aria-pressed', 'true');
 
       document.getElementById('decision-title').textContent = c.title;
       document.getElementById('dec-latency').style.width = c.latency + '%';

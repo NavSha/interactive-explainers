@@ -17,6 +17,7 @@
   <meta property="og:title" content="When RAG Isn&#x27;t Enough — AI for Builders">
   <meta property="og:description" content="Basic retrieval gets you 80% of the way. Chunking strategies, hybrid search, reranking, and query rewriting close the gap.">
   <meta property="og:url" content="https://navsha.github.io/interactive-explainers/grounding/when-rag-isnt-enough.html">
+  <link rel="canonical" href="https://navsha.github.io/interactive-explainers/grounding/when-rag-isnt-enough.html">
   <meta property="og:image" content="https://navsha.github.io/interactive-explainers/assets/og-image.png">
   <meta property="og:site_name" content="AI for Builders">
   <meta name="twitter:card" content="summary_large_image">
@@ -27,8 +28,8 @@
   <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../styles/shared.css?v=12">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400&amp;family=Newsreader:ital,wght@0,400;0,600;1,400&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/shared.css?v=13">
   <style>
     .article-hero { background: var(--accent-grounding-gradient); }
     .toc__list a:hover { color: var(--accent-grounding); }
@@ -413,7 +414,7 @@
   <div class="reading-progress"><div class="reading-progress__bar" id="reading-progress-bar"></div></div>
 
   <header class="article-hero" id="article-hero">
-    <canvas class="article-hero__canvas" id="hero-canvas"></canvas>
+    <canvas class="article-hero__canvas" id="hero-canvas" aria-hidden="true"></canvas>
     <div class="article-hero__overlay"></div>
     <div class="article-hero__content">
       <nav class="breadcrumb breadcrumb--hero">
@@ -499,16 +500,16 @@
       <div class="widget__instruction">Click a chunking strategy to see how the same document gets split &mdash; and which chunks get retrieved for the question below.</div>
 
       <div class="widget__controls" id="chunking-controls">
-        <button class="btn btn--secondary" data-strategy="fixed">Fixed-Size (200 chars)</button>
-        <button class="btn btn--secondary" data-strategy="sentence">Sentence Boundary</button>
-        <button class="btn btn--secondary" data-strategy="semantic">Semantic</button>
+        <button class="btn btn--secondary" data-strategy="fixed" aria-pressed="false">Fixed-Size (200 chars)</button>
+        <button class="btn btn--secondary" data-strategy="sentence" aria-pressed="false">Sentence Boundary</button>
+        <button class="btn btn--secondary" data-strategy="semantic" aria-pressed="false">Semantic</button>
       </div>
 
       <div class="chunk-doc" id="chunk-doc">
         <em style="color: var(--color-text-secondary);">Select a strategy above to see the document highlighted by chunks.</em>
       </div>
 
-      <div class="chunk-retrieval" id="chunk-retrieval" style="display: none;">
+      <div class="chunk-retrieval" id="chunk-retrieval" role="status" aria-live="polite" style="display: none;">
         <div class="chunk-retrieval__question" id="chunk-question"></div>
         <div id="chunk-result"></div>
       </div>
@@ -543,10 +544,10 @@
       <div class="widget__instruction">Select a query to compare keyword-only, vector-only, and hybrid search results.</div>
 
       <div class="widget__controls" id="hybrid-controls">
-        <button class="btn btn--secondary" data-query="0">Error code E-4012</button>
-        <button class="btn btn--secondary" data-query="1">How do I cancel?</button>
-        <button class="btn btn--secondary" data-query="2">HIPAA compliance</button>
-        <button class="btn btn--secondary" data-query="3">Cheap alternatives</button>
+        <button class="btn btn--secondary" data-query="0" aria-pressed="false">Error code E-4012</button>
+        <button class="btn btn--secondary" data-query="1" aria-pressed="false">How do I cancel?</button>
+        <button class="btn btn--secondary" data-query="2" aria-pressed="false">HIPAA compliance</button>
+        <button class="btn btn--secondary" data-query="3" aria-pressed="false">Cheap alternatives</button>
       </div>
 
       <div class="hybrid-query-label" id="hybrid-query-label" style="display: none;">
@@ -601,9 +602,9 @@
       <div class="widget__instruction">Select a query, then press "Rerank" to watch the results reshuffle based on cross-encoder scores.</div>
 
       <div class="widget__controls" id="rerank-query-controls">
-        <button class="btn btn--secondary" data-rquery="0">Return policy for electronics</button>
-        <button class="btn btn--secondary" data-rquery="1">How to migrate to v3 API</button>
-        <button class="btn btn--secondary" data-rquery="2">Side effects of medication</button>
+        <button class="btn btn--secondary" data-rquery="0" aria-pressed="false">Return policy for electronics</button>
+        <button class="btn btn--secondary" data-rquery="1" aria-pressed="false">How to migrate to v3 API</button>
+        <button class="btn btn--secondary" data-rquery="2" aria-pressed="false">Side effects of medication</button>
       </div>
 
       <div class="rerank-query-label" id="rerank-query-label" style="display: none;">
@@ -672,7 +673,7 @@
       <div class="quiz__card" id="quiz-card">
         <p class="quiz__scenario" id="quiz-scenario"></p>
         <div class="widget__controls" id="quiz-options"></div>
-        <div class="quiz__explanation" id="quiz-explanation" style="display: none;"></div>
+        <div class="quiz__explanation" id="quiz-explanation" role="status" aria-live="polite" style="display: none;"></div>
       </div>
 
       <div class="widget__controls widget__controls--mt">
@@ -723,7 +724,8 @@
     var connectionDist = 140;
     var dpr = window.devicePixelRatio || 1;
     var w, h;
-    var running = true;
+    var running = false;
+    var intersecting = false;
 
     function resize() {
       var rect = hero.getBoundingClientRect();
@@ -793,15 +795,27 @@
       if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(draw);
     }
 
+    function setRunning(on) {
+      if (on && !running) {
+        running = true;
+        requestAnimationFrame(draw);
+      } else if (!on) {
+        running = false;
+      }
+    }
+
     var observer = new IntersectionObserver(function(entries) {
-      running = entries[0].isIntersecting;
-      if (running) requestAnimationFrame(draw);
+      intersecting = entries[0].isIntersecting;
+      setRunning(intersecting && !document.hidden);
     }, { threshold: 0 });
+
+    document.addEventListener('visibilitychange', function() {
+      setRunning(intersecting && !document.hidden);
+    });
 
     resize();
     initNodes();
     observer.observe(hero);
-    requestAnimationFrame(draw);
 
     window.addEventListener('resize', function() {
       resize();
@@ -906,6 +920,7 @@
 
       controlsEl.querySelectorAll('.btn').forEach(function(b) {
         b.classList.toggle('btn--active', b.dataset.strategy === key);
+        b.setAttribute('aria-pressed', b.dataset.strategy === key ? 'true' : 'false');
       });
 
       renderDoc(key);
@@ -1021,6 +1036,7 @@
 
       controlsEl.querySelectorAll('.btn').forEach(function(b) {
         b.classList.toggle('btn--active', b.dataset.query === String(idx));
+        b.setAttribute('aria-pressed', b.dataset.query === String(idx) ? 'true' : 'false');
       });
 
       queryText.textContent = q.text;
@@ -1201,6 +1217,7 @@
 
       queryControlsEl.querySelectorAll('.btn').forEach(function(b) {
         b.classList.toggle('btn--active', b.dataset.rquery === String(idx));
+        b.setAttribute('aria-pressed', b.dataset.rquery === String(idx) ? 'true' : 'false');
       });
 
       queryTextEl.textContent = data.query;

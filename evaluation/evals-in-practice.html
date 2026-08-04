@@ -17,6 +17,7 @@
   <meta property="og:title" content="Evals in Practice — AI for Builders">
   <meta property="og:description" content="From test sets to ship decisions — the practical playbook for evaluating AI features in the real world.">
   <meta property="og:url" content="https://navsha.github.io/interactive-explainers/evaluation/evals-in-practice.html">
+  <link rel="canonical" href="https://navsha.github.io/interactive-explainers/evaluation/evals-in-practice.html">
   <meta property="og:image" content="https://navsha.github.io/interactive-explainers/assets/og-image.png">
   <meta property="og:site_name" content="AI for Builders">
   <meta name="twitter:card" content="summary_large_image">
@@ -27,8 +28,8 @@
   <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../styles/shared.css?v=12">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400&amp;family=Newsreader:ital,wght@0,400;0,600;1,400&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/shared.css?v=13">
   <style>
     /* Reading Progress Bar */
     .reading-progress {
@@ -95,7 +96,7 @@
   <div class="reading-progress"><div class="reading-progress__bar" id="reading-progress-bar"></div></div>
 
   <header class="article-hero" id="article-hero" style="background: linear-gradient(135deg, #047857 0%, #0E7490 100%);">
-    <canvas class="article-hero__canvas" id="hero-canvas"></canvas>
+    <canvas class="article-hero__canvas" id="hero-canvas" aria-hidden="true"></canvas>
     <div class="article-hero__overlay"></div>
     <div class="article-hero__content">
       <nav class="breadcrumb breadcrumb--hero">
@@ -217,7 +218,7 @@
         <button class="btn btn--secondary" id="testset-reset">Reset</button>
       </div>
 
-      <div id="testset-results" style="display: none;"></div>
+      <div id="testset-results" role="status" aria-live="polite" style="display: none;"></div>
     </div>
   </div>
 
@@ -267,7 +268,7 @@
 
       <div class="nd__responses" id="nd-responses"></div>
 
-      <div class="nd__stats" id="nd-stats" style="display: none;">
+      <div class="nd__stats" id="nd-stats" role="status" aria-live="polite" style="display: none;">
         <div class="nd__stat">
           <span class="nd__stat-label">Variance:</span>
           <span class="nd__stat-value" id="nd-variance">—</span>
@@ -345,7 +346,7 @@
       <div class="quiz__card" id="quiz-card">
         <p class="quiz__scenario" id="quiz-scenario"></p>
         <div class="widget__controls" id="quiz-options"></div>
-        <div class="quiz__explanation" id="quiz-explanation" style="display: none;"></div>
+        <div class="quiz__explanation" id="quiz-explanation" role="status" aria-live="polite" style="display: none;"></div>
       </div>
 
       <div class="widget__controls widget__controls--mt">
@@ -353,7 +354,7 @@
       </div>
 
       <div class="quiz__summary" id="quiz-summary" style="display: none;">
-        <div class="quiz__score" id="quiz-score"></div>
+        <div class="quiz__score" id="quiz-score" role="status" aria-live="polite"></div>
         <p class="quiz__summary-text" id="quiz-summary-text"></p>
         <button class="btn btn--secondary" id="quiz-retry" style="margin-top: var(--space-4);">Try Again</button>
       </div>
@@ -800,8 +801,7 @@
       }
     }
 
-    function draw() {
-      if (!running) return;
+    function drawFrame() {
       ctx.clearRect(0, 0, w, h);
       for (var i = 0; i < nodes.length; i++) {
         var n = nodes[i];
@@ -825,19 +825,35 @@
         ctx.fillStyle = 'rgba(255,255,255,' + (0.4 + 0.4 * glow) + ')';
         ctx.beginPath(); ctx.arc(n.x, n.y, n.r * (0.8 + 0.4 * glow), 0, Math.PI * 2); ctx.fill();
       }
-      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(draw);
     }
 
-    resize(); initNodes(); requestAnimationFrame(draw);
+    function draw() {
+      if (!running) return;
+      drawFrame();
+      requestAnimationFrame(draw);
+    }
+
+    var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var lastVisible = true;
+    function setRunning(on) {
+      if (reducedMotion) return;
+      if (on && !running) { running = true; requestAnimationFrame(draw); }
+      else if (!on) { running = false; }
+    }
+
+    resize(); initNodes(); running = false; drawFrame();
     window.addEventListener('resize', function() { resize(); initNodes(); });
 
-    // Pause when hero is off-screen
+    // Pause when hero is off-screen or the tab is hidden
     if ('IntersectionObserver' in window) {
       var observer = new IntersectionObserver(function(entries) {
-        running = entries[0].isIntersecting;
-        if (running) requestAnimationFrame(draw);
+        lastVisible = entries[0].isIntersecting;
+        setRunning(lastVisible && !document.hidden);
       }, { threshold: 0 });
       observer.observe(hero);
+      document.addEventListener('visibilitychange', function() { setRunning(lastVisible && !document.hidden); });
+    } else {
+      setRunning(true);
     }
   })();
 
@@ -883,9 +899,15 @@
       var card = document.createElement('div');
       card.className = 'testset__card';
       card.dataset.id = tc.id;
+      card.setAttribute('tabindex', '0');
+      card.setAttribute('role', 'button');
+      card.setAttribute('aria-pressed', 'false');
       card.innerHTML = '<div class="testset__card-label">' + tc.label + '</div>' +
                         '<div class="testset__card-desc">' + tc.desc + '</div>';
       card.addEventListener('click', function() { toggleCard(tc.id, card); });
+      card.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleCard(tc.id, card); }
+      });
       grid.appendChild(card);
     });
 
@@ -894,10 +916,12 @@
       if (selected.has(id)) {
         selected.delete(id);
         card.classList.remove('testset__card--selected');
+        card.setAttribute('aria-pressed', 'false');
       } else {
         if (selected.size >= maxSelections) return;
         selected.add(id);
         card.classList.add('testset__card--selected');
+        card.setAttribute('aria-pressed', 'true');
       }
       updateCounter();
     }
@@ -985,6 +1009,7 @@
       selected.clear();
       grid.querySelectorAll('.testset__card').forEach(function(card) {
         card.classList.remove('testset__card--selected', 'testset__card--disabled');
+        card.setAttribute('aria-pressed', 'false');
         var tag = card.querySelector('.testset__card-tag');
         if (tag) tag.remove();
       });
@@ -1035,7 +1060,9 @@
       tempValue.textContent = (parseInt(tempSlider.value) / 10).toFixed(1);
     });
 
+    var runId = 0;
     generateBtn.addEventListener('click', function() {
+      var id = ++runId;
       var temp = parseInt(tempSlider.value) / 10;
       var responses;
       var variance, consistency, similarity;
@@ -1059,37 +1086,55 @@
 
       responsesEl.innerHTML = '';
       statsEl.style.display = 'none';
+      generateBtn.disabled = true;
 
-      // Animate responses appearing one by one
-      var i = 0;
-      function showNext() {
-        if (i >= responses.length) {
-          // Show stats after all responses
-          statsEl.style.display = 'flex';
-          varianceEl.textContent = variance;
-          varianceEl.style.color = similarity > 80 ? '#059669' : similarity > 50 ? '#D97706' : '#DC2626';
-          consistencyEl.textContent = consistency;
-          consistencyEl.style.color = similarity > 80 ? '#059669' : similarity > 50 ? '#D97706' : '#DC2626';
-          similarityFill.style.width = similarity + '%';
-          similarityFill.style.background = similarity > 80 ? '#059669' : similarity > 50 ? '#D97706' : '#DC2626';
-          return;
-        }
+      function makeCard(idx) {
         var card = document.createElement('div');
         card.className = 'nd__response-card';
         var numSpan = document.createElement('span');
         numSpan.className = 'nd__response-num';
-        numSpan.textContent = '#' + (i + 1);
+        numSpan.textContent = '#' + (idx + 1);
         card.appendChild(numSpan);
-
-        // Typing animation
         var textSpan = document.createElement('span');
         card.appendChild(textSpan);
         responsesEl.appendChild(card);
+        return textSpan;
+      }
+
+      function showStats() {
+        statsEl.style.display = 'flex';
+        varianceEl.textContent = variance;
+        varianceEl.style.color = similarity > 80 ? '#059669' : similarity > 50 ? '#D97706' : '#DC2626';
+        consistencyEl.textContent = consistency;
+        consistencyEl.style.color = similarity > 80 ? '#059669' : similarity > 50 ? '#D97706' : '#DC2626';
+        similarityFill.style.width = similarity + '%';
+        similarityFill.style.background = similarity > 80 ? '#059669' : similarity > 50 ? '#D97706' : '#DC2626';
+        generateBtn.disabled = false;
+      }
+
+      // Reduced motion: skip the typing animation, render everything at once
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        responses.forEach(function(text, idx) { makeCard(idx).textContent = text; });
+        showStats();
+        return;
+      }
+
+      // Animate responses appearing one by one
+      var i = 0;
+      function showNext() {
+        if (id !== runId) return;
+        if (i >= responses.length) {
+          // Show stats after all responses
+          showStats();
+          return;
+        }
+        var textSpan = makeCard(i);
 
         var text = responses[i];
         var charIdx = 0;
         var typeSpeed = Math.max(5, 15 - (text.length / 20));
         function typeChar() {
+          if (id !== runId) return;
           if (charIdx < text.length) {
             textSpan.textContent += text[charIdx];
             charIdx++;
@@ -1252,7 +1297,7 @@
       html += '<button class="ship__btn ship__btn--hold" data-choice="hold">Hold It</button>';
       html += '</div>';
 
-      html += '<div id="ship-feedback"></div>';
+      html += '<div id="ship-feedback" role="status" aria-live="polite"></div>';
 
       card.innerHTML = html;
 
@@ -1277,6 +1322,7 @@
           btn.classList.add(correct ? 'ship__btn--chosen-correct' : 'ship__btn--chosen-incorrect');
         }
         btn.classList.add('ship__btn--disabled');
+        btn.disabled = true;
       });
 
       var feedbackEl = document.getElementById('ship-feedback');

@@ -17,6 +17,7 @@
   <meta property="og:title" content="The Reality Check — AI for Builders">
   <meta property="og:description" content="Honest boundaries of vibe coding, when to bring in specialists, and how to think about quality, maintenance, and technical debt.">
   <meta property="og:url" content="https://navsha.github.io/interactive-explainers/vibe-coding/the-reality-check.html">
+  <link rel="canonical" href="https://navsha.github.io/interactive-explainers/vibe-coding/the-reality-check.html">
   <meta property="og:image" content="https://navsha.github.io/interactive-explainers/assets/og-image.png">
   <meta property="og:site_name" content="AI for Builders">
   <meta name="twitter:card" content="summary_large_image">
@@ -27,8 +28,8 @@
   <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../styles/shared.css?v=12">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400&amp;family=Newsreader:ital,wght@0,400;0,600;1,400&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/shared.css?v=13">
   <style>
     .article-hero { background: var(--accent-vibe-gradient); }
     .toc__list a:hover { color: var(--accent-vibe); }
@@ -468,7 +469,7 @@
   <div class="reading-progress"><div class="reading-progress__bar" id="reading-progress-bar"></div></div>
 
   <header class="article-hero" id="article-hero">
-    <canvas class="article-hero__canvas" id="hero-canvas"></canvas>
+    <canvas class="article-hero__canvas" id="hero-canvas" aria-hidden="true"></canvas>
     <div class="article-hero__overlay"></div>
     <div class="article-hero__content">
       <nav class="breadcrumb breadcrumb--hero">
@@ -548,10 +549,10 @@
         </div>
       </div>
 
-      <div class="bug-hunt__score" id="bug-hunt-score">
+      <div class="bug-hunt__score" id="bug-hunt-score" role="status" aria-live="polite">
         <div><span class="bug-hunt__score-num" id="bug-hunt-found">0</span> <span class="bug-hunt__score-label">of 5 bugs found</span></div>
       </div>
-      <div id="bug-hunt-feedback"></div>
+      <div id="bug-hunt-feedback" role="status" aria-live="polite"></div>
       <div style="text-align:center;">
         <button class="bug-hunt__try-again" id="bug-hunt-retry">Try Again</button>
       </div>
@@ -663,12 +664,12 @@
       </div>
 
       <div class="debt-canvas-wrap">
-        <canvas id="debt-canvas"></canvas>
+        <canvas id="debt-canvas" role="img" aria-label="Line chart of cumulative maintenance hours over 12 weeks. Reviewed code grows steadily to about 36 hours. Unreviewed vibe code stays low at first, then curves sharply upward past week 5 (marked 'The reckoning') to about 135 hours by week 12. Toggling 'Add Tests' flattens the unreviewed curve to about 40 hours."></canvas>
       </div>
 
       <div class="debt-controls">
         <button class="btn btn--primary" id="debt-replay">Replay</button>
-        <div class="debt-toggle" id="debt-toggle">
+        <div class="debt-toggle" id="debt-toggle" tabindex="0" role="button" aria-pressed="false">
           <div class="debt-toggle__switch"></div>
           <span>Add Tests</span>
         </div>
@@ -699,7 +700,7 @@
         </div>
       </div>
 
-      <div id="ship-verdict"></div>
+      <div id="ship-verdict" role="status" aria-live="polite"></div>
     </div>
   </div>
 
@@ -720,14 +721,14 @@
       <div class="quiz__card" id="quiz-card">
         <p class="quiz__scenario" id="quiz-scenario"></p>
         <div class="widget__controls" id="quiz-options"></div>
-        <div class="quiz__explanation" id="quiz-explanation" style="display: none;"></div>
+        <div class="quiz__explanation" id="quiz-explanation" role="status" aria-live="polite" style="display: none;"></div>
       </div>
 
       <div class="widget__controls widget__controls--mt">
         <button class="btn btn--primary" id="quiz-next" style="display: none;">Next Question &rarr;</button>
       </div>
 
-      <div class="quiz__summary" id="quiz-summary" style="display: none;">
+      <div class="quiz__summary" id="quiz-summary" role="status" aria-live="polite" style="display: none;">
         <div class="quiz__score" id="quiz-score"></div>
         <p class="quiz__summary-text" id="quiz-summary-text"></p>
         <button class="btn btn--secondary" id="quiz-retry" style="margin-top: var(--space-4);">Try Again</button>
@@ -826,10 +827,23 @@
         ctx.fillStyle = 'rgba(255,255,255,' + (0.4 + 0.4 * glow) + ')';
         ctx.beginPath(); ctx.arc(n.x, n.y, n.r * (0.8 + 0.4 * glow), 0, Math.PI * 2); ctx.fill();
       }
-      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(draw);
+      if (heroRunning) requestAnimationFrame(draw);
     }
 
-    resize(); initNodes(); requestAnimationFrame(draw);
+    var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var heroRunning = false, heroVisible = true;
+    function setRunning(on) {
+      if (reduced) return;
+      if (on && !heroRunning) { heroRunning = true; requestAnimationFrame(draw); }
+      else if (!on) { heroRunning = false; }
+    }
+
+    resize(); initNodes(); draw();
+    new IntersectionObserver(function(entries) {
+      heroVisible = entries[0].isIntersecting;
+      setRunning(heroVisible && !document.hidden);
+    }).observe(canvas);
+    document.addEventListener('visibilitychange', function() { setRunning(!document.hidden && heroVisible); });
     window.addEventListener('resize', function() { resize(); initNodes(); });
   })();
 
@@ -894,7 +908,7 @@
       var html = '';
       for (var i = 0; i < checks.length; i++) {
         var activeClass = state[i] ? ' ship-check__item--active' : '';
-        html += '<div class="ship-check__item' + activeClass + '" data-idx="' + i + '">';
+        html += '<div class="ship-check__item' + activeClass + '" data-idx="' + i + '" tabindex="0" role="button" aria-pressed="' + (state[i] ? 'true' : 'false') + '">';
         html += '<div class="ship-check__toggle"></div>';
         html += '<div>';
         html += '<div class="ship-check__label">' + checks[i].label + '</div>';
@@ -947,14 +961,27 @@
       verdictEl.innerHTML = html;
     }
 
-    listEl.addEventListener('click', function(e) {
-      var item = e.target.closest('.ship-check__item');
-      if (!item) return;
+    function toggleItem(item) {
       var idx = parseInt(item.dataset.idx, 10);
       state[idx] = !state[idx];
       item.classList.toggle('ship-check__item--active');
+      item.setAttribute('aria-pressed', state[idx] ? 'true' : 'false');
       // Update toggle visual without full re-render
       updateMeter();
+    }
+
+    listEl.addEventListener('click', function(e) {
+      var item = e.target.closest('.ship-check__item');
+      if (!item) return;
+      toggleItem(item);
+    });
+
+    listEl.addEventListener('keydown', function(e) {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      var item = e.target.closest('.ship-check__item');
+      if (!item) return;
+      e.preventDefault();
+      toggleItem(item);
     });
 
     render();
@@ -975,7 +1002,7 @@
       { code: '    <span class="syn-kw">const</span> product = <span class="syn-kw">await</span> <span class="syn-fn">getProduct</span>(item.productId);', bug: null },
       { code: '    total += product.price * item.quantity;', bug: null },
       { code: '    <span class="syn-kw">await</span> db.<span class="syn-fn">query</span>(<span class="syn-str">`UPDATE products SET stock =</span>', bug: { id: 'race', label: 'Race Condition', desc: 'Inventory is decremented without a transaction or row lock. Two concurrent checkouts could oversell the same item. Wrap in a transaction with SELECT ... FOR UPDATE.' } },
-      { code: '      <span class="syn-str">stock - $1 WHERE id = $2`</span>, [item.qty, item.id]);', bug: null },
+      { code: '      <span class="syn-str">stock - $1 WHERE id = $2`</span>, [item.quantity, item.productId]);', bug: null },
       { code: '  }', bug: null },
       { code: '  <span class="syn-kw">if</span> (cart.couponCode) total *= <span class="syn-num">0.9</span>;', bug: null },
       { code: '  <span class="syn-kw">try</span> {', bug: null },
@@ -1007,7 +1034,7 @@
       for (var i = 0; i < lines.length; i++) {
         var cls = 'bug-hunt__line';
         if (lines[i].bug && found[lines[i].bug.id]) cls += ' bug-hunt__line--found';
-        html += '<div class="' + cls + '" data-line="' + i + '">';
+        html += '<div class="' + cls + '" data-line="' + i + '" tabindex="0" role="button" aria-label="Line ' + (i + 1) + '">';
         html += '<span class="bug-hunt__line-num">' + (i + 1) + '</span>';
         html += '<span class="bug-hunt__line-code">' + lines[i].code + '</span>';
         html += '</div>';
@@ -1031,9 +1058,7 @@
       }, 2000);
     }
 
-    codeEl.addEventListener('click', function(e) {
-      var lineEl = e.target.closest('.bug-hunt__line');
-      if (!lineEl) return;
+    function handleLine(lineEl) {
       var idx = parseInt(lineEl.dataset.line, 10);
       var line = lines[idx];
 
@@ -1042,6 +1067,8 @@
         var count = Object.keys(found).length;
         foundEl.textContent = count;
         renderCode();
+        var newLineEl = codeEl.querySelector('[data-line="' + idx + '"]');
+        if (newLineEl) newLineEl.focus();
         showFeedback(line.bug);
         if (count >= totalBugs) {
           retryBtn.style.display = 'inline-block';
@@ -1053,6 +1080,20 @@
         setTimeout(function() { lineEl.classList.remove('bug-hunt__line--wrong'); }, 350);
         showMiss();
       }
+    }
+
+    codeEl.addEventListener('click', function(e) {
+      var lineEl = e.target.closest('.bug-hunt__line');
+      if (!lineEl) return;
+      handleLine(lineEl);
+    });
+
+    codeEl.addEventListener('keydown', function(e) {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      var lineEl = e.target.closest('.bug-hunt__line');
+      if (!lineEl) return;
+      e.preventDefault();
+      handleLine(lineEl);
     });
 
     retryBtn.addEventListener('click', function() {
@@ -1208,6 +1249,11 @@
 
     function startAnimation() {
       if (animRAF) cancelAnimationFrame(animRAF);
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        animProgress = 1;
+        draw();
+        return;
+      }
       animProgress = 0;
       animStart = null;
       animRAF = requestAnimationFrame(animate);
@@ -1227,10 +1273,15 @@
       startAnimation();
     });
 
-    toggleEl.addEventListener('click', function() {
+    function toggleTests() {
       showTests = !showTests;
       toggleEl.classList.toggle('debt-toggle--active');
+      toggleEl.setAttribute('aria-pressed', showTests ? 'true' : 'false');
       draw();
+    }
+    toggleEl.addEventListener('click', toggleTests);
+    toggleEl.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleTests(); }
     });
 
     resize();
