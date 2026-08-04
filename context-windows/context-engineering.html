@@ -17,6 +17,7 @@
   <meta property="og:title" content="Context Engineering — AI for Builders">
   <meta property="og:description" content="Two products, same model, same task. One feels magical, the other feels like a cheap demo. The difference? Context.">
   <meta property="og:url" content="https://navsha.github.io/interactive-explainers/context-windows/context-engineering.html">
+  <link rel="canonical" href="https://navsha.github.io/interactive-explainers/context-windows/context-engineering.html">
   <meta property="og:image" content="https://navsha.github.io/interactive-explainers/assets/og-image.png">
   <meta property="og:site_name" content="AI for Builders">
   <meta name="twitter:card" content="summary_large_image">
@@ -27,8 +28,8 @@
   <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../styles/shared.css?v=12">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400&amp;family=Newsreader:ital,wght@0,400;0,600;1,400&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/shared.css?v=13">
   <style>
     .reading-progress { position: fixed; top: 0; left: 0; width: 100%; height: 3px; z-index: 1000; pointer-events: none; background: transparent; }
     .reading-progress__bar { height: 100%; width: 0%; background: #7C3AED; transition: width 0.15s ease-out; }
@@ -99,7 +100,7 @@
   <div class="reading-progress"><div class="reading-progress__bar" id="reading-progress-bar"></div></div>
 
   <header class="article-hero" id="article-hero" style="background: linear-gradient(135deg, #7C3AED 0%, #EC4899 100%);">
-    <canvas class="article-hero__canvas" id="hero-canvas"></canvas>
+    <canvas class="article-hero__canvas" id="hero-canvas" aria-hidden="true"></canvas>
     <div class="article-hero__overlay"></div>
     <div class="article-hero__content">
       <nav class="breadcrumb breadcrumb--hero">
@@ -227,7 +228,7 @@
       <div class="ctx-assembler__slots" id="ca-slots"></div>
       <div class="ctx-assembler__bar" id="ca-bar"></div>
       <div class="ctx-assembler__summary" id="ca-summary"></div>
-      <div class="ctx-assembler__warning" id="ca-warning"></div>
+      <div class="ctx-assembler__warning" id="ca-warning" role="status" aria-live="polite"></div>
     </div>
   </div>
 
@@ -280,9 +281,9 @@
     <div class="ctx-compare" id="ctx-compare">
       <div class="ctx-compare__title">Interactive &middot; Bad Context vs. Good Context</div>
       <p style="font-family: var(--font-sans); font-size: var(--text-sm); color: var(--color-text-secondary); margin-bottom: var(--space-4);">Same model, same question. See how context assembly changes the output.</p>
-      <div class="ctx-compare__tabs">
-        <button class="ctx-compare__tab ctx-compare__tab--active" data-view="bad">Bad Context</button>
-        <button class="ctx-compare__tab" data-view="good">Good Context</button>
+      <div class="ctx-compare__tabs" role="tablist" aria-label="Context comparison">
+        <button class="ctx-compare__tab ctx-compare__tab--active" data-view="bad" role="tab" aria-selected="true">Bad Context</button>
+        <button class="ctx-compare__tab" data-view="good" role="tab" aria-selected="false">Good Context</button>
       </div>
       <div class="ctx-compare__panel" id="cc-panel"></div>
       <div class="ctx-compare__verdict" id="cc-verdict"></div>
@@ -300,7 +301,7 @@
     <div class="capstone-quiz__progress" id="cq-progress"></div>
     <div class="capstone-quiz__question" id="cq-question"></div>
     <div class="capstone-quiz__options" id="cq-options"></div>
-    <div class="capstone-quiz__explanation" id="cq-explanation"></div>
+    <div class="capstone-quiz__explanation" id="cq-explanation" role="status" aria-live="polite"></div>
     <button class="capstone-quiz__next" id="cq-next">Next question &rarr;</button>
     <div class="capstone-quiz__score" id="cq-score" style="display:none;"></div>
   </div>
@@ -310,7 +311,7 @@
   (function(){var b=document.getElementById('reading-progress-bar');if(!b)return;window.addEventListener('scroll',function(){var h=document.documentElement;b.style.width=Math.min((h.scrollTop/(h.scrollHeight-h.clientHeight))*100,100)+'%';});})();
   (function(){var t=document.querySelector('.toc'),h=document.getElementById('article-hero');if(!t||!h)return;new IntersectionObserver(function(e){t.classList.toggle('toc--visible',!e[0].isIntersecting);},{threshold:0}).observe(h);})();
   (function(){var hs=document.querySelectorAll('h2[id]'),ti=document.querySelectorAll('.toc__item');if(!hs.length)return;hs.forEach(function(h){new IntersectionObserver(function(e){if(e[0].isIntersecting){ti.forEach(function(i){i.classList.remove('toc__item--active');});var l=document.querySelector('.toc__item a[href="#'+e[0].target.id+'"]');if(l)l.parentElement.classList.add('toc__item--active');}},{rootMargin:'-20% 0px -80% 0px'}).observe(h);});})();
-  (function(){var c=document.getElementById('hero-canvas');if(!c)return;var ctx=c.getContext('2d'),p=[];function r(){c.width=c.offsetWidth*(window.devicePixelRatio||1);c.height=c.offsetHeight*(window.devicePixelRatio||1);ctx.scale(window.devicePixelRatio||1,window.devicePixelRatio||1);}r();window.addEventListener('resize',r);for(var i=0;i<35;i++)p.push({x:Math.random()*c.offsetWidth,y:Math.random()*c.offsetHeight,r:Math.random()*2+1,dx:(Math.random()-0.5)*0.4,dy:(Math.random()-0.5)*0.4,a:Math.random()*0.3+0.1});function d(){ctx.clearRect(0,0,c.offsetWidth,c.offsetHeight);p.forEach(function(pt){pt.x+=pt.dx;pt.y+=pt.dy;if(pt.x<0||pt.x>c.offsetWidth)pt.dx*=-1;if(pt.y<0||pt.y>c.offsetHeight)pt.dy*=-1;ctx.beginPath();ctx.arc(pt.x,pt.y,pt.r,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,'+pt.a+')';ctx.fill();});for(var i=0;i<p.length;i++)for(var j=i+1;j<p.length;j++){var dx=p[i].x-p[j].x,dy=p[i].y-p[j].y,dist=Math.sqrt(dx*dx+dy*dy);if(dist<100){ctx.beginPath();ctx.moveTo(p[i].x,p[i].y);ctx.lineTo(p[j].x,p[j].y);ctx.strokeStyle='rgba(255,255,255,'+(0.12*(1-dist/100))+')';ctx.lineWidth=0.5;ctx.stroke();}}if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)requestAnimationFrame(d);}d();})();
+  (function(){var c=document.getElementById('hero-canvas');if(!c)return;var ctx=c.getContext('2d'),p=[];function r(){c.width=c.offsetWidth*(window.devicePixelRatio||1);c.height=c.offsetHeight*(window.devicePixelRatio||1);ctx.scale(window.devicePixelRatio||1,window.devicePixelRatio||1);}r();window.addEventListener('resize',r);for(var i=0;i<35;i++)p.push({x:Math.random()*c.offsetWidth,y:Math.random()*c.offsetHeight,r:Math.random()*2+1,dx:(Math.random()-0.5)*0.4,dy:(Math.random()-0.5)*0.4,a:Math.random()*0.3+0.1});var run=false,vis=false;function d(){if(!run)return;ctx.clearRect(0,0,c.offsetWidth,c.offsetHeight);p.forEach(function(pt){pt.x+=pt.dx;pt.y+=pt.dy;if(pt.x<0||pt.x>c.offsetWidth)pt.dx*=-1;if(pt.y<0||pt.y>c.offsetHeight)pt.dy*=-1;ctx.beginPath();ctx.arc(pt.x,pt.y,pt.r,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,'+pt.a+')';ctx.fill();});for(var i=0;i<p.length;i++)for(var j=i+1;j<p.length;j++){var dx=p[i].x-p[j].x,dy=p[i].y-p[j].y,dist=Math.sqrt(dx*dx+dy*dy);if(dist<100){ctx.beginPath();ctx.moveTo(p[i].x,p[i].y);ctx.lineTo(p[j].x,p[j].y);ctx.strokeStyle='rgba(255,255,255,'+(0.12*(1-dist/100))+')';ctx.lineWidth=0.5;ctx.stroke();}}if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)requestAnimationFrame(d);}function sr(on){if(on&&!run){run=true;requestAnimationFrame(d);}else if(!on){run=false;}}new IntersectionObserver(function(e){vis=e[0].isIntersecting;sr(vis&&!document.hidden);},{threshold:0}).observe(c);document.addEventListener('visibilitychange',function(){sr(vis&&!document.hidden);});})();
 
   // Widget 1: Context Budget Planner
   (function() {
@@ -368,7 +369,7 @@
     slots.forEach(function(s) {
       var div = document.createElement('div');
       div.className = 'ctx-assembler__slot';
-      div.innerHTML = '<div><div class="ctx-assembler__slot-name">' + s.name + '</div></div><div><input type="range" min="' + s.min + '" max="' + s.max + '" value="' + s.val + '" step="50" style="width:100%;" data-key="' + s.key + '"></div><div class="ctx-assembler__slot-tokens" id="ca-val-' + s.key + '">' + s.val + '</div>';
+      div.innerHTML = '<div><div class="ctx-assembler__slot-name">' + s.name + '</div></div><div><input type="range" min="' + s.min + '" max="' + s.max + '" value="' + s.val + '" step="50" style="width:100%;" data-key="' + s.key + '" aria-label="' + s.name + ' tokens"></div><div class="ctx-assembler__slot-tokens" id="ca-val-' + s.key + '">' + s.val + '</div>';
       div.querySelector('input').addEventListener('input', function(e) {
         s.val = parseInt(e.target.value);
         document.getElementById('ca-val-' + s.key).textContent = s.val;
@@ -396,7 +397,7 @@
     if (!panel) return;
 
     function show(view) {
-      tabs.forEach(function(t) { t.classList.toggle('ctx-compare__tab--active', t.dataset.view === view); });
+      tabs.forEach(function(t) { t.classList.toggle('ctx-compare__tab--active', t.dataset.view === view); t.setAttribute('aria-selected', t.dataset.view === view ? 'true' : 'false'); });
       var data = view === 'bad' ? bad : good;
       panel.innerHTML = data.text;
       verdict.innerHTML = data.verdict;
@@ -454,8 +455,8 @@
         answer: 'b',
         explanation: 'The shift from prompt engineering to context engineering reflects how AI products have matured. A prompt is a string you write once. Context is a system that runs before every LLM call — assembling the right information, in the right format, at the right time, dynamically tailored to the current request. It includes retrieval pipelines, history management, token budgeting, few-shot selection, and graceful degradation. The prompt is one input to this system, not the system itself.' }
     ];
-    var currentQ=0,score=0;var qEl=document.getElementById('cq-question'),pEl=document.getElementById('cq-progress'),oEl=document.getElementById('cq-options'),eEl=document.getElementById('cq-explanation'),nEl=document.getElementById('cq-next'),sEl=document.getElementById('cq-score');if(!qEl)return;
-    function render(){if(currentQ>=questions.length){qEl.style.display='none';pEl.style.display='none';oEl.style.display='none';eEl.style.display='none';nEl.style.display='none';sEl.style.display='block';var pct=Math.round((score/questions.length)*100);var msgs=['Review the article — context engineering has patterns worth studying.','Decent foundation — you understand the constraints but the craft needs work.','Solid understanding — you know how to assemble context that works.','Strong grasp — you\'re thinking about context as a system, not a string.'];var mi=score<=1?0:score<=2?1:score<=3?2:3;sEl.innerHTML='<div class="capstone-quiz__score-number">'+score+'/'+questions.length+'</div><div class="capstone-quiz__score-label">'+pct+'% correct</div><div class="capstone-quiz__score-message">'+msgs[mi]+'</div>';return;}var q=questions[currentQ];pEl.textContent='Question '+(currentQ+1)+' of '+questions.length;qEl.textContent=q.question;oEl.innerHTML='';eEl.classList.remove('capstone-quiz__explanation--visible');eEl.style.display='none';nEl.classList.remove('capstone-quiz__next--visible');nEl.style.display='none';q.options.forEach(function(opt){var btn=document.createElement('button');btn.className='capstone-quiz__option';btn.textContent=opt.label;btn.addEventListener('click',function(){oEl.querySelectorAll('.capstone-quiz__option').forEach(function(b){b.style.pointerEvents='none';});if(opt.key===q.answer){btn.classList.add('capstone-quiz__option--correct');score++;}else{btn.classList.add('capstone-quiz__option--wrong');oEl.querySelectorAll('.capstone-quiz__option').forEach(function(b){if(b.textContent===q.options.find(function(o){return o.key===q.answer;}).label)b.classList.add('capstone-quiz__option--correct');});}eEl.textContent=q.explanation;eEl.style.display='block';eEl.classList.add('capstone-quiz__explanation--visible');nEl.style.display='inline-block';nEl.classList.add('capstone-quiz__next--visible');});oEl.appendChild(btn);});}
+    var currentQ=0,score=0,qAnswered=false;var qEl=document.getElementById('cq-question'),pEl=document.getElementById('cq-progress'),oEl=document.getElementById('cq-options'),eEl=document.getElementById('cq-explanation'),nEl=document.getElementById('cq-next'),sEl=document.getElementById('cq-score');if(!qEl)return;
+    function render(){if(currentQ>=questions.length){qEl.style.display='none';pEl.style.display='none';oEl.style.display='none';eEl.style.display='none';nEl.style.display='none';sEl.style.display='block';var pct=Math.round((score/questions.length)*100);var msgs=['Review the article — context engineering has patterns worth studying.','Decent foundation — you understand the constraints but the craft needs work.','Solid understanding — you know how to assemble context that works.','Strong grasp — you\'re thinking about context as a system, not a string.'];var mi=score<=1?0:score<=2?1:score<=3?2:3;sEl.innerHTML='<div class="capstone-quiz__score-number">'+score+'/'+questions.length+'</div><div class="capstone-quiz__score-label">'+pct+'% correct</div><div class="capstone-quiz__score-message">'+msgs[mi]+'</div>';return;}var q=questions[currentQ];qAnswered=false;pEl.textContent='Question '+(currentQ+1)+' of '+questions.length;qEl.textContent=q.question;oEl.innerHTML='';eEl.classList.remove('capstone-quiz__explanation--visible');eEl.style.display='none';nEl.classList.remove('capstone-quiz__next--visible');nEl.style.display='none';q.options.forEach(function(opt){var btn=document.createElement('button');btn.className='capstone-quiz__option';btn.textContent=opt.label;btn.addEventListener('click',function(){if(qAnswered)return;qAnswered=true;oEl.querySelectorAll('.capstone-quiz__option').forEach(function(b){b.style.pointerEvents='none';b.disabled=true;});if(opt.key===q.answer){btn.classList.add('capstone-quiz__option--correct');score++;}else{btn.classList.add('capstone-quiz__option--wrong');oEl.querySelectorAll('.capstone-quiz__option').forEach(function(b){if(b.textContent===q.options.find(function(o){return o.key===q.answer;}).label)b.classList.add('capstone-quiz__option--correct');});}eEl.textContent=q.explanation;eEl.style.display='block';eEl.classList.add('capstone-quiz__explanation--visible');nEl.style.display='inline-block';nEl.classList.add('capstone-quiz__next--visible');});oEl.appendChild(btn);});}
     nEl.addEventListener('click',function(){currentQ++;render();});render();
   })();
   </script>

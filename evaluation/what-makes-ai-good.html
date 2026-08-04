@@ -17,6 +17,7 @@
   <meta property="og:title" content="What Makes AI &quot;Good&quot;? — AI for Builders">
   <meta property="og:description" content="You can’t unit test creativity. Here’s how to think about evaluating AI systems — and why it’s harder than it looks.">
   <meta property="og:url" content="https://navsha.github.io/interactive-explainers/evaluation/what-makes-ai-good.html">
+  <link rel="canonical" href="https://navsha.github.io/interactive-explainers/evaluation/what-makes-ai-good.html">
   <meta property="og:image" content="https://navsha.github.io/interactive-explainers/assets/og-image.png">
   <meta property="og:site_name" content="AI for Builders">
   <meta name="twitter:card" content="summary_large_image">
@@ -27,8 +28,8 @@
   <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../styles/shared.css?v=12">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400&amp;family=Newsreader:ital,wght@0,400;0,600;1,400&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/shared.css?v=13">
   <style>
     /* Reading Progress Bar */
     .reading-progress {
@@ -89,13 +90,20 @@
       .toc__list li { padding: 0.2rem 0; }
       .toc__list a, .toc__numeral { font-size: 0.8rem; }
     }
+
+    /* Focus visibility for widget controls styled with all:unset */
+    .spot-response-card:focus-visible,
+    .star-btn:focus-visible {
+      outline: 2px solid var(--accent-eval, #059669) !important;
+      outline-offset: 2px !important;
+    }
   </style>
 </head>
 <body>
   <div class="reading-progress"><div class="reading-progress__bar" id="reading-progress-bar"></div></div>
 
   <header class="article-hero" id="article-hero" style="background: linear-gradient(135deg, #059669 0%, #0891B2 100%);">
-    <canvas class="article-hero__canvas" id="hero-canvas"></canvas>
+    <canvas class="article-hero__canvas" id="hero-canvas" aria-hidden="true"></canvas>
     <div class="article-hero__overlay"></div>
     <div class="article-hero__content">
       <nav class="breadcrumb breadcrumb--hero">
@@ -237,10 +245,10 @@
       <div class="widget__instruction">Click each method to see how it works, what it costs, and when to use it.</div>
 
       <div class="widget__controls" id="eval-method-buttons">
-        <button class="btn btn--secondary" data-method="0">Human Eval</button>
-        <button class="btn btn--secondary" data-method="1">Automated Metrics</button>
-        <button class="btn btn--secondary" data-method="2">LLM-as-Judge</button>
-        <button class="btn btn--secondary" data-method="3">Rubric Scoring</button>
+        <button class="btn btn--secondary" data-method="0" aria-pressed="false">Human Eval</button>
+        <button class="btn btn--secondary" data-method="1" aria-pressed="false">Automated Metrics</button>
+        <button class="btn btn--secondary" data-method="2" aria-pressed="false">LLM-as-Judge</button>
+        <button class="btn btn--secondary" data-method="3" aria-pressed="false">Rubric Scoring</button>
       </div>
 
       <div id="eval-method-detail" style="margin-top: var(--space-6);"></div>
@@ -327,7 +335,7 @@
       <div class="quiz__card" id="quiz-card">
         <p class="quiz__scenario" id="quiz-scenario"></p>
         <div class="widget__controls" id="quiz-options"></div>
-        <div class="quiz__explanation" id="quiz-explanation" style="display: none;"></div>
+        <div class="quiz__explanation" id="quiz-explanation" role="status" aria-live="polite" style="display: none;"></div>
       </div>
 
       <div class="widget__controls widget__controls--mt">
@@ -335,7 +343,7 @@
       </div>
 
       <div class="quiz__summary" id="quiz-summary" style="display: none;">
-        <div class="quiz__score" id="quiz-score"></div>
+        <div class="quiz__score" id="quiz-score" role="status" aria-live="polite"></div>
         <p class="quiz__summary-text" id="quiz-summary-text"></p>
         <button class="btn btn--secondary" id="quiz-retry" style="margin-top: var(--space-4);">Try Again</button>
       </div>
@@ -408,8 +416,7 @@
       }
     }
 
-    function draw() {
-      if (!running) return;
+    function drawFrame() {
       ctx.clearRect(0, 0, w, h);
 
       for (var i = 0; i < nodes.length; i++) {
@@ -450,18 +457,33 @@
         ctx.fill();
       }
 
-      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(draw);
+    }
+
+    function draw() {
+      if (!running) return;
+      drawFrame();
+      requestAnimationFrame(draw);
+    }
+
+    var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var lastVisible = true;
+    function setRunning(on) {
+      if (reducedMotion) return;
+      if (on && !running) { running = true; requestAnimationFrame(draw); }
+      else if (!on) { running = false; }
     }
 
     var observer = new IntersectionObserver(function(entries) {
-      running = entries[0].isIntersecting;
-      if (running) requestAnimationFrame(draw);
+      lastVisible = entries[0].isIntersecting;
+      setRunning(lastVisible && !document.hidden);
     }, { threshold: 0 });
+    document.addEventListener('visibilitychange', function() { setRunning(lastVisible && !document.hidden); });
 
     resize();
     initNodes();
+    running = false;
     observer.observe(hero);
-    requestAnimationFrame(draw);
+    drawFrame();
 
     window.addEventListener('resize', function() {
       resize();
@@ -532,7 +554,7 @@
 
       html += '</div>';
 
-      html += '<div id="spot-result" style="display: none; margin-top: var(--space-6);"></div>';
+      html += '<div id="spot-result" role="status" aria-live="polite" style="display: none; margin-top: var(--space-6);"></div>';
 
       container.innerHTML = html;
       updateSteps();
@@ -770,6 +792,7 @@
       var idx = parseInt(btn.dataset.method);
 
       buttonsEl.querySelectorAll('.btn').forEach(function(b, i) {
+        b.setAttribute('aria-pressed', i === idx ? 'true' : 'false');
         if (i === idx) {
           b.className = 'btn btn--active';
           b.style.background = 'var(--accent-eval)';
@@ -862,7 +885,7 @@
         var bgColor = isActive ? 'var(--accent-eval)' : (tabRated ? '#D1FAE5' : 'var(--color-surface)');
         var textColor = isActive ? '#fff' : 'var(--color-text)';
         var borderColor = isActive ? 'var(--accent-eval)' : 'var(--color-border)';
-        html += '<button class="btn" data-tab="' + t + '" style="background: ' + bgColor + '; color: ' + textColor + '; border: 1px solid ' + borderColor + '; flex: 1;">' + responses[t].label;
+        html += '<button class="btn" data-tab="' + t + '" aria-pressed="' + (isActive ? 'true' : 'false') + '" style="background: ' + bgColor + '; color: ' + textColor + '; border: 1px solid ' + borderColor + '; flex: 1;">' + responses[t].label;
         if (tabRated && !isActive) html += ' &#10003;';
         html += '</button>';
       }

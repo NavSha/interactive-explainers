@@ -17,6 +17,7 @@
   <meta property="og:title" content="Multi-Agent Orchestration — AI for Builders">
   <meta property="og:description" content="One agent has limits. Multiple agents have politics. The patterns that make them work together — and the failures that happen when they don’t.">
   <meta property="og:url" content="https://navsha.github.io/interactive-explainers/agents/orchestration.html">
+  <link rel="canonical" href="https://navsha.github.io/interactive-explainers/agents/orchestration.html">
   <meta property="og:image" content="https://navsha.github.io/interactive-explainers/assets/og-image.png">
   <meta property="og:site_name" content="AI for Builders">
   <meta name="twitter:card" content="summary_large_image">
@@ -27,8 +28,8 @@
   <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../styles/shared.css?v=12">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400&amp;family=Newsreader:ital,wght@0,400;0,600;1,400&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/shared.css?v=13">
   <style>
     /* Reading Progress Bar */
     .reading-progress {
@@ -364,7 +365,7 @@
   <div class="reading-progress"><div class="reading-progress__bar" id="reading-progress-bar"></div></div>
 
   <header class="article-hero" id="article-hero">
-    <canvas class="article-hero__canvas" id="hero-canvas"></canvas>
+    <canvas class="article-hero__canvas" id="hero-canvas" aria-hidden="true"></canvas>
     <div class="article-hero__overlay"></div>
     <div class="article-hero__content">
       <nav class="breadcrumb breadcrumb--hero">
@@ -461,7 +462,7 @@
       <div class="pattern-picker__title">Interactive &middot; Pick Your Pattern</div>
       <p style="font-family: var(--font-sans); font-size: var(--text-sm); color: var(--color-text-secondary); margin-bottom: var(--space-4);">Select a use case to see which orchestration pattern fits best.</p>
       <div class="pattern-picker__scenarios" id="pp-scenarios"></div>
-      <div class="pattern-picker__result" id="pp-result"></div>
+      <div class="pattern-picker__result" id="pp-result" role="status" aria-live="polite"></div>
     </div>
   </div>
 
@@ -536,7 +537,7 @@
       <div class="autonomy-ladder__title">Interactive &middot; The Autonomy Ladder</div>
       <p style="font-family: var(--font-sans); font-size: var(--text-sm); color: var(--color-text-secondary); margin-bottom: var(--space-4);">Click each rung to see what changes for the builder and the user.</p>
       <div class="autonomy-ladder__rungs" id="al-rungs"></div>
-      <div class="autonomy-ladder__detail" id="al-detail"></div>
+      <div class="autonomy-ladder__detail" id="al-detail" role="status" aria-live="polite"></div>
     </div>
   </div>
 
@@ -609,9 +610,9 @@
     <div class="capstone-quiz__progress" id="cq-progress"></div>
     <div class="capstone-quiz__question" id="cq-question"></div>
     <div class="capstone-quiz__options" id="cq-options"></div>
-    <div class="capstone-quiz__explanation" id="cq-explanation"></div>
+    <div class="capstone-quiz__explanation" id="cq-explanation" role="status" aria-live="polite"></div>
     <button class="capstone-quiz__next" id="cq-next">Next question &rarr;</button>
-    <div class="capstone-quiz__score" id="cq-score" style="display:none;"></div>
+    <div class="capstone-quiz__score" id="cq-score" role="status" aria-live="polite" style="display:none;"></div>
   </div>
 
   <!-- ================================================================
@@ -715,8 +716,17 @@
           }
         }
       }
-      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(draw);
+      if (heroRunning) requestAnimationFrame(draw);
     }
+    var heroRunning = false, heroVisible = true;
+    var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function setRunning(on) {
+      if (reducedMotion) return;
+      if (on && !heroRunning) { heroRunning = true; requestAnimationFrame(draw); }
+      else if (!on) { heroRunning = false; }
+    }
+    new IntersectionObserver(function(entries) { heroVisible = entries[0].isIntersecting; setRunning(heroVisible && !document.hidden); }).observe(canvas);
+    document.addEventListener('visibilitychange', function() { setRunning(heroVisible && !document.hidden); });
     draw();
   })();
 
@@ -764,12 +774,15 @@
     scenarios.forEach(function(s, i) {
       var btn = document.createElement('button');
       btn.className = 'pattern-picker__scenario';
+      btn.setAttribute('aria-pressed', 'false');
       btn.innerHTML = '<strong>' + s.label + '</strong><span>' + s.desc + '</span>';
       btn.addEventListener('click', function() {
         container.querySelectorAll('.pattern-picker__scenario').forEach(function(b) {
           b.classList.remove('pattern-picker__scenario--active');
+          b.setAttribute('aria-pressed', 'false');
         });
         btn.classList.add('pattern-picker__scenario--active');
+        btn.setAttribute('aria-pressed', 'true');
         resultEl.innerHTML = '<h4>Recommended: ' + s.pattern + '</h4><p>' + s.explanation + '</p>';
         resultEl.classList.add('pattern-picker__result--visible');
       });
@@ -811,14 +824,22 @@
     rungs.forEach(function(r, i) {
       var div = document.createElement('div');
       div.className = 'autonomy-ladder__rung';
+      div.setAttribute('tabindex', '0');
+      div.setAttribute('role', 'button');
+      div.setAttribute('aria-pressed', 'false');
       div.innerHTML = '<div class="autonomy-ladder__rung-number">' + (i + 1) + '</div><div><div class="autonomy-ladder__rung-label">' + r.label + '</div><div class="autonomy-ladder__rung-desc">' + r.desc + '</div></div>';
       div.addEventListener('click', function() {
         rungsContainer.querySelectorAll('.autonomy-ladder__rung').forEach(function(el) {
           el.classList.remove('autonomy-ladder__rung--active');
+          el.setAttribute('aria-pressed', 'false');
         });
         div.classList.add('autonomy-ladder__rung--active');
+        div.setAttribute('aria-pressed', 'true');
         detailEl.innerHTML = r.detail;
         detailEl.classList.add('autonomy-ladder__detail--visible');
+      });
+      div.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); div.click(); }
       });
       rungsContainer.appendChild(div);
     });
@@ -915,7 +936,7 @@
         sEl.innerHTML = '<div class="capstone-quiz__score-number">' + score + '/' + questions.length + '</div><div class="capstone-quiz__score-label">' + pct + '% correct</div><div class="capstone-quiz__score-message">' + msgs[mi] + '</div>';
         return;
       }
-      var q = questions[currentQ];
+      var q = questions[currentQ], answered = false;
       pEl.textContent = 'Question ' + (currentQ + 1) + ' of ' + questions.length;
       qEl.textContent = q.question;
       oEl.innerHTML = '';
@@ -928,8 +949,11 @@
         btn.className = 'capstone-quiz__option';
         btn.textContent = opt.label;
         btn.addEventListener('click', function() {
+          if (answered) return;
+          answered = true;
           oEl.querySelectorAll('.capstone-quiz__option').forEach(function(b) {
             b.style.pointerEvents = 'none';
+            b.disabled = true;
           });
           if (opt.key === q.answer) {
             btn.classList.add('capstone-quiz__option--correct');

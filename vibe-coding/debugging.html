@@ -17,6 +17,7 @@
   <meta property="og:title" content="Debugging with an Agent — AI for Builders">
   <meta property="og:description" content="You didn&#x27;t write the code, but you can still fix it. The debugging loop, reading error messages, and knowing when to escalate.">
   <meta property="og:url" content="https://navsha.github.io/interactive-explainers/vibe-coding/debugging.html">
+  <link rel="canonical" href="https://navsha.github.io/interactive-explainers/vibe-coding/debugging.html">
   <meta property="og:image" content="https://navsha.github.io/interactive-explainers/assets/og-image.png">
   <meta property="og:site_name" content="AI for Builders">
   <meta name="twitter:card" content="summary_large_image">
@@ -27,8 +28,8 @@
   <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../styles/shared.css?v=12">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400&amp;family=Newsreader:ital,wght@0,400;0,600;1,400&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/shared.css?v=13">
   <style>
     .article-hero { background: var(--accent-vibe-gradient); }
     .toc__list a:hover { color: var(--accent-vibe); }
@@ -380,7 +381,7 @@
   <div class="reading-progress"><div class="reading-progress__bar" id="reading-progress-bar"></div></div>
 
   <header class="article-hero" id="article-hero">
-    <canvas class="article-hero__canvas" id="hero-canvas"></canvas>
+    <canvas class="article-hero__canvas" id="hero-canvas" aria-hidden="true"></canvas>
     <div class="article-hero__overlay"></div>
     <div class="article-hero__content">
       <nav class="breadcrumb breadcrumb--hero">
@@ -492,7 +493,7 @@
       <div class="widget__title">Error Decoder</div>
       <div class="widget__instruction">Pick a simulated error message. See it broken down into type, file, and cause &mdash; with a plain-English explanation of what went wrong.</div>
 
-      <div class="error-decoder__tabs" id="error-tabs">
+      <div class="error-decoder__tabs" id="error-tabs" role="tablist" aria-label="Example errors">
         <!-- Rendered by JS -->
       </div>
 
@@ -571,7 +572,7 @@
       <div class="widget__title">Debug or Escalate?</div>
       <div class="widget__instruction">Read each scenario and decide: can you debug this with the agent, or should you bring in a human engineer?</div>
 
-      <div class="escalate__scenarios" id="escalate-tabs">
+      <div class="escalate__scenarios" id="escalate-tabs" role="tablist" aria-label="Scenarios">
         <!-- Rendered by JS -->
       </div>
 
@@ -583,9 +584,9 @@
         <!-- Rendered by JS -->
       </div>
 
-      <div id="escalate-feedback"></div>
+      <div id="escalate-feedback" role="status" aria-live="polite"></div>
 
-      <div class="escalate__score" id="escalate-score">
+      <div class="escalate__score" id="escalate-score" role="status" aria-live="polite">
         <div><span class="escalate__score-num" id="escalate-correct">0</span> <span class="escalate__score-label">of 6 correct</span></div>
       </div>
     </div>
@@ -608,14 +609,14 @@
       <div class="quiz__card" id="quiz-card">
         <p class="quiz__scenario" id="quiz-scenario"></p>
         <div class="widget__controls" id="quiz-options"></div>
-        <div class="quiz__explanation" id="quiz-explanation" style="display: none;"></div>
+        <div class="quiz__explanation" id="quiz-explanation" role="status" aria-live="polite" style="display: none;"></div>
       </div>
 
       <div class="widget__controls widget__controls--mt">
         <button class="btn btn--primary" id="quiz-next" style="display: none;">Next Question &rarr;</button>
       </div>
 
-      <div class="quiz__summary" id="quiz-summary" style="display: none;">
+      <div class="quiz__summary" id="quiz-summary" role="status" aria-live="polite" style="display: none;">
         <div class="quiz__score" id="quiz-score"></div>
         <p class="quiz__summary-text" id="quiz-summary-text"></p>
         <button class="btn btn--secondary" id="quiz-retry" style="margin-top: var(--space-4);">Try Again</button>
@@ -728,10 +729,23 @@
         ctx.fillStyle = 'rgba(255,255,255,' + (0.4 + 0.4 * glow) + ')';
         ctx.beginPath(); ctx.arc(n.x, n.y, n.r * (0.8 + 0.4 * glow), 0, Math.PI * 2); ctx.fill();
       }
-      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(draw);
+      if (heroRunning) requestAnimationFrame(draw);
     }
 
-    resize(); initNodes(); requestAnimationFrame(draw);
+    var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var heroRunning = false, heroVisible = true;
+    function setRunning(on) {
+      if (reduced) return;
+      if (on && !heroRunning) { heroRunning = true; requestAnimationFrame(draw); }
+      else if (!on) { heroRunning = false; }
+    }
+
+    resize(); initNodes(); draw();
+    new IntersectionObserver(function(entries) {
+      heroVisible = entries[0].isIntersecting;
+      setRunning(heroVisible && !document.hidden);
+    }).observe(canvas);
+    document.addEventListener('visibilitychange', function() { setRunning(!document.hidden && heroVisible); });
     window.addEventListener('resize', function() { resize(); initNodes(); });
   })();
 
@@ -805,7 +819,7 @@
       for (var i = 0; i < errors.length; i++) {
         var cls = 'error-decoder__tab';
         if (i === currentIdx) cls += ' error-decoder__tab--active';
-        html += '<button class="' + cls + '" data-idx="' + i + '">' + errors[i].tab + '</button>';
+        html += '<button class="' + cls + '" data-idx="' + i + '" role="tab" aria-selected="' + (i === currentIdx ? 'true' : 'false') + '">' + errors[i].tab + '</button>';
       }
       tabsEl.innerHTML = html;
     }
@@ -911,7 +925,7 @@
       for (var i = 0; i < scenarios.length; i++) {
         var cls = 'escalate__scenario-btn';
         if (i === currentIdx) cls += ' escalate__scenario-btn--active';
-        html += '<button class="' + cls + '" data-idx="' + i + '">' + (i + 1) + '. ' + scenarios[i].title + '</button>';
+        html += '<button class="' + cls + '" data-idx="' + i + '" role="tab" aria-selected="' + (i === currentIdx ? 'true' : 'false') + '">' + (i + 1) + '. ' + scenarios[i].title + '</button>';
       }
       tabsEl.innerHTML = html;
     }

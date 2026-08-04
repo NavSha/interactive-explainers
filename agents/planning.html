@@ -17,6 +17,7 @@
   <meta property="og:title" content="Planning, Failure &amp; Tradeoffs — AI for Builders">
   <meta property="og:description" content="Agents aren&#x27;t magic. Knowing when they fail — and what they cost — is what separates good product decisions from expensive mistakes.">
   <meta property="og:url" content="https://navsha.github.io/interactive-explainers/agents/planning.html">
+  <link rel="canonical" href="https://navsha.github.io/interactive-explainers/agents/planning.html">
   <meta property="og:image" content="https://navsha.github.io/interactive-explainers/assets/og-image.png">
   <meta property="og:site_name" content="AI for Builders">
   <meta name="twitter:card" content="summary_large_image">
@@ -27,14 +28,14 @@
   <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../styles/shared.css?v=12">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400&amp;family=Newsreader:ital,wght@0,400;0,600;1,400&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/shared.css?v=13">
 </head>
 <body>
 <div class="reading-progress"><div class="reading-progress__bar" id="reading-progress-bar"></div></div>
 
   <header class="article-hero" id="article-hero" style="background: linear-gradient(135deg, #D97706 0%, #E11D48 100%);">
-    <canvas class="article-hero__canvas" id="hero-canvas"></canvas>
+    <canvas class="article-hero__canvas" id="hero-canvas" aria-hidden="true"></canvas>
     <div class="article-hero__overlay"></div>
     <div class="article-hero__content">
       <nav class="breadcrumb breadcrumb--hero">
@@ -126,7 +127,7 @@
         <div class="chat-placeholder">Select a failure mode above to see it in action.</div>
       </div>
 
-      <div class="widget__annotation" id="failure-annotation" style="display: none;"></div>
+      <div class="widget__annotation" id="failure-annotation" role="status" aria-live="polite" style="display: none;"></div>
     </div>
   </div>
 
@@ -166,20 +167,20 @@
         <div class="cost__control-group">
           <label class="cost__label">Model</label>
           <div class="widget__controls">
-            <button class="btn btn--active" data-model="small">Small (Haiku)</button>
-            <button class="btn btn--secondary" data-model="medium">Medium (Sonnet)</button>
-            <button class="btn btn--secondary" data-model="large">Large (Opus)</button>
+            <button class="btn btn--active" data-model="small" aria-pressed="true">Small (Haiku)</button>
+            <button class="btn btn--secondary" data-model="medium" aria-pressed="false">Medium (Sonnet)</button>
+            <button class="btn btn--secondary" data-model="large" aria-pressed="false">Large (Opus)</button>
           </div>
         </div>
         <div class="cost__control-group">
-          <label class="cost__label">Agent steps</label>
+          <label class="cost__label" for="cost-steps">Agent steps</label>
           <div class="cost__slider-row">
             <input type="range" id="cost-steps" min="1" max="15" value="3" class="dilemma__slider">
             <span class="dilemma__slider-value" id="cost-steps-val">3</span>
           </div>
         </div>
         <div class="cost__control-group">
-          <label class="cost__label">Tasks per day</label>
+          <label class="cost__label" for="cost-tasks">Tasks per day</label>
           <div class="cost__slider-row">
             <input type="range" id="cost-tasks" min="10" max="10000" value="100" step="10" class="dilemma__slider">
             <span class="dilemma__slider-value" id="cost-tasks-val">100</span>
@@ -206,7 +207,7 @@
         </div>
       </div>
 
-      <div class="dilemma__tip" id="cost-tip">
+      <div class="dilemma__tip" id="cost-tip" role="status" aria-live="polite">
         A small model with 3 steps is cost-effective for simple, well-scoped tasks.
       </div>
     </div>
@@ -298,7 +299,7 @@
 
       <div id="decision-questions"></div>
 
-      <div id="decision-result" style="display: none;">
+      <div id="decision-result" role="status" aria-live="polite" style="display: none;">
         <div class="decision__recommendation" id="decision-rec"></div>
         <div class="decision__reasoning" id="decision-reasoning"></div>
         <button class="btn btn--secondary" id="decision-restart" style="margin-top: var(--space-4);">Start Over</button>
@@ -331,7 +332,7 @@
       <div class="quiz__card" id="quiz-card">
         <p class="quiz__scenario" id="quiz-scenario"></p>
         <div class="widget__controls" id="quiz-options"></div>
-        <div class="quiz__explanation" id="quiz-explanation" style="display: none;"></div>
+        <div class="quiz__explanation" id="quiz-explanation" role="status" aria-live="polite" style="display: none;"></div>
       </div>
 
       <div class="widget__controls widget__controls--mt">
@@ -339,7 +340,7 @@
       </div>
 
       <div class="quiz__summary" id="quiz-summary" style="display: none;">
-        <div class="quiz__score" id="quiz-score"></div>
+        <div class="quiz__score" id="quiz-score" role="status" aria-live="polite"></div>
         <p class="quiz__summary-text" id="quiz-summary-text"></p>
         <button class="btn btn--secondary" id="quiz-retry" style="margin-top: var(--space-4);">Try Again</button>
       </div>
@@ -405,7 +406,7 @@
         nodes.push({ x: Math.random()*w, y: Math.random()*h, vx: (Math.random()-0.5)*0.3, vy: (Math.random()-0.5)*0.3, r: 2+Math.random()*3, pulse: Math.random()*Math.PI*2 });
       }
     }
-    function draw() {
+    function drawFrame() {
       ctx.clearRect(0, 0, w, h);
       for (var i = 0; i < nodes.length; i++) {
         var n = nodes[i]; n.x += n.vx; n.y += n.vy; n.pulse += 0.015;
@@ -425,10 +426,32 @@
         ctx.fillStyle = 'rgba(255,255,255,'+(0.4+0.4*glow)+')';
         ctx.beginPath(); ctx.arc(n.x, n.y, n.r*(0.8+0.4*glow), 0, Math.PI*2); ctx.fill();
       }
-      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(draw);
     }
-    resize(); initNodes(); requestAnimationFrame(draw);
+
+    var running = false;
+    function draw() {
+      if (!running) return;
+      drawFrame();
+      requestAnimationFrame(draw);
+    }
+
+    var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var lastVisible = true;
+    function setRunning(on) {
+      if (reducedMotion) return;
+      if (on && !running) { running = true; requestAnimationFrame(draw); }
+      else if (!on) { running = false; }
+    }
+
+    resize(); initNodes(); drawFrame();
     window.addEventListener('resize', function() { resize(); initNodes(); });
+
+    // Pause when the hero is off-screen or the tab is hidden
+    new IntersectionObserver(function(entries) {
+      lastVisible = entries[0].isIntersecting;
+      setRunning(lastVisible && !document.hidden);
+    }, { threshold: 0 }).observe(hero);
+    document.addEventListener('visibilitychange', function() { setRunning(lastVisible && !document.hidden); });
   })();
 
   // ====================================================================
@@ -499,12 +522,14 @@
     var chat = document.getElementById('failure-chat');
     var annotationEl = document.getElementById('failure-annotation');
     var buttonsEl = document.getElementById('failure-modes');
+    var runId = 0;
 
     buttonsEl.addEventListener('click', function(e) {
       var btn = e.target.closest('[data-mode]');
       if (!btn) return;
       var mode = modes[btn.dataset.mode];
       if (!mode) return;
+      var id = ++runId;
 
       buttonsEl.querySelectorAll('.btn').forEach(function(b) { b.classList.remove('btn--active'); });
       btn.classList.add('btn--active');
@@ -512,20 +537,35 @@
       chat.innerHTML = '';
       annotationEl.style.display = 'none';
 
-      var i = 0;
-      function showStep() {
-        if (i >= mode.steps.length) {
-          annotationEl.textContent = mode.annotation;
-          annotationEl.style.display = 'block';
-          return;
-        }
-        var step = mode.steps[i];
+      function addStep(step) {
         var div = document.createElement('div');
         div.className = 'chat-message chat-message--' + step.type;
         if (step.type === 'tool-call' || step.type === 'tool-result') div.style.whiteSpace = 'pre-wrap';
         div.textContent = step.content;
         chat.appendChild(div);
         chat.scrollTop = chat.scrollHeight;
+      }
+
+      function showAnnotation() {
+        annotationEl.textContent = mode.annotation;
+        annotationEl.style.display = 'block';
+      }
+
+      // Reduced motion: render the full trace immediately
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        mode.steps.forEach(addStep);
+        showAnnotation();
+        return;
+      }
+
+      var i = 0;
+      function showStep() {
+        if (id !== runId) return;
+        if (i >= mode.steps.length) {
+          showAnnotation();
+          return;
+        }
+        addStep(mode.steps[i]);
         i++;
         setTimeout(showStep, 400);
       }
@@ -592,6 +632,7 @@
       currentModel = btn.dataset.model;
       document.querySelectorAll('#widget-cost [data-model]').forEach(function(b) {
         b.className = 'btn ' + (b.dataset.model === currentModel ? 'btn--active' : 'btn--secondary');
+        b.setAttribute('aria-pressed', b.dataset.model === currentModel ? 'true' : 'false');
       });
       update();
     });

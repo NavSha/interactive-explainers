@@ -23,12 +23,13 @@
   <meta name="twitter:title" content="How LLMs Actually Work — AI for Builders">
   <meta name="twitter:description" content="From training data to token prediction, model tiers to hard limits — the mental model every builder needs before building with AI.">
   <meta name="twitter:image" content="https://navsha.github.io/interactive-explainers/assets/og-image.png">
+  <link rel="canonical" href="https://navsha.github.io/interactive-explainers/llm-fundamentals/how-llms-work.html">
   <link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon-32.png">
   <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../styles/shared.css?v=12">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400&amp;family=Newsreader:ital,wght@0,400;0,600;1,400&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/shared.css?v=13">
   <style>
     .article-hero { background: var(--accent-llm-gradient); }
     .toc__list a:hover { color: var(--accent-llm); }
@@ -394,7 +395,7 @@
   <div class="reading-progress"><div class="reading-progress__bar" id="reading-progress-bar"></div></div>
 
   <header class="article-hero" id="article-hero">
-    <canvas class="article-hero__canvas" id="hero-canvas"></canvas>
+    <canvas class="article-hero__canvas" id="hero-canvas" aria-hidden="true"></canvas>
     <div class="article-hero__overlay"></div>
     <div class="article-hero__content">
       <nav class="breadcrumb breadcrumb--hero">
@@ -463,7 +464,7 @@
     <h2 id="next-token-prediction"><span class="section-number">III</span> Next-Token Prediction</h2>
 
     <figure class="sketch-figure">
-      <img src="../assets/sketches/next-token.webp"
+      <img src="../assets/sketches/next-token.webp" width="1240" height="693" loading="lazy"
            alt="A samosa holds a card reading 'the cat sat on the ___' and reaches up to pick the most likely next word from a floating cloud of candidates; the chosen word 'mat' is circled in orange.">
       <figcaption>Next-token prediction in one frame: given the words so far, the model picks the single most likely word to come next &mdash; then does it again.</figcaption>
     </figure>
@@ -497,10 +498,10 @@
 
       <div class="ntp__starters-label">Start with a different sentence</div>
       <div class="widget__controls" id="ntp-starters">
-        <button class="btn btn--secondary btn--active" data-starter="0">The product manager</button>
-        <button class="btn btn--secondary" data-starter="1">Large language models</button>
-        <button class="btn btn--secondary" data-starter="2">When building AI features</button>
-        <button class="btn btn--secondary" data-starter="3">The training data</button>
+        <button class="btn btn--secondary btn--active" data-starter="0" aria-pressed="true">The product manager</button>
+        <button class="btn btn--secondary" data-starter="1" aria-pressed="false">Large language models</button>
+        <button class="btn btn--secondary" data-starter="2" aria-pressed="false">When building AI features</button>
+        <button class="btn btn--secondary" data-starter="3" aria-pressed="false">The training data</button>
       </div>
 
       <div class="widget__controls widget__controls--mt">
@@ -550,11 +551,11 @@
       <div class="widget__instruction">Filter by category, then click any card to expand details.</div>
 
       <div class="mle__filters" id="mle-filters">
-        <button class="btn btn--secondary btn--active" data-filter="all">All</button>
-        <button class="btn btn--secondary" data-filter="frontier">Frontier</button>
-        <button class="btn btn--secondary" data-filter="open">Open Source</button>
-        <button class="btn btn--secondary" data-filter="code">Best for Code</button>
-        <button class="btn btn--secondary" data-filter="rag">Best for RAG</button>
+        <button class="btn btn--secondary btn--active" data-filter="all" aria-pressed="true">All</button>
+        <button class="btn btn--secondary" data-filter="frontier" aria-pressed="false">Frontier</button>
+        <button class="btn btn--secondary" data-filter="open" aria-pressed="false">Open Source</button>
+        <button class="btn btn--secondary" data-filter="code" aria-pressed="false">Best for Code</button>
+        <button class="btn btn--secondary" data-filter="rag" aria-pressed="false">Best for RAG</button>
       </div>
 
       <div class="mle__grid" id="mle-grid"></div>
@@ -628,7 +629,7 @@
         </div>
       </div>
 
-      <div class="tvi__insight" id="tvi-insight">
+      <div class="tvi__insight" id="tvi-insight" role="status" aria-live="polite">
         At 1 query per day, training cost dwarfs inference. Training is a one-time investment; inference scales linearly with usage.
       </div>
     </div>
@@ -651,14 +652,14 @@
       <div class="quiz__card" id="quiz-card">
         <p class="quiz__scenario" id="quiz-scenario"></p>
         <div class="widget__controls" id="quiz-options"></div>
-        <div class="quiz__explanation" id="quiz-explanation" style="display: none;"></div>
+        <div class="quiz__explanation" id="quiz-explanation" role="status" aria-live="polite" style="display: none;"></div>
       </div>
 
       <div class="widget__controls widget__controls--mt">
         <button class="btn btn--primary" id="quiz-next" style="display: none;">Next Question &rarr;</button>
       </div>
 
-      <div class="quiz__summary" id="quiz-summary" style="display: none;">
+      <div class="quiz__summary" id="quiz-summary" role="status" aria-live="polite" style="display: none;">
         <div class="quiz__score" id="quiz-score"></div>
         <p class="quiz__summary-text" id="quiz-summary-text"></p>
         <button class="btn btn--secondary" id="quiz-retry" style="margin-top: var(--space-4);">Try Again</button>
@@ -757,10 +758,32 @@
         ctx.fillStyle = 'rgba(255,255,255,' + (0.4 + 0.4 * glow) + ')';
         ctx.beginPath(); ctx.arc(n.x, n.y, n.r * (0.8 + 0.4 * glow), 0, Math.PI * 2); ctx.fill();
       }
-      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(draw);
+      if (!heroRunning) return;
+      requestAnimationFrame(draw);
     }
 
-    resize(); initNodes(); requestAnimationFrame(draw);
+    var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var heroRunning = false;
+    var heroVisible = true;
+
+    function setRunning(on) {
+      if (reducedMotion) return;
+      if (on && !heroRunning) { heroRunning = true; requestAnimationFrame(draw); }
+      else if (!on) { heroRunning = false; }
+    }
+
+    resize(); initNodes();
+    if (reducedMotion) {
+      draw(); // single static frame; heroRunning stays false so no rAF chain starts
+    } else {
+      new IntersectionObserver(function(entries) {
+        heroVisible = entries[0].isIntersecting;
+        setRunning(heroVisible && !document.hidden);
+      }).observe(canvas);
+      document.addEventListener('visibilitychange', function() {
+        setRunning(heroVisible && !document.hidden);
+      });
+    }
     window.addEventListener('resize', function() { resize(); initNodes(); });
   })();
 
@@ -1010,14 +1033,21 @@
       tokens.forEach(function(t) {
         const row = document.createElement('div');
         row.className = 'ntp__candidate';
+        row.setAttribute('role', 'button');
+        row.setAttribute('tabindex', '0');
+        row.setAttribute('aria-label', 'Append token "' + t.text.trim() + '" (' + t.prob + '% probability)');
         row.innerHTML =
           '<span class="ntp__candidate-token">' + escapeHtml(t.text) + '</span>' +
           '<div class="ntp__candidate-bar-wrap"><div class="ntp__candidate-bar" style="width: ' + t.prob + '%;"></div></div>' +
           '<span class="ntp__candidate-pct">' + t.prob + '%</span>';
-        row.addEventListener('click', function() {
+        function choose() {
           chosenTokens.push(t.text);
           depth++;
           render();
+        }
+        row.addEventListener('click', choose);
+        row.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); choose(); }
         });
         candidatesEl.appendChild(row);
       });
@@ -1038,8 +1068,9 @@
     startersEl.addEventListener('click', function(e) {
       const btn = e.target.closest('[data-starter]');
       if (!btn) return;
-      startersEl.querySelectorAll('.btn').forEach(function(b) { b.classList.remove('btn--active'); });
+      startersEl.querySelectorAll('.btn').forEach(function(b) { b.classList.remove('btn--active'); b.setAttribute('aria-pressed', 'false'); });
       btn.classList.add('btn--active');
+      btn.setAttribute('aria-pressed', 'true');
       currentStarter = parseInt(btn.dataset.starter);
       reset();
     });
@@ -1164,8 +1195,16 @@
           '</div>' +
           '<div class="mle__card-detail">' + m.detail + '</div>';
 
-        card.addEventListener('click', function() {
+        card.setAttribute('role', 'button');
+        card.setAttribute('tabindex', '0');
+        card.setAttribute('aria-expanded', 'false');
+        function toggleCard() {
           card.classList.toggle('mle__card--expanded');
+          card.setAttribute('aria-expanded', card.classList.contains('mle__card--expanded') ? 'true' : 'false');
+        }
+        card.addEventListener('click', toggleCard);
+        card.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleCard(); }
         });
 
         gridEl.appendChild(card);
@@ -1193,8 +1232,9 @@
     filtersEl.addEventListener('click', function(e) {
       const btn = e.target.closest('[data-filter]');
       if (!btn) return;
-      filtersEl.querySelectorAll('.btn').forEach(function(b) { b.classList.remove('btn--active'); });
+      filtersEl.querySelectorAll('.btn').forEach(function(b) { b.classList.remove('btn--active'); b.setAttribute('aria-pressed', 'false'); });
       btn.classList.add('btn--active');
+      btn.setAttribute('aria-pressed', 'true');
       activeFilter = btn.dataset.filter;
       applyFilter();
     });

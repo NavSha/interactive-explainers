@@ -17,6 +17,7 @@
   <meta property="og:title" content="Tools &amp; Function Calling — AI for Builders">
   <meta property="og:description" content="How agents interact with the real world — and why the toolbox you give them matters more than you think.">
   <meta property="og:url" content="https://navsha.github.io/interactive-explainers/agents/tools.html">
+  <link rel="canonical" href="https://navsha.github.io/interactive-explainers/agents/tools.html">
   <meta property="og:image" content="https://navsha.github.io/interactive-explainers/assets/og-image.png">
   <meta property="og:site_name" content="AI for Builders">
   <meta name="twitter:card" content="summary_large_image">
@@ -27,14 +28,14 @@
   <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../styles/shared.css?v=12">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400&amp;family=Newsreader:ital,wght@0,400;0,600;1,400&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/shared.css?v=13">
 </head>
 <body>
 <div class="reading-progress"><div class="reading-progress__bar" id="reading-progress-bar"></div></div>
 
   <header class="article-hero" id="article-hero" style="background: linear-gradient(135deg, #059669 0%, #0891B2 100%);">
-    <canvas class="article-hero__canvas" id="hero-canvas"></canvas>
+    <canvas class="article-hero__canvas" id="hero-canvas" aria-hidden="true"></canvas>
     <div class="article-hero__overlay"></div>
     <div class="article-hero__content">
       <nav class="breadcrumb breadcrumb--hero">
@@ -132,7 +133,7 @@
 <span class="tool-part" data-part="wrapper">}</span></code></pre>
       </div>
 
-      <div class="tool-anatomy__info" id="tool-anatomy-info">
+      <div class="tool-anatomy__info" id="tool-anatomy-info" role="status" aria-live="polite">
         <div class="tool-anatomy__info-title" id="tool-anatomy-title">Click any section above</div>
         <div class="tool-anatomy__info-desc" id="tool-anatomy-desc">Each part of a tool definition serves a specific purpose. Click to explore.</div>
       </div>
@@ -269,7 +270,7 @@
 
       <div class="widget__chat" id="toolbox-chat" style="display: none;" role="log" aria-live="polite"></div>
 
-      <div class="toolbox__insight" id="toolbox-insight" style="display: none;"></div>
+      <div class="toolbox__insight" id="toolbox-insight" role="status" aria-live="polite" style="display: none;"></div>
     </div>
   </div>
 
@@ -340,7 +341,7 @@
         </div>
       </div>
 
-      <div class="dilemma__tip" id="dilemma-tip">
+      <div class="dilemma__tip" id="dilemma-tip" role="status" aria-live="polite">
         5 tools — this is the sweet spot for most agents. High accuracy, low overhead.
       </div>
     </div>
@@ -371,7 +372,7 @@
       <div class="quiz__card" id="quiz-card">
         <p class="quiz__scenario" id="quiz-scenario"></p>
         <div class="widget__controls" id="quiz-options"></div>
-        <div class="quiz__explanation" id="quiz-explanation" style="display: none;"></div>
+        <div class="quiz__explanation" id="quiz-explanation" role="status" aria-live="polite" style="display: none;"></div>
       </div>
 
       <div class="widget__controls widget__controls--mt">
@@ -379,7 +380,7 @@
       </div>
 
       <div class="quiz__summary" id="quiz-summary" style="display: none;">
-        <div class="quiz__score" id="quiz-score"></div>
+        <div class="quiz__score" id="quiz-score" role="status" aria-live="polite"></div>
         <p class="quiz__summary-text" id="quiz-summary-text"></p>
         <button class="btn btn--secondary" id="quiz-retry" style="margin-top: var(--space-4);">Try Again</button>
       </div>
@@ -443,7 +444,7 @@
       }
     }
 
-    function draw() {
+    function drawFrame() {
       ctx.clearRect(0, 0, w, h);
       for (var i = 0; i < nodes.length; i++) {
         var n = nodes[i];
@@ -467,11 +468,32 @@
         ctx.fillStyle = 'rgba(255,255,255,' + (0.4 + 0.4 * glow) + ')';
         ctx.beginPath(); ctx.arc(n.x, n.y, n.r * (0.8 + 0.4 * glow), 0, Math.PI * 2); ctx.fill();
       }
-      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(draw);
     }
 
-    resize(); initNodes(); requestAnimationFrame(draw);
+    var running = false;
+    function draw() {
+      if (!running) return;
+      drawFrame();
+      requestAnimationFrame(draw);
+    }
+
+    var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var lastVisible = true;
+    function setRunning(on) {
+      if (reducedMotion) return;
+      if (on && !running) { running = true; requestAnimationFrame(draw); }
+      else if (!on) { running = false; }
+    }
+
+    resize(); initNodes(); drawFrame();
     window.addEventListener('resize', function() { resize(); initNodes(); });
+
+    // Pause when the hero is off-screen or the tab is hidden
+    new IntersectionObserver(function(entries) {
+      lastVisible = entries[0].isIntersecting;
+      setRunning(lastVisible && !document.hidden);
+    }, { threshold: 0 }).observe(hero);
+    document.addEventListener('visibilitychange', function() { setRunning(lastVisible && !document.hidden); });
   })();
 
   // ====================================================================
@@ -505,6 +527,19 @@
     var titleEl = document.getElementById('tool-anatomy-title');
     var descEl = document.getElementById('tool-anatomy-desc');
     var activePart = null;
+
+    // Keyboard operability for the clickable code sections
+    codeEl.querySelectorAll('.tool-part').forEach(function(el) {
+      el.setAttribute('tabindex', '0');
+      el.setAttribute('role', 'button');
+    });
+    codeEl.addEventListener('keydown', function(e) {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      var part = e.target.closest('.tool-part');
+      if (!part) return;
+      e.preventDefault();
+      part.click();
+    });
 
     codeEl.addEventListener('click', function(e) {
       var part = e.target.closest('.tool-part');
@@ -660,27 +695,47 @@
       return insights[key] || '';
     }
 
-    document.getElementById('toolbox-run').addEventListener('click', function() {
+    var runBtn = document.getElementById('toolbox-run');
+    var runId = 0;
+    runBtn.addEventListener('click', function() {
+      var id = ++runId;
       var key = getScenarioKey();
       var steps = toolResponses[key];
       chat.style.display = 'block';
       chat.innerHTML = '';
       insight.style.display = 'none';
 
-      var i = 0;
-      function showStep() {
-        if (i >= steps.length) {
-          insight.textContent = getInsight(key);
-          insight.style.display = 'block';
-          return;
-        }
-        var step = steps[i];
+      function addStep(step) {
         var div = document.createElement('div');
         div.className = 'chat-message chat-message--' + step.type;
         if (step.type === 'tool-call' || step.type === 'tool-result') div.style.whiteSpace = 'pre-wrap';
         div.textContent = step.content;
         chat.appendChild(div);
         chat.scrollTop = chat.scrollHeight;
+      }
+
+      function finish() {
+        insight.textContent = getInsight(key);
+        insight.style.display = 'block';
+        runBtn.disabled = false;
+      }
+
+      // Reduced motion: render the full run immediately
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        steps.forEach(addStep);
+        finish();
+        return;
+      }
+
+      runBtn.disabled = true;
+      var i = 0;
+      function showStep() {
+        if (id !== runId) return;
+        if (i >= steps.length) {
+          finish();
+          return;
+        }
+        addStep(steps[i]);
         i++;
         setTimeout(showStep, 350);
       }
@@ -688,6 +743,8 @@
     });
 
     document.getElementById('toolbox-reset').addEventListener('click', function() {
+      runId++;
+      runBtn.disabled = false;
       chat.style.display = 'none';
       chat.innerHTML = '';
       insight.style.display = 'none';

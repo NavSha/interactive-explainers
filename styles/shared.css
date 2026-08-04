@@ -19,13 +19,13 @@
   --accent-agents-gradient: linear-gradient(135deg, #2563EB 0%, #7C3AED 100%);
 
   /* Cost & Latency topic accent */
-  --accent-cost:          #D97706;
+  --accent-cost:          #B45309;
   --accent-cost-deep:     #92400E;
   --accent-cost-light:    #FFFBEB;
   --accent-cost-gradient: linear-gradient(135deg, #D97706 0%, #DC2626 100%);
 
   /* Evaluation & Testing topic accent */
-  --accent-eval:          #059669;
+  --accent-eval:          #047857;
   --accent-eval-deep:     #065F46;
   --accent-eval-light:    #ECFDF5;
   --accent-eval-gradient: linear-gradient(135deg, #059669 0%, #0891B2 100%);
@@ -43,7 +43,7 @@
   --accent-llm-gradient: linear-gradient(135deg, #334155 0%, #64748B 100%);
 
   /* Grounding & Guardrails topic accent */
-  --accent-grounding:          #E11D48;
+  --accent-grounding:          #BE123C;
   --accent-grounding-deep:     #9F1239;
   --accent-grounding-light:    #FFF1F2;
   --accent-grounding-gradient: linear-gradient(135deg, #BE123C 0%, #FB7185 100%);
@@ -55,7 +55,7 @@
   --accent-ux-gradient: linear-gradient(135deg, #4338CA 0%, #818CF8 100%);
 
   /* Vibe Coding topic accent */
-  --accent-vibe:          #0D9488;
+  --accent-vibe:          #0F766E;
   --accent-vibe-deep:     #115E59;
   --accent-vibe-light:    #F0FDFA;
   --accent-vibe-gradient: linear-gradient(135deg, #0D9488 0%, #06B6D4 100%);
@@ -905,9 +905,9 @@ h1, h2, h3 {
 }
 
 .btn--correct {
-  background: #059669;
+  background: #047857;
   color: white;
-  border-color: #059669;
+  border-color: #047857;
 }
 
 .btn--incorrect {

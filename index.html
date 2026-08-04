@@ -17,6 +17,7 @@
   <meta property="og:title" content="AI for Builders — Learn the concepts, build the judgment, ship the product">
   <meta property="og:description" content="Interactive guides to how AI actually works — tokens, agents, evals, context windows, grounding, and the craft of shipping with AI. Built for people who build.">
   <meta property="og:url" content="https://navsha.github.io/interactive-explainers/">
+  <link rel="canonical" href="https://navsha.github.io/interactive-explainers/">
   <meta property="og:image" content="https://navsha.github.io/interactive-explainers/assets/og-image.png">
   <meta property="og:site_name" content="AI for Builders">
   <meta name="twitter:card" content="summary_large_image">
@@ -27,8 +28,8 @@
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles/shared.css?v=12">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400&amp;family=Newsreader:ital,wght@0,400;0,600;1,400&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/shared.css?v=13">
   <style>
     /* --- Masthead token field: a quiet generative hero --- */
     .site-header {
@@ -451,13 +452,24 @@
         ctx.lineWidth = 1;
         pill(c.x, c.y, c.wd, c.hd, c.hd / 2); ctx.stroke();
       }
-      if (step && !prefersReduced) requestAnimationFrame(function() { frame(true); });
+      if (step && fieldRunning) requestAnimationFrame(function() { frame(true); });
+    }
+
+    var fieldRunning = false, fieldVisible = true;
+    function setRunning(on) {
+      if (prefersReduced) return;
+      if (on && !fieldRunning) { fieldRunning = true; requestAnimationFrame(function() { frame(true); }); }
+      else if (!on) { fieldRunning = false; }
     }
 
     size(); make();
-    if (prefersReduced) frame(false);
-    else requestAnimationFrame(function() { frame(true); });
-    window.addEventListener('resize', function() { size(); make(); if (prefersReduced) frame(false); });
+    frame(false);
+    new IntersectionObserver(function(entries) {
+      fieldVisible = entries[0].isIntersecting;
+      setRunning(fieldVisible && !document.hidden);
+    }).observe(canvas);
+    document.addEventListener('visibilitychange', function() { setRunning(!document.hidden && fieldVisible); });
+    window.addEventListener('resize', function() { size(); make(); if (!fieldRunning) frame(false); });
   })();
 
   // Hook tokenizer: the tagline doubles as the site's first widget.

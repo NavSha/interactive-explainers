@@ -17,6 +17,7 @@
   <meta property="og:title" content="The Context Window — AI for Builders">
   <meta property="og:description" content="Every model has a fixed-size working memory. Understanding it changes how you design every AI feature.">
   <meta property="og:url" content="https://navsha.github.io/interactive-explainers/context-windows/the-context-window.html">
+  <link rel="canonical" href="https://navsha.github.io/interactive-explainers/context-windows/the-context-window.html">
   <meta property="og:image" content="https://navsha.github.io/interactive-explainers/assets/og-image.png">
   <meta property="og:site_name" content="AI for Builders">
   <meta name="twitter:card" content="summary_large_image">
@@ -27,8 +28,8 @@
   <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../styles/shared.css?v=12">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400&amp;family=Newsreader:ital,wght@0,400;0,600;1,400&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/shared.css?v=13">
   <style>
     /* --- Widget 1: Context Window Size Chart --- */
     .model-chart { margin-top: var(--space-4); }
@@ -316,6 +317,10 @@
       background: var(--color-border);
       outline: none;
     }
+    .budget-slider-input:focus-visible {
+      outline: 2px solid #7C3AED;
+      outline-offset: 2px;
+    }
     .budget-slider-input::-webkit-slider-thumb {
       -webkit-appearance: none;
       width: 18px;
@@ -532,7 +537,7 @@
   <div class="reading-progress"><div class="reading-progress__bar" id="reading-progress-bar"></div></div>
 
   <header class="article-hero" id="article-hero" style="background: linear-gradient(135deg, #7C3AED 0%, #EC4899 100%);">
-    <canvas class="article-hero__canvas" id="hero-canvas"></canvas>
+    <canvas class="article-hero__canvas" id="hero-canvas" aria-hidden="true"></canvas>
     <div class="article-hero__overlay"></div>
     <div class="article-hero__content">
       <nav class="breadcrumb breadcrumb--hero">
@@ -574,7 +579,7 @@
     <h2 id="what-is-context"><span class="section-number">I</span> What Is a Context Window?</h2>
 
     <figure class="sketch-figure">
-      <img src="../assets/sketches/context-window.webp"
+      <img src="../assets/sketches/context-window.webp" width="1240" height="693" loading="lazy"
            alt="A samosa hugs a small open box overflowing with loose papers; several spill over the rim and flutter to the floor. The box is marked 'full' in orange.">
       <figcaption>The context window is a fixed-size box. Everything the model can &ldquo;see&rdquo; has to fit &mdash; past the brim, the oldest pages spill out.</figcaption>
     </figure>
@@ -625,13 +630,13 @@
 
       <div class="scale-toggle" id="scale-toggle">
         <span>Logarithmic</span>
-        <button class="scale-toggle__switch" id="scale-switch" aria-label="Toggle scale">
+        <button class="scale-toggle__switch" id="scale-switch" aria-label="Switch between logarithmic and normalized scale" aria-pressed="false">
           <span class="scale-toggle__knob"></span>
         </button>
         <span>Normalized</span>
       </div>
 
-      <div class="model-detail" id="model-detail">
+      <div class="model-detail" id="model-detail" role="status" aria-live="polite">
         <div class="model-detail__name" id="detail-name"></div>
         <div class="model-detail__grid" id="detail-grid"></div>
       </div>
@@ -674,7 +679,7 @@
         <span>High accuracy</span>
       </div>
 
-      <div class="heatmap-tooltip" id="heatmap-tooltip"></div>
+      <div class="heatmap-tooltip" id="heatmap-tooltip" role="status" aria-live="polite"></div>
 
       <div class="heatmap-insight">
         <strong>The U-shaped pattern is clear:</strong> models struggle most with information placed in the middle of long contexts. Short contexts are mostly safe, but as context length grows, the "lost in the middle" effect becomes pronounced &mdash; especially at 32K+ tokens.
@@ -737,7 +742,7 @@
       <div class="widget__title">Context Budget Calculator</div>
       <div class="widget__instruction">Configure your AI feature's context usage. Watch how fast the budget fills up.</div>
 
-      <select class="budget-model-select" id="budget-model-select">
+      <select class="budget-model-select" id="budget-model-select" aria-label="Model">
         <option value="0">Legacy 8K model (8,192 tokens)</option>
         <option value="1" selected>Claude Haiku 4.5 (200,000 tokens)</option>
         <option value="2">Claude Sonnet 4.5 (200,000 tokens)</option>
@@ -746,22 +751,22 @@
       <div class="budget-sliders" id="budget-sliders">
         <div class="budget-slider-row">
           <div class="budget-slider-label">System prompt<small>Instructions &amp; personality</small></div>
-          <input type="range" class="budget-slider-input" id="slider-system" min="200" max="2000" value="500" step="50">
+          <input type="range" class="budget-slider-input" id="slider-system" min="200" max="2000" value="500" step="50" aria-label="System prompt tokens">
           <span class="budget-slider-value" id="val-system">500 tokens</span>
         </div>
         <div class="budget-slider-row">
           <div class="budget-slider-label">Conversation history<small>Turns of back-and-forth</small></div>
-          <input type="range" class="budget-slider-input" id="slider-history" min="0" max="50" value="10" step="1">
+          <input type="range" class="budget-slider-input" id="slider-history" min="0" max="50" value="10" step="1" aria-label="Conversation history turns">
           <span class="budget-slider-value" id="val-history">10 turns</span>
         </div>
         <div class="budget-slider-row">
           <div class="budget-slider-label">Retrieved documents<small>RAG chunks (~500 tokens each)</small></div>
-          <input type="range" class="budget-slider-input" id="slider-docs" min="0" max="10" value="3" step="1">
+          <input type="range" class="budget-slider-input" id="slider-docs" min="0" max="10" value="3" step="1" aria-label="Retrieved document chunks">
           <span class="budget-slider-value" id="val-docs">3 chunks</span>
         </div>
         <div class="budget-slider-row">
           <div class="budget-slider-label">Reserved for response<small>Output token budget</small></div>
-          <input type="range" class="budget-slider-input" id="slider-response" min="500" max="4000" value="1000" step="100">
+          <input type="range" class="budget-slider-input" id="slider-response" min="500" max="4000" value="1000" step="100" aria-label="Tokens reserved for response">
           <span class="budget-slider-value" id="val-response">1,000 tokens</span>
         </div>
       </div>
@@ -771,7 +776,7 @@
         <div class="budget-legend" id="budget-legend"></div>
       </div>
 
-      <div class="budget-status" id="budget-status"></div>
+      <div class="budget-status" id="budget-status" role="status" aria-live="polite"></div>
       <div class="budget-cost" id="budget-cost"></div>
     </div>
   </div>
@@ -793,7 +798,7 @@
       <div class="quiz__card" id="quiz-card">
         <p class="quiz__scenario" id="quiz-scenario"></p>
         <div class="widget__controls" id="quiz-options"></div>
-        <div class="quiz__explanation" id="quiz-explanation" style="display: none;"></div>
+        <div class="quiz__explanation" id="quiz-explanation" role="status" aria-live="polite" style="display: none;"></div>
       </div>
 
       <div class="widget__controls widget__controls--mt">
@@ -850,7 +855,9 @@
     var connectionDist = 140;
     var dpr = window.devicePixelRatio || 1;
     var w, h;
-    var running = true;
+    var running = false;
+    var intersecting = false;
+    var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     function resize() {
       var rect = hero.getBoundingClientRect();
@@ -917,18 +924,30 @@
         ctx.fill();
       }
 
-      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(draw);
+      if (!reducedMotion) requestAnimationFrame(draw);
+    }
+
+    function setRunning(on) {
+      if (on && !running) {
+        running = true;
+        requestAnimationFrame(draw);
+      } else if (!on) {
+        running = false;
+      }
     }
 
     var observer = new IntersectionObserver(function(entries) {
-      running = entries[0].isIntersecting;
-      if (running) requestAnimationFrame(draw);
+      intersecting = entries[0].isIntersecting;
+      setRunning(intersecting && !document.hidden);
     }, { threshold: 0 });
+
+    document.addEventListener('visibilitychange', function() {
+      setRunning(intersecting && !document.hidden);
+    });
 
     resize();
     initNodes();
     observer.observe(hero);
-    requestAnimationFrame(draw);
 
     window.addEventListener('resize', function() {
       resize();
@@ -984,6 +1003,10 @@
         var row = document.createElement('div');
         row.className = 'model-bar-row' + (i === activeIndex ? ' model-bar-row--active' : '');
         row.dataset.index = i;
+        row.setAttribute('role', 'button');
+        row.setAttribute('tabindex', '0');
+        row.setAttribute('aria-pressed', i === activeIndex ? 'true' : 'false');
+        row.setAttribute('aria-label', 'Show details for ' + model.name);
 
         var label = document.createElement('div');
         label.className = 'model-bar-label';
@@ -1046,9 +1069,20 @@
       showDetail(parseInt(row.dataset.index));
     });
 
+    chartEl.addEventListener('keydown', function(e) {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      var row = e.target.closest('.model-bar-row');
+      if (!row) return;
+      e.preventDefault();
+      showDetail(parseInt(row.dataset.index));
+      var rows = chartEl.querySelectorAll('.model-bar-row');
+      if (rows[row.dataset.index]) rows[row.dataset.index].focus();
+    });
+
     scaleSwitch.addEventListener('click', function() {
       normalized = !normalized;
       scaleSwitch.classList.toggle('scale-toggle__switch--active', normalized);
+      scaleSwitch.setAttribute('aria-pressed', normalized ? 'true' : 'false');
       buildChart();
     });
 
@@ -1131,11 +1165,22 @@
         cell.dataset.row = row;
         cell.dataset.col = col;
         cell.dataset.accuracy = data[row][col];
+        cell.setAttribute('role', 'button');
+        cell.setAttribute('tabindex', '0');
+        cell.setAttribute('aria-label', contextLengths[row] + ' context, fact at ' + positions[col] + ': ' + data[row][col] + '% accuracy');
         grid.appendChild(cell);
       }
     }
 
     container.appendChild(grid);
+
+    grid.addEventListener('keydown', function(e) {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      var cell = e.target.closest('.heatmap-cell');
+      if (!cell) return;
+      e.preventDefault();
+      cell.click();
+    });
 
     grid.addEventListener('click', function(e) {
       var cell = e.target.closest('.heatmap-cell');

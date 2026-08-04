@@ -17,6 +17,7 @@
   <meta property="og:title" content="Streaming UX Patterns — AI for Builders">
   <meta property="og:description" content="Token by token, chunk by chunk — streaming changes how users read, trust, and interact with AI output. Here’s the craft of doing it well.">
   <meta property="og:url" content="https://navsha.github.io/interactive-explainers/ai-ux/streaming-ux.html">
+  <link rel="canonical" href="https://navsha.github.io/interactive-explainers/ai-ux/streaming-ux.html">
   <meta property="og:image" content="https://navsha.github.io/interactive-explainers/assets/og-image.png">
   <meta property="og:site_name" content="AI for Builders">
   <meta name="twitter:card" content="summary_large_image">
@@ -27,8 +28,8 @@
   <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../styles/shared.css?v=12">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400&amp;family=Newsreader:ital,wght@0,400;0,600;1,400&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/shared.css?v=13">
   <style>
     .reading-progress { position: fixed; top: 0; left: 0; width: 100%; height: 3px; z-index: 1000; pointer-events: none; background: transparent; }
     .reading-progress__bar { height: 100%; width: 0%; background: #4F46E5; transition: width 0.15s ease-out; }
@@ -96,7 +97,7 @@
   <div class="reading-progress"><div class="reading-progress__bar" id="reading-progress-bar"></div></div>
 
   <header class="article-hero" id="article-hero" style="background: linear-gradient(135deg, #4338CA 0%, #818CF8 100%);">
-    <canvas class="article-hero__canvas" id="hero-canvas"></canvas>
+    <canvas class="article-hero__canvas" id="hero-canvas" aria-hidden="true"></canvas>
     <div class="article-hero__overlay"></div>
     <div class="article-hero__content">
       <nav class="breadcrumb breadcrumb--hero">
@@ -136,7 +137,7 @@
     <h2 id="why-streaming-is-ux"><span class="section-number">I</span> Why Streaming Is a UX Decision</h2>
 
     <figure class="sketch-figure">
-      <img src="../assets/sketches/streaming.webp"
+      <img src="../assets/sketches/streaming.webp" width="1240" height="693" loading="lazy"
            alt="A samosa turns a crank on a ticker-tape machine that prints an answer onto a long paper ribbon, word by word; the newest word emerging from the slot is highlighted in orange.">
       <figcaption>Streaming means the answer arrives one token at a time. The user reads as the model writes &mdash; the wait becomes a performance, not a blank screen.</figcaption>
     </figure>
@@ -177,14 +178,14 @@
     <div class="stream-demo" id="stream-demo">
       <div class="stream-demo__title">Interactive &middot; Stream Modes Compared</div>
       <p style="font-family: var(--font-sans); font-size: var(--text-sm); color: var(--color-text-secondary); margin-bottom: var(--space-4);">Click a mode, then play to see the difference.</p>
-      <div class="stream-demo__tabs">
-        <button class="stream-demo__tab stream-demo__tab--active" data-mode="token">Token-by-Token</button>
-        <button class="stream-demo__tab" data-mode="chunk">Chunked Reveal</button>
-        <button class="stream-demo__tab" data-mode="skeleton">Skeleton-to-Content</button>
+      <div class="stream-demo__tabs" role="tablist" aria-label="Streaming modes">
+        <button class="stream-demo__tab stream-demo__tab--active" data-mode="token" role="tab" aria-selected="true">Token-by-Token</button>
+        <button class="stream-demo__tab" data-mode="chunk" role="tab" aria-selected="false">Chunked Reveal</button>
+        <button class="stream-demo__tab" data-mode="skeleton" role="tab" aria-selected="false">Skeleton-to-Content</button>
       </div>
       <div class="stream-demo__screen" id="sd-screen"></div>
       <button class="stream-demo__play" id="sd-play">&#9654; Play</button>
-      <div class="stream-demo__note" id="sd-note"></div>
+      <div class="stream-demo__note" id="sd-note" role="status" aria-live="polite"></div>
     </div>
   </div>
 
@@ -232,7 +233,7 @@
       <div class="error-demo__title">Interactive &middot; Error Recovery Patterns</div>
       <p style="font-family: var(--font-sans); font-size: var(--text-sm); color: var(--color-text-secondary); margin-bottom: var(--space-4);">The model failed at 60% completion. Click a recovery pattern to see how it looks.</p>
       <div class="error-demo__scenarios" id="ed-scenarios"></div>
-      <div class="error-demo__result" id="ed-result"></div>
+      <div class="error-demo__result" id="ed-result" role="status" aria-live="polite"></div>
     </div>
   </div>
 
@@ -278,9 +279,9 @@
     <div class="capstone-quiz__progress" id="cq-progress"></div>
     <div class="capstone-quiz__question" id="cq-question"></div>
     <div class="capstone-quiz__options" id="cq-options"></div>
-    <div class="capstone-quiz__explanation" id="cq-explanation"></div>
+    <div class="capstone-quiz__explanation" id="cq-explanation" role="status" aria-live="polite"></div>
     <button class="capstone-quiz__next" id="cq-next">Next question &rarr;</button>
-    <div class="capstone-quiz__score" id="cq-score" style="display:none;"></div>
+    <div class="capstone-quiz__score" id="cq-score" role="status" aria-live="polite" style="display:none;"></div>
   </div>
 
   <nav class="article-nav">
@@ -296,7 +297,7 @@
   // TOC active
   (function() { var h = document.querySelectorAll('h2[id]'), ti = document.querySelectorAll('.toc__item'); if (!h.length) return; h.forEach(function(hd) { new IntersectionObserver(function(e) { if (e[0].isIntersecting) { ti.forEach(function(i) { i.classList.remove('toc__item--active'); }); var l = document.querySelector('.toc__item a[href="#' + e[0].target.id + '"]'); if (l) l.parentElement.classList.add('toc__item--active'); } }, { rootMargin: '-20% 0px -80% 0px' }).observe(hd); }); })();
   // Hero canvas
-  (function() { var c = document.getElementById('hero-canvas'); if (!c) return; var ctx = c.getContext('2d'), p = []; function r() { c.width = c.offsetWidth * (window.devicePixelRatio || 1); c.height = c.offsetHeight * (window.devicePixelRatio || 1); ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1); } r(); window.addEventListener('resize', r); for (var i = 0; i < 35; i++) p.push({ x: Math.random() * c.offsetWidth, y: Math.random() * c.offsetHeight, r: Math.random() * 2 + 1, dx: (Math.random() - 0.5) * 0.4, dy: (Math.random() - 0.5) * 0.4, a: Math.random() * 0.3 + 0.1 }); function d() { ctx.clearRect(0, 0, c.offsetWidth, c.offsetHeight); p.forEach(function(pt) { pt.x += pt.dx; pt.y += pt.dy; if (pt.x < 0 || pt.x > c.offsetWidth) pt.dx *= -1; if (pt.y < 0 || pt.y > c.offsetHeight) pt.dy *= -1; ctx.beginPath(); ctx.arc(pt.x, pt.y, pt.r, 0, Math.PI * 2); ctx.fillStyle = 'rgba(255,255,255,' + pt.a + ')'; ctx.fill(); }); for (var i = 0; i < p.length; i++) for (var j = i + 1; j < p.length; j++) { var dx = p[i].x - p[j].x, dy = p[i].y - p[j].y, dist = Math.sqrt(dx * dx + dy * dy); if (dist < 100) { ctx.beginPath(); ctx.moveTo(p[i].x, p[i].y); ctx.lineTo(p[j].x, p[j].y); ctx.strokeStyle = 'rgba(255,255,255,' + (0.12 * (1 - dist / 100)) + ')'; ctx.lineWidth = 0.5; ctx.stroke(); } } if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(d); } d(); })();
+  (function() { var c = document.getElementById('hero-canvas'); if (!c) return; var ctx = c.getContext('2d'), p = []; function r() { c.width = c.offsetWidth * (window.devicePixelRatio || 1); c.height = c.offsetHeight * (window.devicePixelRatio || 1); ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1); } r(); window.addEventListener('resize', r); for (var i = 0; i < 35; i++) p.push({ x: Math.random() * c.offsetWidth, y: Math.random() * c.offsetHeight, r: Math.random() * 2 + 1, dx: (Math.random() - 0.5) * 0.4, dy: (Math.random() - 0.5) * 0.4, a: Math.random() * 0.3 + 0.1 }); function d() { ctx.clearRect(0, 0, c.offsetWidth, c.offsetHeight); p.forEach(function(pt) { pt.x += pt.dx; pt.y += pt.dy; if (pt.x < 0 || pt.x > c.offsetWidth) pt.dx *= -1; if (pt.y < 0 || pt.y > c.offsetHeight) pt.dy *= -1; ctx.beginPath(); ctx.arc(pt.x, pt.y, pt.r, 0, Math.PI * 2); ctx.fillStyle = 'rgba(255,255,255,' + pt.a + ')'; ctx.fill(); }); for (var i = 0; i < p.length; i++) for (var j = i + 1; j < p.length; j++) { var dx = p[i].x - p[j].x, dy = p[i].y - p[j].y, dist = Math.sqrt(dx * dx + dy * dy); if (dist < 100) { ctx.beginPath(); ctx.moveTo(p[i].x, p[i].y); ctx.lineTo(p[j].x, p[j].y); ctx.strokeStyle = 'rgba(255,255,255,' + (0.12 * (1 - dist / 100)) + ')'; ctx.lineWidth = 0.5; ctx.stroke(); } } if (heroRunning) requestAnimationFrame(d); } var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches; var heroRunning = false, heroVisible = true; function setRunning(on) { if (reduced) return; if (on && !heroRunning) { heroRunning = true; requestAnimationFrame(d); } else if (!on) { heroRunning = false; } } d(); new IntersectionObserver(function(entries) { heroVisible = entries[0].isIntersecting; setRunning(heroVisible && !document.hidden); }).observe(c); document.addEventListener('visibilitychange', function() { setRunning(!document.hidden && heroVisible); }); })();
 
   // Widget 1: Stream Mode Demo
   (function() {
@@ -306,14 +307,18 @@
     var tabs = document.querySelectorAll('.stream-demo__tab');
     var mode = 'token';
     var running = false;
+    var runId = 0;
 
     var text = "Based on your quarterly data, revenue grew 12% year-over-year, driven primarily by the enterprise segment. However, customer acquisition cost increased 23%, which partially offset the gains. Three recommendations: (1) Focus retention campaigns on mid-market accounts showing churn signals. (2) Renegotiate the paid acquisition channels that drove the CAC increase. (3) Accelerate the self-serve onboarding flow to reduce dependency on sales-assisted deals.";
 
     tabs.forEach(function(tab) {
       tab.addEventListener('click', function() {
-        tabs.forEach(function(t) { t.classList.remove('stream-demo__tab--active'); });
+        tabs.forEach(function(t) { t.classList.remove('stream-demo__tab--active'); t.setAttribute('aria-selected', 'false'); });
         tab.classList.add('stream-demo__tab--active');
+        tab.setAttribute('aria-selected', 'true');
         mode = tab.dataset.mode;
+        runId++;
+        running = false;
         screen.innerHTML = '';
         noteEl.textContent = '';
       });
@@ -322,13 +327,17 @@
     playBtn.addEventListener('click', function() {
       if (running) return;
       running = true;
+      var id = ++runId;
+      var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       screen.innerHTML = '';
       noteEl.textContent = '';
 
       if (mode === 'token') {
+        if (reduced) { screen.innerHTML = text; noteEl.textContent = 'Token-by-token: user reads along with generation. Best for prose and conversation.'; running = false; return; }
         var i = 0;
         var cursor = '<span class="stream-demo__cursor"></span>';
         function typeNext() {
+          if (id !== runId) return;
           if (i >= text.length) { screen.innerHTML = text; noteEl.textContent = 'Token-by-token: user reads along with generation. Best for prose and conversation.'; running = false; return; }
           screen.innerHTML = text.substring(0, i + 1) + cursor;
           i++;
@@ -337,9 +346,15 @@
         typeNext();
       } else if (mode === 'chunk') {
         var sentences = text.match(/[^.!]+[.!]+/g) || [text];
+        if (reduced) {
+          screen.innerHTML = '';
+          sentences.forEach(function(s) { var p = document.createElement('div'); p.textContent = s.trim(); p.style.marginBottom = '8px'; screen.appendChild(p); });
+          noteEl.textContent = 'Chunked reveal: each sentence appears complete. Best for structured output.'; running = false; return;
+        }
         var idx = 0;
         screen.innerHTML = '<div style="color: #818CF8; font-size: 12px;">Generating...</div>';
         function showChunk() {
+          if (id !== runId) return;
           if (idx >= sentences.length) { noteEl.textContent = 'Chunked reveal: each sentence appears complete. Best for structured output.'; running = false; return; }
           if (idx === 0) screen.innerHTML = '';
           var p = document.createElement('div');
@@ -359,19 +374,26 @@
           { label: 'Cost Analysis', content: 'Customer acquisition cost increased 23%, which partially offset the gains.' },
           { label: 'Recommendations', content: '(1) Focus retention campaigns on mid-market accounts. (2) Renegotiate paid acquisition channels. (3) Accelerate self-serve onboarding.' }
         ];
+        if (reduced) {
+          screen.innerHTML = sections.map(function(s) {
+            return '<div style="margin-bottom: 12px;"><div style="color: #818CF8; font-weight: 600; font-size: 12px; text-transform: uppercase; margin-bottom: 4px;">' + s.label + '</div><div>' + s.content + '</div></div>';
+          }).join('');
+          noteEl.textContent = 'Skeleton-to-content: structure appears instantly, details fill in. Best for reports and dashboards.'; running = false; return;
+        }
         screen.innerHTML = sections.map(function(s) {
           return '<div style="margin-bottom: 12px;"><div style="color: #818CF8; font-weight: 600; font-size: 12px; text-transform: uppercase; margin-bottom: 4px;">' + s.label + '</div><div class="stream-demo__skeleton" style="width: 100%;"></div><div class="stream-demo__skeleton" style="width: 80%;"></div></div>';
         }).join('');
         var idx = 0;
         function fillSection() {
+          if (id !== runId) return;
           if (idx >= sections.length) { noteEl.textContent = 'Skeleton-to-content: structure appears instantly, details fill in. Best for reports and dashboards.'; running = false; return; }
           var divs = screen.querySelectorAll(':scope > div');
           divs[idx].innerHTML = '<div style="color: #818CF8; font-weight: 600; font-size: 12px; text-transform: uppercase; margin-bottom: 4px;">' + sections[idx].label + '</div><div style="opacity: 0; transition: opacity 0.4s;">' + sections[idx].content + '</div>';
-          setTimeout(function() { divs[idx - 1].querySelector('div:last-child').style.opacity = '1'; }, 50);
+          setTimeout(function() { if (id !== runId) return; divs[idx - 1].querySelector('div:last-child').style.opacity = '1'; }, 50);
           idx++;
           setTimeout(fillSection, 1000 + Math.random() * 500);
         }
-        setTimeout(function() { idx = 0; fillSection(); }, 600);
+        setTimeout(function() { if (id !== runId) return; idx = 0; fillSection(); }, 600);
       }
     });
   })();
@@ -395,12 +417,16 @@
       var btn = document.createElement('div');
       btn.className = 'error-demo__scenario';
       btn.innerHTML = s.label;
-      btn.addEventListener('click', function() {
+      btn.setAttribute('tabindex', '0');
+      btn.setAttribute('role', 'button');
+      function activate() {
         container.querySelectorAll('.error-demo__scenario').forEach(function(b) { b.classList.remove('error-demo__scenario--active'); });
         btn.classList.add('error-demo__scenario--active');
         resultEl.innerHTML = '<div style="padding: 16px; background: #1a1a2e; border-radius: 8px; font-family: var(--font-sans); font-size: 14px; line-height: 1.7;">' + s.html + '</div>';
         resultEl.classList.add('error-demo__result--visible');
-      });
+      }
+      btn.addEventListener('click', activate);
+      btn.addEventListener('keydown', function(e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(); } });
       container.appendChild(btn);
     });
   })();
@@ -468,12 +494,14 @@
         sEl.innerHTML = '<div class="capstone-quiz__score-number">' + score + '/' + questions.length + '</div><div class="capstone-quiz__score-label">' + pct + '% correct</div><div class="capstone-quiz__score-message">' + msgs[mi] + '</div>';
         return;
       }
-      var q = questions[currentQ]; pEl.textContent = 'Question ' + (currentQ + 1) + ' of ' + questions.length; qEl.textContent = q.question; oEl.innerHTML = '';
+      var q = questions[currentQ], answered = false; pEl.textContent = 'Question ' + (currentQ + 1) + ' of ' + questions.length; qEl.textContent = q.question; oEl.innerHTML = '';
       eEl.classList.remove('capstone-quiz__explanation--visible'); eEl.style.display = 'none'; nEl.classList.remove('capstone-quiz__next--visible'); nEl.style.display = 'none';
       q.options.forEach(function(opt) {
         var btn = document.createElement('button'); btn.className = 'capstone-quiz__option'; btn.textContent = opt.label;
         btn.addEventListener('click', function() {
-          oEl.querySelectorAll('.capstone-quiz__option').forEach(function(b) { b.style.pointerEvents = 'none'; });
+          if (answered) return;
+          answered = true;
+          oEl.querySelectorAll('.capstone-quiz__option').forEach(function(b) { b.style.pointerEvents = 'none'; b.disabled = true; });
           if (opt.key === q.answer) { btn.classList.add('capstone-quiz__option--correct'); score++; }
           else { btn.classList.add('capstone-quiz__option--wrong'); oEl.querySelectorAll('.capstone-quiz__option').forEach(function(b) { if (b.textContent === q.options.find(function(o) { return o.key === q.answer; }).label) b.classList.add('capstone-quiz__option--correct'); }); }
           eEl.textContent = q.explanation; eEl.style.display = 'block'; eEl.classList.add('capstone-quiz__explanation--visible');
